@@ -1,0 +1,106 @@
+% =============================================================================
+% LaTeX preamble for nox-mem paper (arXiv-safe, xelatex)
+%
+% Monospace: default Latin Modern Mono (from lmodern) -- bundled with every
+% TeX Live, including arXiv's AutoTeX. We deliberately do NOT \setmonofont a
+% system font: Courier New / DejaVu Sans Mono are absent on arXiv's Linux
+% TeX Live and would break the xelatex build (fontspec "font not found").
+%
+% Trade-off: a handful of rare Unicode math glyphs (e.g. inside code blocks)
+% may fall back to a box; these are compiler warnings, not errors, and prose
+% math renders correctly via unicode-math.
+% =============================================================================
+
+\usepackage{fontspec}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+% ---------------------------------------------------------------------------
+% Compact wide tables: shrink all longtables + tighten column padding so
+% multi-column comparison tables (e.g. the 9-column "Six Gaps") don't squeeze
+% a prose column down to one word per line. All arXiv-safe (etoolbox in TeX Live).
+% ---------------------------------------------------------------------------
+\usepackage{etoolbox}
+\AtBeginEnvironment{longtable}{\footnotesize}
+\setlength{\tabcolsep}{4pt}
+
+% ---------------------------------------------------------------------------
+% A CAUSA de todo glifo perdido: `fontspec` carregado e nunca instruido.
+%
+% O template do pandoc faz \usepackage{fontspec} sob XeTeX mas NAO chama
+% \setmainfont, e sem isso o fontspec mantem a Latin Modern *Type1/EC*, de 256
+% slots. Medido em 2026-09-11 neste manuscrito: 63 "Missing character" em
+% ec-lmr10, ec-lmr8, ec-lmbx8, ec-lmtt8, ec-lmtt10 — os glifos alpha, seta,
+% en dash, em dash, reticencias, menos, conjunto vazio, intersecao, aproximado
+% e maior-ou-igual. Cada um **desaparece do PDF sem erro**: o build sai 0 e o
+% caractere nao esta la.
+%
+% A Latin Modern OpenType traz todos e vem na TeX Live. Carregada pelo NOME DO
+% ARQUIVO porque por nome de familia o fontspec nao a encontra nesta
+% instalacao ("The font ... cannot be found").
+%
+% Isto substitui quatro remendos que eu tinha empilhado um a um, cada um a
+% revelar o glifo seguinte: era UM defeito, nao cinco.
+% ---------------------------------------------------------------------------
+\setmainfont{lmroman10-regular.otf}[
+  BoldFont       = lmroman10-bold.otf,
+  ItalicFont     = lmroman10-italic.otf,
+  BoldItalicFont = lmroman10-bolditalic.otf]
+\setsansfont{lmsans10-regular.otf}[
+  BoldFont   = lmsans10-bold.otf,
+  ItalicFont = lmsans10-oblique.otf]
+\setmonofont{lmmono10-regular.otf}[
+  BoldFont   = lmmonolt10-bold.otf,
+  ItalicFont = lmmono10-italic.otf,
+  Scale      = MatchLowercase]
+
+% ---------------------------------------------------------------------------
+% Um glifo que nem a Latin Modern OpenType tem em modo texto: o alpha de
+% "Mem-alpha", NOME de um sistema citado — soletra-lo seria errar o nome de
+% quem se cita. Vem da Latin Modern Math, com `\char` porque o caractere e'
+% ativo e reentraria.
+%
+% Os outros cinco (conjunto vazio, intersecao, uniao n-aria, aproximadamente,
+% maior-ou-igual) foram reescritos em ASCII no fonte, e nao por preferencia: o
+% construto `{\glifomat\char"..}` QUEBRA dentro de `\texttt{}` no documento
+% completo ("Missing $ inserted"), embora compile isolado. Tres deles estavam
+% exatamente la, num predicado de teoria de conjuntos num code span.
+% ---------------------------------------------------------------------------
+
+% ---------------------------------------------------------------------------
+% Paper A v1.1 (deposit build). The preamble above is the Paper 1 one
+% (paper/preamble.tex), minus its alpha remap, which this text does not use.
+% The glyphs below are not in Latin Modern Roman OpenType; each is mapped to
+% the corresponding math symbol by making the character active (newunicodechar
+% is not in this TeX Live basic install); \ensuremath works inside \texttt
+% and code blocks, unlike \char into a math font (see above).
+% Mapping changes rendering only; the source text is not edited.
+% ---------------------------------------------------------------------------
+\catcode`\≥=\active \def≥{\ensuremath{\geq}}
+\catcode`\≤=\active \def≤{\ensuremath{\leq}}
+\catcode`\→=\active \def→{\ensuremath{\rightarrow}}
+\catcode`\≈=\active \def≈{\ensuremath{\approx}}
+\catcode`\↩=\active \def↩{\ensuremath{\hookleftarrow}}
+\catcode`\≺=\active \def≺{\ensuremath{\prec}}
+\catcode`\∈=\active \def∈{\ensuremath{\in}}
+\catcode`\⇒=\active \def⇒{\ensuremath{\Rightarrow}}
+\catcode`\≫=\active \def≫{\ensuremath{\gg}}
+\catcode`\κ=\active \defκ{\ensuremath{\kappa}}
+\catcode`\ρ=\active \defρ{\ensuremath{\rho}}
+\catcode`\β=\active \defβ{\ensuremath{\beta}}
+\catcode`\≠=\active \def≠{\ensuremath{\neq}}
+\catcode`\∪=\active \def∪{\ensuremath{\cup}}
+\catcode`\ℝ=\active \defℝ{\ensuremath{\mathbb{R}}}
+\catcode`\∞=\active \def∞{\ensuremath{\infty}}
+\catcode`\Δ=\active \defΔ{\ensuremath{\Delta}}
+\catcode`\⟺=\active \def⟺{\ensuremath{\Longleftrightarrow}}
+\catcode`\∎=\active \def∎{\ensuremath{\blacksquare}}
+\catcode`\∼=\active \def∼{\ensuremath{\sim}}
+\catcode`\ℓ=\active \defℓ{\ensuremath{\ell}}
+% unicode-math redefines the active prime at begin-document (for math), so the
+% text meaning is set after it; this text has no math mode, so no conflict.
+\catcode`\′=\active \AtBeginDocument{\def′{\ensuremath{{}^{\prime}}}}
+\catcode`\₀=\active \def₀{\textsubscript{0}}
+\catcode`\₁=\active \def₁{\textsubscript{1}}
+\catcode`\₊=\active \def₊{\textsubscript{+}}
+\usepackage[margin=2.5cm]{geometry}

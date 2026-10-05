@@ -896,11 +896,8 @@ a time and recomputing every brief:
 
 No filter, lifted, widens the surface; the two that change its breadth narrow it, because
 routing by agent is the main pool's only source of variety. The breadth is exactly
-`3 + 6 agents × 5`: the 3 shared slots are what `mainTarget` leaves after the agent quota
-(8 − 5), and in every brief the three pinned chunks fill them (112241, 116107 and 116467,
-`pain = 1.0`, placed in phase 0 before the quota pass); with F7 lifted the same 3 slots go to
-the `scope=global` sub-pool's top three after dedup, where 227328 replaces 116107 (§4.3.2),
-and each agent gets the same 5 in every brief. A day
+`3 + 6 agents × 5`: the 3 shared slots are taken by the high-pain floor (chunks 112241, 116107
+and 116467, `pain = 1.0`, in every brief), and each agent gets the same 5 in every brief. A day
 has 5,376 main slots and they serve 33 distinct chunks, which is 0.61% of the slot
 capacity and 163 serves per chunk. From the serving log alone, without the database
 (`observed-main-from-log.json`), there are 33 distinct main chunks on every measurable day from
@@ -2069,8 +2066,8 @@ and whose value, 4.86% under the conventions in force on the 2026-08-26 corpus
 (same regime, empty never-served stratum), was measured by replay. The main pool (the other 8) fails
 for the opposite reason: there the score is the dominant coordinate, and three of its four terms
 do not decay. The access component is monotone in a counter that only goes up, so
-the three constant chunks hold ranks 1, 3 and 4 by salience only through tracked search traffic from months ago, whoever initiated it (§3.1; measured counterfactual, §4.3.2: last accessed 42, 90 and
-30 days before the window closed on 2026-08-28, in chunks that won 4,632 of 4,632 briefs), and the high-pain pin holds in every brief what that score placed there.
+the three constant chunks hold ranks 1, 3 and 4 by salience only through tracked search traffic from months ago, whoever initiated it (§3.1; measured counterfactual, §4.3.2: last accessed 90, 30, and
+42 days before the window closed on 2026-08-28, in chunks that won 4,632 of 4,632 briefs), and the high-pain pin holds in every brief what that score placed there.
 
 The main pool would respond to a score adjustment, and nobody adjusts it. The coverage channel,
 designed to compensate for the main pool, has a daily reach bounded by its eligible population (path patterns, the
@@ -2189,7 +2186,7 @@ on the severity label and which does not.
 ## Appendix D — Artifacts
 
 Scripts are in `measurement/`, except `claims_check.py`, which is at the root of
-`paper2-interventional/`, and the two sprint scripts whose full paths the table gives. Artifacts are
+`paper2-interventional/`, and the sprint script whose full path the table gives. Artifacts are
 in `out/` (including the three dated 2026-10-05), in `measurement/`
 (`CHANNEL-ATTRIBUTION-2026-08-29.json`), at the root of `paper2-interventional/` (`CEILING-*`,
 `TIEBREAK-*`, `POOL-ELEGIVEL-2026-08-28.json`, `BATCH-CYCLE-*`, `PREDICTION-*`), and, for the
@@ -2223,7 +2220,7 @@ ones produced on 2026-10-04, in `_sprint-2026-10-04/` (`POOL-ELEGIVEL-2026-08-26
 | top-of-pool counterfactual, first version (superseded: not the production function; kept as the anchor) | `contrafactual-do-topo.py` | `out/TOP-COUNTERFACTUAL-2026-08-29.json` |
 | bonus at the largest threshold against the largest adjacent gap (§4.4, §5.4) | `sprint-bonus-vs-passo.py` | `out/BONUS-VS-STEP-2026-10-05.json` |
 | the 52 deleted chunks, the five probes and the full-pool counterfactual (§4.3, §4.3.1, §4.3.2) | `sprint-recon-52-e-sondas.py` | `A-recon/RECON-52-e-sondas-2026-10-04.json` · `A-recon/ORGANICO-e-hashes-2026-10-04.txt` |
-| main-pool filter disaggregation, and the served main set from the log (§4.3.1) | `sprint-desagrega-filtros-pool-principal.py` (`--log-only` for the log census) | `A-filters-disaggregation/out-ord0826.json` · `A-filters-disaggregation/observed-main-from-log.json` · `A-filters-disaggregation/diag-out.txt` (the residual mismatch of 2026-08-22, produced by `_sprint-2026-10-04/A-filters-disaggregation/diag-residual-mismatch.py`; the file also holds a 2026-09-08 run and the 2026-08-28 control) |
+| main-pool filter disaggregation, and the served main set from the log (§4.3.1) | `sprint-desagrega-filtros-pool-principal.py` (`--log-only` for the log census) | `A-filters-disaggregation/out-ord0826.json` · `A-filters-disaggregation/observed-main-from-log.json` · `A-filters-disaggregation/diag-out.txt` (the residual mismatch of 2026-08-22, `diag-residual-mismatch.py`) |
 | warning density recomputed on the 2,058-line text (App. F) | `densidade-de-avisos.py` | `A-aging/WARNING-DENSITY-recomputed-2026-10-03.json` |
 | ids of the 280 adjudicated episodes (§6.2) | — | `A-aging/p2_verdict_ids-280.txt` |
 | verifier coverage and warning density (§6.1, App. F) | `claims_check.py` · `censo-de-alegacoes-sem-guarda.py` · `censo-de-universos-no-paragrafo.py` · `densidade-de-avisos.py` | `out/CLAIM-COVERAGE-2026-08-29.json` · `out/WARNING-DENSITY-2026-08-30.json` |
@@ -2717,31 +2714,6 @@ with the wording the review proposed. What changed:
   (finding 7). The Abstract's sentence on the two universes is reworded (finding 8).
 
 `_sprint-2026-10-04/A-rc11/parity-rc11.py` compares rc10 with rc11 under the same rule: every
-changed numeric token, reference, code span, link, heading and table row must be one that a
-finding above declares.
-
-**Addendum, rc12 (2026-10-05): a Fable review of rc11.** Three findings
-(`_sprint-2026-10-04/REVIEW-A-rc11-2026-10-05.md`, numbered 2 to 4 there), each checked against
-the code and the artifacts it cites before it was applied; the record is
-`_sprint-2026-10-04/APPLY-A-rc12.md`. All were applied with the wording the review proposed. The
-review found no wrong number in rc11. What changed:
-
-- The three shared slots of the main pool (finding 2). §4.3.1 no longer says that the high-pain
-  floor takes them. They are what `mainTarget` leaves after the agent quota (8 − 5); as served,
-  the three pinned chunks fill them in phase 0, before the quota pass; with F7 lifted the same
-  three slots go to the `scope=global` sub-pool's top three after dedup, where 227328 replaces
-  116107. The rc11 addendum had left that sentence as is; it was the same class as the §1
-  sentence corrected in rc11.
-- Deposit (finding 3). The package manifest now declares two exclusions: the local receipt of
-  the voice cited by the rc8 addendum, and the working names of the two databases that
-  `diag-out.txt` mentions.
-- Smaller corrections (finding 4). Appendix D says that the table gives the full paths of two
-  sprint scripts, and its row for the filter disaggregation gives the full path of
-  `diag-residual-mismatch.py` and says that `diag-out.txt` also holds a 2026-09-08 run and the
-  2026-08-28 control. §9 gives the days since last access in rank order (42, 90 and 30), as the
-  Abstract does.
-
-`_sprint-2026-10-04/A-rc12/parity-rc12.py` compares rc11 with rc12 under the same rule: every
 changed numeric token, reference, code span, link, heading and table row must be one that a
 finding above declares.
 

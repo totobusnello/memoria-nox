@@ -1,4 +1,4 @@
-# Spare capacity, narrow surface: the exposure record of a production agent-memory system
+# Spare capacity, narrow surface: what a production agent-memory system actually surfaces
 
 > **Correction:** the title changed on 2026-08-29, and the reason belongs to the paper itself. It used to be
 > *"Spare capacity, starved coverage"*, and adversarial review pointed out two flaws in the
@@ -6,24 +6,20 @@
 > (inside the defective-ingestion regime, §4.3.1). It is the corpus that is starved, not the coverage, so the image inverted the mechanism
 > described in the body. Second, *starved* is normative, and §4.5 explicitly refuses that judgment:
 > "a reader who concludes 'the system is losing valuable information' has gone beyond what was
-> measured".
->
-> On 2026-10-05 the title changed again. The previous one ended *"what a production agent-memory
-> system actually surfaces"*, which used "actually" as an intensifier and repeated surface/surfaces;
-> the new title is the author's decision on a reviewer's suggestion.
+> measured". A subtitle cannot sell the conclusion that the body declines.
 
 > **Status (2026-10-05).** v1.0 of this manuscript (Portuguese) was published on Zenodo on
 > 2026-08-30 (`10.5281/zenodo.22181415`). This is v1.1: the text revised after the 2026-09-21
 > corrections and the 2026-10-04 audit of aged claims (Appendix F), translated to English, and
-> deposited on 2026-10-05 as v1.1 of that record under the version DOI reserved for it,
-> `10.5281/zenodo.23163119` (version 2 of concept `10.5281/zenodo.22181414`). Rule of this file: where there is a
+> deposited on 2026-10-05 as v1.1 of that record, DOI `10.5281/zenodo.23163119` (version 2 of
+> concept `10.5281/zenodo.22181414`). Rule of this file: where there is a
 > number, it comes from an artifact locked by `--assert-json` and its reproduction command is
 > cited, except the numbers the text itself flags as having no preserved artifact: the
 > 7,908 (81%) of §4.3.2; the 5.6× partial-day reading and the 1,971, 10,926 and 20.5 days of
-> §4.3.1; the strata counts of §5.7 (1,139 / 951 / 311 / 57 and 14 / 61 / 89 / 186); the 617 of
-> the last table row of §6; the 19 of 32, the 0 of 32 and the 591,323 of §6.1; the pre-cleanup
-> warning density (87 markers, 77 of 288 paragraphs, 26.7%) and the per-section densities of
-> Appendix F; the survey counts of §1 and the 46.9% of §6 (the last two marked "—" in Appendix D).
+> §4.3.1; the strata counts of §5.7 (1,139 / 951 / 311 / 57 and 14 / 61 / 89 / 186); the 19 of
+> 32 and the 591,323 of §6.1; the pre-cleanup warning density (87 markers, 77 of 288
+> paragraphs, 26.7%) and the per-section densities of Appendix F; the survey counts of §1 and
+> the 46.9% of §6 (the last two marked "—" in Appendix D).
 >
 > Sources: `SUPERFICIE-2026-08-27.md` · `REPLAY-OPORTUNIDADE-2026-08-27.md` ·
 > `REMEDIATION-2026-08-27.md` · `DEVIATIONS-FOR-PAPER.md` ·
@@ -33,9 +29,8 @@
 
 ## Abstract
 
-Memory systems for agents are evaluated by retrieval quality. The field's canonical survey (218
-papers) classifies every metric in use as a score over a set of queries; no metric of what the
-agent receives in production appears in it. Retrieval is also conditional on a query having been
+Memory systems for agents are evaluated by retrieval quality over sets of queries. Among the 218 papers of the field's canonical survey, none measures what the
+agent receives in production. Retrieval is also conditional on a query having been
 issued, so an item that no query reaches has an undefined nDCG, not a low one. For 12 weeks we
 instrumented the two surfaces through which a memory system in operation delivers content to a
 fleet of 6 agents: a proactive 10-item brief and on-demand search.
@@ -43,24 +38,24 @@ fleet of 6 agents: a proactive 10-item brief and on-demand search.
 The brief delivered 583,763 slots, 8.7 times the size of the corpus, enough to
 serve each of the 67,187 chunks eight times. It delivered 1,635 distinct live chunks:
 2.43% (1,787 counting the 152 that were served and later deleted; see §4.1). The
-aggregate capacity therefore did not force this result. It does not follow that the ordering is wrong, only that
+aggregate capacity, therefore, did not force this result: there was room to show
+the whole corpus eight times over. It does not follow that the ordering is wrong, only that
 the number was not produced by a lack of space. The per-session capacity (10 items)
 is not tested here. (The 99.98% expected coverage under uniform random service, against a 100% maximum,
 illustrates what the capacity would allow; it is not a recommended policy.) Adding search, 56,288 live chunks (83.78%) have neither a
-brief-log record nor a positive search counter. This is a lower bound on non-delivery by the brief and by tracked search; non-delivery across all agent-facing search is not established (§3.1). The capacity figure and the 83.78% sit in different universes on purpose: the slack is the brief's, the 83.78% counts the
-union. Of the 10,899 live chunks with a record on either surface, 9,755 have a positive search counter. That counter records that a chunk was a top candidate of some tracked search call, whoever initiated the call (automated callers included) and whether or not the chunk was then returned: it bounds from above what tracked search returned (§3.1).
-The brief is the surface that proactively selects content for delivery. Every claim in this paper about
+brief-log record nor a positive search counter. This is a lower bound on non-delivery by the brief and by tracked search; non-delivery across all agent-facing search is not established (§3.1). The change of universe between the two sentences is
+deliberate and must be read as such: the capacity slack above is the brief's, whereas the 83.78% counts the
+union. Of the 10,899 live chunks with a record on either surface, 9,755 have a positive search counter. That counter records that a chunk was a top candidate of some tracked search call, whoever initiated the call (automated callers included) and whether or not the chunk was then returned: it bounds from above what tracked search returned, and it shows neither who asked nor how much search delivered (§3.1).
+The brief, the surface that proactively selects content for delivery, exposed 1,635 live chunks (1,787 counting the 152 later deleted). Every claim in this paper about
 *mechanism* concerns the brief; the 83.78% describes the state and does not assign a cause.
 
 The two channels of the surface freeze, for opposite reasons and neither tied to
 capacity. The 8 slots of the main pool are ordered by a score whose terms, with
 one exception, do not decay: the access component is monotone in a counter that only
-goes up. The 3 chunks present in 100% of the 4,632 briefs of the week rank 1, 3 and 4 by
-salience among the 149 served chunks that still exist (last accessed 42, 90 and 30 days before
-the close of the window, 2026-08-28; §4.3.2). The high-pain pin keeps them in every brief, but it
-protects only items that the score has already placed there (`brief.ts:819-821`); with the access
-term zeroed they fall to ranks 44–46. Tracked search traffic from months ago (§3.1) is what put
-them where the pin holds them, and the top-10 takes 47.16% of the slots. The other 2 slots are a *coverage* channel, whose declared
+goes up. The 3 chunks present in 100% of the 4,632 briefs of the week occupy
+positions 1, 3 and 4 (last accessed 42, 90 and 30 days before the close of the window,
+2026-08-28; §4.3.2). Tracked search traffic from months ago, whoever initiated it (§3.1), determined those positions, and the
+top-10 takes 47.16% of the slots. The other 2 slots are a *coverage* channel, whose declared
 purpose is to serve the never-served, and it freezes for a different reason:
 its eligible population is 108 chunks in a corpus of 67,187 (0.16%, carved out by
 two path patterns together with the channel's importance floor and 30-day window), and it exhausts
@@ -78,26 +73,34 @@ lexicographic comparator `(last_served ASC, salience DESC)`: the score is the
 subordinate coordinate and decides only within ties of the dominant one. That predicts a ceiling,
 not a proportional response, for any additive bonus on the score of that channel.
 We tested with an increasing dose by counterfactual replay over 350 of 350 real
-brief states, faithful to the serving pipeline. The states are from production, and the intervention
-was not served: the mode is *shadow*, so the treated composition is computed and recorded, and
+brief states, faithful to the serving pipeline. Caveat: the states are from production; the intervention
+was not served. The mode is *shadow*: the treated composition is computed and recorded, and
 what the agent received during the measured window was always the control (§7). Result: a monotone response in each state, saturation at `w ∈ (4.0, 4.4]`, and a ceiling of
-4.86% of briefs (measured on the 2026-08-26 corpus, in the same regime, with an empty never-served stratum). The ceiling is also not a constant of the mechanism:
+4.86% of briefs (measured on the 2026-08-26 corpus, inside the defective-ingestion regime of
+§4.3.1, with an empty never-served stratum). The ceiling is also not a constant of the mechanism, along two axes we measured:
 under the same rule with another draw of designated items it reaches 7.43% (the draw
 in force sits at the minimum of the distribution, tied with another), and truncating the timestamp resolution from second to
 minute or hour takes it to 36% and 80%, without changing a single line of code. The reach of the
-mechanism is fixed by decisions that nobody took as policy. A third axis: excluding the 25 rows
-of our own health probes from the serve-state lowers the ceiling to 13/350 (3.71%), with one
-sensitive state in common between the two arms (§5.7.2).
+mechanism is fixed by decisions that nobody took as policy. Correction: a third axis
+exists, and an audit on 2026-08-30 found it in an artifact we had recorded and never read:
+excluding the rows of our own health probes moves the replay's anchor. The ceiling above was
+computed without excluding them. Measured the same day with a paired design, excluding them
+lowers it from 17/350 (4.86%) to 13/350 (3.71%), and only one sensitive state is common to
+the two arms (§5.7.2).
 
-What we do not claim: no effect on agent behavior, since no downstream outcome is
-instrumented (§4.5). Nor do we claim that the concentration is *wrong*. A policy
+**Caveat:** what we do not claim. No effect on agent behavior: no downstream outcome is
+instrumented (§5.4). Nor do we claim that the concentration is *wrong*. A policy
 that serves 10 items per session should concentrate, and serving uniformly would be useless;
 the finding is that the non-exposure is a result of policy and not a capacity limit,
-hence revisable by a design decision. Collection size, which correlates with exposure
-(§4.2), may be a proxy for how the type is produced: curation is not ruled out
-as a common cause. And we claim nothing about the field: this is one system. The generalization
+hence revisable by a design decision. And we claim nothing about the field: this is one system. The generalization
 of the mechanism is deductive and holds for any ranker with lexicographic order and a bonus on the subordinate coordinate that serves a prefix of that order. How many systems have this shape is an open question, and the
 executable diagnostic we publish exists so that others can answer it one at a time.
+
+**Caveat: two notes on reading.** First, of the 10,899 chunks with an exposure record, 9,755 have a positive search counter,
+an upper bound on what tracked search returned (§3.1) that records candidacy in a tracked call, not who initiated it; the brief proactively selects content for delivery, and the mechanism claims
+hold for it. Second, collection size, which correlates with exposure
+(§4.2), may be a proxy for how the type is produced: curation is not ruled out
+as a common cause.
 
 ## 1. Introduction
 
@@ -118,8 +121,8 @@ delivered 583,763 slots against 67,187 chunks, enough capacity to serve every ch
 8.7 times. It served 1,635 distinct live chunks, 2.43% of the corpus (1,787 in
 the historical count, which includes 152 deleted afterwards; §4.1 gives the reason both
 numbers exist). Under uniform serving the expected coverage would be 99.98%.
-Adding search, 83.78% of the corpus is *no-record* (§3.1): it has no record on either surface,
-which bounds non-delivery by the brief and tracked search from below. The number of slots does not
+Adding search, 83.78% of the corpus has no exposure record on either surface, a lower bound on
+non-delivery by the brief and by tracked search (§3.1). The number of slots does not
 impose the non-exposure. Caveat: the part that the ranking explains is the brief's,
 and §4.1.1 delimits what can be attributed to each surface. The claim about mechanism
 is about the brief, and the aggregate number measures what has no record of arriving, not what
@@ -130,14 +133,14 @@ concentrate; serving memory at random would be worse than not serving it. What t
 number changes is the nature of the problem. As long as the surface is believed to be
 too small, non-exposure is a fact of life; once it is measured to be 8.7× the corpus,
 non-exposure becomes a policy choice. There are two choices, one per
-channel: the coverage channel exhausted a pool of 108 chunks selected by path patterns, the importance/pain floor and age windows in the measured regime, and the main pool serves 33 distinct chunks on every measurable day but one (34 on 2026-08-23),
-the identical set from 2026-08-24 to 2026-09-19, from 5,376 main slots on a 672-brief day because its ranking is a deterministic top-k with no serve-history term
-(§4.3.1).
+channel: the coverage channel exhausted a pool of 108 chunks selected by path patterns, the importance/pain floor and age windows in the measured regime, and the main pool serves 33 distinct chunks on every measurable day but one (the identical
+set from 2026-08-24 to 2026-09-19) from 5,376 main slots on a 672-brief day because its ranking is a deterministic top-k with no serve-history term
+(§4.3.1). Choices can be examined.
 
 We examined them, and we located the concentration. The 8 slots of the main pool
-converge: 3 chunks appear in 100% of briefs, held there by the high-pain pin
+converge: 3 chunks appear in 100% of briefs, placed there by the high-pain floor
 (`pain ≥ 0.9`; measured over 2026-08-21 to 09-21, §4.3.1), which takes all three
-corpus-wide slots and protects only what the score has already placed in the brief (§4.3.2), and the top-10 takes 47.16% of a week's slots. The remaining 2
+corpus-wide slots, and the top-10 takes 47.16% of a week's slots. The remaining 2
 slots are a coverage channel, which exists precisely to serve the never-served.
 That channel has two distinct constraints: eligibility (path patterns, the importance/pain floor and age windows) bounds daily reach; holding eligibility fixed, an additive salience bonus changes per-brief selection only within `last_served` ties:
 
@@ -170,7 +173,7 @@ instrument that confirmed it for the wrong reason (§5.6).
 
 **Caveat on scope.** It is one system. We
 did not measure the effect on the agent's behavior; no downstream outcome is
-instrumented (§4.5). We do not claim that the field optimizes the wrong coordinate. We
+instrumented (§5.4). We do not claim that the field optimizes the wrong coordinate. We
 claim that there is a coordinate the benchmarks do not measure, we give the instrument
 to measure it, and we leave the question open. Of the two surfaces, the brief
 proactively selects content for delivery; the other, search, is instrumented by a counter of candidacy in tracked
@@ -179,8 +182,8 @@ delivered exposure is not established (§3.1, §4.1.1).
 
 - **The gap:** the field's canonical survey (TMLR 2602.06052v4, 218 papers) maps agent
   memory architectures and benchmarks. Benchmarks measure nDCG/recall over sets of
-  queries. The survey's taxonomy of metrics contains no measure of the delivery surface: how
-  many distinct items an agent in production sees, and which ones.
+  queries. None measures the delivery surface: how many distinct items an agent in
+  production sees, and which ones.
 
   The vocabulary of experimental methodology is also absent. Recomputed over the
   v4 PDF (`measurement/survey-string-count.py`, sha256 `497e9549…b46a6`, 429,387
@@ -207,7 +210,7 @@ delivered exposure is not established (§3.1, §4.1.1).
   floors) and aborts if it fails. The control did fire once, on `ablation=0`. The
   control's floor for `ablation` was what was wrong (a survey catalogs, it does not ablate), and the direct
   check (`memory`=1,208, `benchmark`=126 in the same text) showed the extraction was
-  intact, and the term moved from the control to the data.
+  intact. The term left the control and became data.
 - **Why the question matters:** ~~If the surface has fixed, small capacity, then
   improving ranking does not improve exposure, and the field optimizes the wrong
   coordinate.~~ That was the hypothesis this work started with, and the measurement
@@ -219,7 +222,8 @@ delivered exposure is not established (§3.1, §4.1.1).
   the published diagnostic exists so that it can be answered.
 - **Contributions:** (i) the measurement of the exposure surface of an agent memory
   system in production, with the result that capacity exceeds the corpus by 8.7×
-  and yet 83.78% is no-record (§3.1; caveat: that number sums the two surfaces,
+  and yet 83.78% has no exposure record on either surface, a lower bound on non-delivery by the
+  brief and by tracked search (caveat: that number sums the two surfaces,
   whereas the capacity cited is only the brief's, and §4.1.1 delimits what each one
   authorizes concluding); (ii) the localization of the bottleneck in the coverage
   channel, with the two mechanisms that freeze it: an eligible population of 108
@@ -255,12 +259,12 @@ what makes the population measurable:
    10 items. Every organic brief in the §4.3 window has 10; the only exceptions are our own
    five 5-item health probes (§4.3; `RECON-52-e-sondas-2026-10-04.json`, `c25`). No agent asks
    for it: it receives it;
-2. search, invoked by agents or automated callers; its counter records candidacy in tracked
-   calls, not initiator identity or final delivery (§3.1).
+2. on-demand search, when the agent decides to look something up.
 
 Every exposure goes through one of the two. "Never exposed" is therefore a verifiable property of
-the records, not an inference: it is the absence of a record in both, which §3.1 defines as
-*no-record*.
+the records, not an inference: it is the absence of a record in both. Read as non-delivery, it is a
+lower bound on non-delivery by the brief and by tracked search; non-delivery across all
+agent-facing search is not established (§3.1).
 
 The mechanism lives in the composition of the brief. Of the 10 slots, `10 − freshSlots` come from a
 main pool ordered by `salience` (an additive sum of importance, recency, pain and
@@ -338,12 +342,6 @@ non-delivery by the brief and by tracked search, the 56,288 (83.78%) is a lower 
 non-delivery across all agent-facing search is not established. The asymmetry changes no number in this
 paper, but it changes what can be said about the union, which must not be reported as a count.
 
-We call this quantity *no-record*: a live chunk with neither a `brief_log` row nor a positive
-search counter. Read as non-delivery it is a lower bound for the brief and tracked search
-together; non-delivery across all agent-facing search is not established, because untracked
-calls leave no counter. The rest of the paper uses the term with a pointer here instead of
-repeating this scope.
-
 ### 3.2 Measurement discipline
 
 Five rules, each of which exists because violating it has already produced a wrong number in this
@@ -399,8 +397,9 @@ served in the brief and deleted afterwards: `11,051 − 152 = 10,899` live expos
 and `67,187 − 10,899 = 56,288` (↩ F-3.2). The search row is a live count
 (`access_count > 0` on the rows that exist, `superficie-de-exposicao.py`), so the historical
 union mixes the historical brief with live search and is not a bound on delivered exposure (§3.1).
-The complement row is exact as a count of its predicate: 56,288 live chunks (83.78%) are
-no-record (§3.1).
+The complement row is exact as a count of its predicate: 56,288 live chunks (83.78%) have neither
+a brief-log record nor a positive search counter. This is a lower bound on non-delivery by the
+brief and by tracked search; non-delivery across all agent-facing search is not established.
 
 The importance-floor row belongs in the headline. A reader may grant the aggregate and
 reject the consequence: if most of the 56,288 were low-value noise, there would be
@@ -433,7 +432,7 @@ larger part: of the 56,288 with no record, 46,280 (82.2%) do not pass even this
 importance floor. Anyone who argues that non-exposure is, to a large extent, correct filtering of
 irrelevant material has those 82% on their side. What the co-headline establishes is that
 10,008 chunks remain (14.9% of the corpus) that pass the coverage channel's
-importance floor and are no-record.
+importance floor and that neither the brief nor tracked search has a record of showing.
 
 Passing the importance floor is not being eligible, and the difference is two orders of
 magnitude. The channel applies three joint conditions: the importance floor
@@ -446,8 +445,9 @@ windows; which of the two binds was not decomposed per chunk), not the ranking (
 **Caveat:** the tempting reading of this number is false. Of the 10,008, 8,928 (89.2%) are `distilled`: session fragments averaging
 232 characters (`measurement/composicao-do-piso.py`,
 `out/FLOOR-COMPOSITION-2026-08-29.json`). The finding is not "ten thousand invisible
-lessons"; it concerns no-record fragments that pass the coverage channel's importance floor
-(↩ F-3.4; §3.1).
+lessons"; it concerns fragments that pass the coverage channel's importance floor and have neither a brief-log record nor a positive search counter.
+Their count is a lower bound on non-delivery by the brief and tracked search; non-delivery across
+all agent-facing search is not established (↩ F-3.4; §3.1).
 
 The rate is unconditional, and that is the objection whose direction is unknown. A
 chunk created in week 11 of the window had 7 days of opportunity for exposure; one from
@@ -507,8 +507,12 @@ should be done.
 The two surfaces are not the same kind of thing. The brief proactively selects content for
 delivery; the search counter records candidacy in tracked calls without identifying their
 initiators. Of the 10,899 live chunks with an exposure record, 9,755 have a positive search
-counter, an upper bound on what tracked search returned (§3.1). The brief (1,635 live; 1,787 counting the 152 later deleted) records what was selected for delivery. This
-does not invalidate the complement ("never exposed" remains no-record, §3.1), but it restricts what can be said about cause: the 83.78% figure measures what has no
+counter, an upper bound on what tracked search returned (§3.1). The counter records that a chunk
+was a top candidate of some tracked search call, whoever initiated the call (automated callers
+included) and whether or not the chunk was then returned; it does not say how much of it reached
+an agent. The brief (1,635 live; 1,787 counting the 152 later deleted) records what was selected for delivery. This
+does not invalidate the complement ("never exposed" remains absence of a record on both, a
+lower bound on non-delivery by the brief and by tracked search), but it restricts what can be said about cause: the 83.78% figure measures what has no
 record of arriving, not what the ranker refused. The claims about mechanism (§5) hold for the
 brief.
 
@@ -522,7 +526,8 @@ F-3.2 corrected elsewhere. Added on 2026-09-21 following adversarial review.
 56,288 = 67,339, 152 more than the corpus. The historical union combines historical
 brief-log membership with positive search counters on live chunks; it includes 152 chunks served
 in the brief and deleted afterwards and does not count delivered exposure. The complement counts
-the no-record live chunks at 2026-08-28 09:52Z (`out/superficie.json`; §3.1). Discounting
+live chunks with neither record at 2026-08-28 09:52Z (`out/superficie.json`), a lower bound on
+non-delivery by the brief and tracked search, not across all agent-facing search. Discounting
 them, 10,899 + 56,288 = 67,187 exactly. The percentage cited is over the live corpus, over which
 this record predicate is measured.
 
@@ -530,7 +535,8 @@ this record predicate is measured.
 
 **Caveat.** "Exposed" here is the UNION of the two surfaces (`brief_log` ∪ `access_count > 0`),
 the same definition as in §4.1. We say this because most of the records are search-counter
-records, which mark candidacy in a tracked search call, not delivery (§3.1). The gradient below describes that search candidacy added to what the brief
+records, which mark candidacy in a tracked search call, not delivery and not who initiated the
+call (§3.1). The gradient below describes that search candidacy added to what the brief
 delivered. For live chunks the two contributions could be tabulated separately by type
 (brief-log membership and `access_count > 0` are both recorded per chunk, with an
 intersection); that split is not reported here.
@@ -749,10 +755,7 @@ the per-agent sub-pool held 285 eligible chunks (2026-09-09). The served coverag
 follow. From the serving log alone (`_sprint-2026-10-04/A-rc2/coverage-set-from-log.py`,
 `A-rc2/COVERAGE-SET-FROM-LOG-2026-10-04.json`), the ids served outside the main pool are the
 same 108 ids (spanning 308214 to 308496, not contiguous) on every day of the log from 2026-08-23 to 2026-09-19 (2026-09-02 has
-no rows), the repair of 2026-09-07 included. The set first changes on 2026-09-20, when 109163 and
-227328 appear; both are main-pool candidates in the leave-one-out lists
-(`A-filters-disaggregation/out-ord0826.json`), and the log-only method (all ten slots minus the
-month's 37-id main union) cannot tell a main-pool change from a coverage one. Why the post-repair 285 never reached the
+no rows), the repair of 2026-09-07 included; the set first changes on 2026-09-20. Why the post-repair 285 never reached the
 served set is not established here, and neither is how it relates to the pool of 55 that a copy
 frozen on 2026-09-08 gives (below). Every coverage-channel number in
 this section was measured inside that broken regime, including the 108-chunk pool and its daily
@@ -868,18 +871,7 @@ the no-fresh brief with `pain ≥ 0.9`. F7 is listed last but runs first: it is 
 `A-filters-disaggregation/out-ord0826.json`). The reconstruction reproduces the served main
 slots in 100% of the briefs of each day with rows from 2026-08-24 to 2026-09-07 (672 per day;
 441 on 2026-09-03; 2026-09-02 has none), counting a brief as reproduced when its 8
-reconstructed ids lie inside the 10 served and leave the 2 coverage slots. The stricter test,
-the 8 ids equal to the served ids minus the logged `fresh_added`, passes in 94.3–97.9% of the
-briefs of each of those days except 2026-09-03 and 2026-09-07, where `fresh_added` is null;
-every brief that fails it is one where `fresh_added`, logged from the treated composition,
-differs from the control's coverage picks, so the subtraction leaves 9 ids (`out-ord0826.json`,
-`fidelity`). 2026-08-21 to 08-23 are left out because the frozen copy does not hold the served
-state of one `boris` slot on those days: it carries an access to chunk 298048 at
-2026-08-22T19:09Z, so the reconstruction ranks 298048 above 285042, while production served
-285042 in that slot on 08-21, 08-22 and part of 08-23 (`A-filters-disaggregation/diag-out.txt`,
-diagnostic of the 2026-08-22 epoch; why production kept 285042 after the access is not
-established). Under the first criterion those days reproduce 85.8%, 85.7% and 98.0%; under the
-stricter one, 85.8%, 85.7% and 84.3%. Counting exclusions is the wrong instrument here: F3 alone removes 95.7% of the
+reconstructed ids lie inside the 10 served and leave the 2 coverage slots. Counting exclusions is the wrong instrument here: F3 alone removes 95.7% of the
 corpus from candidacy and binds nothing. The question is answered by lifting one filter at
 a time and recomputing every brief:
 
@@ -896,11 +888,8 @@ a time and recomputing every brief:
 
 No filter, lifted, widens the surface; the two that change its breadth narrow it, because
 routing by agent is the main pool's only source of variety. The breadth is exactly
-`3 + 6 agents × 5`: the 3 shared slots are what `mainTarget` leaves after the agent quota
-(8 − 5), and in every brief the three pinned chunks fill them (112241, 116107 and 116467,
-`pain = 1.0`, placed in phase 0 before the quota pass); with F7 lifted the same 3 slots go to
-the `scope=global` sub-pool's top three after dedup, where 227328 replaces 116107 (§4.3.2),
-and each agent gets the same 5 in every brief. A day
+`3 + 6 agents × 5`: the 3 shared slots are taken by the high-pain floor (chunks 112241, 116107
+and 116467, `pain = 1.0`, in every brief), and each agent gets the same 5 in every brief. A day
 has 5,376 main slots and they serve 33 distinct chunks, which is 0.61% of the slot
 capacity and 163 serves per chunk. From the serving log alone, without the database
 (`observed-main-from-log.json`), there are 33 distinct main chunks on every measurable day from
@@ -963,7 +952,7 @@ forward, so a value earlier than 2026-08-28 in that copy is also its value on 20
 
 They had last been accessed 90, 30 and 42 days before 2026-08-28, and they won every
 brief of that week. The positions they occupy are determined by tracked search traffic from months
-ago (§3.1), and "determined" here is a measured counterfactual, not a reading of the formula.
+ago, whoever initiated it (§3.1), and "determined" here is a measured counterfactual, not a reading of the formula.
 
 **Caveat:** the scope of the word, corrected on 2026-08-30. A read-through observed that "the top of the
 brief is determined" generalizes from the three chunks that the counterfactual moves to the entire top,
@@ -1005,13 +994,6 @@ of this counterfactual (`contrafactual-do-topo.py`, `out/TOP-COUNTERFACTUAL-2026
 used a linear 365-day recency from `source_date` and a 0.5 default for `importance`, which is
 not the production function; it gave 131/129/128, and the new artifact reproduces that number
 as an anchor.
-
-Search traffic is one condition of their rank; the pin (F7, §4.3.1) is the other, and for one of
-the three it is measured as necessary: lifting it removes 116107 from the main set of every
-reconstructed brief on every day with briefs from 2026-08-21 to 2026-09-07, with its salience
-rank unchanged, and 227328 takes its place, while 112241 and 116467 stay
-(`A-filters-disaggregation/out-ord0826.json`, `lift_F7_pinned`). The pin protects only what the
-score has already placed in the no-fresh brief (`brief.ts:819-821`).
 
 **Caveat:** the population of the counterfactual is 149, while §4.3 counts 201 distinct chunks in the
 same window. The 52 missing are one identified set, not a coincidence (an open reconciliation
@@ -1167,7 +1149,9 @@ important limit is the first, and it holds for everything this paper reports:
   (commit `32f78109`, together with `top_scores`; `query_text` deliberately left out), less
   than a day before the exposure window closes (2026-08-28, `out/superficie.json`), so that
   window is almost entirely without it. That
-  83.78% of the corpus is no-record (§3.1) is a fact about the surface, not about
+  83.78% of the corpus has no record of reaching the agent through the brief or tracked search
+  (a lower bound on non-delivery; non-delivery across all agent-facing search is not
+  established, §3.1) is a fact about the surface, not about
   the usefulness of what was left out. A reader who concludes "the system is losing valuable
   information" has gone beyond what was measured;
 - nothing is randomized, and nothing needs to be. This paper does not estimate an intervention
@@ -1275,7 +1259,7 @@ number has to be stated carefully, because it is not measured in the log:
 The derivation assumes that the coverage pool serves the first `≤ K` items of `≺_b` that survive
 deduplication. In the measured window this holds: the per-agent sub-pool was empty (§4.3.1), so
 `interleaveFresh` returns the global sub-pool unchanged, and `pickDedup` scans it in order
-(`brief.ts:470-474`). It does not hold in general. With both sub-pools populated, the coverage
+(`brief.ts:462-466`). It does not hold in general. With both sub-pools populated, the coverage
 pool is the round-robin of two orders, each sorted by `≺_b` (`brief-diversity.ts:180-196`); the
 statements below then apply to each sub-pool separately, and they do not cover the
 interleaving. Deduplication against the main-pool items does not depend on `b`. Deduplication
@@ -1452,7 +1436,7 @@ insertion order, designation with `sha256` verified. This provenance is identica
 artifact's. Caveat. The first execution of this test diverged (13 states, not 17) because I
 had changed two things at once (live corpus and exclusion of the health probes: every preserved probe list has 5 `brief_id`s,
 but this first run was not preserved, so how many it excluded cannot be checked); the diff of the `procedencia` block of the two
-artifacts showed both.
+artifacts showed both. Diffing provenance before comparing a number is a rule of this work.
 
 **Caveat.** That corpus no longer exists: epoch retention pruned it, and it is not among the four
 preserved trial databases nor on either host or the author's machine (checked 2026-10-03/04).
@@ -1719,7 +1703,8 @@ separate them.
 **Caveat.** Two arms generated minutes apart look paired and may not be. What
 disambiguates them is not proximity in time, but field-by-field provenance. Here,
 a field *absent* on one side was the only sign that the instrument had changed
-midway, and only diffing the two provenances showed it.
+midway. A missing field does not stand out on reading; it took diffing the two
+provenances to see it.
 
 **Note.** What this changes in the reading of the ceiling: the 4.86% remains the value under the convention
 declared in the artifacts, and the two measured axes remain valid. What falls is the
@@ -1760,7 +1745,7 @@ aggregate 0.874 itself is recorded in Appendix C.
 | per-chunk search telemetry **silent** from 2026-05-19 14:47:04, at a deploy boundary (a 1 h 19 min gap in the rows, then null until the writer was restored on 2026-08-27 22:18Z, commit `32f78109`), **without a `CUT`** — this project's convention for deliberate withdrawal | comparison across surfaces **within a window** is impossible, and went **3.3 months** without anyone noticing |
 | **window of one sub-pool applied to a batch of the other** | §4.3.1 said each batch feeds the coverage channel for 7 days and expires. There are **two** sub-pools: per-agent (`sessions/%`, 7 d) and global (`entities/%` + `lessons.md`, **30 d**). The retrodiction batch belonged to the first, the prediction batch to the second. The dated prediction **refuted** the section, which was replaced: the eligible pool is **108 chunks (0.16% of the corpus)** and is **100% exhausted every day** |
 | **`brief_log` does not record the channel that served each row** | counting serves of a batch measures the UNION of coverage with the main pool, and the main pool has no age filter. It made a guard flag "age 7.42 served" as a violation of the 7-day window — serves that were never subject to any window. Eligibility excludes but does not attribute; the attribution is the paired replay of the same state with `freshSlots = 2` and `freshSlots = 0` (§4.3.1, `CHANNEL-ATTRIBUTION-2026-08-29.json`) |
-| comparison of a **filtered** count with an **unfiltered** one | inverted the sign of a conclusion: over the 865 curated entities, cumulatively search leads the brief 617 to 245, but in the window both instruments share (from 2026-06-04) the brief leads 245 to ≥151 (`out/superficie.json`, `janela_comum`; the 617 has no preserved field) |
+| comparison of a **filtered** count with an **unfiltered** one | inverted the sign of a conclusion: 617×245 cumulative becomes 245×≥151 in the common window |
 
 The pattern running through all eight, and the transferable finding, is that each one passed
 verification and survived. In each, the verification
@@ -1771,7 +1756,7 @@ eight, was the same: reproduce a published anchor before varying anything.
 
 **Note.** There is also an asymmetry: four of the eight were found because a number
 matched too well: saturation exactly at the top of the registered band, an absurd dose
-with exactly zero effect.
+with exactly zero effect. Suspicious agreement was a better detector than disagreement.
 
 ### 6.1 How much of this paper the verifier actually verifies
 
@@ -1794,7 +1779,7 @@ cannot point to it.
 
 There were, therefore, two rounds of guards, and the earlier text mentioned only one: the one of
 2026-08-29 closed nine (19 → 10) and the one of 2026-08-30 closed the remaining ten
-unguarded claims, reaching 0 of 32 (0.0%; this count has no preserved artifact), and strengthened five weakly guarded ones. The
+unguarded claims, reaching 0 of 32 (0.0%), and strengthened five weakly guarded ones. The
 table lists all fifteen; the five that were weakly guarded rather than unguarded are in italics
 (`out/CLAIM-COVERAGE-2026-08-29.json`, the state after the 2026-08-29 round, has exactly ten
 `SEM_GUARDA`). They came from three distinct origins, and the distinction matters
@@ -1848,7 +1833,7 @@ The census of universes did not catch it either. `censo-de-universos-no-paragraf
 exists for this family and has `2,66` in its table, labeled `("cobertura do brief",
 "brief")`. It compares the declared universes of adjacent numbers, and a number
 has only one label: the mixture that lives inside a single quotient is invisible to
-it by construction.
+it by construction. A guard that compares labels does not see the calculation that the label summarizes.
 
 And the occurrence count became part of the guard, because `valor in texto` is
 satisfied by any occurrence: three mutations passed the first test because I
@@ -1872,7 +1857,7 @@ All three pins were correct; the first two failed in the same way, and the third
 identifies an artifact without requiring trust in whoever published it, which is
 the property one wants. What it does not do is prevent the artifact from disappearing,
 and these two things are easy to confuse because the hash *looks like* an act of preservation.
-It is an act of identification.
+It is an act of identification. Retention does not read hashes.
 
 The third case shows the cost in its pure form, though not in the way we first wrote it.
 The panel adjudicated 280 episodes between 2026-08-15 and 08-21. The table kept `sig_primary`,
@@ -1942,7 +1927,9 @@ system delivered to the agent under the traffic it received.
 The empty cell matters because a retrieval metric is conditional
 on a query having been issued. An item that no query reaches and that no brief includes
 has an undefined nDCG, not a low one. That is the population this paper measures, within a
-stated scope: 56,288 live chunks (83.78%) are no-record (§3.1).
+stated scope: 56,288 live chunks (83.78%) have neither a brief-log record nor a positive search
+counter, a lower bound on non-delivery by the brief and by tracked search; non-delivery across
+all agent-facing search is not established (§3.1).
 
 ### 8.2 Exposure in recommendation: where the vocabulary exists
 
@@ -2066,11 +2053,11 @@ with zero never-served remaining and 12.4 slots per candidate on a closed day (m
 inside the defective-ingestion period of §4.3.1), and by responding to the score only within
 `last_served` ties, up to a ceiling whose existence is derivable from the code before any experiment
 and whose value, 4.86% under the conventions in force on the 2026-08-26 corpus
-(same regime, empty never-served stratum), was measured by replay. The main pool (the other 8) fails
+(defective-ingestion regime, empty never-served stratum), was measured by replay. The main pool (the other 8) fails
 for the opposite reason: there the score is the dominant coordinate, and three of its four terms
 do not decay. The access component is monotone in a counter that only goes up, so
-the three constant chunks hold ranks 1, 3 and 4 by salience only through tracked search traffic from months ago, whoever initiated it (§3.1; measured counterfactual, §4.3.2: last accessed 42, 90 and
-30 days before the window closed on 2026-08-28, in chunks that won 4,632 of 4,632 briefs), and the high-pain pin holds in every brief what that score placed there.
+the positions of the three constant chunks are determined by tracked search traffic from months ago, whoever initiated it (§3.1; measured counterfactual, §4.3.2: last accessed 90, 30, and
+42 days before the window closed on 2026-08-28, in chunks that won 4,632 of 4,632 briefs).
 
 The main pool would respond to a score adjustment, and nobody adjusts it. The coverage channel,
 designed to compensate for the main pool, has a daily reach bounded by its eligible population (path patterns, the
@@ -2189,14 +2176,14 @@ on the severity label and which does not.
 ## Appendix D — Artifacts
 
 Scripts are in `measurement/`, except `claims_check.py`, which is at the root of
-`paper2-interventional/`, and the two sprint scripts whose full paths the table gives. Artifacts are
+`paper2-interventional/`, and the sprint script whose full path the table gives. Artifacts are
 in `out/` (including the three dated 2026-10-05), in `measurement/`
 (`CHANNEL-ATTRIBUTION-2026-08-29.json`), at the root of `paper2-interventional/` (`CEILING-*`,
 `TIEBREAK-*`, `POOL-ELEGIVEL-2026-08-28.json`, `BATCH-CYCLE-*`, `PREDICTION-*`), and, for the
 ones produced on 2026-10-04, in `_sprint-2026-10-04/` (`POOL-ELEGIVEL-2026-08-26-to-29.json`;
 `A-recon/RECON-52-e-sondas-2026-10-04.json`; `A-recon/ORGANICO-e-hashes-2026-10-04.txt`;
 `A-recon-evidence/COMPARABILITY-IDENTITY-5.7.2.json`;
-`A-filters-disaggregation/out-ord0826.json`; `A-filters-disaggregation/diag-out.txt`;
+`A-filters-disaggregation/out-ord0826.json`;
 `A-filters-disaggregation/observed-main-from-log.json`;
 `A-rc2/COVERAGE-SET-FROM-LOG-2026-10-04.json`;
 `A-aging/WARNING-DENSITY-recomputed-2026-10-03.json`; `A-aging/p2_verdict_ids-280.txt`):
@@ -2223,7 +2210,7 @@ ones produced on 2026-10-04, in `_sprint-2026-10-04/` (`POOL-ELEGIVEL-2026-08-26
 | top-of-pool counterfactual, first version (superseded: not the production function; kept as the anchor) | `contrafactual-do-topo.py` | `out/TOP-COUNTERFACTUAL-2026-08-29.json` |
 | bonus at the largest threshold against the largest adjacent gap (§4.4, §5.4) | `sprint-bonus-vs-passo.py` | `out/BONUS-VS-STEP-2026-10-05.json` |
 | the 52 deleted chunks, the five probes and the full-pool counterfactual (§4.3, §4.3.1, §4.3.2) | `sprint-recon-52-e-sondas.py` | `A-recon/RECON-52-e-sondas-2026-10-04.json` · `A-recon/ORGANICO-e-hashes-2026-10-04.txt` |
-| main-pool filter disaggregation, and the served main set from the log (§4.3.1) | `sprint-desagrega-filtros-pool-principal.py` (`--log-only` for the log census) | `A-filters-disaggregation/out-ord0826.json` · `A-filters-disaggregation/observed-main-from-log.json` · `A-filters-disaggregation/diag-out.txt` (the residual mismatch of 2026-08-22, produced by `_sprint-2026-10-04/A-filters-disaggregation/diag-residual-mismatch.py`; the file also holds a 2026-09-08 run and the 2026-08-28 control) |
+| main-pool filter disaggregation, and the served main set from the log (§4.3.1) | `sprint-desagrega-filtros-pool-principal.py` (`--log-only` for the log census) | `A-filters-disaggregation/out-ord0826.json` · `A-filters-disaggregation/observed-main-from-log.json` |
 | warning density recomputed on the 2,058-line text (App. F) | `densidade-de-avisos.py` | `A-aging/WARNING-DENSITY-recomputed-2026-10-03.json` |
 | ids of the 280 adjudicated episodes (§6.2) | — | `A-aging/p2_verdict_ids-280.txt` |
 | verifier coverage and warning density (§6.1, App. F) | `claims_check.py` · `censo-de-alegacoes-sem-guarda.py` · `censo-de-universos-no-paragrafo.py` · `densidade-de-avisos.py` | `out/CLAIM-COVERAGE-2026-08-29.json` · `out/WARNING-DENSITY-2026-08-30.json` |
@@ -2241,8 +2228,8 @@ files) and an earlier `DEVIATIONS-FOR-PAPER.md` that stops at §9. It does not c
 consolidated artifacts of §4.3.1, §5.7 and §5.7.1 listed above (10 of the paths this table
 listed before 2026-10-04 are absent from it; `_sprint-2026-10-04/A-recon-5.7.2-appD.md`). The
 version that matches this text is the next one (v1.1) under the same concept DOI.
-Its version DOI is `10.5281/zenodo.23163119`, reserved before deposit; the record is published
-with this text. The pre-registration of the interventional study is a separate record
+[TODO at deposit: insert its version DOI here, or a pre-reserved DOI if one is created before
+deposit.] The pre-registration of the interventional study is a separate record
 (`10.5281/zenodo.22110203`, v1.12, still the latest version of that record as of 2026-10-03).
 
 ## Appendix E — Full catalog of instrument defects
@@ -2299,6 +2286,7 @@ surgical and not global, on two fronts: (i) the retractions of §4.1, §4.2 and 
 to F-3, leaving a cross-reference; (ii) three paragraphs that are the
 result (the unusable standard error, the confounder that prevents the strong conclusion, the
 two properties of the corpus composition) lost the marker without losing a word.
+The marker there announced as optional what is not.
 
 **Caveat.** What remains undecided is the third kind: the warnings of *provenance* and of
 *scope*, which `measurement/densidade-de-avisos.py` promises in its own header to classify and
@@ -2369,7 +2357,8 @@ with a cross-reference; the narrative of the correction is this.
 The section stated for two days that the third axis of the ceiling was not measurable. There are two
 distinct things: the *level* of the ceiling under probe exclusion is not recoverable (the corpus
 `e20260826T060003Z.db` was an epoch snapshot and was rotated), but the *sensitivity*
-is (the log of the 350 states is `.ndjson` and survived).
+is (the log of the 350 states is `.ndjson` and survived). Declaring ignorance is cheaper than
+measuring, and that is why it is the path of inertia.
 
 **F-3.2 · §4.1 — the table closed over two universes.** The earlier version listed the historical
 union next to the live complement; whoever subtracted `67,187 − 11,051` got
@@ -2449,8 +2438,7 @@ artifacts (`_sprint-2026-10-04/REVIEW-A-2026-10-04.md`) and are applied here. Wh
   with every cross-reference updated; the work list became the final, unnumbered *Open items*;
   each bare "the floor" now names which floor; "designated items" is used throughout.
 
-Nothing from that review remains open: the `[TODO at deposit]` of Appendix D closed when the
-reserved version DOI was written into it (rc10).
+Still open from that review: the `[TODO at deposit]` of Appendix D, which only the deposit closes.
 
 ### F-5 — 2026-10-05: two verified reviews of rc3, applied in rc4
 
@@ -2531,8 +2519,8 @@ Not applied here, because this round edits only the manuscript: the same 0.0946 
 `DEVIATIONS-FOR-PAPER.md`, `PROTOCOL-CALIBRATION-2026-08-27.md` and
 `REPLAY-OPORTUNIDADE-2026-08-27.md`, the hardcoded S1 multiplier in `replay-oportunidade.mjs`,
 the "98 segundos" comment in `claims_check.py`, and writing the §4.2 partials into
-`out/SIZE-ROBUSTNESS-2026-08-30.json`. The `[TODO at deposit]` of Appendix D closed when the
-version DOI was reserved (Appendix D).
+`out/SIZE-ROBUSTNESS-2026-08-30.json`. The `[TODO at deposit]` of Appendix D stays open: no new
+version has been deposited.
 
 **Addendum, rc5 (2026-10-05): a regression review of rc4.** Codex reviewed the text changed in
 rc4 and returned ten findings; each was checked against the text, the deposited `serving-*.ts`
@@ -2645,105 +2633,10 @@ table separators and empty cells, headings, quoted material and the run-in label
 as written on purpose: "exactly" wherever it states an identity or a count, "robust" in its
 statistical sense, the drand "beacon", the run-in caveat markers (whose density this appendix
 measures), the correction history of F-1 to F-5, and the two §1 sentences taken verbatim from
-Codex in rc8. `_sprint-2026-10-04/A-rc9/parity-rc9.py` checks, against rc8: the multisets of
-numeric tokens and number words, footnote markers and back-references, cross-references, inline
-code spans and fenced blocks (which carry the paths and line citations), and link targets and
-DOIs; headings and table rows, byte for byte; the rc5 to rc8 addenda, byte for byte; the count
-of each rc6 to rc8 scope qualifier; the class check inherited from rc8; and em dashes in running
-prose. It does not check units, quotations outside code spans or the wording around a number;
-that these did not change rests on manual review of the before-and-after list.
-
-**Addendum, rc10 (2026-10-05): a Fable pass and a Codex check over rc9.** Fifteen findings (Fable
-F1 to F13, Codex C1 and C2; `_sprint-2026-10-04/REVIEW-A-rc9-2026-10-05.md`), each checked against
-the code and the cited artifacts before it was applied; the record is
-`_sprint-2026-10-04/APPLY-A-rc10.md`. All fifteen were applied, three of them with a correction to
-the finding itself (F1, F2, F6). What changed:
-
-- Deposit (F1). Appendix D carries the reserved version DOI, and the status block, F-4, F-5 and
-  Open items 4 and 5 now agree with it.
-- The three constant chunks (F2). The Abstract and §9 named search traffic as what determines
-  positions 1, 3 and 4, which are salience ranks among 149 served chunks, and left out the
-  high-pain pin. Lifting the pin removes 116107 from every reconstructed brief of 2026-08-21 to
-  2026-09-07 (`lift_F7_pinned`), and §4.3.2 now says so. The Abstract does not adopt the proposed
-  "necessary condition for their presence": §4.3.2 does not replay dedup, so final membership with
-  access zeroed is not established.
-- The survey (F3). The Abstract and §1 no longer state a universal over 218 papers; they say what
-  the survey's metric taxonomy contains.
-- Scope clause (F4). §3.1 defines *no-record* once. The Abstract keeps the full statement, and §1,
-  §2, §4.1, §4.1.1, §4.5 and §8.1 use the term with a pointer to §3.1. Repeats of "whoever
-  initiated" and of the defective-ingestion regime were thinned where the same section had already
-  stated them.
-- Abstract (F5). The correction narrative of the third axis became one sentence, the Caveat and
-  Correction labels left the Abstract, the note that repeated §3.1 was dropped and the curation
-  note joined what we do not claim: 1,177 words became 1,090.
-- §4.3.1 fidelity (F6). The 100% holds under the criterion the text declares; the stricter
-  id-for-id test passes in 94.3–97.9% of the briefs of each day except 2026-09-03 and 2026-09-07, where `fresh_added` is null, and every failure comes from
-  `fresh_added` being logged from the treated composition. 2026-08-21 to 08-23 are left out
-  because the frozen copy does not hold the served state of one `boris` slot (chunk 298048), not
-  for the reason the finding guessed (the 52 deleted chunks, which are coverage slots).
-- Smaller corrections. Title (F7). §1: the parenthesis on the 33 (F8). §5.3: the fresh-slot loop
-  is at `brief.ts:470-474` (F9). §6: the 617 is defined and flagged as having no preserved field
-  (F10). §4.3.1: the coverage set's change on 2026-09-20 may be a main-pool change (F11). §6.1:
-  the 0 of 32 joins the status block's list of numbers without an artifact (F12). §2: search is
-  no longer defined by agent initiative (C1). rc9 addendum: its last sentence lists the checks
-  `parity-rc9.py` implements and leaves the rest to manual review (C2).
-- Prose (F13). The duplicated sentence on declaring ignorance (F-3.1) and ten paragraph closers
-  were cut or merged into the sentence before. The run-in labels outside the Abstract stay,
-  because this appendix reports their density; that density was measured on the Portuguese text,
-  so removing the Abstract's labels changes no reported number.
-
-`_sprint-2026-10-04/A-rc10/parity-rc10.py` compares rc9 with rc10 and requires every changed
-numeric token, reference, code span, link, heading and table row to be one that a finding above
-declares.
-
-**Addendum, rc11 (2026-10-05): a Fable regression review of rc10.** Eight findings
-(`_sprint-2026-10-04/REVIEW-A-rc10-2026-10-05.md`), each checked against the artifacts it cites
-before it was applied; the record is `_sprint-2026-10-04/APPLY-A-rc11.md`. All eight were applied
-with the wording the review proposed. What changed:
-
-- Deposit (finding 1). §4.3.1 cites `A-filters-disaggregation/diag-out.txt`, which the v1.1
-  package had excluded as not cited by the text. Appendix D now lists it, with the script that
-  produced it (`diag-residual-mismatch.py`), and the deposit carries both.
-- The three days left out of the §4.3.1 fidelity test (finding 2). The 85.8%, 85.7% and 98.0% are
-  the first criterion; under the stricter one 2026-08-23 gives 84.3%. The text no longer explains
-  the mismatch by briefs served before the access of 2026-08-22T19:09Z: production kept 285042
-  after that access, on 2026-08-22 and part of 2026-08-23, and why is not established.
-- The three constant chunks (findings 3, 4 and 5). §9 says that search traffic holds their
-  salience ranks, not their slots. §4.3.2 says that the pin is measured as necessary for one of
-  the three (116107), and that 112241 and 116467 stay when it is lifted. §1 says that the pin holds
-  them, not that the floor placed them.
-- Smaller corrections. Open items 5 says that the v1.1 deposit carries the 10 Appendix D entries
-  (finding 6). The rc10 addendum names the two days where the stricter test does not apply
-  (finding 7). The Abstract's sentence on the two universes is reworded (finding 8).
-
-`_sprint-2026-10-04/A-rc11/parity-rc11.py` compares rc10 with rc11 under the same rule: every
-changed numeric token, reference, code span, link, heading and table row must be one that a
-finding above declares.
-
-**Addendum, rc12 (2026-10-05): a Fable review of rc11.** Three findings
-(`_sprint-2026-10-04/REVIEW-A-rc11-2026-10-05.md`, numbered 2 to 4 there), each checked against
-the code and the artifacts it cites before it was applied; the record is
-`_sprint-2026-10-04/APPLY-A-rc12.md`. All were applied with the wording the review proposed. The
-review found no wrong number in rc11. What changed:
-
-- The three shared slots of the main pool (finding 2). §4.3.1 no longer says that the high-pain
-  floor takes them. They are what `mainTarget` leaves after the agent quota (8 − 5); as served,
-  the three pinned chunks fill them in phase 0, before the quota pass; with F7 lifted the same
-  three slots go to the `scope=global` sub-pool's top three after dedup, where 227328 replaces
-  116107. The rc11 addendum had left that sentence as is; it was the same class as the §1
-  sentence corrected in rc11.
-- Deposit (finding 3). The package manifest now declares two exclusions: the local receipt of
-  the voice cited by the rc8 addendum, and the working names of the two databases that
-  `diag-out.txt` mentions.
-- Smaller corrections (finding 4). Appendix D says that the table gives the full paths of two
-  sprint scripts, and its row for the filter disaggregation gives the full path of
-  `diag-residual-mismatch.py` and says that `diag-out.txt` also holds a 2026-09-08 run and the
-  2026-08-28 control. §9 gives the days since last access in rank order (42, 90 and 30), as the
-  Abstract does.
-
-`_sprint-2026-10-04/A-rc12/parity-rc12.py` compares rc11 with rc12 under the same rule: every
-changed numeric token, reference, code span, link, heading and table row must be one that a
-finding above declares.
+Codex in rc8. No number, unit, cross-reference, code span, path, line citation, DOI, quotation,
+heading or table row changed, and every scope qualifier of rc6 to rc8 is still present with the
+same count; `_sprint-2026-10-04/A-rc9/parity-rc9.py` checks all of that against rc8, together
+with the class check inherited from rc8.
 
 ## Open items
 
@@ -2773,7 +2666,8 @@ Missing:
 
 **Caveat.** The two items above went three weeks without being struck through, and on 2026-09-21 this list sent an entire
 session in the wrong direction: reading a worklist from 2026-08-28 and concluding
-about today's state. What is actually missing:
+about today's state. A to-do list that is not struck through is a ruler
+that ages. What is actually missing:
 
 ~~3. adversarial review pass~~ → Done on 2026-09-21: Kimi (Moonshot),
    receipt `exit: 0`, 682 s, 76 KB over the 1,937 lines. Findings applied in full;
@@ -2790,9 +2684,9 @@ about today's state. What is actually missing:
    disjoint classes of defect, and only the second had been done so far;
 4. ~~**deposit** with the manuscript + artifacts~~ → v1.0 was deposited on 2026-08-30, in
    Portuguese (`10.5281/zenodo.22181415`, concept DOI `10.5281/zenodo.22181414`; Appendix D).
-   → v1.1 is this text, under the reserved version DOI `10.5281/zenodo.23163119` (Appendix D);
-   the grouped amendment of the pre-registration follows the deposit: a single registration,
-   declaring the deviations and the new result.
+   Pending: a new version of that Zenodo record, carrying this manuscript and the artifacts
+   at the cited versions, and the version DOI that the `[TODO at deposit]` in Appendix D awaits. The grouped amendment of the pre-registration makes sense then: a
+   single registration, declaring the deviations and the new result.
 
 5. Partial. Sweep of claims that have aged (opened on 2026-09-21, three
    instances closed on 2026-09-21 by adversarial review, not by the sweep): §8.3
@@ -2812,12 +2706,12 @@ about today's state. What is actually missing:
    positive control (`_sprint-2026-10-04/A-recon-pool-elegivel.md`,
    `POOL-ELEGIVEL-2026-08-26-to-29.json`). ~~the comparability control of §5.7.2 that validates
    by count~~ → closed 2026-10-04 at identity level; ~~the `[MISSING]` DOI in Appendix D~~ →
-   concept DOI cited, and the reserved version DOI is now in Appendix D; ~~the pointers to
+   concept DOI cited, the version DOI comes with the deposit; ~~the pointers to
    `DEVIATIONS-FOR-PAPER.md` that Appendix D does not list among the deposited artifacts~~ →
    listed (`_sprint-2026-10-04/A-recon-5.7.2-appD.md`). The artifact census
-   (`measurement/sprint-censo-artefatos-paperA.py`) reported 1 missing input
-   (`ts-350.txt`) and 10 Appendix D entries absent from the v1.0 deposit. The v1.1 deposit carries
-   the 10 entries; `ts-350.txt` was not kept (§5.6) and stays declared missing.
+   (`measurement/sprint-censo-artefatos-paperA.py`) still reports 1 missing input
+   (`ts-350.txt`) and 10 Appendix D entries absent from the v1.0 deposit. The next deposit must
+   fix both.
 
 6. ~~**Caveat.** The seven serial filters are not disaggregated (opened 2026-09-21, from Codex's opinion,
    the only criticism of it that does not depend on a citation). §4.3.1 attributes the non-exposure of the
@@ -2826,8 +2720,7 @@ about today's state. What is actually missing:
    and assumed for the main one.~~ → Done: the seven serial filters of the main pool are now
    disaggregated (§4.3.1, sprint 2026-10-04; `measurement/sprint-desagrega-filtros-pool-principal.py`,
    `_sprint-2026-10-04/A-filters-disaggregation.md`). The reconstruction on the frozen
-   corpus reproduces the served briefs in 100% of the briefs of 2026-08-24 to 2026-09-07 (under the
-   criterion of §4.3.1), and
+   corpus reproduces the served briefs in 100% of the briefs of 2026-08-24 to 2026-09-07, and
    leave-one-out on it shows that no filter, lifted, widens the daily surface beyond 33 chunks; F3 (proxy pre-rank with `LIMIT 500`)
    removes 95.7% of the corpus and changes 0 briefs; F1 (scope routing) and F6 (quota split)
    narrow it to 8. The main pool is policy-bound (a deterministic top-k, no rotation), not

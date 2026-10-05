@@ -14,10 +14,10 @@
   "R4": "diretório temporário do macOS -> <TMP>"
  },
  "manuscrito": {
-  "fonte": "_sprint-2026-10-04/A-v1.1-rc8.md",
-  "sha256_rc8": "2309b232fdf44df173e1073babb215996b8258f5e801aece79b792ef1a9f30ed",
-  "sha256_depositado": "8097bac95810867c6c3c1f8346221191bb872eaf40f4499c51b531085b28e535",
-  "unica_diferenca": "Apêndice D: '[TODO at deposit: insert its version DOI here, or a pre-reserved DOI if one is created before deposit.]' -> 'Its version DOI is `10.5281/zenodo.23163119`, reserved before deposit.'",
+  "fonte": "_sprint-2026-10-04/A-v1.1-rc12.md",
+  "sha256_fonte": "014231902c686481d34ea65a2c832a32b92a72f8fa32f4a335b3cb59df8f695d",
+  "sha256_depositado": "014231902c686481d34ea65a2c832a32b92a72f8fa32f4a335b3cb59df8f695d",
+  "diferenca": "nenhuma: o depositado é a fonte byte a byte (gate de parity-rc12, check 'deposit')",
   "pdf": "pandoc 3.9 + xelatex x2 via pdf-build/build-pdf.sh (em scripts-v1.1.zip); 0 glifos ausentes"
  },
  "excluidos": [
@@ -26,7 +26,7 @@
    "motivo": "trabalho em andamento não commitado; seus guardas leem MANUSCRIPT.md (texto em português) e, com o texto v1.1 no lugar, falham 54 — não verifica a v1.1. A versão da v1.0 segue no registro (importada), e verifica o texto da v1.0"
   },
   {
-   "o_que": "bancos .db citados (epochs e20260826T060003Z / e20260830T060001Z, p2-ord-ro-2026-08-26, corpus-SERVING-REAL-e20260903-recuperado)",
+   "o_que": "bancos .db citados (epochs e20260826T060003Z / e20260830T060001Z, p2-ord-ro-2026-08-26, corpus-SERVING-REAL-e20260903-recuperado) (nomes de trabalho em diag-out.txt: ord-0826.db, preservado-0908.db)",
    "motivo": "corpus de produção com conteúdo de trabalho real"
   },
   {
@@ -34,37 +34,56 @@
    "motivo": "dado bruto de produção; os artefatos derivados entram"
   },
   {
-   "o_que": "_sprint-2026-10-04/A-filters-disaggregation/{out-pres0908,out-ord0826-tzm3-0828}.json, diag-*",
-   "motivo": "não citados pelo texto"
+   "o_que": "_sprint-2026-10-04/A-filters-disaggregation/{out-pres0908,out-ord0826-tzm3-0828}.json, _sprint-2026-10-04/A-filters-disaggregation/copies-sha256.txt",
+   "motivo": "não citados pelo manuscrito (os dois JSON são citados só pela nota de sprint A-filters-disaggregation.md, que entra); diag-out.txt e diag-residual-mismatch.py, citados desde o rc10, entram desde o rc11"
   },
   {
    "o_que": "out/C12-*-2026-10-05.json, sprint-c12-*",
    "motivo": "pertencem ao Paper B"
+  },
+  {
+   "o_que": ".remember/adversary-receipt-codex-2026-10-05T100118-80790.txt (recibo da voz, citado pelo addendum rc8)",
+   "motivo": "recibo local fora do repositório; o addendum registra exit 0 e as duas frases adotadas"
   }
  ],
+ "censo_citados": {
+  "escopo": "caminhos _sprint-2026-10-04/… e out/… citados pelo manuscrito",
+  "citados_no_escopo": 76,
+  "cobertos_v1_1": 47,
+  "cobertos_so_v1_0": 29,
+  "lacunas": 0,
+  "fora_do_escopo_nao_empacotados": [
+   {
+    "citado": "MANUSCRIPT-B.md",
+    "fora_do_pacote": [
+     "MANUSCRIPT-B.md"
+    ]
+   }
+  ]
+ },
  "envio": {
   "soltos": 2,
   "artefatos-v1.1.zip": {
-   "itens": 40,
-   "bytes": 232473
+   "itens": 48,
+   "bytes": 256347
   },
   "scripts-v1.1.zip": {
-   "itens": 27,
-   "bytes": 109433
+   "itens": 33,
+   "bytes": 153055
   }
  },
  "itens": [
   {
    "path": "MANUSCRIPT-v1.1.md",
    "no_deposito": "solto",
-   "bytes": 200458,
-   "sha256": "8097bac95810867c6c3c1f8346221191bb872eaf40f4499c51b531085b28e535"
+   "bytes": 209875,
+   "sha256": "014231902c686481d34ea65a2c832a32b92a72f8fa32f4a335b3cb59df8f695d"
   },
   {
    "path": "MANUSCRIPT-v1.1.pdf",
    "no_deposito": "solto",
-   "bytes": 285730,
-   "sha256": "ac3888f41c6755d0373b186fc071f0f768ab82dcb37f28859aa5770f8cb156a3"
+   "bytes": 295508,
+   "sha256": "8dd2773c1c2831ff008337b9e07a9f2edfe236963ec339e90b55bcdc6d931433"
   },
   {
    "path": "BATCH-CYCLE-2026-08-28.json",
@@ -186,6 +205,12 @@
    "redacao_no_repositorio": "2026-10-05 (SCRUBBED.txt); original no histórico do git"
   },
   {
+   "path": "_sprint-2026-10-04/A-filters-disaggregation/diag-out.txt",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 1910,
+   "sha256": "0cd26bfe99dbccc72a6086359dbd1175cf224d02ef3257d8619b84cb24129290"
+  },
+  {
    "path": "_sprint-2026-10-04/A-filters-disaggregation/observed-main-from-log.json",
    "no_deposito": "artefatos-v1.1.zip",
    "bytes": 18567,
@@ -255,6 +280,24 @@
    "sha256": "84d32f3393c033b8fc2caded30d9a2161b5e21c36a681333f6d645a98b65e291"
   },
   {
+   "path": "_sprint-2026-10-04/APPLY-A-rc10.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 8241,
+   "sha256": "670d4017c6a3157aa0226e9f230186177385c5e52d05ef3f54d1e0075bfc4c0a"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-A-rc11.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 5611,
+   "sha256": "5b4e80808cf052cbfa36ad00dc40ec36f6d9422ec6d5b2f29842a5ac6f5c66ed"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-A-rc12.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 5585,
+   "sha256": "3a8fc8870a7b3ac43b4ca77b86f6d292a05cef06ee3d90496a7bd235b67a9c98"
+  },
+  {
    "path": "_sprint-2026-10-04/APPLY-A-rc4.md",
    "no_deposito": "artefatos-v1.1.zip",
    "bytes": 15384,
@@ -277,6 +320,12 @@
    "no_deposito": "artefatos-v1.1.zip",
    "bytes": 9032,
    "sha256": "d33a2aa06e300813558214ae6e5c346632d46b8b15ebe1502b91630a1fec0fd8"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-A-rc9.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 7972,
+   "sha256": "6ecc6cd5f8ccd46b683ce3b7f607624c3d69a5b1a53b7ef018981c43e31368eb"
   },
   {
    "path": "_sprint-2026-10-04/CHECK-A-rc4-B-rc4.md",
@@ -302,10 +351,28 @@
    "redacao_no_repositorio": "2026-10-05 (SCRUBBED.txt); original no histórico do git"
   },
   {
+   "path": "_sprint-2026-10-04/REVIEW-A-rc10-2026-10-05.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 7082,
+   "sha256": "92b43b1dd3e6c48bf98d268acf1df783e4be749026d4eb6bf569bab3d892f482"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-A-rc11-2026-10-05.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 3085,
+   "sha256": "f8fbc4ad8a5936855df55b8699ccddceb1ac9ef9b2434d7d1bb0fa5a1c3adadf"
+  },
+  {
    "path": "_sprint-2026-10-04/REVIEW-A-rc3-2026-10-04.md",
    "no_deposito": "artefatos-v1.1.zip",
    "bytes": 15403,
    "sha256": "db62fe8b319897504d22d9845f62211649b2e7c0fc2ec331dc77213e75e0f7be"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-A-rc9-2026-10-05.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 10825,
+   "sha256": "9938ba342a5ad3de6bd37386f6a5d6323eb71d88914c5ebfbeec1fdc04946582"
   },
   {
    "path": "measurement/CHANNEL-ATTRIBUTION-2026-08-29.json",
@@ -338,6 +405,30 @@
    "sha256": "82e75c08347480ced024a0f5befeef8139bc9cb56f39f11c12d27e13d58dc405"
   },
   {
+   "path": "_sprint-2026-10-04/A-filters-disaggregation/diag-residual-mismatch.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 1877,
+   "sha256": "9fcdb3cad53500dd149cb0ce774091e97513be46b5d9e5e559fa820790b2f3fe"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-rc10/parity-rc10.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 23269,
+   "sha256": "fe2b03a5b9618518f180cb55410f9a8ff18cf6b4698539ff21ae3e4b19afdf5a"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-rc11/parity-rc11.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 19432,
+   "sha256": "0e752199172f79a5f25e2e734d3428a4fbab2bb05e5baf127b4af8c9f9b808e8"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-rc12/parity-rc12.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 17955,
+   "sha256": "537c8c4a09a7a260acbfb201b27a64ab7dba1daba2848bbe00da2ff82025f600"
+  },
+  {
    "path": "_sprint-2026-10-04/A-rc2/coverage-set-from-log.py",
    "no_deposito": "scripts-v1.1.zip",
    "bytes": 2010,
@@ -348,6 +439,12 @@
    "no_deposito": "scripts-v1.1.zip",
    "bytes": 18302,
    "sha256": "1a6d7f9ab76d5851ad36eb05a88cdba055707de081aa72644b30bc02c3936c01"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-rc9/parity-rc9.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 14899,
+   "sha256": "4c4cb7951d57243ed3fff00d4188fbaa84c07838b97541230a72f40070532bc3"
   },
   {
    "path": "pdf-build/build-pdf.sh",
@@ -504,6 +601,12 @@
    "no_deposito": "scripts-v1.1.zip",
    "bytes": 12840,
    "sha256": "1b59cfb25eadfe4f1021fbf3f56bca772285f9e950c3ecca569c3f8aff60dca2"
+  },
+  {
+   "path": "serving-brief.ts",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 44748,
+   "sha256": "27dbe9962a2903aaa3a5ead432a4f40e31e8f8f0ac5e42796dd4ec914f0e2e95"
   }
  ]
 }
