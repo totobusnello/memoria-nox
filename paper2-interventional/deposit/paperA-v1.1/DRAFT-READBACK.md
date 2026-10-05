@@ -13,11 +13,11 @@
 
 | key | bytes | md5 | origem |
 |---|---:|---|---|
-| `MANUSCRIPT-v1.1.pdf` | 285.730 | `039f86d91ca25dccbb9b8037faf5b776` | novo |
-| `MANUSCRIPT-v1.1.md` | 200.458 | `b31249215634fe61672097287025f7f2` | novo |
-| `MANIFEST-v1.1.json` | 18.507 | `c462ff5cd8ee548a512e03b010297778` | novo |
-| `artefatos-v1.1.zip` | 232.473 | `64044b6b0ef0a404e96ad23083c59bd9` | novo, 40 membros |
-| `scripts-v1.1.zip` | 109.433 | `8c1c6f0badd7a83e65e36b9b198937ac` | novo, 27 membros |
+| `MANUSCRIPT-v1.1.pdf` | 295.508 | `2d39642b9b0f4da08af09a871e156fd3` | novo, 49 páginas |
+| `MANUSCRIPT-v1.1.md` | 209.875 | `6edf286b0a3c68b9c8258f2a871ab650` | novo, = rc12 byte a byte |
+| `MANIFEST-v1.1.json` | 22.097 | `75c27929e1d1deafef61fea910e5cdee` | novo |
+| `artefatos-v1.1.zip` | 256.347 | `36c876a0c4f36e697b0216c40911b04d` | novo, 48 membros |
+| `scripts-v1.1.zip` | 153.055 | `f45c8cd9dca7f3c4249e5ab6a0c0b88c` | novo, 33 membros |
 | `MANUSCRIPT.md` | 126.564 | `a08076709e14b13ecf148c53ffb8f863` | v1.0, files-import |
 | `MANIFEST.json` | 24.483 | `6b30ceafbd66332a933c18762cacf148` | v1.0, files-import |
 | `claims_check.py` | 117.840 | `76a75af212fb0e9fbcd00b44e8cbc9fe` | v1.0, files-import |
@@ -39,7 +39,8 @@ membro dos dois zips novos bate (sha256) com `MANIFEST-v1.1.json`.
 ## Readback campo a campo (forma InvenioRDM + legada): 22 de 22 ok
 
 `is_draft` True · `is_published` False · DOI `10.5281/zenodo.23163119` · concept DOI
-`10.5281/zenodo.22181414` · `versions.index` 2 · title = linha 1 do manuscrito · version `1.1` ·
+`10.5281/zenodo.22181414` · `versions.index` 2 · title = linha 1 do manuscrito ("Spare capacity,
+narrow surface: the exposure record of a production agent-memory system", desde a rodada rc11) · version `1.1` ·
 publication_date `2026-10-05` · resource_type `publication-preprint` · publisher `Zenodo` ·
 rights `cc-by-4.0` · languages `eng` · subjects iguais aos da v1.0 · related_identifiers iguais
 aos da v1.0 · creator `Busnello, Luiz Antonio`, ORCID `0009-0007-5911-8141`, `Independent
@@ -53,11 +54,11 @@ o que já bate).
 
 ## O que o pacote é
 
-- **Manuscrito:** `_sprint-2026-10-04/A-v1.1-rc8.md` com **uma** substituição, no Apêndice D: o
-  `[TODO at deposit: …]` virou `Its version DOI is 10.5281/zenodo.23163119, reserved before
-  deposit.` O rc8 não foi alterado; o manifesto guarda o sha256 dos dois.
+- **Manuscrito:** `_sprint-2026-10-04/A-v1.1-rc12.md`, byte a byte (sha256 `01423190…f695d`;
+  o `build-package.py` sai 1 se o depositado divergir da fonte). Até o rc8 havia uma
+  substituição no Apêndice D; desde o rc10 o DOI está no próprio rascunho.
 - **PDF:** pandoc 3.9 + xelatex (2 passadas), mesmo preâmbulo do Paper 1 (`paper/preamble.tex`)
-  mais 25 glifos mapeados para símbolos matemáticos; **0 "Missing character"** no log. 47
+  mais 25 glifos mapeados para símbolos matemáticos; **0 "Missing character"** no log. 49
   páginas, Letter. O bloco de título (autor, ORCID, versão, DOI) vem de metadata do pandoc e
   não está no `.md`.
 - **Redação:** em 7 arquivos empacotados um caminho local virou marcador (`<HOME>/`,
@@ -67,7 +68,8 @@ o que já bate).
   `srv…`, IP Tailscale e `*.local` são pegos; `127.0.0.1`, `/root/` e `/var/lib/` passam, como
   na v1.0).
 - **Fora do pacote** (registrado em `MANIFEST-v1.1.json` → `excluidos`): o `claims_check.py`
-  atual, os `.db` de corpus, o log de serving bruto, artefatos não citados e os do Paper B.
+  atual, os `.db` de corpus (com os nomes de trabalho que o `diag-out.txt` usa), o log de serving
+  bruto, artefatos não citados, os do Paper B e o recibo local da voz citado pelo addendum rc8.
 
 ## O que você precisa conferir antes de pressionar Publish
 
@@ -176,3 +178,92 @@ bloco da description declara.
   manifesto. Gate: **0** ocorrências.
 - **Rascunho 23163119:** reenviados só `MANIFEST-v1.1.json` e `scripts-v1.1.zip`. Readback:
   22 de 22 campos ok, 18 de 18 arquivos com md5 conferido (tabela acima atualizada). Não publicado.
+
+## Rodada de 2026-10-05 (rc11): revisão Fable do rc10, pacote, censo de citações
+
+- **Texto:** rc10 → rc11 com os 8 achados de `_sprint-2026-10-04/REVIEW-A-rc10-2026-10-05.md`,
+  todos conferidos nos artefatos e aplicados com a redação proposta
+  (`_sprint-2026-10-04/APPLY-A-rc11.md`). `A-rc11/parity-rc11.py --selftest`: PARITY OK,
+  SELFTEST OK (20 mutações; 19 mordem, a de unidade segue como limite documentado). F-5 ganhou o
+  "Addendum, rc11". `MANUSCRIPT-v1.1.md` = rc11 byte a byte.
+- **Achado 1 (diag):** `diag-out.txt` entrou em `artefatos-v1.1.zip` e
+  `diag-residual-mismatch.py` (quem o produziu: mesmo formato de saída; o cabeçalho do `.txt` o
+  chama pelo nome de trabalho `diag.py`) em `scripts-v1.1.zip`. A exclusão foi estreitada para
+  `{out-pres0908,out-ord0826-tzm3-0828}.json` + `copies-sha256.txt`, que o manuscrito de fato
+  não cita (os dois JSON aparecem só na nota de sprint `A-filters-disaggregation.md`, que entra).
+- **Censo de citações** (novo, dentro do `build-package.py`, roda a cada build e barra o
+  depósito se houver lacuna; resumo em `MANIFEST-v1.1.json` → `censo_citados`): todo caminho que
+  o rc11 cita e que é `_sprint-2026-10-04/…` ou `out/…` (escrito assim ou resolvido assim no
+  repositório, inclusive nomes nus como `out-ord0826.json`, chaves e globs expandidos).
+  - Antes da correção: **10 lacunas** — `diag-out.txt`, `diag-residual-mismatch.py`,
+    `A-rc9/parity-rc9.py` (citado 2×), `A-rc10/parity-rc10.py`, `A-rc11/parity-rc11.py`,
+    `APPLY-A-rc9.md`, `APPLY-A-rc10.md`, `APPLY-A-rc11.md`, `REVIEW-A-rc9-2026-10-05.md`,
+    `REVIEW-A-rc10-2026-10-05.md` (os registros de revisão citados pelos addenda rc9–rc11 do F-5).
+  - Corrigido do mesmo jeito: os 10 entraram no pacote (6 em `artefatos-v1.1.zip`, 4 em `scripts-v1.1.zip`). Nenhum precisou de
+    redação (0 ocorrências antes de redigir), então o repositório segue igual ao depositado:
+    todo membro dos dois zips é byte a byte o arquivo do repositório; `SCRUBBED.txt` não muda.
+  - Depois: **71 caminhos no escopo, 0 lacunas** (42 cobertos pela v1.1, 29 só pela v1.0).
+    Controles: tirar `diag-out.txt` e `parity-rc11.py` da lista faz o censo acusar os dois; um
+    `out/NAO-EXISTE-2026.json` injetado sai como lacuna.
+  - **Fora do escopo, mas corrigido:** o §3.3 diz que as citações de linha de `brief.ts` se referem
+    ao módulo "as deposited in `serving-*.ts`", e a v1.0 não depositou `serving-brief.ts` (só
+    `-diversity`, `-salience`, `-search`). O arquivo está no git desde 2026-08-27, sha256
+    `27dbe996…`, igual ao pin do `SERVING-CODE-MANIFEST.md`; entrou em `scripts-v1.1.zip`.
+    Reverter é tirar uma linha de `SCRIPTS`.
+  - **Fora do escopo, não empacotado:** `MANUSCRIPT-B.md` (Apêndices A e C citam o Paper B, que
+    tem depósito próprio). Sem resolução no repositório, por declaração: os `.db`, `ts-350.txt`,
+    `memory/*.md` da produção, `.remember/…` (recibo do Codex no addendum rc8).
+- **Achado 6 (Open items 5) conferido:** o censo `measurement/sprint-censo-artefatos-paperA.py`
+  rodado sobre o `MANUSCRIPT.md` em português (o detector de Apêndice D dele só casa
+  `## Apêndice D`) dá 1 MISSING (`ts-350.txt`) e as entradas do Apêndice D ausentes da v1.0: 9
+  arquivos, todos itens do `MANIFEST-v1.1.json`, mais `implantacao/`, que entra como os 9
+  arquivos de `measurement/implantacao/`.
+- **Gate de privacidade:** 0 ocorrências em todo byte empacotado (zips, soltos, texto e bytes do
+  PDF, manifesto), incluindo os 11 arquivos novos.
+- **Description:** o bloco "What changed in v1.1" ganhou o parágrafo **Title** (título da v1.0 →
+  título da v1.1, e o motivo), e o contrafactual foi alinhado ao rc11: ranks 1, 3 e 4 por
+  salience entre os 149 servidos, 44–46 com acesso zerado, dedup não reexecutado; o pin como a
+  outra condição, medido como necessário para um chunk (116107). Contagens do pacote
+  atualizadas (46/32), e "differs only in Appendix D" virou "byte for byte the final draft
+  (rc11)". Segue toda em inglês.
+- **Rascunho 23163119:** metadata regravada (title novo) e os 5 arquivos novos reenviados.
+  Readback: **22 de 22** campos ok, **18 de 18** arquivos com md5 conferido (13 da v1.0 contra o
+  registro 22181415, 5 novos contra o disco), membros dos zips conferidos contra o manifesto
+  (tabela acima atualizada). **Não publicado.**
+
+## Rodada de 2026-10-05 (rc12): revisão Fable do rc11, duas exclusões declaradas
+
+- **Texto:** rc11 → rc12 com os achados de `_sprint-2026-10-04/REVIEW-A-rc11-2026-10-05.md`
+  (salva verbatim), todos conferidos antes de aplicar (`_sprint-2026-10-04/APPLY-A-rc12.md`):
+  - **(2)** §4.3.1: os 3 slots compartilhados são o que `mainTarget` deixa depois da cota do
+    agente (8 − 5); como servido, os 3 pinados os ocupam na fase 0; com F7 levantado vão ao top-3
+    do sub-pool `scope=global` depois do dedup, e 227328 substitui 116107. Conferido em
+    `serving-brief.ts` (l.436 `mainTarget`, l.442-451 fase 0, l.457 break em `mainTarget`, l.531
+    `ceil(n/2)` = 5 para o pool do agente, que vem primeiro) e em `out-ord0826.json`
+    (`lift_F7_pinned`: 33 ids, baseline − lift = {116107}, lift − baseline = {227328}, Jaccard
+    médio 7/9; `pinned_per_brief_hist` = 3 em todo brief; `by_subpool` 672 × 3 / 672 × 5).
+  - **(4)** Apêndice D: "the two sprint scripts whose full paths the table gives"; a linha da
+    desagregação dá o caminho completo de `diag-residual-mismatch.py` e diz que `diag-out.txt`
+    também traz a corrida de 2026-09-08 e o controle de 2026-08-28. §9: dias desde o último acesso
+    na ordem dos ranks (42, 90 e 30), conferido em `SALIENCE-COUNTERFACTUAL-PROD-2026-10-05.json`
+    (`the_three` e `rounds[0].union_149.prod`).
+  - `A-rc12/parity-rc12.py --selftest`: **PARITY OK**, **SELFTEST OK** (19 mutações; 18 mordem,
+    a de unidade segue como limite documentado). `withdrawn` carrega as 8 do rc11 e acrescenta 2
+    (a frase antiga da l.899 e a ordem antiga do §9). F-5 ganhou o "Addendum, rc12".
+    `MANUSCRIPT-v1.1.md` = rc12 byte a byte.
+- **(3) Manifesto:** as duas declarações vivem em `EXCLUIDOS` do `build-package.py` (o rebuild as
+  mantém): entrada nova para `.remember/adversary-receipt-codex-2026-10-05T100118-80790.txt`, e a
+  entrada dos `.db` termina com "(nomes de trabalho em diag-out.txt: ord-0826.db,
+  preservado-0908.db)". `excluidos` tem agora 6 entradas.
+- **Pacote:** `FONTE` → rc12; entraram `REVIEW-A-rc11-2026-10-05.md` e `APPLY-A-rc12.md`
+  (artefatos, 46 → 48) e `A-rc12/parity-rc12.py` (scripts, 32 → 33), citados pelo addendum rc12.
+  **Censo:** 76 caminhos no escopo, **0 lacunas** (47 cobertos pela v1.1, 29 só pela v1.0).
+  **Gate de privacidade: 0.** PDF refeito: **49 páginas**, **0 glifos ausentes**.
+- **Description:** o bloco "What changed in v1.1" não descrevia os três slots como do floor (diz
+  que o pin protege só o que o score já pôs no brief e é necessário para um dos três), então nada
+  de conteúdo mudou; foram atualizadas as contagens (48/33), "parity checks of drafts rc8 to
+  rc12" e "the final draft (rc12, Appendix F-5)". `description-v1.1.html` md5 `8a12eb81a06a14a04e189e8e271f6138`.
+- **Rascunho 23163119:** metadata regravada e os 5 arquivos novos reenviados ao **mesmo**
+  rascunho. Readback: **22 de 22** campos ok, **18 de 18** arquivos com md5 conferido (13 da v1.0
+  contra o registro 22181415, 5 novos contra o disco), membros dos zips conferidos contra o
+  manifesto (tabela acima atualizada). **Não publicado.**

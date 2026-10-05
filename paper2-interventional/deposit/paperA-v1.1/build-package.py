@@ -36,6 +36,7 @@ _sprint-2026-10-04/A-aging/WARNING-DENSITY-recomputed-2026-10-03.json
 _sprint-2026-10-04/A-aging/p2_verdict_ids-280.txt
 _sprint-2026-10-04/A-filters-disaggregation/observed-main-from-log.json
 _sprint-2026-10-04/A-filters-disaggregation/out-ord0826.json
+_sprint-2026-10-04/A-filters-disaggregation/diag-out.txt
 _sprint-2026-10-04/A-rc2/COVERAGE-SET-FROM-LOG-2026-10-04.json
 _sprint-2026-10-04/A-recon-evidence/COMPARABILITY-IDENTITY-5.7.2.json
 _sprint-2026-10-04/A-recon/ORGANICO-e-hashes-2026-10-04.txt
@@ -68,6 +69,13 @@ _sprint-2026-10-04/APPLY-A-rc5.md
 _sprint-2026-10-04/APPLY-A-rc6.md
 _sprint-2026-10-04/APPLY-A-rc7.md
 _sprint-2026-10-04/CHECK-A-rc4-B-rc4.md
+_sprint-2026-10-04/REVIEW-A-rc9-2026-10-05.md
+_sprint-2026-10-04/APPLY-A-rc9.md
+_sprint-2026-10-04/REVIEW-A-rc10-2026-10-05.md
+_sprint-2026-10-04/APPLY-A-rc10.md
+_sprint-2026-10-04/APPLY-A-rc11.md
+_sprint-2026-10-04/REVIEW-A-rc11-2026-10-05.md
+_sprint-2026-10-04/APPLY-A-rc12.md
 """.split()
 
 SCRIPTS = """
@@ -81,6 +89,12 @@ measurement/sprint-pool-elegivel-multidia.py
 measurement/sprint-recon-52-e-sondas.py
 _sprint-2026-10-04/A-rc2/coverage-set-from-log.py
 _sprint-2026-10-04/A-rc8/parity-rc8.py
+_sprint-2026-10-04/A-rc9/parity-rc9.py
+_sprint-2026-10-04/A-rc10/parity-rc10.py
+_sprint-2026-10-04/A-rc11/parity-rc11.py
+_sprint-2026-10-04/A-rc12/parity-rc12.py
+_sprint-2026-10-04/A-filters-disaggregation/diag-residual-mismatch.py
+serving-brief.ts
 measurement/auditoria-da-cadeia.py
 measurement/censo-de-universos-no-paragrafo.py
 measurement/potencia-h1c.py
@@ -101,6 +115,80 @@ deposit/paperA-v1.1/build/preamble-paperA-v1.1.tex
 """.split()
 
 SOLTOS = ["deposit/paperA-v1.1/MANUSCRIPT-v1.1.md", "deposit/paperA-v1.1/MANUSCRIPT-v1.1.pdf"]
+FONTE = "_sprint-2026-10-04/A-v1.1-rc12.md"
+
+# Censo dos caminhos citados (rc11, mantido no rc12): todo caminho que o manuscrito cita e que resolve, no
+# repositório, para `_sprint-2026-10-04/…` ou `out/…` (ou que é escrito assim) tem de estar no
+# pacote v1.1 ou nos arquivos publicados da v1.0 (MANIFEST.json + zips do registro 22181415,
+# baixados em A-recon-evidence/deposited-22181415/). Citação por nome nu (`out-ord0826.json`)
+# basta que UMA das resoluções esteja coberta. Fora desse escopo, registra mas não barra.
+V10_EVID = ROOT / "_sprint-2026-10-04/A-recon-evidence/deposited-22181415"
+EXT_CIT = r"(?:json|md|py|mjs|js|ts|sh|txt|csv|svg|tex|html|zip|pdf|db|ndjson)"
+ESCOPO = ("_sprint-2026-10-04/", "out/")
+
+
+def _expande(tok):
+    m = re.search(r"\{([^{}]*)\}", tok)
+    if not m:
+        return [tok]
+    r = re.fullmatch(r"(\d+)\.\.(\d+)", m.group(1))
+    opts = [str(i) for i in range(int(r.group(1)), int(r.group(2)) + 1)] if r else m.group(1).split(",")
+    return [x for o in opts for x in _expande(tok[:m.start()] + o + tok[m.end():])]
+
+
+def _citados(text):
+    achados = {}
+    for ln, line in enumerate(text.split("\n"), 1):
+        spans = [(m.start(), m.end()) for m in re.finditer(r"`[^`\n]+`", line)]
+        cands = [w for a, b in spans for w in re.split(r"[\s·]+", line[a + 1:b - 1])]
+        resto = "".join(" " if any(a <= i < b for a, b in spans) else ch for i, ch in enumerate(line))
+        cands += re.findall(r"[\w./{},*-]+\." + EXT_CIT + r"\b", resto)
+        for w in cands:
+            w = re.sub(r":\d[\d,-]*$", "", w.strip(".,;:()[]'\""))
+            if w.startswith(("http", "10.5281")) or not re.search(r"\." + EXT_CIT + r"$", w):
+                continue
+            achados.setdefault(w, set()).add(ln)
+    return achados
+
+
+def _resolve(tok):
+    hits = set()
+    for base in ("", "_sprint-2026-10-04/", "measurement/", "out/"):
+        for x in _expande(tok):
+            hits |= {str(pathlib.Path(p).relative_to(ROOT)) for p in ROOT.glob(base + x) if p.is_file()}
+    if not hits and "/" not in tok:
+        for x in _expande(tok):
+            hits |= {str(p.relative_to(ROOT)) for p in ROOT.rglob(x)
+                     if p.is_file() and not ({".git", "node_modules", "__pycache__"} & set(p.parts))}
+    return sorted(hits)
+
+
+def censo_citados(text):
+    v10 = {i["path"] for i in json.loads((V10_EVID / "MANIFEST.json").read_text())["itens"]}
+    for z in ("artefatos.zip", "scripts.zip"):
+        v10 |= set(zipfile.ZipFile(V10_EVID / z).namelist())
+    pacote = set(ARTEFATOS) | set(SCRIPTS) | {s.rsplit("/", 1)[1] for s in SOLTOS}
+    linhas, lacunas, fora = [], [], []
+    for tok, lns in sorted(_citados(text).items()):
+        hits = _resolve(tok)
+        no_escopo = tok.startswith(ESCOPO) or any(h.startswith(ESCOPO) for h in hits)
+        cob = {h: ("v1.1" if h in pacote else "v1.0" if h in v10 else None) for h in hits}
+        if "/" in tok:
+            ok = bool(hits) and all(cob.values())
+        else:
+            ok = any(cob.values())
+        if no_escopo:
+            linhas.append({"citado": tok, "onde": sorted({c for c in cob.values() if c})})
+            if not ok:
+                lacunas.append((tok, sorted(lns)[:5], [h for h, c in cob.items() if not c] or "não resolve"))
+        elif hits and not ok:
+            fora.append({"citado": tok, "fora_do_pacote": [h for h, c in cob.items() if not c]})
+    return {"escopo": "caminhos _sprint-2026-10-04/… e out/… citados pelo manuscrito",
+            "citados_no_escopo": len(linhas),
+            "cobertos_v1_1": sum(1 for x in linhas if "v1.1" in x["onde"]),
+            "cobertos_so_v1_0": sum(1 for x in linhas if x["onde"] == ["v1.0"]),
+            "lacunas": len(lacunas),
+            "fora_do_escopo_nao_empacotados": fora}, lacunas
 
 EXCLUIDOS = [
     ("claims_check.py (versão atual)",
@@ -108,11 +196,19 @@ EXCLUIDOS = [
      "com o texto v1.1 no lugar, falham 54 — não verifica a v1.1. A versão da v1.0 segue no registro "
      "(importada), e verifica o texto da v1.0"),
     ("bancos .db citados (epochs e20260826T060003Z / e20260830T060001Z, p2-ord-ro-2026-08-26, "
-     "corpus-SERVING-REAL-e20260903-recuperado)", "corpus de produção com conteúdo de trabalho real"),
+     "corpus-SERVING-REAL-e20260903-recuperado) (nomes de trabalho em diag-out.txt: ord-0826.db, "
+     "preservado-0908.db)", "corpus de produção com conteúdo de trabalho real"),
     ("log de serving p2-serving.ndjson", "dado bruto de produção; os artefatos derivados entram"),
     ("_sprint-2026-10-04/A-filters-disaggregation/{out-pres0908,out-ord0826-tzm3-0828}.json, "
-     "diag-*", "não citados pelo texto"),
+     "_sprint-2026-10-04/A-filters-disaggregation/copies-sha256.txt",
+     "não citados pelo manuscrito (os dois JSON são citados só pela nota de sprint "
+     "A-filters-disaggregation.md, que entra); diag-out.txt e diag-residual-mismatch.py, citados "
+     "desde o rc10, entram desde o rc11"),
     ("out/C12-*-2026-10-05.json, sprint-c12-*", "pertencem ao Paper B"),
+    # Declaração pedida pela revisão do rc11 (achado 3), aplicada no rc12.
+    (".remember/adversary-receipt-codex-2026-10-05T100118-80790.txt (recibo da voz, citado pelo "
+     "addendum rc8)",
+     "recibo local fora do repositório; o addendum registra exit 0 e as duas frases adotadas"),
 ]
 
 # Redação: ordem importa (a regra mais específica primeiro).
@@ -228,8 +324,17 @@ def main():
     za = monta_zip("artefatos-v1.1.zip", ARTEFATOS, itens, achados)
     zs = monta_zip("scripts-v1.1.zip", SCRIPTS, itens, achados)
 
-    rc8 = (ROOT / "_sprint-2026-10-04/A-v1.1-rc8.md").read_bytes()
+    fonte = (ROOT / FONTE).read_bytes()
     dep = (ROOT / SOLTOS[0]).read_bytes()
+    if fonte != dep:
+        print(f"ERRO: {SOLTOS[0]} difere de {FONTE}; o depósito deve ser a cópia byte a byte")
+        return 1
+    censo, lacunas = censo_citados(dep.decode("utf-8"))
+    if lacunas:
+        for tok, linhas, falta in lacunas:
+            print(f"  LACUNA  `{tok}` (linhas {linhas}): {falta}")
+        print(f"CENSO: {len(lacunas)} caminho(s) citado(s) fora do pacote e da v1.0 — NÃO depositar")
+        return 1
     man = {
         "gerado_por": "deposit/paperA-v1.1/build-package.py",
         "registro": {
@@ -253,15 +358,14 @@ def main():
             "R4": "diretório temporário do macOS -> <TMP>",
         },
         "manuscrito": {
-            "fonte": "_sprint-2026-10-04/A-v1.1-rc8.md",
-            "sha256_rc8": sha(rc8),
+            "fonte": FONTE,
+            "sha256_fonte": sha(fonte),
             "sha256_depositado": sha(dep),
-            "unica_diferenca": ("Apêndice D: '[TODO at deposit: insert its version DOI here, or a "
-                                "pre-reserved DOI if one is created before deposit.]' -> 'Its version "
-                                "DOI is `10.5281/zenodo.23163119`, reserved before deposit.'"),
+            "diferenca": "nenhuma: o depositado é a fonte byte a byte (gate de parity-rc12, check 'deposit')",
             "pdf": "pandoc 3.9 + xelatex x2 via pdf-build/build-pdf.sh (em scripts-v1.1.zip); 0 glifos ausentes",
         },
         "excluidos": [{"o_que": a, "motivo": b} for a, b in EXCLUIDOS],
+        "censo_citados": censo,
         "envio": {
             "soltos": sum(1 for i in itens if i["no_deposito"] == "solto"),
             "artefatos-v1.1.zip": {"itens": len(ARTEFATOS), "bytes": za.stat().st_size},

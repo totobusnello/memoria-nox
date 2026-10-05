@@ -47,7 +47,7 @@ aggregate capacity therefore did not force this result. It does not follow that 
 the number was not produced by a lack of space. The per-session capacity (10 items)
 is not tested here. (The 99.98% expected coverage under uniform random service, against a 100% maximum,
 illustrates what the capacity would allow; it is not a recommended policy.) Adding search, 56,288 live chunks (83.78%) have neither a
-brief-log record nor a positive search counter. This is a lower bound on non-delivery by the brief and by tracked search; non-delivery across all agent-facing search is not established (§3.1). The capacity figure and the 83.78% sit in different universes on purpose: the slack is the brief's, the 83.78% counts the
+brief-log record nor a positive search counter. This is a lower bound on non-delivery by the brief and by tracked search; non-delivery across all agent-facing search is not established (§3.1). The two sentences change universe on purpose: the capacity slack above is the brief's, whereas the 83.78% counts the
 union. Of the 10,899 live chunks with a record on either surface, 9,755 have a positive search counter. That counter records that a chunk was a top candidate of some tracked search call, whoever initiated the call (automated callers included) and whether or not the chunk was then returned: it bounds from above what tracked search returned (§3.1).
 The brief is the surface that proactively selects content for delivery. Every claim in this paper about
 *mechanism* concerns the brief; the 83.78% describes the state and does not assign a cause.
@@ -135,9 +135,9 @@ the identical set from 2026-08-24 to 2026-09-19, from 5,376 main slots on a 672-
 (§4.3.1).
 
 We examined them, and we located the concentration. The 8 slots of the main pool
-converge: 3 chunks appear in 100% of briefs, held there by the high-pain pin
+converge: 3 chunks appear in 100% of briefs, placed there by the high-pain floor
 (`pain ≥ 0.9`; measured over 2026-08-21 to 09-21, §4.3.1), which takes all three
-corpus-wide slots and protects only what the score has already placed in the brief (§4.3.2), and the top-10 takes 47.16% of a week's slots. The remaining 2
+corpus-wide slots, and the top-10 takes 47.16% of a week's slots. The remaining 2
 slots are a coverage channel, which exists precisely to serve the never-served.
 That channel has two distinct constraints: eligibility (path patterns, the importance/pain floor and age windows) bounds daily reach; holding eligibility fixed, an additive salience bonus changes per-brief selection only within `last_served` ties:
 
@@ -875,11 +875,9 @@ every brief that fails it is one where `fresh_added`, logged from the treated co
 differs from the control's coverage picks, so the subtraction leaves 9 ids (`out-ord0826.json`,
 `fidelity`). 2026-08-21 to 08-23 are left out because the frozen copy does not hold the served
 state of one `boris` slot on those days: it carries an access to chunk 298048 at
-2026-08-22T19:09Z, so the reconstruction ranks 298048 above 285042, while production served
-285042 in that slot on 08-21, 08-22 and part of 08-23 (`A-filters-disaggregation/diag-out.txt`,
-diagnostic of the 2026-08-22 epoch; why production kept 285042 after the access is not
-established). Under the first criterion those days reproduce 85.8%, 85.7% and 98.0%; under the
-stricter one, 85.8%, 85.7% and 84.3%. Counting exclusions is the wrong instrument here: F3 alone removes 95.7% of the
+2026-08-22T19:09Z, so for briefs served before that access the reconstruction ranks 298048 above
+285042, which was served (`A-filters-disaggregation/diag-out.txt`, diagnosed on 2026-08-22). Under the same criterion those
+days reproduce 85.8%, 85.7% and 98.0%. Counting exclusions is the wrong instrument here: F3 alone removes 95.7% of the
 corpus from candidacy and binds nothing. The question is answered by lifting one filter at
 a time and recomputing every brief:
 
@@ -896,11 +894,8 @@ a time and recomputing every brief:
 
 No filter, lifted, widens the surface; the two that change its breadth narrow it, because
 routing by agent is the main pool's only source of variety. The breadth is exactly
-`3 + 6 agents × 5`: the 3 shared slots are what `mainTarget` leaves after the agent quota
-(8 − 5), and in every brief the three pinned chunks fill them (112241, 116107 and 116467,
-`pain = 1.0`, placed in phase 0 before the quota pass); with F7 lifted the same 3 slots go to
-the `scope=global` sub-pool's top three after dedup, where 227328 replaces 116107 (§4.3.2),
-and each agent gets the same 5 in every brief. A day
+`3 + 6 agents × 5`: the 3 shared slots are taken by the high-pain floor (chunks 112241, 116107
+and 116467, `pain = 1.0`, in every brief), and each agent gets the same 5 in every brief. A day
 has 5,376 main slots and they serve 33 distinct chunks, which is 0.61% of the slot
 capacity and 163 serves per chunk. From the serving log alone, without the database
 (`observed-main-from-log.json`), there are 33 distinct main chunks on every measurable day from
@@ -1006,12 +1001,11 @@ used a linear 365-day recency from `source_date` and a 0.5 default for `importan
 not the production function; it gave 131/129/128, and the new artifact reproduces that number
 as an anchor.
 
-Search traffic is one condition of their rank; the pin (F7, §4.3.1) is the other, and for one of
-the three it is measured as necessary: lifting it removes 116107 from the main set of every
-reconstructed brief on every day with briefs from 2026-08-21 to 2026-09-07, with its salience
-rank unchanged, and 227328 takes its place, while 112241 and 116467 stay
-(`A-filters-disaggregation/out-ord0826.json`, `lift_F7_pinned`). The pin protects only what the
-score has already placed in the no-fresh brief (`brief.ts:819-821`).
+The pin (F7, §4.3.1) is the other condition, and it is measured as necessary: lifting it removes 116107 from the main
+set of every reconstructed brief, on every day from 2026-08-21 to 2026-09-07, with its salience
+rank unchanged, and 227328 takes its place (`A-filters-disaggregation/out-ord0826.json`,
+`lift_F7_pinned`). The pin protects only what the score has already placed in the brief
+(`brief.ts:819-821`).
 
 **Caveat:** the population of the counterfactual is 149, while §4.3 counts 201 distinct chunks in the
 same window. The 52 missing are one identified set, not a coincidence (an open reconciliation
@@ -2069,8 +2063,8 @@ and whose value, 4.86% under the conventions in force on the 2026-08-26 corpus
 (same regime, empty never-served stratum), was measured by replay. The main pool (the other 8) fails
 for the opposite reason: there the score is the dominant coordinate, and three of its four terms
 do not decay. The access component is monotone in a counter that only goes up, so
-the three constant chunks hold ranks 1, 3 and 4 by salience only through tracked search traffic from months ago, whoever initiated it (§3.1; measured counterfactual, §4.3.2: last accessed 42, 90 and
-30 days before the window closed on 2026-08-28, in chunks that won 4,632 of 4,632 briefs), and the high-pain pin holds in every brief what that score placed there.
+the three constant chunks keep their slots only through tracked search traffic from months ago, whoever initiated it (§3.1; measured counterfactual, §4.3.2: last accessed 90, 30, and
+42 days before the window closed on 2026-08-28, in chunks that won 4,632 of 4,632 briefs), together with the high-pain pin that protects what the score already selected.
 
 The main pool would respond to a score adjustment, and nobody adjusts it. The coverage channel,
 designed to compensate for the main pool, has a daily reach bounded by its eligible population (path patterns, the
@@ -2189,14 +2183,14 @@ on the severity label and which does not.
 ## Appendix D — Artifacts
 
 Scripts are in `measurement/`, except `claims_check.py`, which is at the root of
-`paper2-interventional/`, and the two sprint scripts whose full paths the table gives. Artifacts are
+`paper2-interventional/`, and the sprint script whose full path the table gives. Artifacts are
 in `out/` (including the three dated 2026-10-05), in `measurement/`
 (`CHANNEL-ATTRIBUTION-2026-08-29.json`), at the root of `paper2-interventional/` (`CEILING-*`,
 `TIEBREAK-*`, `POOL-ELEGIVEL-2026-08-28.json`, `BATCH-CYCLE-*`, `PREDICTION-*`), and, for the
 ones produced on 2026-10-04, in `_sprint-2026-10-04/` (`POOL-ELEGIVEL-2026-08-26-to-29.json`;
 `A-recon/RECON-52-e-sondas-2026-10-04.json`; `A-recon/ORGANICO-e-hashes-2026-10-04.txt`;
 `A-recon-evidence/COMPARABILITY-IDENTITY-5.7.2.json`;
-`A-filters-disaggregation/out-ord0826.json`; `A-filters-disaggregation/diag-out.txt`;
+`A-filters-disaggregation/out-ord0826.json`;
 `A-filters-disaggregation/observed-main-from-log.json`;
 `A-rc2/COVERAGE-SET-FROM-LOG-2026-10-04.json`;
 `A-aging/WARNING-DENSITY-recomputed-2026-10-03.json`; `A-aging/p2_verdict_ids-280.txt`):
@@ -2223,7 +2217,7 @@ ones produced on 2026-10-04, in `_sprint-2026-10-04/` (`POOL-ELEGIVEL-2026-08-26
 | top-of-pool counterfactual, first version (superseded: not the production function; kept as the anchor) | `contrafactual-do-topo.py` | `out/TOP-COUNTERFACTUAL-2026-08-29.json` |
 | bonus at the largest threshold against the largest adjacent gap (§4.4, §5.4) | `sprint-bonus-vs-passo.py` | `out/BONUS-VS-STEP-2026-10-05.json` |
 | the 52 deleted chunks, the five probes and the full-pool counterfactual (§4.3, §4.3.1, §4.3.2) | `sprint-recon-52-e-sondas.py` | `A-recon/RECON-52-e-sondas-2026-10-04.json` · `A-recon/ORGANICO-e-hashes-2026-10-04.txt` |
-| main-pool filter disaggregation, and the served main set from the log (§4.3.1) | `sprint-desagrega-filtros-pool-principal.py` (`--log-only` for the log census) | `A-filters-disaggregation/out-ord0826.json` · `A-filters-disaggregation/observed-main-from-log.json` · `A-filters-disaggregation/diag-out.txt` (the residual mismatch of 2026-08-22, produced by `_sprint-2026-10-04/A-filters-disaggregation/diag-residual-mismatch.py`; the file also holds a 2026-09-08 run and the 2026-08-28 control) |
+| main-pool filter disaggregation, and the served main set from the log (§4.3.1) | `sprint-desagrega-filtros-pool-principal.py` (`--log-only` for the log census) | `A-filters-disaggregation/out-ord0826.json` · `A-filters-disaggregation/observed-main-from-log.json` |
 | warning density recomputed on the 2,058-line text (App. F) | `densidade-de-avisos.py` | `A-aging/WARNING-DENSITY-recomputed-2026-10-03.json` |
 | ids of the 280 adjudicated episodes (§6.2) | — | `A-aging/p2_verdict_ids-280.txt` |
 | verifier coverage and warning density (§6.1, App. F) | `claims_check.py` · `censo-de-alegacoes-sem-guarda.py` · `censo-de-universos-no-paragrafo.py` · `densidade-de-avisos.py` | `out/CLAIM-COVERAGE-2026-08-29.json` · `out/WARNING-DENSITY-2026-08-30.json` |
@@ -2677,7 +2671,7 @@ the finding itself (F1, F2, F6). What changed:
   Correction labels left the Abstract, the note that repeated §3.1 was dropped and the curation
   note joined what we do not claim: 1,177 words became 1,090.
 - §4.3.1 fidelity (F6). The 100% holds under the criterion the text declares; the stricter
-  id-for-id test passes in 94.3–97.9% of the briefs of each day except 2026-09-03 and 2026-09-07, where `fresh_added` is null, and every failure comes from
+  id-for-id test passes in 94.3–97.9% of the briefs of each day, and every failure comes from
   `fresh_added` being logged from the treated composition. 2026-08-21 to 08-23 are left out
   because the frozen copy does not hold the served state of one `boris` slot (chunk 298048), not
   for the reason the finding guessed (the 52 deleted chunks, which are coverage slots).
@@ -2695,55 +2689,6 @@ the finding itself (F1, F2, F6). What changed:
 `_sprint-2026-10-04/A-rc10/parity-rc10.py` compares rc9 with rc10 and requires every changed
 numeric token, reference, code span, link, heading and table row to be one that a finding above
 declares.
-
-**Addendum, rc11 (2026-10-05): a Fable regression review of rc10.** Eight findings
-(`_sprint-2026-10-04/REVIEW-A-rc10-2026-10-05.md`), each checked against the artifacts it cites
-before it was applied; the record is `_sprint-2026-10-04/APPLY-A-rc11.md`. All eight were applied
-with the wording the review proposed. What changed:
-
-- Deposit (finding 1). §4.3.1 cites `A-filters-disaggregation/diag-out.txt`, which the v1.1
-  package had excluded as not cited by the text. Appendix D now lists it, with the script that
-  produced it (`diag-residual-mismatch.py`), and the deposit carries both.
-- The three days left out of the §4.3.1 fidelity test (finding 2). The 85.8%, 85.7% and 98.0% are
-  the first criterion; under the stricter one 2026-08-23 gives 84.3%. The text no longer explains
-  the mismatch by briefs served before the access of 2026-08-22T19:09Z: production kept 285042
-  after that access, on 2026-08-22 and part of 2026-08-23, and why is not established.
-- The three constant chunks (findings 3, 4 and 5). §9 says that search traffic holds their
-  salience ranks, not their slots. §4.3.2 says that the pin is measured as necessary for one of
-  the three (116107), and that 112241 and 116467 stay when it is lifted. §1 says that the pin holds
-  them, not that the floor placed them.
-- Smaller corrections. Open items 5 says that the v1.1 deposit carries the 10 Appendix D entries
-  (finding 6). The rc10 addendum names the two days where the stricter test does not apply
-  (finding 7). The Abstract's sentence on the two universes is reworded (finding 8).
-
-`_sprint-2026-10-04/A-rc11/parity-rc11.py` compares rc10 with rc11 under the same rule: every
-changed numeric token, reference, code span, link, heading and table row must be one that a
-finding above declares.
-
-**Addendum, rc12 (2026-10-05): a Fable review of rc11.** Three findings
-(`_sprint-2026-10-04/REVIEW-A-rc11-2026-10-05.md`, numbered 2 to 4 there), each checked against
-the code and the artifacts it cites before it was applied; the record is
-`_sprint-2026-10-04/APPLY-A-rc12.md`. All were applied with the wording the review proposed. The
-review found no wrong number in rc11. What changed:
-
-- The three shared slots of the main pool (finding 2). §4.3.1 no longer says that the high-pain
-  floor takes them. They are what `mainTarget` leaves after the agent quota (8 − 5); as served,
-  the three pinned chunks fill them in phase 0, before the quota pass; with F7 lifted the same
-  three slots go to the `scope=global` sub-pool's top three after dedup, where 227328 replaces
-  116107. The rc11 addendum had left that sentence as is; it was the same class as the §1
-  sentence corrected in rc11.
-- Deposit (finding 3). The package manifest now declares two exclusions: the local receipt of
-  the voice cited by the rc8 addendum, and the working names of the two databases that
-  `diag-out.txt` mentions.
-- Smaller corrections (finding 4). Appendix D says that the table gives the full paths of two
-  sprint scripts, and its row for the filter disaggregation gives the full path of
-  `diag-residual-mismatch.py` and says that `diag-out.txt` also holds a 2026-09-08 run and the
-  2026-08-28 control. §9 gives the days since last access in rank order (42, 90 and 30), as the
-  Abstract does.
-
-`_sprint-2026-10-04/A-rc12/parity-rc12.py` compares rc11 with rc12 under the same rule: every
-changed numeric token, reference, code span, link, heading and table row must be one that a
-finding above declares.
 
 ## Open items
 
@@ -2815,9 +2760,9 @@ about today's state. What is actually missing:
    concept DOI cited, and the reserved version DOI is now in Appendix D; ~~the pointers to
    `DEVIATIONS-FOR-PAPER.md` that Appendix D does not list among the deposited artifacts~~ →
    listed (`_sprint-2026-10-04/A-recon-5.7.2-appD.md`). The artifact census
-   (`measurement/sprint-censo-artefatos-paperA.py`) reported 1 missing input
-   (`ts-350.txt`) and 10 Appendix D entries absent from the v1.0 deposit. The v1.1 deposit carries
-   the 10 entries; `ts-350.txt` was not kept (§5.6) and stays declared missing.
+   (`measurement/sprint-censo-artefatos-paperA.py`) still reports 1 missing input
+   (`ts-350.txt`) and 10 Appendix D entries absent from the v1.0 deposit. The next deposit must
+   fix both.
 
 6. ~~**Caveat.** The seven serial filters are not disaggregated (opened 2026-09-21, from Codex's opinion,
    the only criticism of it that does not depend on a citation). §4.3.1 attributes the non-exposure of the

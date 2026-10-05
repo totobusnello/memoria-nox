@@ -6,14 +6,21 @@ stays on the v1.0 record. Version 1.1 is the manuscript translated to English an
 2026-10-05. Every change is recorded, with its source, in Appendix F of the manuscript; the
 2026-10-05 round is Appendix F-5. Where the v1.0 description and v1.1 differ, v1.1 holds.</p>
 
+<p><strong>Title.</strong> v1.0 was titled "Spare capacity, narrow surface: what a production
+agent-memory system actually surfaces". v1.1 is titled "Spare capacity, narrow surface: the
+exposure record of a production agent-memory system": the old ending used "actually" as an
+intensifier and repeated surface/surfaces. The title note at the top of the manuscript records
+the change.</p>
+
 <p><strong>Recomputed with production code.</strong> Three quantities were recomputed rather
 than relabelled, each with a dated artifact.</p>
 <ul>
   <li><strong>Access counterfactual (§4.3.2).</strong> The published 2/3/5 → 131/129/128 came
       from a script whose recency and <code>importance</code> default are not those of the
-      production function. With <code>calculateSalience</code> the three chunks sit at positions
-      1/3/4 and fall to a tie at 44–46 of 149 when the access component is zeroed (23–47 across
-      instants and access-timing assumptions). "Beyond rank 100" and "exactly 52 places lower"
+      production function. With <code>calculateSalience</code> the three chunks rank 1, 3 and 4 by
+      salience among the 149 served chunks and fall to a tie at ranks 44–46 when the access
+      component is zeroed (23–47 across instants and access-timing assumptions). Dedup was not
+      replayed, so these ranks do not by themselves establish final served membership. "Beyond rank 100" and "exactly 52 places lower"
       are withdrawn. The claim that zeroing access takes the three out of the top-10 stands.
       <code>out/SALIENCE-COUNTERFACTUAL-PROD-2026-10-05.json</code>.</li>
   <li><strong>Tie-break exposure (§5.7.1).</strong> Recounted on the comparator's key instead of
@@ -40,9 +47,12 @@ above are superseded:</p>
       initiated it (automated callers included). It bounds from above what tracked search
       returned and identifies no initiator.</li>
   <li>"the main one is determined by search traffic from months ago and does not respond to
-      score adjustment": past tracked search traffic determined the positions of the three chunks present in
-      every brief of the week; the main pool would respond to a score adjustment, and nobody
-      adjusts it.</li>
+      score adjustment": the three chunks present in every brief of the week hold ranks 1, 3 and
+      4 by salience among the 149 served only through tracked search traffic from months ago
+      (44–46 with access zeroed). The high-pain pin is the other condition: it protects only what
+      the score has already placed in the brief, and it is measured as necessary for one of the
+      three (lifting it removes chunk 116107 from every reconstructed brief; the other two stay).
+      The main pool would respond to a score adjustment, and nobody adjusts it.</li>
   <li>"exhausts 100% of an eligible pool of 108 chunks every day": measured on 2026-08-26 to 08-29,
       inside a period of defective session ingestion, and describing that regime. The coverage
       channel's daily reach is bounded by its eligible population (path patterns, the
@@ -58,14 +68,18 @@ flagged where they appear.</p>
 
 <p><strong>The package.</strong> The 13 files of v1.0 are carried over unchanged. Added:
 <code>MANUSCRIPT-v1.1.pdf</code> and its source <code>MANUSCRIPT-v1.1.md</code>;
-<code>artefatos-v1.1.zip</code> (40 files: the 2026-10-04/05 artifacts, artifacts the text
-cites that v1.0 did not include, the current <code>DEVIATIONS-FOR-PAPER.md</code>, and the
-review records of Appendix F); <code>scripts-v1.1.zip</code> (27 files: the scripts that
-produced them, the four v1.0 scripts changed since, the retired monitoring triggers, the rc8
-parity check and the PDF build); and <code>MANIFEST-v1.1.json</code>, with the sha256 of each file. In seven
+<code>artefatos-v1.1.zip</code> (48 files: the 2026-10-04/05 artifacts, among them the
+diagnostic of the one residual mismatch of the filter reconstruction, artifacts the text cites
+that v1.0 did not include, the current <code>DEVIATIONS-FOR-PAPER.md</code>, and the review
+records of Appendix F); <code>scripts-v1.1.zip</code> (33 files: the scripts that produced
+them, the four v1.0 scripts changed since, the retired monitoring triggers, the parity checks
+of drafts rc8 to rc12, the PDF build, and <code>serving-brief.ts</code>, the brief module whose
+line numbers the text cites, which v1.0 did not deposit); and <code>MANIFEST-v1.1.json</code>,
+with the sha256 of each file and a census showing that every <code>_sprint-2026-10-04/</code>
+and <code>out/</code> path the text cites is in this package or in the v1.0 files. In seven
 packaged files a local filesystem path was replaced by a placeholder; the manifest names them
-and keeps the hash of the original. The manuscript differs from the reviewed text only in
-Appendix D, where the version DOI was filled in.</p>
+and keeps the hash of the original. The deposited manuscript is byte for byte the final draft
+(rc12, Appendix F-5).</p>
 
 <p><strong>What this version does not do.</strong> The verifier in the package,
 <code>claims_check.py</code>, is the v1.0 one and checks the v1.0 Portuguese text. It has not
