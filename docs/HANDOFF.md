@@ -1,5 +1,14 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-10-05 — Paper A v1.1 PUBLICADO: `10.5281/zenodo.23163119`
+
+- **Publicado 16:18 BRT** pelo Toto. Versão 2 do concept `10.5281/zenodo.22181414` (v1.0 = 22181415). Título novo: *Spare capacity, narrow surface: the exposure record of a production agent-memory system*. PDF `spare-capacity-narrow-surface-v1.1.pdf`, 53 p. Conferido pela API pública (`published`, 18 arquivos, md5 dos 5 novos = disco) e doi.org.
+- **Texto = rc18** (`paper2-interventional/_sprint-2026-10-04/A-v1.1-rc18.md`, byte-idêntico ao `.md` depositado). Caminho: rc4→rc8 regressões do Codex; rc9 passe `avoid-ai-writing` no texto inteiro; rc10→rc18 Fable + Codex + DeepSeek, com leitura **completa** e veredito GO/NO-GO antes do Publish (Fable GO no rc15 inteiro e em cada diff até o rc18; Codex completo no rc16, achados aplicados). Cada rodada tem `REVIEW-A-*`, `APPLY-A-*` e `parity-rcN.py` com selftest.
+- **Retirada declarada:** a frase da v1.0 «cinco dias seguidos sem item novo, idade mínima +1,00/dia» não tinha artefato e era falsa (52 itens em 20/08); a descrição da v1.1 registra.
+- **Pacote:** `deposit/paperA-v1.1/` (build-package.py com censo de citações 97/0 e gate de privacidade; deposit-v1.1.py; DRAFT-READBACK.md). PRs #564–#568.
+- **Próximo (A):** PR que promove o texto depositado a `paper2-interventional/MANUSCRIPT.md` e porta `claims_check.py` + 8 scripts de `measurement/` para o texto em inglês (rc18 no lugar hoje dá 54 falhas vs 11). `claims_check.py` tem mudança local não commitada (contrafactual estrito) que entra nesse PR.
+- **Próximo (B):** sham da janela inteira (`job-janela2`, VPS de Pesquisa, ETA ~2026-10-07T03:00Z) → integrar, aplicar o texto do Apêndice B de `LASTRO-B-item10.md`, revisão final, depósito. Lastro item 10 fechado (manifesto 50 artefatos, 2 pernas 16/16).
+
 ## 2026-10-04 (noite) — apelação do arXiv ENVIADA: `MOD-107053`
 
 - **Enviada 22:38 BRT** pelo Toto: https://arxiv-org.atlassian.net/servicedesk/customer/portal/2/MOD-107053. Anexo: paper **v1.0.6** (`10.5281/zenodo.23147633`, PDF md5 `6bf378c01d8e35b672f5b66e899c6f86`). Uso único: aguardar a resposta, não reenviar.
