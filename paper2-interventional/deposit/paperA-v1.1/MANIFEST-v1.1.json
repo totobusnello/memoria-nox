@@ -1,0 +1,509 @@
+{
+ "gerado_por": "deposit/paperA-v1.1/build-package.py",
+ "registro": {
+  "rascunho": 23163119,
+  "doi": "10.5281/zenodo.23163119",
+  "concept_doi": "10.5281/zenodo.22181414",
+  "versao_anterior": "10.5281/zenodo.22181415 (v1.0, publicada 2026-08-30)"
+ },
+ "nota": "Os 13 arquivos da v1.0 entram nesta versão por files-import no servidor, byte a byte do publicado; não estão listados em 'itens' e seus md5 são conferidos contra o registro 22181415 no readback. 'itens' cobre só o que a v1.1 acrescenta. Zips determinísticos (ordem alfabética, data 2026-10-05 00:00). Onde a cópia empacotada difere do repositório, 'redacao' diz quais regras e 'sha256_no_repositorio' guarda o hash do original. Nos itens com 'redacao_no_repositorio', a cópia do repositório já foi sobrescrita com a redigida (2026-10-05): 'sha256_no_repositorio' é então o hash do original anterior ao scrub, que segue no histórico do git.",
+ "regras_de_redacao": {
+  "R1": "caminho absoluto do scratchpad temporário local -> <SCRATCH>/",
+  "R2": "diretório home absoluto do autor -> <HOME>/",
+  "R3": "prefixo de home '~' + barra -> <HOME>/",
+  "R4": "diretório temporário do macOS -> <TMP>"
+ },
+ "manuscrito": {
+  "fonte": "_sprint-2026-10-04/A-v1.1-rc8.md",
+  "sha256_rc8": "2309b232fdf44df173e1073babb215996b8258f5e801aece79b792ef1a9f30ed",
+  "sha256_depositado": "8097bac95810867c6c3c1f8346221191bb872eaf40f4499c51b531085b28e535",
+  "unica_diferenca": "Apêndice D: '[TODO at deposit: insert its version DOI here, or a pre-reserved DOI if one is created before deposit.]' -> 'Its version DOI is `10.5281/zenodo.23163119`, reserved before deposit.'",
+  "pdf": "pandoc 3.9 + xelatex x2 via pdf-build/build-pdf.sh (em scripts-v1.1.zip); 0 glifos ausentes"
+ },
+ "excluidos": [
+  {
+   "o_que": "claims_check.py (versão atual)",
+   "motivo": "trabalho em andamento não commitado; seus guardas leem MANUSCRIPT.md (texto em português) e, com o texto v1.1 no lugar, falham 54 — não verifica a v1.1. A versão da v1.0 segue no registro (importada), e verifica o texto da v1.0"
+  },
+  {
+   "o_que": "bancos .db citados (epochs e20260826T060003Z / e20260830T060001Z, p2-ord-ro-2026-08-26, corpus-SERVING-REAL-e20260903-recuperado)",
+   "motivo": "corpus de produção com conteúdo de trabalho real"
+  },
+  {
+   "o_que": "log de serving p2-serving.ndjson",
+   "motivo": "dado bruto de produção; os artefatos derivados entram"
+  },
+  {
+   "o_que": "_sprint-2026-10-04/A-filters-disaggregation/{out-pres0908,out-ord0826-tzm3-0828}.json, diag-*",
+   "motivo": "não citados pelo texto"
+  },
+  {
+   "o_que": "out/C12-*-2026-10-05.json, sprint-c12-*",
+   "motivo": "pertencem ao Paper B"
+  }
+ ],
+ "envio": {
+  "soltos": 2,
+  "artefatos-v1.1.zip": {
+   "itens": 40,
+   "bytes": 232473
+  },
+  "scripts-v1.1.zip": {
+   "itens": 27,
+   "bytes": 109433
+  }
+ },
+ "itens": [
+  {
+   "path": "MANUSCRIPT-v1.1.md",
+   "no_deposito": "solto",
+   "bytes": 200458,
+   "sha256": "8097bac95810867c6c3c1f8346221191bb872eaf40f4499c51b531085b28e535"
+  },
+  {
+   "path": "MANUSCRIPT-v1.1.pdf",
+   "no_deposito": "solto",
+   "bytes": 285730,
+   "sha256": "ac3888f41c6755d0373b186fc071f0f768ab82dcb37f28859aa5770f8cb156a3"
+  },
+  {
+   "path": "BATCH-CYCLE-2026-08-28.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 2993,
+   "sha256": "1d1a6e20a96b8e2addc8778889aeae3690ff623e24af6361c1fbc0092f11ae18"
+  },
+  {
+   "path": "BATCH-CYCLE-2026-08-29.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 2053,
+   "sha256": "0ac13b8e1da7296c7510985e1d3bda771b0b342070551730bf4ccc2b5c1e22e5"
+  },
+  {
+   "path": "CEILING-DESIGNATION-SENSITIVITY-2026-08-28.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 3618,
+   "sha256": "d4e38a54e8b87eeeb7e3cb8d8d708e9c55700aad943f2dde57275fbe367222e8"
+  },
+  {
+   "path": "CEILING-GRANULARITY-2026-08-28.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 3583,
+   "sha256": "bbbb1f7d3103412b8d960e104ea0791433cfbafd9ed0af64c0416549b269a1e9",
+   "sha256_no_repositorio": "88358c34739e21b054e438a8e21efa4cfff884cdea01bf33759dfcaa4fe52376",
+   "redacao": [
+    "R1 x4"
+   ],
+   "redacao_no_repositorio": "2026-10-05 (SCRUBBED.txt); original no histórico do git"
+  },
+  {
+   "path": "CORPUS-FREEZE.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 5141,
+   "sha256": "ae11c12ecc4545556cbb4b3fcdf2c8288c136fccda2de6196dbb0e970b3cb67d"
+  },
+  {
+   "path": "DEVIATIONS-FOR-PAPER.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 204857,
+   "sha256": "895e1f6b1cca75ee61e369056be42d65137b23cde759fa9a55b9e4a81419e980"
+  },
+  {
+   "path": "POOL-ELEGIVEL-2026-08-28.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 530,
+   "sha256": "c7ad84723293ad0839198802b0572061521d9130f9fe1d5d05d8f17b49b71b8f"
+  },
+  {
+   "path": "PREDICTION-2026-08-29.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 5265,
+   "sha256": "76a88a190529808c1c49b6bb2320579e71a8665b58032d6b5226a15d1324b12b"
+  },
+  {
+   "path": "PROTOCOL-CALIBRATION-2026-08-27.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 26811,
+   "sha256": "b6258f75615d6b85ee75411984d2f86bf1754cdaf858521d8c8b89d40ac15995"
+  },
+  {
+   "path": "RELATED-WORK.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 19863,
+   "sha256": "885d5bb4aba57bf1a333063b665e9518ec7639e3a5629e389349299e9836ab97"
+  },
+  {
+   "path": "REMEDIATION-2026-08-27.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 11947,
+   "sha256": "9cee34353a4f10132d4b9b372a61c6a681394a8214174cb399d8018dc516aee6"
+  },
+  {
+   "path": "REPLAY-OPORTUNIDADE-2026-08-27.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 16787,
+   "sha256": "eb2e801bb0eabfbbaa8d4ba0512b6ce39628485b98fff6575088a4ef8a426496"
+  },
+  {
+   "path": "REVISAO-ADVERSARIAL-2026-09-21.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 7298,
+   "sha256": "99418ebb673f2a97cbdd66cc2b85fac8f102f8c4b46fd72a1207ffda4e533c90"
+  },
+  {
+   "path": "SUPERFICIE-2026-08-27.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 11019,
+   "sha256": "c29fff683003280903730701ff8eee791d72e8b21bb11e47ab641e8b6ce11c57"
+  },
+  {
+   "path": "TIEBREAK-EXPOSURE-2026-08-29.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 1004,
+   "sha256": "7cd0df951c3442fab7a87e003bdfec90b43974e651b5a994ffa8af7cfb7037d4"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-aging/WARNING-DENSITY-recomputed-2026-10-03.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 864,
+   "sha256": "ddf7656b50995f0424bb539a309b5ff9e0d9d97b238a168ca3bcc5460ce0a57f"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-aging/p2_verdict_ids-280.txt",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 4760,
+   "sha256": "586acb84cf3bd37586a7ae43e1fd8c03f0d6b162e2c5651e3b24d0895f18bf2d"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-filters-disaggregation.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 17217,
+   "sha256": "4d42aad637a1f7cf403ffeb0e766ff02c2611286ea7ffd7762fe55121078fa29",
+   "sha256_no_repositorio": "af61ca047560108496d0b5a75af086d1bfeae11c1654120e38c62d332319319a",
+   "redacao": [
+    "R3 x4",
+    "R4 x1"
+   ],
+   "redacao_no_repositorio": "2026-10-05 (SCRUBBED.txt); original no histórico do git"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-filters-disaggregation/observed-main-from-log.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 18567,
+   "sha256": "356010f320c8ff0740a0506bc5eb401f530f1abbd24a52da934c4c89ae7a31ae",
+   "sha256_no_repositorio": "bebd8c972f1057c7b4a43ec8f33a424d2b806b79fb51dcd6298d7751de17097e",
+   "redacao": [
+    "R2 x1"
+   ],
+   "redacao_no_repositorio": "2026-10-05 (SCRUBBED.txt); original no histórico do git"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-filters-disaggregation/out-ord0826.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 118384,
+   "sha256": "05b7bcffa472c9a73e3fb08b6284302893743a06c5a86c6b7a8ebd122e738795"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-rc2/COVERAGE-SET-FROM-LOG-2026-10-04.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 13043,
+   "sha256": "837ee1d0d85919378d33e9843444403c27b6e01d3bfedb4bc08a29a468c809c6",
+   "sha256_no_repositorio": "ec729673a59b3e0ac90e8b83d9eac1ccd2a6f735d940e69ceb9159add212a7e5",
+   "redacao": [
+    "R2 x1"
+   ],
+   "redacao_no_repositorio": "2026-10-05 (SCRUBBED.txt); original no histórico do git"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-recon-5.7.2-appD.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 25024,
+   "sha256": "5b27f4cf155506e45262c533fd7c1c317d953d4c0068f7cdeeb7c6a911233ec7",
+   "sha256_no_repositorio": "c84158c6194938f47e1fc3af2794957bd58b317530365f4c184a648433314822",
+   "redacao": [
+    "R3 x4"
+   ],
+   "redacao_no_repositorio": "2026-10-05 (SCRUBBED.txt); original no histórico do git"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-recon-52-and-slots.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 12955,
+   "sha256": "c45119deb7da8928fdd601f992194fad2c6cba27d50af09950bb3b1bee2e340f"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-recon-evidence/COMPARABILITY-IDENTITY-5.7.2.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 29154,
+   "sha256": "e38158ce6a056808fefb9a30dca33a3bb5724cd8c5398cc0f5bd05988aa960ff"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-recon-pool-elegivel.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 6168,
+   "sha256": "96cada69ebcdae5d5acf54f99a27e5921ff03bf2fbb5fec8268cdea35ddb5947"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-recon/ORGANICO-e-hashes-2026-10-04.txt",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 801,
+   "sha256": "9a26c959909c0dd1ffac2e428ad61f95f1a7c8fbff22b4767d8534b09ea77586"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-recon/RECON-52-e-sondas-2026-10-04.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 8805,
+   "sha256": "84d32f3393c033b8fc2caded30d9a2161b5e21c36a681333f6d645a98b65e291"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-A-rc4.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 15384,
+   "sha256": "fca9fe96b30a06f6868f20f166826ee6880699b453ff8a50bbe925daa7db85ea"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-A-rc5.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 8844,
+   "sha256": "7ec70042bcb00f1b0cdb735356326c7c097f2c8df70260bfc090ce26aa9f7a07"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-A-rc6.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 27936,
+   "sha256": "d72bee866e22686667230f78da15559f8b966d33907c5a30ec89c160d7cc230d"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-A-rc7.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 9032,
+   "sha256": "d33a2aa06e300813558214ae6e5c346632d46b8b15ebe1502b91630a1fec0fd8"
+  },
+  {
+   "path": "_sprint-2026-10-04/CHECK-A-rc4-B-rc4.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 10044,
+   "sha256": "048c3a2c295166c83f579f930f57c71be3b2ea49acc78ef40f3319ffd49ab913"
+  },
+  {
+   "path": "_sprint-2026-10-04/POOL-ELEGIVEL-2026-08-26-to-29.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 8461,
+   "sha256": "8f763b8677ae93af6b99517d58caddf10df55901bb970220db2d6c9f34c97a22"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-A-2026-10-04.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 15259,
+   "sha256": "4e3428d1952206b7db5ba0b57673e710398a029b7f139e28fbc8587f9b96a653",
+   "sha256_no_repositorio": "6eca3e1ab74677a3fcf88a04c22721ee330b1fb8bed22dd0262ba472c261d223",
+   "redacao": [
+    "R3 x1"
+   ],
+   "redacao_no_repositorio": "2026-10-05 (SCRUBBED.txt); original no histórico do git"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-A-rc3-2026-10-04.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 15403,
+   "sha256": "db62fe8b319897504d22d9845f62211649b2e7c0fc2ec331dc77213e75e0f7be"
+  },
+  {
+   "path": "measurement/CHANNEL-ATTRIBUTION-2026-08-29.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 2798,
+   "sha256": "cfef3d008032e961ed1c91f57df3f884e89317745880f3128e568d60351bf733"
+  },
+  {
+   "path": "out/BONUS-VS-STEP-2026-10-05.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 1568,
+   "sha256": "16be90a1f16d90380d5bb9f684f5808251bab77cc030f32f67eb4b0275fb5846"
+  },
+  {
+   "path": "out/SALIENCE-COUNTERFACTUAL-PROD-2026-10-05.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 109762,
+   "sha256": "7348e948543a3633d7b1c4d7ab1a37e4c9a0d252c3e440f3a33f163f2374d82d"
+  },
+  {
+   "path": "out/TIEBREAK-EXPOSURE-PROD-2026-10-05.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 48630,
+   "sha256": "6921013636cf0071b02d1fdcb8b3e89ce6b9bad7d7000689c1876b27b19ed7b7"
+  },
+  {
+   "path": "out/TIEBREAK-EXPOSURE-PROD-SHARED-2026-10-05.json",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 70302,
+   "sha256": "82e75c08347480ced024a0f5befeef8139bc9cb56f39f11c12d27e13d58dc405"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-rc2/coverage-set-from-log.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 2010,
+   "sha256": "bdbb96c58040127c9593c993765c54be1cbc673c6945373f8494fcd2c72abd80"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-rc8/parity-rc8.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 18302,
+   "sha256": "1a6d7f9ab76d5851ad36eb05a88cdba055707de081aa72644b30bc02c3936c01"
+  },
+  {
+   "path": "pdf-build/build-pdf.sh",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 1353,
+   "sha256": "954d0ce26fb7d778e4c4b110d1713a603460521423f7aa2482ad16b52db70cda"
+  },
+  {
+   "path": "pdf-build/preamble-paperA-v1.1.tex",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 5671,
+   "sha256": "a6bdf1cf89af70606c4086a4bcc2ae6e9bdca5b48bd60cb60ebb4a347e1048a7"
+  },
+  {
+   "path": "measurement/auditoria-da-cadeia.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 13006,
+   "sha256": "d36e7e0c30eb2df400e5f2301dd82d292b2c91c930e201276d8aa9d4d432fa7c"
+  },
+  {
+   "path": "measurement/censo-de-universos-no-paragrafo.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 10675,
+   "sha256": "3f967d4221c39c4da5479da5f82ea0577bece7791369295d1fd961b2d1e155f2"
+  },
+  {
+   "path": "measurement/gatilho-composicao.mjs",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 9412,
+   "sha256": "894e8fe39586bca3f5c2eb5513b6c69b67b4484bdb857f2e24646030a0ddb236"
+  },
+  {
+   "path": "measurement/gatilho-saturacao.sh",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 34278,
+   "sha256": "720e7c8aac6b4cb0534078e480510e8934d34e33ed8c9cc44d9b7d190d23d789"
+  },
+  {
+   "path": "measurement/implantacao/PROCEDENCIA.md",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 1095,
+   "sha256": "64a3d09e4dd0400450d90d1205ac6c6fabe89d3809cfa22a28690a9bd1f8c3eb"
+  },
+  {
+   "path": "measurement/implantacao/README.md",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 3952,
+   "sha256": "8f9c2dc8f9ad004745f3fb1c50c9416698dea42953bde731c894ea02537578ff"
+  },
+  {
+   "path": "measurement/implantacao/desliga-dose-p2.sh",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 9908,
+   "sha256": "5179ea30c605b36e3e299a6c7e69fe2b026f37e2fd11278c0f740cda03a3e97f"
+  },
+  {
+   "path": "measurement/implantacao/restart-realinha-corpus.sh",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 8555,
+   "sha256": "937cc84b17518be2935ddf64461bfb83c60acb45a159436b1bfa059c3223dc25"
+  },
+  {
+   "path": "measurement/implantacao/run-composicao.sh",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 3425,
+   "sha256": "b85cd95b735d55efeae6b3311ca357b902dd0534740df394b9fbe2508c9c8080"
+  },
+  {
+   "path": "measurement/implantacao/run-coorte.sh",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 3452,
+   "sha256": "6808049ef539c28ce0913592d8b87426098705b690c2c725596d78968b8dc4ef"
+  },
+  {
+   "path": "measurement/implantacao/run-corpus-alinhado.sh",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 3252,
+   "sha256": "d25f72e1bcd89be48a96710ba85594183b72a79239a0d8bbfa95a6194f5d954c"
+  },
+  {
+   "path": "measurement/implantacao/run-designados.sh",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 4615,
+   "sha256": "40cfa206f504624f28b1be9f8ff5c5a463de770013a712de84924da629c7f5f0"
+  },
+  {
+   "path": "measurement/implantacao/run-heartbeat.sh",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 4773,
+   "sha256": "007d21a46987ea896b0cd3a29765266b04e7153fe1bdd9ffac36bc1ccc960b1e"
+  },
+  {
+   "path": "measurement/implantacao/run-saturacao.sh",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 6877,
+   "sha256": "59c158a55f2f739c2dbf1ad85efdbe41a0b30843dfec40f47f6740f677cd2ffb"
+  },
+  {
+   "path": "measurement/potencia-h1c.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 11322,
+   "sha256": "d5bfcfd63149632935b99f91c47c3099a00d2ffa52542ad398890c3fa871f834"
+  },
+  {
+   "path": "measurement/sprint-bonus-vs-passo.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 4403,
+   "sha256": "f925598b2884a5f6e062ae65d34e3f9add0b0a7623556267fc423d3d5cbd7021"
+  },
+  {
+   "path": "measurement/sprint-censo-artefatos-paperA.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 15765,
+   "sha256": "9f249d8b09f8a5bb75c36666587689eb31187fada49ed39126d3146b425e94d3",
+   "sha256_no_repositorio": "602f25298f70703c34c3e9b1d76faccb68cfc38112fddc61b458d9138cf01e98",
+   "redacao": [
+    "R3 x5"
+   ],
+   "redacao_no_repositorio": "2026-10-05 (SCRUBBED.txt); original no histórico do git",
+   "alteracao_pos_redacao": "depois da redação, as 4 ocorrências no código (uma no docstring ficou <HOME>/) viraram os.path.join(os.path.expanduser('~'), ...), para o script rodar; saída idêntica à do original"
+  },
+  {
+   "path": "measurement/sprint-comparabilidade-identidade-572.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 7453,
+   "sha256": "c2988b52f4dcb356682aa008cfcd23f8838fd768d6a8ed34b8576cca19c66e89"
+  },
+  {
+   "path": "measurement/sprint-contrafactual-salience-producao.mjs",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 12963,
+   "sha256": "3c5e4717a9fde73e1d40e571f49e4d18ba9f936e617bbfe2d103f3bbe2346993"
+  },
+  {
+   "path": "measurement/sprint-desagrega-filtros-pool-principal.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 38226,
+   "sha256": "8e8fbddf8f2a3c1f8053b4b42fe23065093e31e06ff7846150c4a9880f9b7aef"
+  },
+  {
+   "path": "measurement/sprint-empates-salience-producao.mjs",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 9284,
+   "sha256": "4c9129340be31e2d67c3779cc9685a60c916c88891bd5f053bd619f35e396957"
+  },
+  {
+   "path": "measurement/sprint-pool-elegivel-multidia.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 7887,
+   "sha256": "11c7ad8669c84bd88eb3ee24c41697072ab0c7b16de08092a0412ee0d2ca4e1d"
+  },
+  {
+   "path": "measurement/sprint-recon-52-e-sondas.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 12840,
+   "sha256": "1b59cfb25eadfe4f1021fbf3f56bca772285f9e950c3ecca569c3f8aff60dca2"
+  }
+ ]
+}

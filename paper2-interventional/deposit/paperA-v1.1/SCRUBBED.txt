@@ -1,0 +1,64 @@
+SCRUBBED — 2026-10-05
+
+The 7 repository files below were overwritten with the exact bytes packaged in the
+Paper A v1.1 draft (Zenodo 23163119), so the repository copy equals the deposited copy.
+Each one had a local filesystem path replaced by a placeholder (<HOME>/, <SCRATCH>/, <TMP>)
+by build-package.py; MANIFEST-v1.1.json lists the rules applied ('redacao') and keeps the
+old hash ('sha256_no_repositorio'). The original bytes were copied outside the repository
+before the overwrite, and the previous versions remain in git history.
+
+Paths are relative to paper2-interventional/.
+
+CEILING-GRANULARITY-2026-08-28.json
+  in:          artefatos-v1.1.zip  [R1 x4]
+  old sha256:  88358c34739e21b054e438a8e21efa4cfff884cdea01bf33759dfcaa4fe52376
+  new sha256:  bbbb1f7d3103412b8d960e104ea0791433cfbafd9ed0af64c0416549b269a1e9
+
+_sprint-2026-10-04/A-filters-disaggregation.md
+  in:          artefatos-v1.1.zip  [R3 x4, R4 x1]
+  old sha256:  af61ca047560108496d0b5a75af086d1bfeae11c1654120e38c62d332319319a
+  new sha256:  4d42aad637a1f7cf403ffeb0e766ff02c2611286ea7ffd7762fe55121078fa29
+
+_sprint-2026-10-04/A-filters-disaggregation/observed-main-from-log.json
+  in:          artefatos-v1.1.zip  [R2 x1]
+  old sha256:  bebd8c972f1057c7b4a43ec8f33a424d2b806b79fb51dcd6298d7751de17097e
+  new sha256:  356010f320c8ff0740a0506bc5eb401f530f1abbd24a52da934c4c89ae7a31ae
+
+_sprint-2026-10-04/A-rc2/COVERAGE-SET-FROM-LOG-2026-10-04.json
+  in:          artefatos-v1.1.zip  [R2 x1]
+  old sha256:  ec729673a59b3e0ac90e8b83d9eac1ccd2a6f735d940e69ceb9159add212a7e5
+  new sha256:  837ee1d0d85919378d33e9843444403c27b6e01d3bfedb4bc08a29a468c809c6
+
+_sprint-2026-10-04/A-recon-5.7.2-appD.md
+  in:          artefatos-v1.1.zip  [R3 x4]
+  old sha256:  c84158c6194938f47e1fc3af2794957bd58b317530365f4c184a648433314822
+  new sha256:  5b27f4cf155506e45262c533fd7c1c317d953d4c0068f7cdeeb7c6a911233ec7
+
+_sprint-2026-10-04/REVIEW-A-2026-10-04.md
+  in:          artefatos-v1.1.zip  [R3 x1]
+  old sha256:  6eca3e1ab74677a3fcf88a04c22721ee330b1fb8bed22dd0262ba472c261d223
+  new sha256:  4e3428d1952206b7db5ba0b57673e710398a029b7f139e28fbc8587f9b96a653
+
+measurement/sprint-censo-artefatos-paperA.py
+  in:          scripts-v1.1.zip  [R3 x5]
+  old sha256:  602f25298f70703c34c3e9b1d76faccb68cfc38112fddc61b458d9138cf01e98
+  new sha256:  3b0177d811cc0c9e0ff69c9c6f3edff0a34675d95e12961b949d6b5783a5dea1  (scrub, broken)
+  fix sha256:  9f249d8b09f8a5bb75c36666587689eb31187fada49ed39126d3146b425e94d3  (2026-10-05, current)
+  reason:      the scrub left os.path.expanduser('<HOME>/...') in 4 code lines, which does not
+               resolve. They now read os.path.join(os.path.expanduser('~'), ...): no personal
+               path, and no literal tilde-slash, which build-package.py would redact again (R3)
+               and its privacy gate would reject. The docstring keeps <HOME>/ as a redaction.
+               Run against MANUSCRIPT-v1.1.md, its output is byte-identical to the pre-scrub
+               original's (the scrubbed copy found 0 lastro/serving-tree hits; the fix finds 7,
+               as the original). Repository copy == the copy now in scripts-v1.1.zip.
+
+Consequences (both resolved 2026-10-05, later the same day):
+- measurement/sprint-censo-artefatos-paperA.py read os.path.expanduser('<HOME>/...'), which
+  does not resolve. Fixed as above; it is the only executable file of the 7. The other 6 are
+  data/markdown and keep <HOME>/, <SCRATCH>/ and <TMP> as documented redactions.
+- build-package.py, rerun, found nothing to redact in these 7 files, so a rebuilt manifest would
+  have dropped their 'redacao' and 'sha256_no_repositorio'. It now carries them from the table
+  JA_REDIGIDOS (old sha256 checked against `git show HEAD:<path>`, 7 of 7), adds
+  'redacao_no_repositorio' and, for the script, 'alteracao_pos_redacao'; it fails if any of the
+  7 loses its record, or if a scrubbed file would need redaction again. Rebuilt manifest:
+  md5 c462ff5cd8ee548a512e03b010297778 (7 items with both fields), uploaded to the draft.

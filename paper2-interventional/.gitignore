@@ -11,3 +11,6 @@ deposit/.published.json
 deposit/paperA/.draft-id
 deposit/paperA/.readback-*.json
 deposit/paperA/.metadata-final.json
+deposit/paperA-v1.1/.draft-id-v1.1
+deposit/paperA-v1.1/.readback-*.json
+deposit/paperA-v1.1/.metadata-final.json

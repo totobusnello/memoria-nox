@@ -1,7 +1,7 @@
 {
  "generated_by": "_sprint-2026-10-04/A-rc2/coverage-set-from-log.py",
  "generated_at": "2026-10-04T02:23:22.489371+00:00",
- "serving_log": "/Users/lab/Backups/paper2-ensaio-2026-09-21/p2-serving.ndjson",
+ "serving_log": "<HOME>/Backups/paper2-ensaio-2026-09-21/p2-serving.ndjson",
  "serving_log_sha256": "a25f9aefff6ecabdcfd3f00692a1b16414670713b01218d01e73bc993c3adca2",
  "main_union_from": "A-filters-disaggregation/observed-main-from-log.json",
  "main_union_size": 37,

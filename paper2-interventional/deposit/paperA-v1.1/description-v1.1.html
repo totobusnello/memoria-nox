@@ -1,0 +1,189 @@
+<p><strong>A production memory system, serving six agents for twelve weeks, never
+exposed 83.78% of its own corpus — and not for lack of room.</strong> The proactive channel
+delivered 583,763 slots against 67,187 chunks, capacity to show everything eight times, and
+showed 1,787 distinct chunks: 2.66%.</p>
+
+<p>This work measures the <em>exposure surface</em> of a memory system for agents: how many
+distinct items an agent in production actually receives, and which ones. It is a
+coordinate the field's benchmarks do not measure — they evaluate nDCG and recall over
+query sets, and none of those metrics sees what no query ever reached. The field's
+canonical survey (TMLR 2602.06052v4, 218 papers) does not record the term.</p>
+
+<h3>What is measured</h3>
+<ul>
+  <li><strong>Non-exposure is the result of policy, not a capacity limit.</strong>
+      Under uniform serving the expected coverage would be 99.98%.</li>
+  <li><strong>The two channels of the surface freeze, for opposite reasons.</strong> The
+      coverage channel exhausts 100% of an eligible pool of 108 chunks every day; the main one is
+      determined by search traffic from months ago and does not respond to score adjustment.</li>
+  <li><strong>Exposure falls with collection size.</strong> The five types with more than a
+      thousand chunks are squeezed into 10.7–27.0% exposure; of the ten small types, eight
+      are above 32.5% and two are at zero. Size, however, is not separable from
+      curation: no corpus variable measures the latter.</li>
+</ul>
+
+<h3>What is <em>not</em> measured, and the paper says so</h3>
+<p>There is no instrumented downstream outcome: nothing here establishes that non-exposure
+costs the agent value. The generalization of the mechanism is <strong>deductive</strong> — it
+holds for any ranker with lexicographic order and a bonus on the subordinate coordinate — and
+not empirical: <strong>it is one system</strong>. And of the two measured surfaces, only the
+brief is decided by the system; search is initiated by the agent and accounts for most of the
+recorded exposure.</p>
+
+<h3>Instrument defects as part of the contribution</h3>
+<p>Section 6 and Appendix E catalogue <strong>17 instrument defects</strong> found
+during the work, eight of them altering numbers that were already written. They are in the
+paper because the rate at which a production measurement produces silent defects is itself a
+result — and because each correction names who found it and what would have prevented it.
+Among them: a value cited in five places without any artifact that contained it; three
+coefficients that lived only in <code>stdout</code> for four days; an artifact
+rewritten on every run being cited as a historical source; and a guard whose regular
+expression made it incapable of failing.</p>
+
+<h3>The package</h3>
+<p>Besides the manuscript, the deposit includes the verifier (<code>claims_check.py</code>, 19
+guards that recompute the numerical claims against the artifacts), the six mechanical
+censuses, the 58 measurement artifacts, the 53 scripts that generate them and the three
+serving modules pinned by the <code>sha256</code> of their blobs. The intent is that every
+number in the paper be recomputable by a third party without access to the system — and the
+package carries the artifacts, not only their hashes, because a corpus pinned by identifier
+was already lost in this same work, taking 280 adjudicated episodes with it.</p>
+
+<p><strong>Relationship to the pre-registration.</strong> This is a completed observational
+study. The interventional trial it precedes is pre-registered at
+<a href="https://doi.org/10.5281/zenodo.22110203">10.5281/zenodo.22110203</a> and has not
+yet started: no randomized epoch exists, no arm has been assigned. The deviations between the
+public registration and what will apply to Epoch 1 are declared in
+<code>DEVIATIONS-FOR-PAPER.md</code>, including the most delicate one — the registration still
+declares open a designation defect that was resolved outside it.</p>
+
+<h3>⛔ Erratum 2026-09-07 — one script in the package is a record of an error, not an instrument</h3>
+
+<p><strong>The file <code>measurement/dose2.mjs</code>, inside
+<code>scripts.zip</code>, was refuted on 2026-08-27 and the number it produces is
+false.</strong> It is in the deposit as a record of the error, and nothing inside it says so —
+this erratum exists so that whoever opens the package knows before running it.</p>
+
+<ul>
+  <li><strong>What it produces:</strong> <code>churn</code> 0 at
+      <code>w ∈ {2.0 · 4.0 · 7.5}</code>, with 19 boosts emitted.</li>
+  <li><strong>What the real pipeline produces:</strong> <strong>11 / 15 / 17</strong> states
+      out of 350, monotonic, saturating in <code>(4.0 ; 4.4]</code>.</li>
+  <li><strong>Why:</strong> "production path" there was the right corpus with the
+      ordering <strong>reimplemented</strong> — it goes through neither
+      <code>interleaveFresh</code> nor <code>pickDedup</code>. A positive control
+      over a reconstructed pipeline proves nothing about the pipeline.</li>
+</ul>
+
+<p>⚠️ The aggravating factor: the file's own header <strong>asserts</strong> what was
+refuted — <em>"now on the path that prod REALLY uses"</em> (in the original Portuguese,
+<em>"agora no caminho que prod REALMENTE usa"</em>) — and narrates a harness defect already
+fixed, which leads one to conclude that that version is sound. It is not.</p>
+
+<p><strong>No number in this paper depends on it.</strong> The current texts
+(<code>MANUSCRIPT.md</code> §5.4 and <code>DEVIATIONS-FOR-PAPER.md</code> §1), both
+deposited, give 11 / 15 / 17. The risk is exclusively to whoever reruns the script
+taking it for an instrument.</p>
+
+<p>The caveat had existed since 08-27 in <code>measurement/README.md</code>, which is
+<strong>not</strong> part of the deposit — the artifact travelled and the caveat stayed behind.
+The files of a published record are immutable, so the correction comes through here.
+Detail: <code>paper2-interventional/deposit/paperA/POST-PUBLISH.md</code> in the
+repository.</p>
+
+<p><strong>Erratum (2026-09-08) — the interventional trial has started.</strong>
+The section <em>Relationship to the pre-registration</em> above states that the trial
+pre-registered at
+<a href="https://doi.org/10.5281/zenodo.22110203">10.5281/zenodo.22110203</a>
+&ldquo;has not yet started: no randomized epoch exists, no arm has been assigned&rdquo;.
+That was true when this record was published and <strong>ceased to be</strong> on
+2026-09-01. The 234 epochs were randomized prospectively in a single operation
+(<code>ASSIGNMENT.json</code>; drand quicknet beacon, round 31774052, seed
+<code>SHA256(ascii(randomness_hex))</code>), balanced 117 control / 39 <em>w</em>=2 /
+39 <em>w</em>=4 / 39 <em>w</em>=7.5, and Epoch 1 entered <code>active</code> mode at
+2026-09-01T10:25:39Z. No trial result is contained in this record, and no
+conclusion of this observational study depends on the state of the trial — the corrected
+statement is descriptive, not analytical.</p>
+
+<p>Two honesty notes on this correction. First: the defect is one of
+<strong>aging</strong>, not an error at the time of writing — a sentence about a live
+series, published as if it were an instant, became false through the passage of time.
+It was detected by an automatic verifier that compares the text's claims against the
+state of the artifacts (<code>claims_check.py</code>), not by rereading. Second: the
+files of this deposit remain immutable and were <strong>not</strong> altered; this
+erratum is appended to the description, which is metadata. The <code>MANIFEST</code> remains
+the proof of the published content and must not be recomputed.</p>
+
+<h3>What changed in v1.1 (2026-10-05)</h3>
+<p>The text above is the v1.0 description with its two dated errata, translated from the
+Portuguese published with v1.0; content and numbers are unchanged, and the Portuguese original
+stays on the v1.0 record. Version 1.1 is the manuscript translated to English and revised: the
+2026-09-21 corrections, a 2026-10-04 audit of claims that had aged, and the reviews of
+2026-10-05. Every change is recorded, with its source, in Appendix F of the manuscript; the
+2026-10-05 round is Appendix F-5. Where the v1.0 description and v1.1 differ, v1.1 holds.</p>
+
+<p><strong>Recomputed with production code.</strong> Three quantities were recomputed rather
+than relabelled, each with a dated artifact.</p>
+<ul>
+  <li><strong>Access counterfactual (§4.3.2).</strong> The published 2/3/5 → 131/129/128 came
+      from a script whose recency and <code>importance</code> default are not those of the
+      production function. With <code>calculateSalience</code> the three chunks sit at positions
+      1/3/4 and fall to a tie at 44–46 of 149 when the access component is zeroed (23–47 across
+      instants and access-timing assumptions). "Beyond rank 100" and "exactly 52 places lower"
+      are withdrawn. The claim that zeroing access takes the three out of the top-10 stands.
+      <code>out/SALIENCE-COUNTERFACTUAL-PROD-2026-10-05.json</code>.</li>
+  <li><strong>Tie-break exposure (§5.7.1).</strong> Recounted on the comparator's key instead of
+      the SQL pre-rank expression: 34–42 pairs at second resolution (0.59–0.73%) and 1,197 at day
+      resolution. The earlier 68 / 269 / 917 / 1,656 remain cited as the pre-rank count.
+      <code>out/TIEBREAK-EXPOSURE-PROD-2026-10-05.json</code>.</li>
+  <li><strong>Bonus against step (§4.4, §5.4).</strong> The 0.0946 and 1.79× used a severity
+      multiplier of 0.5 that only the replay's summary applies; production applies 0.25. The
+      bonus is 0.0473, 0.90× the largest adjacent gap, and the claim that the items crossed
+      several positions is withdrawn. <code>out/BONUS-VS-STEP-2026-10-05.json</code>.</li>
+</ul>
+
+<p><strong>Claims corrected or narrowed.</strong> Several sentences of the v1.0 description
+above are superseded:</p>
+<ul>
+  <li>"never exposed 83.78% of its own corpus": the 56,288 live chunks (83.78%) have neither a
+      brief-log record nor a positive search counter. That is a lower bound on non-delivery by the
+      brief and by tracked search, not a measurement that they were never exposed; non-delivery
+      across all agent-facing search is not established.</li>
+  <li>"showed 1,787 distinct chunks: 2.66%": the brief delivered 1,635 distinct live chunks
+      (2.43%); 1,787 counts the 152 that were served and later deleted.</li>
+  <li>"search is initiated by the agent and accounts for most of the recorded exposure": the
+      search counter records that a chunk was a top candidate of some tracked call, whoever
+      initiated it (automated callers included). It bounds from above what tracked search
+      returned and identifies no initiator.</li>
+  <li>"the main one is determined by search traffic from months ago and does not respond to
+      score adjustment": past tracked search traffic determined the positions of the three chunks present in
+      every brief of the week; the main pool would respond to a score adjustment, and nobody
+      adjusts it.</li>
+  <li>"exhausts 100% of an eligible pool of 108 chunks every day": measured on 2026-08-26 to 08-29,
+      inside a period of defective session ingestion, and describing that regime. The coverage
+      channel's daily reach is bounded by its eligible population (path patterns, the
+      importance/pain floor and age windows); within a brief it responds to score only within
+      <code>last_served</code> ties (17/350 in the replay) and then saturates.</li>
+  <li>"eight are above 32.5%": seven are above 32.5% and one is at 32.5%.</li>
+</ul>
+<p>Also narrowed: in the derivation of §5 the "if and only if" entry condition now holds only
+when the item is the only bonused one of its stratum, the closed formula for the saturating
+bonus is withdrawn, and the generality claims are stated for rankers that serve a prefix of the
+lexicographic order. Numbers in the text that have no preserved artifact are
+flagged where they appear.</p>
+
+<p><strong>The package.</strong> The 13 files of v1.0 are carried over unchanged. Added:
+<code>MANUSCRIPT-v1.1.pdf</code> and its source <code>MANUSCRIPT-v1.1.md</code>;
+<code>artefatos-v1.1.zip</code> (40 files: the 2026-10-04/05 artifacts, artifacts the text
+cites that v1.0 did not include, the current <code>DEVIATIONS-FOR-PAPER.md</code>, and the
+review records of Appendix F); <code>scripts-v1.1.zip</code> (27 files: the scripts that
+produced them, the four v1.0 scripts changed since, the retired monitoring triggers, the rc8
+parity check and the PDF build); and <code>MANIFEST-v1.1.json</code>, with the sha256 of each file. In seven
+packaged files a local filesystem path was replaced by a placeholder; the manifest names them
+and keeps the hash of the original. The manuscript differs from the reviewed text only in
+Appendix D, where the version DOI was filled in.</p>
+
+<p><strong>What this version does not do.</strong> The verifier in the package,
+<code>claims_check.py</code>, is the v1.0 one and checks the v1.0 Portuguese text. It has not
+been ported to the English text of v1.1. The numbers of v1.1 trace to the artifacts and
+commands listed in Appendix D, but this guard set does not re-verify them.</p>
