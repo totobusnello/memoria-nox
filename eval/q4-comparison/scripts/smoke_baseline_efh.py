@@ -58,7 +58,14 @@ def ndcg10(retrieved, gold):
     gs = set(gold)
     if not gs:
         return 0.0
-    rels = [1.0 if r in gs else 0.0 for r in retrieved[:10]]
+    # Each retrieved id is credited once, at the rank of its first occurrence; a later
+    # repeat keeps its slot as non-relevant and the list is not re-padded. Same rule as
+    # eval/q4-comparison/aggregate.py (_first_occurrences, fix 2026-10-04).
+    seen = set()
+    rels = []
+    for r in retrieved[:10]:
+        rels.append(1.0 if r in gs and r not in seen else 0.0)
+        seen.add(r)
     ideal = [1.0] * min(len(gs), 10)
     id_dcg = dcg(ideal)
     if id_dcg == 0:

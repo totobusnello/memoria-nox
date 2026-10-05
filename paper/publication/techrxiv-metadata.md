@@ -62,7 +62,7 @@ reescrito em 2026-10-04 para caber em 1.920 caracteres) — é o texto que o `cl
     and nox-mem wins LongMemEval. An embedding-matched variant (both Gemini 3072-d,
     n=2,482) was a planned side experiment; it matches the embedder but does not isolate
     architecture. It inverts the split: nox-mem leads on both datasets (LongMemEval
-    0.526 vs 0.406; LoCoMo 0.495 vs 0.441) and in all five represented categories, with
+    0.526 vs 0.403; LoCoMo 0.495 vs 0.441) and in all five represented categories, with
     four residual confounds declared. EverOS outperforms nox-mem on both (overall 0.646
     vs 0.501), with a cross-encoder stage nox-mem lacks, whose share of the gap is
     unmeasured; Zep ranks third, ahead of Mem0. On EverMemBench nox-mem reaches 63.28%

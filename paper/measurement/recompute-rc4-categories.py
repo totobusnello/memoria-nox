@@ -20,6 +20,17 @@ integer category (not from the label stored in the output), keeps the LongMemEva
 map unchanged, and scores nDCG@10 with the harness's own `aggregate.ndcg_at_k`.
 It does not modify the labeler or the outputs.
 
+Scorer fix (2026-10-04, manuscript v1.0.6)
+------------------------------------------
+`aggregate.ndcg_at_k` now credits each retrieved id once, at its first rank, without
+re-padding the top 10. Before the fix, 3 LongMemEval queries of the rc4 Mem0 output
+whose top 10 held the same gold id twice scored nDCG@10 above 1 (1.57, 1.57, 0.75 with
+recall 2.0/2.0/1.5). Two printed §6.4 cells move: Mem0 temporal 0.4570 -> 0.4565 and
+Mem0 adversarial 0.2955 -> 0.2930; every nox-mem cell and the ablation are unchanged
+(no nox-mem output repeats an id). `PAPER` below holds the v1.0.6 values; the v1.0.5
+printed values are kept in `PAPER_V105` for the record. Detail and the full old -> new
+table: paper2-interventional/_sprint-2026-10-04/noxmem-v106/SCORER-FIX.md.
+
 Inputs (read-only)
 ------------------
   eval/q4-comparison/output/rc4/nox_mem.json           rc4, nox-mem arm
@@ -37,13 +48,14 @@ Two legs that must both hold before a number is written:
       the question_id -> native category join is the right join;
   (2) the recomputed cells equal the figures printed in §6.4 (to 4 decimals).
 
-Output: paper/measurement/out/recompute-rc4-categories.json
+Output: paper/measurement/out/recompute-rc4-categories.json (or --out PATH)
 
-Usage:  python3 paper/measurement/recompute-rc4-categories.py
+Usage:  python3 paper/measurement/recompute-rc4-categories.py [--out PATH]
 Exit 0 = both legs hold; 1 = a leg failed (message on stderr).
 """
 from __future__ import annotations
 
+import argparse
 import ast
 import hashlib
 import json
@@ -70,14 +82,17 @@ LOCOMO_RAW = Q4 / "cache" / "raw" / "locomo10.json"
 OUT = ROOT / "paper" / "measurement" / "out" / "recompute-rc4-categories.json"
 
 # Figures printed in §6.4 (table and ablation sentence), checked to 4 decimals.
+# v1.0.6 (scorer fix 2026-10-04): only the two rc4/mem0 cells marked below moved.
 PAPER = {
     "rc4/nox-mem": {"single-hop": 0.5922, "multi-hop": 0.3641, "temporal": 0.5502,
                     "adversarial": 0.4370, "open-domain": 0.2592},
-    "rc4/mem0": {"single-hop": 0.5607, "multi-hop": 0.3218, "temporal": 0.4570,
-                 "adversarial": 0.2955, "open-domain": 0.2351},
+    "rc4/mem0": {"single-hop": 0.5607, "multi-hop": 0.3218, "temporal": 0.4565,   # v1.0.5: 0.4570
+                 "adversarial": 0.2930, "open-domain": 0.2351},                   # v1.0.5: 0.2955
     "rc4-ablation/nox-mem": {"single-hop": 0.5773, "multi-hop": 0.3515, "temporal": 0.5571,
                              "adversarial": 0.4573, "open-domain": 0.2365},
 }
+# What v1.0.5 printed (scored with the pre-fix scorer that credited repeated ids).
+PAPER_V105 = {**PAPER, "rc4/mem0": {**PAPER["rc4/mem0"], "temporal": 0.4570, "adversarial": 0.2955}}
 PAPER_N = {"single-hop": 997, "multi-hop": 415, "temporal": 454, "adversarial": 524,
            "open-domain": 92}
 
@@ -107,9 +122,13 @@ def native_locomo() -> dict[str, int]:
 
 
 def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out", default=str(OUT), help=f"output JSON (default {OUT.relative_to(ROOT)})")
+    out = Path(ap.parse_args().out).resolve()
     native = native_locomo()
     fails: list[str] = []
-    result: dict = {"k": K, "declared_locomo_map": DECLARED_MAP, "inputs": {}, "cells": {}}
+    result: dict = {"k": K, "scorer": "each retrieved id credited once (fix 2026-10-04)",
+                    "declared_locomo_map": DECLARED_MAP, "inputs": {}, "cells": {}}
     for arm, path in INPUTS.items():
         payload = json.loads(path.read_text(encoding="utf-8"))
         result["inputs"][arm] = {"path": str(path.relative_to(ROOT)), "sha256": _sha256(path),
@@ -143,12 +162,20 @@ def main() -> int:
             if cells.get(b, {}).get("n") != PAPER_N[b]:
                 fails.append(f"{arm}/{b}: n {cells.get(b, {}).get('n')} != paper {PAPER_N[b]}")
     result["matches_paper_section_6_4"] = not fails
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    result["paper_values_checked"] = "v1.0.6"
+    result["v105_cells_that_moved"] = {
+        f"{arm}/{b}": {"v1.0.5": PAPER_V105[arm][b], "v1.0.6": PAPER[arm][b]}
+        for arm in PAPER for b in PAPER[arm] if PAPER_V105[arm][b] != PAPER[arm][b]}
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     if fails:
         print("\n".join(fails), file=sys.stderr)
         return 1
-    print(f"ok — §6.4 reproduced from the rc4 outputs; written {OUT.relative_to(ROOT)}")
+    try:
+        shown = out.relative_to(ROOT)
+    except ValueError:
+        shown = out
+    print(f"ok — §6.4 (v1.0.6 values) reproduced from the rc4 outputs; written {shown}")
     return 0
 
 

@@ -41,8 +41,31 @@ OUTPUT_DEFAULT = HERE / "output"
 # ---------------------------------------------------------------------------
 
 
-def _binary_relevance(retrieved_ids: list[str], gold_ids: set[str]) -> list[int]:
-    return [1 if r in gold_ids else 0 for r in retrieved_ids]
+def _first_occurrences(retrieved_ids: list[str], k: int | None = None) -> list[str | None]:
+    """Cut to the top k FIRST, then blank every later repeat of an id.
+
+    Each retrieved id is credited once, at the rank of its first occurrence. A
+    repeat keeps its slot (as None, never relevant), so the list is NOT re-padded:
+    the item at rank k+1 never moves into the top k because a duplicate sat above
+    it. Without this, a system that returns the same relevant id twice earns two
+    gains, and nDCG@k / recall@k can exceed 1 (fix 2026-10-04: in the rc4 Mem0
+    output, 3 LongMemEval queries scored nDCG@10 1.57, 1.57 and 0.75 with recall 2.0,
+    2.0 and 1.5 because their top 10 held the same gold id twice).
+    """
+    top = retrieved_ids if k is None else retrieved_ids[:k]
+    seen: set[str] = set()
+    out: list[str | None] = []
+    for r in top:
+        if r in seen:
+            out.append(None)
+        else:
+            seen.add(r)
+            out.append(r)
+    return out
+
+
+def _binary_relevance(retrieved_ids: list[str | None], gold_ids: set[str]) -> list[int]:
+    return [1 if r is not None and r in gold_ids else 0 for r in retrieved_ids]
 
 
 def dcg(rels: list[int]) -> float:
@@ -50,22 +73,26 @@ def dcg(rels: list[int]) -> float:
 
 
 def ndcg_at_k(retrieved_ids: list[str], gold_ids: set[str], k: int) -> float:
-    rels = _binary_relevance(retrieved_ids[:k], gold_ids)
+    """Binary nDCG@k; each retrieved id counts once (see _first_occurrences). In [0, 1]."""
+    rels = _binary_relevance(_first_occurrences(retrieved_ids, k), gold_ids)
     ideal = [1] * min(len(gold_ids), k) + [0] * max(0, k - len(gold_ids))
     idcg = dcg(ideal)
     return dcg(rels) / idcg if idcg > 0 else 0.0
 
 
 def recall_at_k(retrieved_ids: list[str], gold_ids: set[str], k: int) -> float:
+    """Distinct gold ids found in the top k over distinct gold ids. In [0, 1]."""
     if not gold_ids:
         return 0.0
-    hits = sum(1 for r in retrieved_ids[:k] if r in gold_ids)
+    hits = sum(1 for r in _first_occurrences(retrieved_ids, k) if r is not None and r in gold_ids)
     return hits / len(gold_ids)
 
 
 def reciprocal_rank(retrieved_ids: list[str], gold_ids: set[str]) -> float:
-    for i, r in enumerate(retrieved_ids):
-        if r in gold_ids:
+    # The first relevant occurrence is by definition a first occurrence, so repeats
+    # cannot change RR; the dedup is applied anyway so the three metrics share one rule.
+    for i, r in enumerate(_first_occurrences(retrieved_ids)):
+        if r is not None and r in gold_ids:
             return 1.0 / (i + 1)
     return 0.0
 
