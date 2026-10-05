@@ -16,6 +16,132 @@ Cada rc: bump no header do paper (`**Paper version:**`) + entrada aqui + (opcion
 
 ## Histórico
 
+### v1.0.6 — 2026-10-04 (scoring correction in §6; no ranking, sign or conclusion changed)
+
+DOI of this version: 10.5281/zenodo.23147633 (reserved before the build).
+
+**The defect.** The §6 scorer (`eval/q4-comparison/aggregate.py`) credited binary relevance
+per *occurrence* of a retrieved id. In 3 LongMemEval queries of the rc4 Mem0 output the top 10
+held both documents behind one gold id (one of the 8 ids shared by two offered documents), so
+those queries scored nDCG@10 above 1 (1.5706, 1.5706, 0.7479) and recall@10 of 2.0/2.0/1.5. The
+corrected scorer cuts to the top k, then counts each id once, at the rank of its first
+occurrence, without re-padding. MRR cannot change and did not. No nox-mem, EverOS or Zep output
+repeats an id, so only Mem0 values move. Detail, census and tests:
+`paper2-interventional/_sprint-2026-10-04/noxmem-v106/SCORER-FIX.md`.
+
+**Every changed number, old → new** (22 occurrences: the 21 of SCORER-FIX.md §4 plus the abstract):
+
+| where | quantity | v1.0.5 | v1.0.6 |
+|---|---|---|---|
+| Abstract (and `abstract.md` §2, `arxiv-metadata.txt`, `publication/techrxiv-metadata.md`) | Mem0 LongMemEval nDCG@10, 3 decimals | 0.406 | 0.403 |
+| §6.3.2 table, Mem0 row | LongMemEval nDCG@10 | 0.4061 | 0.4030 |
+| §6.3.2 table, Mem0 row | its 95% CI half-width | ± 0.036 | ± 0.035 |
+| §6.3.2 table, Mem0 row | overall nDCG@10 (CI ± 0.016 unchanged) | 0.4337 | 0.4331 |
+| §6.3.2 "Result" | Δ LongMemEval, nox-mem − Mem0 | +0.119 | +0.123 |
+| §6.3.2 task-type ablation | "still outperforms Mem0 (…)" overall | 0.4337 | 0.4331 |
+| §6.3.2 task-type ablation | "LongMemEval 0.5215 vs …" | 0.4061 | 0.4030 |
+| §6.3.3 table, Mem0 row | overall / LongMemEval / R@10 | 0.4337 / 0.4061 / 0.5852 | 0.4331 / 0.4030 / 0.5842 |
+| §6.3.4 table, Mem0 row | overall / LongMemEval / R@10 | 0.4337 / 0.4061 / 0.5852 | 0.4331 / 0.4030 / 0.5842 |
+| §6.4 table, temporal | Mem0 nDCG@10 / Δ | 0.4570 / +0.093 | 0.4565 / +0.094 |
+| §6.4 table, adversarial | Mem0 nDCG@10 / Δ | 0.2955 / +0.142 | 0.2930 / +0.144 |
+| §6.4 prose | "largest margins … adversarial (…) and temporal (…)" | +0.142 / +0.093 | +0.144 / +0.094 |
+| §6.4 ablation sentence | "adversarial 0.4573 vs …; temporal 0.5571 vs …" | 0.2955 / 0.4570 | 0.2930 / 0.4565 |
+| §6.4 bucket composition | "nox-mem's largest margin, …" | +0.142 | +0.144 |
+
+The largest printed move is 0.004 (Δ LongMemEval); the largest move of a score is 0.0031
+(Mem0 LongMemEval nDCG@10). Unchanged: every nox-mem value, every Mem0 LoCoMo value
+(0.4407 ± 0.017, Δ LoCoMo +0.055), every MRR (Mem0 0.4092) and latency, all of EverOS and Zep,
+and all 13 yes/no statements of §6 (disjoint CIs on both datasets and overall; nox-mem leads all
+five categories, also in the ablation; Zep third). Every change lowers Mem0. The abstract mirror
+block stays at 1,912 characters (0.406 → 0.403 is length-neutral), within arXiv's 1,920.
+
+**Two §6.3.2 (e) sentences rewritten.** "Scoring is by id, so a collision cannot mis-score a
+retrieval" was true for the gold side only; it now states that each retrieved id counts once,
+that v1.0.5 counted a repeated id at each occurrence (3 LongMemEval queries), and that this
+moved nine printed values by at most 0.004 with no order or sign change. "The per-query outputs
+are not distributed" now points to the evidence dataset 10.5281/zenodo.23146656, which holds the
+stripped per-query outputs and a verifier of the Section 6 values (described as amended below).
+
+**Guards.** `claims_check.py` holds no guard with a corrected value (21 guards green, unchanged).
+The guard that does encode them is leg (2) of `paper/measurement/recompute-rc4-categories.py`
+(recomputed §6.4 cells must equal the printed ones to 4 decimals): its expected values were
+updated to the new measured ones (Mem0 temporal 0.4570 → 0.4565, adversarial 0.2955 → 0.2930),
+the v1.0.5 values are kept as `PAPER_V105`, and the tolerance is unchanged, so the guard is not
+weaker. It exits 0, and `paper/measurement/out/recompute-rc4-categories.json`, cited by §6.4,
+was regenerated with the corrected scorer.
+
+**Checks:** `claims_check.py` 21 guards green; `claims_check_mutation_test.py` 49 mutations
+bitten, negative control silent; `build-paper.sh` 0 "Missing character" warnings, 73 pages
+(before the wording corrections below);
+`censo-lastro-do-manuscrito.py` exits 0. **Parity v1.0.5 → v1.0.6**, run on the final text
+(both this correction and the wording corrections below): with the version line masked and the
+11 wording lines set aside, a word-level diff of the rest of the document holds exactly 19 of
+the 22 listed substitutions and nothing else; the other 3 sit on two wording lines (§6.3.2
+"Result" and the task-type ablation) and are checked there, together with the multiset of
+numbers each wording line added or removed; the 20 changed lines are the version line, the 8
+lines of the table above and the 11 wording lines. Script
+`paper2-interventional/_sprint-2026-10-04/noxmem-v106/parity-v106.py`, output `PARITY.txt`
+beside it, v1.0.5 baseline in `legacy-input/` (sha256 `23ddc0e9…be5292`). A first run of the
+script, before the wording corrections, covered only this correction, on an intermediate text
+(sha256 `76d01388…`).
+
+**Wording corrections after the Codex and Fable reviews (same day, before publication).** No
+number, reference, citation or heading changed; 11 lines of the manuscript changed, all in §6.3.2
+and in the passages that repeat its conclusions (§6.5 principle 5, §6.7, §7.1, §8). Numbers added
+to the text: 132, 20, 17, 33, 504, 6,822 and 2,482, each read from the evidence dataset or its
+logs; the sentence holding "does not explain the §6.3 → §6.3.2 inversion" was removed.
+
+- *Corpus collision, confound (e).* §6.3.2 said the retention difference "disfavours nox-mem,
+  which won anyway", titled (e) "against the arm that won", said (e) "runs against nox-mem" and
+  closed with "the handicap stands as stated". The direction was never measured: Mem0 holding both
+  documents of a colliding pair can help it cover a gold passage, while a repeated id spends a
+  slot of its top 10 (20 of its 2,482 lists repeat an id, 17 of them only a non-gold one), and a
+  shared id does not distinguish the two texts. The text now says that the net effect of the
+  retention difference is not isolated, and the closing sentence states the counts only (Mem0
+  6,826 rows at query time, nox-mem 6,822).
+- *Task-type ablation, confound (d).* The text said the task type "contributes at most 0.34 pp",
+  that the 99.03% coverage loss "can only lower nox-mem's score", that the ablation "rules out"
+  the task type, and, in §6.3.2, §6.5, §6.7, §7.1 and §8, that the asymmetry was "tested and
+  neutralized", "ablated away" or "ablated and ruled out". The generic run also changed the
+  corpus (23 of 2,370 gold chunks absent) and its log records 33 dense-search errors (504), on
+  each of which the adapter fused the FTS5 list alone, so the 0.34 pp difference neither isolates
+  nor bounds the task-type contribution, and removing documents can raise some rankings. Every
+  such sentence now says that with task types removed from both arms the lead persisted. In
+  §6.3.2 and §7.1 L5 the task type is "the one asymmetry that favors nox-mem by design" (an
+  intermediate draft said "known to favor"; the favoring is a design premise, since the task
+  types are tuned for retrieval, and the ablation does not measure it).
+- *Evidence dataset.* "a script that recomputes the Section 6 values" now reads: a verifier that
+  checks 132 Section 6 values and statements against the supplied outputs, metadata, logs and
+  store extracts, plus three arithmetic differences of printed figures, with twelve groups of
+  Section 6 figures that it cannot recompute listed in the record with the reason.
+
+The same corrections were made in `README.md` and `docs/COMPARISON.md`, which also carried the
+v1.0.5 Mem0 values (0.4337, 0.4061, +0.119), three confounds instead of four, and attributions of
+the results to the embedder ("substantially an OpenAI-embedder effect") and to the architecture
+("The win is architectural"). The checklist line of `abstract.md` that said the ablation "descarta
+o task type como causa" was reworded the same way. The abstract itself makes no task-type or
+collision claim and is unchanged (1,912 characters).
+
+Checks after these corrections: `claims_check.py` 21 guards green; `verify_dataset.py
+--manuscript` 135/135, exit 0 (every quoted string still occurs verbatim in §6); PDF rebuilt
+locally, 74 pages, MD5 `6bf378c01d8e35b672f5b66e899c6f86` (the Zenodo draft still holds the
+earlier 73-page PDF until `deposit-v106.py` is run again). Review record:
+`paper2-interventional/_sprint-2026-10-04/noxmem-v106/APPLY-CODEX-FABLE.md`.
+
+**Evidence dataset.** The draft 10.5281/zenodo.23146656 was regenerated with the corrected
+scorer: stored metrics of the 3 affected queries in both Mem0 files, the two rc4 aggregates, the
+v1.0.6 values in `verify_dataset.py`, the README and `SHA256SUMS`. `verify_dataset.py
+--manuscript` gives 135/135 and exit 0 on the payload and on the extracted zip. The record and
+this version are to be published together; until then neither DOI resolves.
+
+### v1.0.5 — 2026-10-04 (front matter only; no result, claim, reference or citation changed)
+
+The first page now carries the author's ORCID (0009-0007-5911-8141) and contact address,
+this version's DOI (10.5281/zenodo.23146389, reserved before the build) and the concept DOI
+(10.5281/zenodo.22649268), and the code and data repository. The note on the measurement host,
+which sat between the version line and the abstract, moved to the start of §5.7 as a
+"Measurement host" paragraph, with "of §5.7" read as "of this section"; its content is unchanged.
+
 ### v1.0.4 — 2026-10-04 (writing pass; no number, claim, reference or citation changed)
 
 Writing pass over the manuscript with the `avoid-ai-writing` skill, run in ten slices

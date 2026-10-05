@@ -36,12 +36,17 @@ interface RunFile {
   records: RunRecord[];
 }
 
+// Each retrieved id is credited once, at the rank of its first occurrence; a later
+// repeat keeps its slot as non-relevant and the list is not re-padded. Same rule as
+// eval/q4-comparison/aggregate.py (_first_occurrences, fix 2026-10-04).
 function recallAtK(retrieved: string[], gold: Set<string>, k: number): number {
   if (gold.size === 0) return 0;
   const denom = Math.min(gold.size, k);
   let hits = 0;
+  const seen = new Set<string>();
   for (let i = 0; i < Math.min(retrieved.length, k); i++) {
-    if (gold.has(retrieved[i])) hits++;
+    if (gold.has(retrieved[i]) && !seen.has(retrieved[i])) hits++;
+    seen.add(retrieved[i]);
   }
   return hits / denom;
 }
@@ -55,8 +60,10 @@ function mrr(retrieved: string[], gold: Set<string>): number {
 
 function ndcgAtK(retrieved: string[], gold: Set<string>, k: number): number {
   let dcg = 0;
+  const seen = new Set<string>();
   for (let i = 0; i < Math.min(retrieved.length, k); i++) {
-    if (gold.has(retrieved[i])) dcg += 1 / Math.log2(i + 2);
+    if (gold.has(retrieved[i]) && !seen.has(retrieved[i])) dcg += 1 / Math.log2(i + 2);
+    seen.add(retrieved[i]);
   }
   const idealCount = Math.min(gold.size, k);
   let idcg = 0;

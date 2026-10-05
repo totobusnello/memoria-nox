@@ -103,8 +103,15 @@ def ndcg_at_k(retrieved_ids: list[str], gold_ids: list[str], k: int = 10) -> flo
     gold_set = set(gold_ids)
     if not gold_set:
         return 0.0
+    # Each retrieved id is credited once, at the rank of its first occurrence; a later
+    # repeat keeps its slot as non-relevant and the list is not re-padded. Same rule as
+    # eval/q4-comparison/aggregate.py (_first_occurrences, fix 2026-10-04).
     top_k = retrieved_ids[:k]
-    rels = [1.0 if rid in gold_set else 0.0 for rid in top_k]
+    seen: set[str] = set()
+    rels = []
+    for rid in top_k:
+        rels.append(1.0 if rid in gold_set and rid not in seen else 0.0)
+        seen.add(rid)
     ideal = [1.0] * min(len(gold_set), k)
     ideal_dcg = dcg(ideal)
     if ideal_dcg == 0:

@@ -20,8 +20,8 @@
   <a href="https://github.com/totobusnello/memoria-nox/stargazers"><img src="https://img.shields.io/github/stars/totobusnello/memoria-nox?style=for-the-badge&color=00C896" alt="Stars"></a>
   <a href="https://github.com/totobusnello/memoria-nox/actions/workflows/lint-and-typecheck.yml"><img src="https://img.shields.io/github/actions/workflow/status/totobusnello/memoria-nox/lint-and-typecheck.yml?style=for-the-badge&color=00C896&label=ci" alt="CI"></a>
   <a href="https://www.bestpractices.dev/projects/12896"><img src="https://img.shields.io/cii/level/12896?style=for-the-badge&color=00C896&label=OpenSSF" alt="OpenSSF Best Practices: passing"></a>
-  <a href="paper/build/paper-tecnico-nox-mem.pdf"><img src="https://img.shields.io/badge/paper-v1.0.4-00C896?style=for-the-badge" alt="Paper v1.0.4"></a>
-  <a href="https://doi.org/10.5281/zenodo.23146205"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23146205-00C896?style=for-the-badge" alt="DOI 10.5281/zenodo.23146205"></a>
+  <a href="paper/build/paper-tecnico-nox-mem.pdf"><img src="https://img.shields.io/badge/paper-v1.0.6-00C896?style=for-the-badge" alt="Paper v1.0.6"></a>
+  <a href="https://doi.org/10.5281/zenodo.23147633"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23147633-00C896?style=for-the-badge" alt="DOI 10.5281/zenodo.23147633"></a>
   <img src="https://img.shields.io/badge/version-1.0.0-00C896?style=for-the-badge" alt="version 1.0.0">
 </p>
 
@@ -42,7 +42,7 @@
 <p align="center">
   <strong>Every number below is quoted from the paper together with its comparator and its caveat. When a row compares different backbones or different metrics, it says so.</strong>
   <br>
-  <sub>Paper v1.0.4 &middot; DOI <a href="https://doi.org/10.5281/zenodo.23146205">10.5281/zenodo.23146205</a> &middot; section references in the last column</sub>
+  <sub>Paper v1.0.6 &middot; DOI <a href="https://doi.org/10.5281/zenodo.23147633">10.5281/zenodo.23147633</a> &middot; section references in the last column</sub>
 </p>
 
 ### Headline results
@@ -55,7 +55,7 @@
 | MuSiQue-Ans dev answer F1 (n=2,417, single run) | **58.62%** | IRCoT 35.80% &middot; EX(SA) 49.70% &middot; Beam Retrieval 69.20 | above the benchmark's own readers, **10.58 pp below the published SOTA** | §5.2.1 |
 | HotPotQA dev distractor answer F1 (n=7,405, single run) | **73.37%** | DPR+FiD 65–72% &middot; Beam Retrieval 85.04 | above the reader range, **~12 pp below the published SOTA** | §5.2.2 |
 | LoCoMo retrieval@10, strict | **74.52%** | &mdash; | a retrieval metric; Mem0's published 66.88% is answer F1 and **not comparable** | §5.3.1 |
-| Cross-system nDCG@10, same corpus and same embedder (n=2,482) | **0.5013** | EverOS 0.6455 &middot; Zep 0.4546 &middot; Mem0 0.4337 | same corpus, queries and embedder; EverOS runs with a cross-encoder reranker, nox-mem without one | §6.3.2–§6.3.4 |
+| Cross-system nDCG@10, same corpus and same embedder (n=2,482) | **0.5013** | EverOS 0.6455 &middot; Zep 0.4546 &middot; Mem0 0.4331 | same corpus, queries and embedder; EverOS runs with a cross-encoder reranker, nox-mem without one | §6.3.2–§6.3.4 |
 
 ### Operational profile (self-hosted)
 
@@ -149,7 +149,7 @@ Most agent memory systems force a trade you should not have to make: send your d
 
 The moat is not just portability. It is **shadow discipline**: every ranking change ships in shadow mode for at least seven days, with salience scores exposed on `/api/health` for offline comparison, before it is ever allowed to influence a real query. The pain field on each chunk (`severity 0.1 trivial → 1.0 prod-outage`) ensures that incidents stay retrievable when their lessons matter, not when their dates are fresh. The retrieval logic is small enough to read in one sitting, and every score in the eval harness is auditable from the SQL up.
 
-memoria-nox is a research lab and a working product. The paper *nox-mem: Pain-Weighted Hybrid Memory for LLM Agents* ([10.5281/zenodo.23146205](https://doi.org/10.5281/zenodo.23146205), preprint, not peer reviewed) documents the formulae and the experiments that killed our own bad ideas. The repo ships the harnesses that produced those numbers, plus the same retrieval stack running against a live corpus of **~51.9k chunks** and **~15.6k entities / ~17.8k relations** (2026-09-29) with a monthly OPEX under **$11**.
+memoria-nox is a research lab and a working product. The paper *nox-mem: Pain-Weighted Hybrid Memory for LLM Agents* ([10.5281/zenodo.23147633](https://doi.org/10.5281/zenodo.23147633), preprint, not peer reviewed; per-query evidence for Section 6: [10.5281/zenodo.23146656](https://doi.org/10.5281/zenodo.23146656)) documents the formulae and the experiments that killed our own bad ideas. The repo ships the harnesses that produced those numbers, plus the same retrieval stack running against a live corpus of **~51.9k chunks** and **~15.6k entities / ~17.8k relations** (2026-09-29) with a monthly OPEX under **$11**.
 
 ## Architecture
 
@@ -306,13 +306,13 @@ Wave B post-mortem with PR-by-PR breakdown: [`docs/post-mortems/WAVE-B-2026-05-1
 | System (all-Gemini 3072d, n=2,482) | LongMemEval nDCG@10 | LoCoMo nDCG@10 | Overall |
 |---|---:|---:|---:|
 | **nox-mem (hybrid)** | **0.5255** | **0.4952** | **0.5013** |
-| mem0 (Gemini embedder, Chroma) | 0.4061 | 0.4407 | 0.4337 |
+| mem0 (Gemini embedder, Chroma) | 0.4030 | 0.4407 | 0.4331 |
 
-> **With the embedder matched, nox-mem outperforms mem0 on both datasets** (LongMemEval +0.119, LoCoMo +0.055; 95% CIs disjoint) **and all 5 represented query categories** — the mem0 LoCoMo win in the as-configured run was substantially an OpenAI-embedder effect, not a retrieval-architecture advantage. Three residual confounds are declared (mem0's runtime version was never recorded — the artifact stores the declared pin, not `mem0.__version__`; faiss→Chroma backend; n=100→2,482 sample scope): this is an embedding-**matched** comparison, not a pure architecture isolation.
+> **With the embedder matched, nox-mem outperforms mem0 on both datasets** (LongMemEval +0.123, LoCoMo +0.055; 95% CIs disjoint) **and all 5 represented query categories**. This does not attribute the as-configured mem0 LoCoMo win to the embedder, nor the matched-embedder lead to the retrieval architecture. Four residual confounds are declared: the mem0 version (the artifact stores the declared pin, not `mem0.__version__`; the run log and the store establish that mem0ai 2.0.10 ran), the faiss→Chroma backend, the n=100→2,482 sample scope, and corpus retention (8 ids name two different documents; nox-mem kept the first of each pair, mem0 kept both). Nothing in the run separates their effects: this is an embedding-**matched** comparison, not an architecture isolation (paper §6.3.2).
 >
-> **Task-type ablation (2026-06-30) — the one asymmetry that favored nox is ruled out.** nox passes Gemini's `RETRIEVAL_*` task types; mem0 does not. Re-running nox with a **generic** embedding (no task type, exactly how mem0 calls the model) drops it only **0.5013 → 0.4979 overall (−0.34 pp)** and it **still wins overall, both datasets** (LoCoMo 0.4920 vs 0.4407; LME 0.5215 vs 0.4061) **and all 5 categories**. The win is architectural (hybrid FTS5 + dense + RRF), not an embedding-mode artifact. (Rigor caveat: the re-ingested generic corpus reached 99.03% gold coverage — a handicap that only lowers nox; the win persists.)
+> **Task-type ablation (2026-06-30): the lead persisted.** nox passes Gemini's `RETRIEVAL_*` task types; mem0 does not. Re-running nox with a **generic** embedding (no task type, exactly how mem0 calls the model) gives **0.5013 → 0.4979 overall (−0.34 pp)**, and nox **still leads overall, on both datasets** (LoCoMo 0.4920 vs 0.4407; LME 0.5215 vs 0.4030) **and in all 5 categories**. The −0.34 pp does not isolate or bound the task-type contribution: the generic re-ingest reached 99.03% gold coverage (23 gold chunks absent), and its log records 33 dense-search errors at query time. The ablation does not identify which remaining difference produces the lead.
 >
-> **Both readings stand side by side, by design** — the as-configured split (above) is the honest "each system as it ships" view; the controlled variant is the "same embedder, who wins on architecture" view. We do not delete one to flatter the other.
+> **Both readings stand side by side, by design** — the as-configured split (above) is the honest "each system as it ships" view; the controlled variant is the "same embedder" view, with its residual confounds declared. We do not delete one to flatter the other.
 
 ### Full evaluation set, same corpus and same embedder (n=2,482)
 
@@ -323,7 +323,7 @@ Wave B post-mortem with PR-by-PR breakdown: [`docs/post-mortems/WAVE-B-2026-05-1
 | EverOS 1.3.1 (2026-09-10) | 0.6455 | 0.6585 | 0.5942 | 1,592 ms |
 | **nox-mem** (rc4, 2026-06-29) | 0.5013 | 0.4952 | 0.5255 | not captured in rc4 (standalone: 529 / ~940 ms p50 in two archived runs, paper §5.7) |
 | Zep 0.27.2 (2026-09-10) | 0.4546 | 0.4793 | 0.3567 | 6,002 ms |
-| Mem0 (rc4, 2026-06-29) | 0.4337 | 0.4407 | 0.4061 | not captured |
+| Mem0 (rc4, 2026-06-29) | 0.4331 | 0.4407 | 0.4030 | not captured |
 
 > **Pipelines differ.** EverOS requires a cross-encoder reranker (`Qwen3-Reranker-4B`) and will not search without one; nox-mem's run had no reranking stage. Paper §6.3.3 discusses the comparison.
 
@@ -345,7 +345,7 @@ The full head-to-head matrix against agentmemory, memanto, mem0, Letta, and Zep 
 | Typed knowledge graph with edge reasons | partial | &times; | &check; | &times; | &check; |
 | Shadow-mode ranking discipline | &times; | &times; | &times; | &times; | &check; |
 | Pain-weighted salience | &times; | &times; | &times; | &times; | &check; |
-| Published reproducible paper + harness | &times; | &check; | &check; | &times; | &check; (v1.0.4) |
+| Published reproducible paper + harness | &times; | &check; | &check; | &times; | &check; (v1.0.6) |
 | MIT, no usage caps, no telemetry phone-home | partial | &check; | &check; | &check; | &check; |
 
 ## Works with every agent
@@ -360,9 +360,9 @@ Per-agent setup: [`integrations/`](integrations/) · MCP/HTTP wiring: [`docs/QUI
 
 **Title:** *nox-mem: Pain-Weighted Hybrid Memory for LLM Agents*
 
-**DOI (v1.0.4):** [`10.5281/zenodo.23146205`](https://doi.org/10.5281/zenodo.23146205) &middot; v1.0.3: [`10.5281/zenodo.23130276`](https://doi.org/10.5281/zenodo.23130276) &middot; v1.0.2: [`10.5281/zenodo.23041503`](https://doi.org/10.5281/zenodo.23041503) &middot; v1.0: [`10.5281/zenodo.22649269`](https://doi.org/10.5281/zenodo.22649269) &middot; concept DOI (always latest): [`10.5281/zenodo.22649268`](https://doi.org/10.5281/zenodo.22649268)
+**DOI (v1.0.6):** [`10.5281/zenodo.23147633`](https://doi.org/10.5281/zenodo.23147633) &middot; v1.0.5: [`10.5281/zenodo.23146389`](https://doi.org/10.5281/zenodo.23146389) &middot; v1.0.4: [`10.5281/zenodo.23146205`](https://doi.org/10.5281/zenodo.23146205) &middot; v1.0.3: [`10.5281/zenodo.23130276`](https://doi.org/10.5281/zenodo.23130276) &middot; v1.0.2: [`10.5281/zenodo.23041503`](https://doi.org/10.5281/zenodo.23041503) &middot; v1.0: [`10.5281/zenodo.22649269`](https://doi.org/10.5281/zenodo.22649269) &middot; concept DOI (always latest): [`10.5281/zenodo.22649268`](https://doi.org/10.5281/zenodo.22649268)
 
-**Status:** preprint on Zenodo (v1.0.4, 2026-10-04, writing-only; v1.0.3, 2026-10-04; v1.0.2, 2026-09-29; v1.0, 2026-09-07), CC BY 4.0. **Not peer reviewed.**
+**Status:** preprint on Zenodo (v1.0.6, 2026-10-04, scoring correction in Section 6; v1.0.5 and v1.0.4, 2026-10-04; v1.0.3, 2026-10-04; v1.0.2, 2026-09-29; v1.0, 2026-09-07), CC BY 4.0. **Not peer reviewed.**
 
 ⚠️ **It is not on arXiv, and that is settled, not pending.** arXiv did **not accept** the
 manuscript on 2026-09-03, stating it *"would benefit from additional review and revision
@@ -381,8 +381,8 @@ since 2026-09-03.
   year      = {2026},
   month     = {10},
   publisher = {Zenodo},
-  doi       = {10.5281/zenodo.23146205},
-  url       = {https://doi.org/10.5281/zenodo.23146205},
+  doi       = {10.5281/zenodo.23147633},
+  url       = {https://doi.org/10.5281/zenodo.23147633},
   note      = {Preprint, not peer reviewed}
 }
 ```
@@ -399,7 +399,7 @@ If you use nox-mem in your research or production:
   month   = {6},
   url     = {https://github.com/totobusnello/memoria-nox},
   version = {1.0.0},
-  doi     = {10.5281/zenodo.23146205},
+  doi     = {10.5281/zenodo.23147633},
   note    = {Paper DOI; the software itself is MIT on GitHub}
 }
 ```

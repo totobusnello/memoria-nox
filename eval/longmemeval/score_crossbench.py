@@ -46,8 +46,21 @@ def dcg(rels: list[int]) -> float:
     return sum(rel / math.log2(i + 2) for i, rel in enumerate(rels))
 
 
+def _first_occurrences(retrieved: list[str], k: int) -> list[str | None]:
+    # Each retrieved id is credited once, at the rank of its first occurrence; a later
+    # repeat keeps its slot (None) and the list is not re-padded. Same rule as
+    # eval/q4-comparison/aggregate.py (fix 2026-10-04). score() already dedupes the
+    # session ids before calling these, so for that caller this changes nothing.
+    seen: set[str] = set()
+    out: list[str | None] = []
+    for r in retrieved[:k]:
+        out.append(None if r in seen else r)
+        seen.add(r)
+    return out
+
+
 def ndcg_at_k(retrieved: list[str], gold: set[str], k: int) -> float:
-    rel = [1 if r in gold else 0 for r in retrieved[:k]]
+    rel = [1 if r is not None and r in gold else 0 for r in _first_occurrences(retrieved, k)]
     n_gold = len(gold)
     if n_gold == 0:
         return 0.0
@@ -59,7 +72,7 @@ def ndcg_at_k(retrieved: list[str], gold: set[str], k: int) -> float:
 def recall_at_k(retrieved: list[str], gold: set[str], k: int) -> float:
     if not gold:
         return 0.0
-    hits = sum(1 for r in retrieved[:k] if r in gold)
+    hits = sum(1 for r in _first_occurrences(retrieved, k) if r is not None and r in gold)
     return hits / len(gold)
 
 

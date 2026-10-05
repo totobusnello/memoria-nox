@@ -81,3 +81,15 @@ paper próprio para a TMLR.
 - Registro **23146205**, DOI da versão **`10.5281/zenodo.23146205`** (o conceito `10.5281/zenodo.22649268` agora resolve para ela).
 - Arquivo único `paper-tecnico-nox-mem.pdf`, 73 páginas, `md5:d02ba2d6e4a40f6ee6b00ee733005a0b`, conferido pela API pública depois do publish; `doi.org` responde 200.
 - Revisão só de escrita (skill `avoid-ai-writing`): paridade mecânica idêntica à v1.0.3 em números, notas, referências, citações, links, cabeçalhos e tabelas (`paper2-interventional/_sprint-2026-10-04/noxmem-v104/parity-v104.py`); revisão de regressão do Codex com 1 achado corrigido. Rascunho por `deposit-v104.py`; Publish do Toto. É a versão anexada à apelação do arXiv.
+
+## v1.0.5 — publicada 2026-10-04
+
+- Registro **23146389**, DOI da versão **`10.5281/zenodo.23146389`**.
+- Arquivo único `paper-tecnico-nox-mem.pdf`, 73 páginas, `md5:7c1c29f8acf75fcde45dacdf07dc90ca`, conferido pela API pública depois do publish; `doi.org` responde 200.
+- Só a primeira página: ORCID, endereço de contato, DOIs e link do repositório; a nota do host de medição foi para o início do §5.7. Rascunho por `deposit-v105.py`; Publish do Toto.
+
+## v1.0.6 — rascunho 2026-10-04 (aguarda Publish)
+
+- Registro **23147633**, DOI reservado **`10.5281/zenodo.23147633`**, PDF de 74 páginas `md5:6bf378c01d8e35b672f5b66e899c6f86`. Rascunho por `deposit-v106.py`.
+- Correção do scorer do §6 (id recuperado repetido passa a contar uma vez): nove valores do Mem0 mudam no máximo 0,004, nenhuma ordem ou sinal muda. Redação do §6.3.2 corrigida (efeito líquido da colisão e da ablação de tipo de tarefa não isolado). Ver `paper/CHANGELOG.md`.
+- Evidência por query do §6: dataset `10.5281/zenodo.23146656` (rascunho, aguarda Publish).

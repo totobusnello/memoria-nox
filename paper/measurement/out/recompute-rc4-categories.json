@@ -1,5 +1,6 @@
 {
   "k": 10,
+  "scorer": "each retrieved id credited once (fix 2026-10-04)",
   "declared_locomo_map": {
     "1": "multi-hop",
     "2": "temporal",
@@ -50,7 +51,7 @@
     "rc4/mem0": {
       "adversarial": {
         "n": 524,
-        "ndcg10": 0.295469
+        "ndcg10": 0.292985
       },
       "multi-hop": {
         "n": 415,
@@ -66,7 +67,7 @@
       },
       "temporal": {
         "n": 454,
-        "ndcg10": 0.457038
+        "ndcg10": 0.456456
       }
     },
     "rc4-ablation/nox-mem": {
@@ -92,5 +93,16 @@
       }
     }
   },
-  "matches_paper_section_6_4": true
+  "matches_paper_section_6_4": true,
+  "paper_values_checked": "v1.0.6",
+  "v105_cells_that_moved": {
+    "rc4/mem0/temporal": {
+      "v1.0.5": 0.457,
+      "v1.0.6": 0.4565
+    },
+    "rc4/mem0/adversarial": {
+      "v1.0.5": 0.2955,
+      "v1.0.6": 0.293
+    }
+  }
 }
