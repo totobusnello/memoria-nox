@@ -33,19 +33,17 @@
 
 ## Abstract
 
-The field's canonical survey of agent memory (218 papers) catalogues evaluation on fixed sets of
-queries and tasks, with retrieval, memory-quality, response-quality and end-to-end task
+Memory systems for agents are evaluated on fixed sets of queries and tasks. The field's canonical
+survey (218 papers) covers retrieval, memory-quality, response-quality and end-to-end task
 metrics; its metric taxonomy does not include a census of distinct memory items delivered under
 production traffic. Retrieval is also conditional on a query having been
 issued, so an item that no query reaches has an undefined nDCG, not a low one. For 12 weeks we
 instrumented the two surfaces through which a memory system in operation delivers content to a
 fleet of 6 agents: a proactive 10-item brief and on-demand search.
 
-The brief logged 583,763 selected slots, 8.7 times the size of the corpus, enough to
-serve each of the 67,187 chunks eight times. They hold 1,635 distinct live chunks:
-2.43% (1,787 counting the 152 that were served and later deleted; see §4.1). These are logged
-selections: the log is written before text rendering, and delivery over the whole window was not
-verified (§3.1). The
+The brief delivered 583,763 slots, 8.7 times the size of the corpus, enough to
+serve each of the 67,187 chunks eight times. It delivered 1,635 distinct live chunks:
+2.43% (1,787 counting the 152 that were served and later deleted; see §4.1). The
 aggregate capacity therefore did not force this result. It does not follow that the ordering is wrong, only that
 the number was not produced by a lack of space. The per-session capacity (10 items)
 is not tested here. (The 99.98% expected coverage under uniform random service, against a 100% maximum,
@@ -106,23 +104,22 @@ executable diagnostic we publish exists so that others can answer it one at a ti
 
 ## 1. Introduction
 
-In the metrics that the field's canonical survey catalogues (§8.1), an agent memory system is judged
-on fixed inputs: given a set of queries,
+An agent memory system is judged today on fixed inputs: given a set of queries,
 how well it ranks what is relevant; given a set of tasks, whether the agent completes them.
 The first is the question the retrieval benchmarks answer and the
 one engineering optimizes (better embeddings, reranking, query expansion). It
 presupposes, without saying so, that what the agent receives is the top of that
 ranking.
 
-A question comes before it, and that survey's metric taxonomy does not include it: what does the system select for the agent?
+A question comes before it and goes unasked: what does the agent receive?
 It cannot be answered with a set of queries, because it requires the system in
 operation. It can be answered, because every delivery passes through a small number of
 surfaces that can be instrumented. Here there are two: a proactive 10-item brief at the
 start of each session, and on-demand search.
 
 The expected answer would be "it doesn't fit", and the measurement says it fits. In 84.7 days the brief
-logged 583,763 selected slots against 67,187 chunks, enough capacity to serve every chunk
-8.7 times. They hold 1,635 distinct live chunks, 2.43% of the corpus (1,787 in
+delivered 583,763 slots against 67,187 chunks, enough capacity to serve every chunk
+8.7 times. It served 1,635 distinct live chunks, 2.43% of the corpus (1,787 in
 the historical count, which includes 152 deleted afterwards; §4.1 gives the reason both
 numbers exist). Under uniform serving the expected coverage would be 99.98%.
 Adding search, 83.78% of the corpus is *no-record* (§3.1): it has no record on either surface,
@@ -188,7 +185,7 @@ empirical result on these replay states, not a falsifier of Proposition 1 (§5.2
 **Caveat on scope.** It is one system. We
 did not measure the effect on the agent's behavior; no downstream outcome is
 instrumented (§4.5). We do not claim that the field optimizes the wrong coordinate. We
-claim that there is a coordinate that the survey's metric taxonomy does not include, we give the instrument
+claim that there is a coordinate the benchmarks do not measure, we give the instrument
 to measure it, and we leave the question open. Of the two surfaces, the brief
 proactively selects content for delivery; the other, search, is instrumented by a counter of candidacy in tracked
 calls, which records neither who initiated a call nor what it returned, so its share of
@@ -197,8 +194,8 @@ delivered exposure is not established (§3.1, §4.1.1).
 - **The gap:** the field's canonical survey (TMLR 2602.06052v4, 218 papers) maps agent
   memory architectures and benchmarks. Its metrics cover retrieval (nDCG/recall over sets of
   queries), memory quality, responses and end-to-end task success. The survey's taxonomy of
-  metrics contains no measure of the delivery surface: how many distinct items a system in
-  production selects for an agent, and which ones.
+  metrics contains no measure of the delivery surface: how many distinct items an agent in
+  production sees, and which ones.
 
   The vocabulary of experimental methodology is also absent. Recomputed over the
   v4 PDF (`measurement/survey-string-count.py`, sha256 `497e9549…b46a6`, 429,387
@@ -212,11 +209,11 @@ delivered exposure is not established (§3.1, §4.1.1).
   | `interventional` | 1 | 0 |
   | `counterfactual` | 1 | 0 |
 
-  The absence covers the whole family of terms, not one word: the survey of 218
-  papers says `memory` 1,208 times (the positive control's count over the whole extracted
+  The absence covers the whole family of terms, not one word. A survey of 218
+  papers that says `memory` 1,208 times (the positive control's count over the whole extracted
   text, bibliography included; the script emits no body-only count for `memory`) and
-  `randomized` never. These terms are absent from this survey's extracted text. This does not
-  establish field methods or conventions. The two occurrences that
+  `randomized` never describes a field whose
+  instrument is the offline benchmark, not the experiment. The two occurrences that
   exist are singular, and one of them, that of `counterfactual`, appears as a suggested
   future direction.
 
@@ -230,7 +227,7 @@ delivered exposure is not established (§3.1, §4.1.1).
   improving ranking does not improve exposure, and the field optimizes the wrong
   coordinate.~~ That was the hypothesis this work started with, and the measurement
   contradicts it: the surface is 8.7× the corpus. That leaves the
-  following: a surface with slack serves 2.43%, and the channel that
+  following: a surface with slack delivers 2.43%, and the channel that
   would exist to compensate for it is governed by an eligibility predicate (two path patterns, an importance floor and an age
   window) that admits 0.16% of the corpus, and by a lexicographic order in which the score decides only within ties of the dominant coordinate. Whether
   other systems have this shape is an open question, not a claim of this paper, and
@@ -324,17 +321,7 @@ exposed that the naive sum exceeds the corpus by 152.
 | search | `chunks.access_count`, incremented for the top candidates of each tracked search sub-query | since always; the brief **never** writes to that column |
 
 Both instruments cover the period from the start, but they do not record the same event.
-`brief_log` records the items the brief selected, and it is written before the response is rendered
-(`brief.ts:1081-1104`). When the brief is requested as text, the renderer stops at a token budget
-and can drop trailing items (`brief.ts:867-881`). The render check of the main-pool reconstruction
-found no dropped line in any brief it reconstructed from 2026-08-22 to 2026-09-07
-(`A-filters-disaggregation/out-ord0826.json`, `render_cut_lines_dropped_hist`); delivery over the
-whole window was not verified. The brief's slot and distinct-chunk counts are therefore counts of
-logged selections, and *served*, said of the brief, means selected and logged. The lower-bound
-reading of *no-record* (defined below) also assumes that this log write never failed: the write is
-fail-open (`brief.ts:1099-1101`), so a failed write would deliver items with no row, and the code
-records no such failure.
-`access_count` is incremented inside `search()` and
+`brief_log` records what the brief returned. `access_count` is incremented inside `search()` and
 `searchSemantic()` for each sub-search's own top candidates (`search.ts:396`, called at `:466`
 and `:579`), and `searchHybrid` runs several such sub-searches (FTS on the original query and on
 each expansion variant at `2·limit` each, semantic at `4·limit`) before RRF fusion, truncation
@@ -509,7 +496,7 @@ bias is unknown and cannot be measured with the data we have.
 #### 4.1.1 Aggregate capacity does not force the outcome — and what this does not establish
 
 **Caveat:** one objection is that 583,763 accumulated slots
-are not fungible. The brief selects 10 items per session, and if a session needed
+are not fungible. The surface delivers 10 items per session, and if a session needed
 more than 10 relevant items, capacity would be binding *today*, however much slack there
 was in the aggregate. The objection is correct and restricts the claim: we do not claim
 that 10 slots per session are many.
@@ -560,7 +547,7 @@ this record predicate is measured.
 **Caveat.** "Exposed" here is the UNION of the two surfaces (`brief_log` ∪ `access_count > 0`),
 the same definition as in §4.1. We say this because most of the records are search-counter
 records, which mark candidacy in a tracked search call, not delivery (§3.1). The gradient below describes that search candidacy added to what the brief
-logged. For live chunks the two contributions could be tabulated separately by type
+delivered. For live chunks the two contributions could be tabulated separately by type
 (brief-log membership and `access_count > 0` are both recorded per chunk, with an
 intersection); that split is not reported here.
 
@@ -869,7 +856,7 @@ but does not attribute: the same 108 serves would be equally compatible with "co
 at 7 days and the main pool served everything". The test that separates the two hypotheses
 needs no new column. It suffices to run the same state twice through the real code, once with
 `freshSlots = 2` (production) and once with `freshSlots = 0`, and take the difference. What
-disappears when the channel is switched off is, by construction, what the channel contributed to the composed brief.
+disappears when the channel is switched off is, by construction, what the channel delivered.
 
 In 40 briefs of 2026-08-29 (`CHANNEL-ATTRIBUTION-2026-08-29.json`): 80 slots attributed to
 coverage (exactly 2 per brief, across all 40), 62 distinct chunks, and all 62 belong
@@ -953,8 +940,8 @@ carries 285042 instead of 298048, 2026-08-23 carries both, and on 2026-09-21 thr
 (309422, 309529, 311215) replace three (273772, 285044, 298048). The month's union is 37
 (33 + 285042 + the three new ids). A
 rotation over the same slots could serve 5,376 distinct chunks a day, or 8.0% of the corpus.
-So the main pool is not capacity-bound at the day, the unit used in this main-pool
-comparison. It is bound by its ranking: a deterministic top-k with no serve-history term, removed
+So the main pool is not capacity-bound at the day, the unit at which §4.1 measures
+exposure. It is bound by its ranking: a deterministic top-k with no serve-history term, removed
 on purpose on 2026-06-26 (`brief.ts:786-792`). Both channels are therefore governed by policy
 rather than by slots, but by different policies. The coverage channel exhausts an
 eligibility predicate of 108 chunks; the main pool returns the same arg-max for the same route,
@@ -989,9 +976,8 @@ counter: it is non-decreasing and capped at 0.20. Recency is `2^(−age/retentio
 exists and from `source_date` otherwise, and it has no floor (`serving-salience.ts:78-98`).
 A NULL `retention_days` is the code's never-decay marker (recency = 1.0, `:58-71`); 39,130 of
 the 67,187 live chunks carry it, among them 35 of the 149 served in the window and all three
-chunks below. For those, no term decays: with importance and pain held fixed, the score of an old and
-once-popular chunk does not decline with elapsed time, and further tracked accesses can still
-raise the access component up to its cap. For chunks with a positive retention, recency does
+chunks below. For those, no term decays: the score of an old and once-popular chunk is
+non-decreasing and stays at its ceiling. For chunks with a positive retention, recency does
 decay, and a search hit resets it through `last_accessed_at`, so access enters the score twice
 (`out/SALIENCE-COUNTERFACTUAL-PROD-2026-10-05.json`, `retention_days_null`).
 
@@ -1106,10 +1092,13 @@ case: of the 9,755 chunks with any access, 7,908 (81%) had gone more than 60 day
 being accessed, with the access component intact. This count has no preserved artifact, and
 its instant is not recorded; by context it is the 2026-08-28 measurement.
 
-**Note:** the three constant items belong to the main pool in the reconstruction of §4.3.1,
-where phase 0 selects them as pinned items. Their frequency alone does not establish channel
-membership. The reconstruction, not a position column in the log (which does not exist), is what
-assigns them to a channel.
+**Note:** the three constant items belong to the main pool, by
+deduction. The coverage channel orders by `last_served ASC`. A chunk served in the
+previous brief has the most recent possible `last_served`, so it sits at the end of that
+ordering, behind the entire stratum of never-served items. A chunk present in 4,632 of 4,632
+briefs cannot have been chosen by a comparator that prioritizes the least-recently-
+served. This decomposes the concentration between the two channels without needing a position column
+in the log, which does not exist.
 
 **Caveat:** the feedback loop is NOT closed by the system, and this is a deliberate design decision. `access_count` is incremented only in `search.ts:396`, and the brief declares
 in its header that it is *"read-only over `chunks`; does NOT touch `access_count`"*. So serving in
@@ -1127,7 +1116,7 @@ opposite reasons and neither of them tied to capacity:
 | main pool | 8 | deterministic score with a **monotonic, non-decaying** component | **yes** — and nobody adjusts it |
 | coverage | 2 | eligible population of **108 chunks** (0.16% of the corpus), exhausted 100% on each measured day (defective-ingestion regime, §4.3.1); **lexicographic** order | **only up to a ceiling** of 4.86% (§5; 2026-08-26 corpus, defective-ingestion regime) |
 
-The main pool would respond to a score adjustment, and nobody adjusts it. The coverage channel,
+The main pool *could* be corrected by score, and nobody corrects it. The coverage channel,
 designed to compensate for the main pool, has a daily reach bounded by its eligible population (path patterns, the
 importance/pain floor and age windows), which it exhausted in the measured regime, and within a brief it responds to score only within `last_served` ties
 (17/350 here) and then saturates. That is why the 8.7× headroom
@@ -1403,7 +1392,7 @@ quantity, which is what forced the reimplementation of item 7 as the identity
 
 A fixed-capacity surface ordered lexicographically responds to interventions on the subordinate
 coordinate only within ties of the dominant one, and that response is bounded by construction.
-To move what the brief selects beyond that bound there are three levers, and the score is not one
+To move what the agent sees beyond that bound there are three levers, and the score is not one
 of them:
 
 | lever | effect |
@@ -2050,15 +2039,15 @@ receives 10 items at once, and there is no position model. And "exposure fairnes
 normative question that we do not raise: the argument here is one of utility and
 diagnosis, not of equity among items.
 
-### 8.3 Pre-registration, and what this paper does not claim about it
+### 8.3 Pre-registration in systems CS
 
 Prospective registration of hypothesis, outcome, and analysis is routine in clinical trials and
-in parts of psychology. The survey of 218 papers from §8.1 has
+in parts of psychology; in systems CS, it is not. The survey of 218 papers from §8.1 has
 zero occurrences of any spelling of *pre-registration*; measured together, it also has
 zero of `randomized`/`randomised` and of `ablation` (§1). The absence is of the entire
 methodological family, not of one term.
 
-This paper does not claim to be a precedent of prospective registration for agent memory. The
+This paper does not claim to be that precedent. The
 prospective registration we deposited (OSF `yf7d2`) is for another study: a randomized
 crossover on the behavior of the agent. Corrected on 2026-09-21: an
 earlier version of this sentence said it *"did not run"*. It did: from 2026-09-01 10:25:39Z
@@ -2079,8 +2068,9 @@ as long as the public deposit exists asserting things that the measurement contr
 two that understate the design itself), leaving them standing is choosing to let the error survive.
 This is an obligation of correction, not a methodological credential.
 
-What the absence of experimental vocabulary in the survey supports is more modest. These terms are
-absent from this survey's extracted text. This does not establish field methods or conventions.
+What the absence of experimental vocabulary in the survey supports is more modest: there is no
+established convention on what to declare before intervening in a live memory
+system, and we found that out the expensive way.
 
 **Provenance of this section.** MemoryArena and Evo-Memory were read in full
 on 2026-08-15 (`RELATED-WORK.md` §4 and §4.1); the survey, in full on 2026-08-13, with the
@@ -2103,7 +2093,7 @@ that revisits, and §5 shows by which path.
 **Note.** This section used to support the same conclusion through the `slots/distinct` ratio (printed then as 325; the locked numbers give
 583,763/1,787 ≈ 327), withdrawn for the reason given in Appendix F-1.
 
-**Caveat.** The correct objection to this is that slots are not fungible: the brief selects 10
+**Caveat.** The correct objection to this is that slots are not fungible: the surface delivers 10
 per session, and nothing guarantees that a session tolerates more than 10. That is true, and the claim does not
 depend on it. Showing ten different items per session would never violate the limit of
 ten; what is missing is rotation across sessions (§4.1.1), not session size. This changes
@@ -2113,7 +2103,7 @@ impossible request; once the slack is measured, it is a request about design.
 **Caveat.** Nor does it follow that the policy is wrong. A 10-item surface has to
 concentrate; uniform serving is used here only as a capacity reference, and its effect on agent
 utility was not measured. What follows is that the
-boundary between "what the brief selects for the agent" and "what exists" was chosen, almost always without
+boundary between "what the agent sees" and "what exists" was chosen, almost always without
 anyone choosing it explicitly: `freshSlots = 2` was a configuration default with no
 override in the measured window (verified on 2026-08-27, `SUPERFICIE-2026-08-27.md`), and the two patterns of `GLOBAL_FRESH_PATTERNS`, together with the importance floor and the
 30-day window, carve out 0.16% of the corpus in a
@@ -2153,9 +2143,9 @@ claim that the trial left the ceiling unchanged. Whoever is
 going to intervene on a ranker should read the comparator first and ask *on which coordinate
 my lever acts*; it costs an afternoon and saves an experimental round.
 
-**Third:** none of this is visible through the metrics of the survey's taxonomy (§8.1). This is the only
+**Third:** none of this is visible through the metrics the field uses. This is the only
 claim that goes beyond this system, because it concerns the instrument, not the
-result; it rests on that one survey, not on a census of the field's methods. nDCG and recall are conditional on a query having been issued; an item that
+result. nDCG and recall are conditional on a query having been issued; an item that
 no query reaches and no brief includes has an undefined score, not a low one.
 Measuring the delivery surface requires the system in operation and a per-item record of what
 was served, and this system almost lacked that record: 16 telemetry columns with no writer
@@ -2941,57 +2931,6 @@ the `out/` artifacts are dated 2026-10-05, and the text cites four. What changed
   cites `DEVIATIONS-FOR-PAPER.md` §10.11 for the 285 eligible chunks of 2026-09-09 (nit).
 
 `_sprint-2026-10-04/A-rc16/parity-rc16.py` compares rc15 with rc16 under the same rule.
-
-**Addendum, rc17 (2026-10-05): a Codex review of rc16.** Six findings (C17-1 to C17-6), saved
-verbatim in `_sprint-2026-10-04/REVIEW-A-rc16-2026-10-05.md`, each checked against the code, the
-artifacts or the text it cites; all six hold and all six were applied. The record is
-`_sprint-2026-10-04/APPLY-A-rc17.md`. No number of rc16 was wrong. What changed:
-
-- §3.1 no longer says that `brief_log` records what the brief returned (C17-1). The log is
-  written before the response is rendered, and the text renderer can drop trailing items at its
-  token budget; the render check of the reconstruction found no dropped line from 2026-08-22 to
-  2026-09-07, and delivery over the whole window was not verified. The 583,763 slots and the
-  1,635 distinct live chunks are now called logged selections in the Abstract and §1. Swept for
-  the same class: §1, §4.1.1, §4.2, §4.3.1 and §9 no longer say that the brief or one of its
-  channels delivered something. Truncation can only remove logged items from what was rendered,
-  so it does not touch the lower bounds on non-delivery.
-- §1 and §8.3 no longer infer the methods or conventions of the field from the vocabulary of one
-  survey (C17-2): these terms are absent from this survey's extracted text, and this does not
-  establish field methods or conventions. Swept for the same class: the first sentences of the
-  Abstract and of §1, the question §1 says goes unasked, the coordinate §1 says the benchmarks do
-  not measure, the opening of §8.3 on systems CS and the third conclusion of §9 now speak of the
-  survey's taxonomy, not of the field.
-- §4.3.2 (C17-3): the three constant items are assigned to the main pool by the reconstruction of
-  §4.3.1, where phase 0 selects them as pinned items, not by their frequency.
-- §4.3.2 (C17-4): the main pool would respond to a score adjustment, and nobody adjusts it, as in
-  the Abstract and §9; it is no longer said to be correctable.
-- §4.3.2 (C17-5): with NULL retention the score of these chunks does not decline with elapsed
-  time, but tracked accesses can still raise the access component up to its cap; it is no longer
-  said to sit at its ceiling.
-- §4.3.1 (C17-6): the day is the unit of the main-pool comparison, not the unit at which §4.1
-  measures exposure (§4.1 reports cumulative record membership).
-
-`_sprint-2026-10-04/A-rc17/parity-rc17.py` compares rc16 with rc17 under the same rule.
-
-**Addendum, rc18 (2026-10-05): a Fable review of the rc17 diff.** Verdict GO with three low
-notes (F18-1 to F18-3), saved verbatim in `_sprint-2026-10-04/REVIEW-A-rc17-2026-10-05.md`, each
-checked against the text or the code it cites; all three hold and all three were applied. The
-record is `_sprint-2026-10-04/APPLY-A-rc18.md`. No number of rc17 was wrong. What changed:
-
-- The heading of §8.3 named systems CS, which its body no longer speaks about since rc17 (F18-1).
-  It is now "Pre-registration, and what this paper does not claim about it".
-- The §1 gap bullet asked how many distinct items an agent in production sees (F18-2); the
-  instrument counts logged selections (§3.1), so it now asks how many a system in production
-  selects for an agent. Swept for the same class: the question of §1, the design consequence of
-  §5.5 and the boundary named in §9 now speak of what is selected, not of what the agent sees or
-  receives.
-- §3.1 now states a second assumption of the lower bound (F18-3). The `brief_log` write is
-  fail-open and records no failure, so a failed write would deliver items with no row, the
-  opposite direction from truncation; reading *no-record* as a lower bound on non-delivery also
-  assumes that the write never failed. This qualifies the last sentence of the rc17 addendum
-  above, which is left as written.
-
-`_sprint-2026-10-04/A-rc18/parity-rc18.py` compares rc17 with rc18 under the same rule.
 
 ## Open items
 

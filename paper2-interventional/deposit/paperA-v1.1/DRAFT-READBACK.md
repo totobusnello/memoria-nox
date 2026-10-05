@@ -13,11 +13,11 @@
 
 | key | bytes | md5 | origem |
 |---|---:|---|---|
-| `spare-capacity-narrow-surface-v1.1.pdf` | 303.437 | `9c31328d7540cb4637c7c70108c22918` | novo, 50 páginas |
-| `spare-capacity-narrow-surface-v1.1.md` | 217.049 | `0e1eb38ee42e4f8d3fa31e5a5881d6a7` | novo, = rc14 byte a byte |
-| `MANIFEST-v1.1.json` | 23.345 | `b0433f76232fb2bcd9f559d39803f118` | novo |
-| `artefatos-v1.1.zip` | 268.812 | `9343c8d9c460d6ddb0a7c3628c7dd8d1` | novo, 52 membros |
-| `scripts-v1.1.zip` | 167.832 | `bd6b8a0ca66bff343fe920169e6f2c46` | novo, 35 membros |
+| `spare-capacity-narrow-surface-v1.1.pdf` | 318.270 | `d864b7cfb136a621f5b45658d80dc5cc` | novo, 53 páginas |
+| `spare-capacity-narrow-surface-v1.1.md` | 231.132 | `351a15c18b64e3a93e07f7d523abbd92` | novo, = rc18 byte a byte |
+| `MANIFEST-v1.1.json` | 26.161 | `2a8a8ae3490780173c6d868da8f94bb0` | novo |
+| `artefatos-v1.1.zip` | 298.309 | `da78be7457cfa6123097900bc815f6e9` | novo, 60 membros |
+| `scripts-v1.1.zip` | 200.170 | `fbb925d0fceebeb62b01754e2ede1aa4` | novo, 39 membros |
 | `MANUSCRIPT.md` | 126.564 | `a08076709e14b13ecf148c53ffb8f863` | v1.0, files-import |
 | `MANIFEST.json` | 24.483 | `6b30ceafbd66332a933c18762cacf148` | v1.0, files-import |
 | `claims_check.py` | 117.840 | `76a75af212fb0e9fbcd00b44e8cbc9fe` | v1.0, files-import |
@@ -36,7 +36,7 @@ Os 13 da v1.0 foram copiados **no servidor** (`files-import`), não reenviados d
 de cada um bate com o do registro publicado 22181415. Os 5 novos batem com o disco, e cada
 membro dos dois zips novos bate (sha256) com `MANIFEST-v1.1.json`.
 
-## Readback campo a campo (forma InvenioRDM + legada): 22 de 22 ok
+## Readback campo a campo (forma InvenioRDM + legada): 24 de 24 ok
 
 `is_draft` True · `is_published` False · DOI `10.5281/zenodo.23163119` · concept DOI
 `10.5281/zenodo.22181414` · `versions.index` 2 · title = linha 1 do manuscrito ("Spare capacity,
@@ -54,15 +54,16 @@ o que já bate).
 
 ## O que o pacote é
 
-- **Manuscrito:** `_sprint-2026-10-04/A-v1.1-rc14.md`, byte a byte (sha256 `73602894…ea803fe`;
+- **Manuscrito:** `_sprint-2026-10-04/A-v1.1-rc18.md`, byte a byte (sha256 `f8b43d23…88d2d1e`;
   o `build-package.py` sai 1 se o depositado divergir da fonte). Até o rc8 havia uma
   substituição no Apêndice D; desde o rc10 o DOI está no próprio rascunho.
 - **PDF:** pandoc 3.9 + xelatex (2 passadas), mesmo preâmbulo do Paper 1 (`paper/preamble.tex`)
-  mais 25 glifos mapeados para símbolos matemáticos; **0 "Missing character"** no log. 50
+  mais 25 glifos mapeados para símbolos matemáticos; **0 "Missing character"** no log. 53
   páginas, Letter. O bloco de título (autor, ORCID, versão, DOI) vem de metadata do pandoc e
   não está no `.md`.
 - **Redação:** em 8 arquivos empacotados um caminho local virou marcador (`<HOME>/`,
-  `<SCRATCH>/`, `<TMP>`); o manifesto lista quais e guarda o sha256 do original. Gate final
+  `<SCRATCH>/`, `<TMP>`); o manifesto lista quais e guarda o sha256 do original (desde o rc15 também o do
+  `REVIEW-A-rc12-2026-10-05.md`, redigido antes do primeiro commit; o original desse não está no git). Gate final
   sobre todo byte empacotado (zips, soltos, texto e bytes do PDF, manifesto): **0** host, IP
   não-loopback ou caminho pessoal. Controle positivo do gate conferido (`/Users/…`, `~/`,
   `srv…`, IP Tailscale e `*.local` são pegos; `127.0.0.1`, `/root/` e `/var/lib/` passam, como
@@ -372,3 +373,192 @@ bloco da description declara.
 - **Rascunho 23163119:** chaves antigas apagadas, os 2 nomes novos + manifesto + 2 zips enviados,
   metadata regravada. Readback: **24 de 24** campos ok (22 + as 2 chaves antigas ausentes),
   **18 de 18** arquivos com md5 conferido, membros dos zips conferidos. **Não publicado.**
+
+## Rodada de 2026-10-05 (rc15): revisões Fable e Codex do rc14
+
+- **Revisões:** `_sprint-2026-10-04/REVIEW-A-rc14-2026-10-05.md`, verbatim (Fable, passe único,
+  só defeitos; Codex, recibo `adversary-receipt-codex-2026-10-05T135649-98273.txt`, exit 0, 437 s).
+  Dez achados, os dez conferidos contra código, artefato ou fonte e os dez aplicados; registro em
+  `_sprint-2026-10-04/APPLY-A-rc15.md`.
+  - **FB1** o conjunto de 108 e a identidade 33 + 108 = 141 são contagens sobre os briefs de 10
+    linhas com agente (`coverage-set-from-log.py:24-25`); as 5 sondas de 5 linhas de 2026-08-26
+    ficam fora e serviram 5 chunks a mais (`RECON-52-e-sondas-2026-10-04.json`, `por_dia_utc`:
+    146 nesse dia). Qualificador "in the agent briefs" no §1, §2, §4.3.1 (×3), Apêndice A, F-4,
+    addendum rc14 e description; a exceção nomeada no §4.3.1.
+  - **FB2** idade mínima datada: 0,92 em 08-23 a 6,92 em 08-29 (0,72 em 08-22), §1, addendum rc14
+    e description.
+  - **FB3** opção (a): `REVIEW-A-rc12-2026-10-05.md` entrou no `JA_REDIGIDOS` com o hash do
+    original (`9d1abb0f…07ee6e6ce`, `R2 x2`; `redige(original)` = cópia do repositório). O
+    original nunca foi commitado (os dois commits já têm a cópia redigida), e o manifesto diz isso
+    nesse item; a description mantém "eight", agora verdadeiro (8 itens com `redacao` +
+    `sha256_no_repositorio`).
+  - **CX1** Tabela 3 do survey (conferida numa cópia local do PDF v4, sha256 `497e9549…`) também
+    lista métricas de qualidade de memória, de resposta e de tarefa fim a fim: Abstract, §1 (abertura
+    e bullet "gap") e §8.1 reescritos; a frase da description v1.0 ("they evaluate nDCG and recall
+    over query sets") listada como superada no bloco v1.1 (a tradução da v1.0 não foi editada).
+  - **CX2** §5.6 virou "same-stratum matching check", não falsificador: o dedup do `pickDedup`
+    depende da ordem (`serving-brief.ts:420-433`). Linha da tabela "Proposition 1 | survives" →
+    "same-stratum matching check | passes".
+  - **CX3** teto medido com os rótulos de severidade fixos; independência não estabelecida (§5.1,
+    Apêndice C). A citação `serving-brief-outcome.ts:359` não entrou no texto: o módulo não está
+    nem na v1.0 nem no pacote v1.1.
+  - **CX4** §5.5: 17/350 com elegibilidade, designação e multiplicadores fixos; não é máximo (17 a
+    26 com outras designações). Description alinhada.
+  - **CX5** §6, última linha: 245 contra 151 (limite inferior) não estabelece quem lidera.
+  - **CX6** `churn` = ids só do tratado (`would_enter`), metade da diferença simétrica com
+    conjuntos de mesmo tamanho; todos os números de churn foram calculados assim e ficam.
+  - **CX7** utilidade do serving uniforme não medida (Abstract, §1, §4.1.1, §9).
+  - `A-rc15/parity-rc15.py --selftest`: **PARITY OK**, **SELFTEST OK** (31 mutações; 30 mordem,
+    a de unidade segue como limite documentado). `history` exige rc5..rc13 idênticos e o addendum
+    rc14 uma vez (corrigido no lugar, deltas declarados); `withdrawn` carrega as 28 e acrescenta
+    27; duas linhas de tabela declaradas (CX2, CX5). F-5 ganhou o "Addendum, rc15".
+    `spare-capacity-narrow-surface-v1.1.md` = rc15 byte a byte.
+- **Pacote:** `FONTE` → rc15; entraram `REVIEW-A-rc14-2026-10-05.md` e `APPLY-A-rc15.md`
+  (artefatos, 52 → 54) e `A-rc15/parity-rc15.py` (scripts, 35 → 36). **Censo:** 87 caminhos no
+  escopo, **0 lacunas** (58 cobertos pela v1.1, 29 só pela v1.0). **Gate de privacidade: 0**
+  (8 arquivos redigidos, agora todos com hash do original). PDF refeito: **51 páginas**, **0
+  glifos ausentes**, md5 `31af94c019f0a65446d4d630436c6057`.
+- **Description:** bloco v1.1 com o item CX1 (frase da v1.0 superada), o 17/350 estreitado (CX4),
+  o parágrafo "A v1.0 statement withdrawn" com o qualificador e as datas (FB1, FB2), contagens
+  54/36, "drafts rc8 to rc15", "(rc15, Appendix F-5)". `description-v1.1.html` md5
+  `4979a9494f24db66f7d8c2ae6cf09c7b`.
+- **Rascunho 23163119:** metadata regravada e os 5 arquivos novos reenviados ao **mesmo**
+  rascunho. Readback: **24 de 24** campos ok, **18 de 18** arquivos com md5 conferido (13 da v1.0
+  contra o registro 22181415, 5 novos contra o disco), membros dos zips conferidos contra o
+  manifesto (tabela no topo atualizada). **Não publicado.**
+
+## Rodada de 2026-10-05 (rc16): revisões Codex e Fable do rc15
+
+- **Revisões:** `_sprint-2026-10-04/REVIEW-A-rc15-2026-10-05.md`, verbatim (Codex, recibo
+  `adversary-receipt-codex-2026-10-05T142159-29079.txt`, exit 0, 360 s, NO-GO; Fable, passe único,
+  defeitos restantes, GO). Sete achados, os sete conferidos contra código, artefato ou fonte e os
+  sete aplicados; registro em `_sprint-2026-10-04/APPLY-A-rc16.md`.
+  - **CX-A** §1 chamava o §5.6 de "the test that could have killed it", e o §5.6 diz que não é
+    falsificador. Agora: as 20 entradas na saturação tiveram saída no mesmo estrato; checagem
+    empírica, não falsificador da Proposição 1 (§5.2, §5.6). **Varredura** (classe "checagem
+    chamada de falsificador"): título do §5.6 → "A same-stratum matching check on recorded
+    quantities"; linha da tabela do §6 ("The valid test" → "The check that replaced it … is not a
+    falsifier"). Description sem frase da classe.
+  - **CX-B** F-1 dizia que razão ≈ 1 "would be the *worse* policy": trocado por "whether that
+    policy would improve or worsen agent utility was not measured". **Varredura** (classe "política
+    melhor/pior sem utilidade medida"): F-1 "including a correct one" ×2 → "whatever its effect on
+    agent utility"; nota do título não chama mais o corpus de "starved". Description sem frase da
+    classe.
+  - **CX-C** §5.7.1: o classificador (`granularidade-do-teto.py:200-213`) rotula
+    "inalcançabilidade" só por ausência no controle + churn 0. Contradição confirmada no log
+    fechado: no estado 05:37 o último serve de 308284, 308222 e 308240 cai na hora 03; no estado
+    07:37, o de 308296, 308222 e 308240 na hora 05; o controle por hora seleciona 308222 e 308240
+    (`out/gran3-hora.json`). Virou "loss of sensitivity", com a evidência do log (declarado não
+    depositado). Script e `CEILING-GRANULARITY-2026-08-28.json` mantêm o rótulo.
+  - **CX-D** §4.3.2: `clamp01` no termo de acesso (`serving-salience.ts:227-234`, mesmo md5 do
+    arquivo depositado na v1.0); "non-decreasing and capped at 0.20".
+  - **FB-A** o 10.899 de `sessions/%` não está em nenhum artefato (todas as ocorrências são a união
+    viva do §4.1); sinalizado no §4.3.1 e no bloco de status.
+  - **FB-B** Apêndice D: quatro artefatos de `out/` datados 2026-10-05 citados (a pasta tem seis;
+    os dois `C12-*` são do Paper B), não três.
+  - **Nit** §4.3.1: 285 → `DEVIATIONS-FOR-PAPER.md` §10.11 (l.1257).
+  - `A-rc16/parity-rc16.py --selftest`: **PARITY OK**, **SELFTEST OK** (31 mutações; 30 mordem,
+    a de unidade segue como limite documentado). `history` agora exige rc5..rc15 idênticos;
+    `withdrawn` carrega as 55 e acrescenta 17; um título e uma linha de tabela declarados (CX-A).
+    F-5 ganhou o "Addendum, rc16". `spare-capacity-narrow-surface-v1.1.md` = rc16 byte a byte.
+- **Pacote:** `FONTE` → rc16; entraram `REVIEW-A-rc15-2026-10-05.md` e `APPLY-A-rc16.md`
+  (artefatos, 54 → 56) e `A-rc16/parity-rc16.py` (scripts, 36 → 37). **Censo:** 91 caminhos no
+  escopo, **0 lacunas** (61 cobertos pela v1.1, 30 só pela v1.0; o novo `out/gran3-hora.json` já
+  estava na v1.0). **Gate de privacidade: 0** (8 arquivos redigidos). PDF refeito: **52
+  páginas**, **0 glifos ausentes**, md5 `c0e6d6d291c64879ea176a4853c7c1bb`.
+- **Description:** contagens 56/37, "drafts rc8 to rc16", "(rc16, Appendix F-5)"; nada mais do que
+  ela diz muda com o rc16. `description-v1.1.html` md5 `343d2785eef4cd1bc0ad766921c88173`.
+- **Rascunho 23163119:** metadata regravada e os 5 arquivos novos reenviados ao **mesmo**
+  rascunho. Readback: **24 de 24** campos ok, **18 de 18** arquivos com md5 conferido (13 da v1.0
+  contra o registro 22181415, 5 novos contra o disco), membros dos zips conferidos contra o
+  manifesto (tabela no topo atualizada). **Não publicado.**
+
+## Rodada de 2026-10-05 (rc17): revisão Codex do rc16
+
+- **Revisão:** `_sprint-2026-10-04/REVIEW-A-rc16-2026-10-05.md`. O recibo
+  (`adversary-receipt-codex-2026-10-05T144610-47994.txt`, exit 0, 334 s, NO-GO) não tem
+  `output_file`; o stdout inteiro da chamada sobreviveu no tool-result da sessão, e os 438.705 bytes
+  da voz batem com o `output_sha256` do recibo (`728ecccd…8e7cc6`). A mensagem final está verbatim
+  no REVIEW, junto com o resumo da casca; o output inteiro (com o log de exec) ficou ao lado do
+  recibo, em `.remember/adversary-output-codex-2026-10-05T144610-47994.txt`, fora do pacote. Seis
+  achados (C17-1..C17-6), os seis conferidos e aplicados; registro em
+  `_sprint-2026-10-04/APPLY-A-rc17.md`.
+  - **C17-1** §3.1: o `INSERT INTO brief_log` roda sobre `result.items` antes do
+    `renderBriefText` (`brief.ts:1081-1104`), que corta linhas no `TOKEN_BUDGET` (`:867-881`, só no
+    formato texto). O render check de `out-ord0826.json` dá 0 linhas cortadas em todo brief
+    reconstruído de 2026-08-22 a 2026-09-07 (09-02 ausente; 08-21 sem reconstrução). Agora:
+    seleções registradas antes da renderização, entrega na janela inteira não verificada, e
+    *served* definido como "selected and logged". **Varredura:** Abstract e §1 ("logged 583,763
+    selected slots", "They hold 1,635"), §1 bullet, §4.1.1, §4.2, §4.3.1, §9. Limites inferiores de
+    não-entrega intactos. Description: o bullet do 1.787 passa a citar "delivered 583,763 slots"
+    e "actually receives" da v1.0 como superados.
+  - **C17-2** §1 e §8.3: "These terms are absent from this survey's extracted text. This does not
+    establish field methods or conventions." **Varredura:** primeira frase do Abstract e do §1,
+    "goes unasked", "the benchmarks do not measure", abertura do §8.3 ("in systems CS, it is
+    not" e "that precedent"), terceira conclusão do §9. Description: o bullet do survey passa a
+    citar "a coordinate the field's benchmarks do not measure" e diz que o survey não é censo do
+    campo.
+  - **C17-3** §4.3.2: os três constantes ficam no pool principal pela reconstrução do §4.3.1 (fase
+    0, pinned), não pela frequência.
+  - **C17-4** §4.3.2: "would respond to a score adjustment, and nobody adjusts it", igual ao
+    Abstract e ao §9.
+  - **C17-5** §4.3.2: com retenção NULL o score não cai com o tempo, mas acessos rastreados ainda
+    sobem o termo de acesso até o teto (414/363/911 dão 0,175/0,171/0,197 < 0,20).
+  - **C17-6** §4.3.1: "the unit used in this main-pool comparison".
+  - `A-rc17/parity-rc17.py --selftest`: **PARITY OK**, **SELFTEST OK** (29 mutações; 28 mordem,
+    a de unidade segue como limite documentado). `history` exige rc5..rc16 idênticos; `withdrawn`
+    carrega as 72 e acrescenta 25; nenhum título nem linha de tabela muda; um delta de qualificador
+    declarado (`phase 0` +1, C17-3). F-5 ganhou o "Addendum, rc17".
+    `spare-capacity-narrow-surface-v1.1.md` = rc17 byte a byte.
+- **Pacote:** `FONTE` → rc17; entraram `REVIEW-A-rc16-2026-10-05.md` e `APPLY-A-rc17.md`
+  (artefatos, 56 → 58) e `A-rc17/parity-rc17.py` (scripts, 37 → 38). **Censo:** 94 caminhos no
+  escopo, **0 lacunas** (64 cobertos pela v1.1, 30 só pela v1.0). **Gate de privacidade: 0** (8
+  arquivos redigidos). PDF refeito: **53 páginas**, **0 glifos ausentes**, md5
+  `ef671f7282fc13ef7c98ad9cec2bc9b0`.
+- **Description:** frases das classes C17-1 e C17-2 (acima), contagens 58/38, "drafts rc8 to
+  rc17", "(rc17, Appendix F-5)". `description-v1.1.html` md5 `0c66bdba670c64a849007b869846adb8`.
+- **Rascunho 23163119:** metadata regravada e os 5 arquivos novos reenviados ao **mesmo**
+  rascunho. Readback: **24 de 24** campos ok, **18 de 18** arquivos com md5 conferido (13 da v1.0
+  contra o registro 22181415, 5 novos contra o disco), membros dos zips conferidos contra o
+  manifesto (tabela no topo atualizada). **Não publicado.**
+
+## Rodada de 2026-10-05 (rc18): revisão Fable do diff rc16 → rc17
+
+- **Revisão:** `_sprint-2026-10-04/REVIEW-A-rc17-2026-10-05.md`, as três notas do Fable verbatim
+  (como repassadas), veredito **GO**. Três notas baixas (F18-1..F18-3), as três conferidas e
+  aplicadas; registro em `_sprint-2026-10-04/APPLY-A-rc18.md`.
+  - **F18-1** §8.3: o título "Pre-registration in systems CS" nomeava um escopo que o corpo não
+    trata desde o rc17. Agora "Pre-registration, and what this paper does not claim about it".
+    Nenhuma referência cruzada cita o texto do título (fora dos addenda, que são histórico).
+  - **F18-2** §1, bullet da lacuna: "how many distinct items a system in production selects for an
+    agent, and which ones." **Varredura** (a quantidade medida dita como o que o agente vê ou
+    recebe): a pergunta do §1 ("what does the system select for the agent?"), o §5.5 ("To move
+    what the brief selects") e o §9 ("what the brief selects for the agent"). Mantidos, com motivo
+    no APPLY: a pressuposição do retrieval no §1, "it receives it" no §2, o braço de controle no
+    Abstract, o laço condicional não medido (§4.3.2, §8.2), o formato de 10 itens na analogia do
+    §8.2, frases cujo sujeito não é o agente, e o Apêndice F.
+  - **F18-3** §3.1: conferido em `serving-brief.ts:1081-1101` (= o depositado, md5
+    `ffe9d2d0…70bb87b4`): o `INSERT INTO brief_log` está num `try` cujo `catch` só tem o
+    comentário "fail-open", sem contador, log ou métrica, e o brief é devolvido depois dele; o
+    loop não está numa transação. Frase nova depois da de seleções registradas: a leitura de
+    *no-record* como limite inferior também supõe que essa escrita nunca falhou
+    (`brief.ts:1099-1101`), e o código não registra falha. Na description, a ressalva entrou no
+    bullet do 83,78% (é ele que afirma o limite inferior; o bullet das seleções registradas não
+    afirma).
+  - `A-rc18/parity-rc18.py --selftest`: **PARITY OK**, **SELFTEST OK** (27 mutações; 26 mordem,
+    a de unidade segue como limite documentado). `history` exige rc5..rc17 idênticos (a última
+    frase do addendum rc17 é qualificada pelo addendum rc18, não editada); `withdrawn` carrega as
+    97 e acrescenta 6; um título declarado (§8.3, F18-1); um delta de qualificador declarado
+    (`no-record` +1, F18-3). F-5 ganhou o "Addendum, rc18".
+    `spare-capacity-narrow-surface-v1.1.md` = rc18 byte a byte.
+- **Pacote:** `FONTE` → rc18; entraram `REVIEW-A-rc17-2026-10-05.md` e `APPLY-A-rc18.md`
+  (artefatos, 58 → 60) e `A-rc18/parity-rc18.py` (scripts, 38 → 39). **Censo:** 97 caminhos no
+  escopo, **0 lacunas** (67 cobertos pela v1.1, 30 só pela v1.0). **Gate de privacidade: 0** (8
+  arquivos redigidos). PDF refeito: **53 páginas**, **0 glifos ausentes**, md5
+  `d864b7cfb136a621f5b45658d80dc5cc`.
+- **Description:** frase do F18-3 (acima), contagens 60/39, "drafts rc8 to rc18",
+  "(rc18, Appendix F-5)". `description-v1.1.html` md5 `fbd6ca4609f837bf8287ce547a026bf9`.
+- **Rascunho 23163119:** metadata regravada e os 5 arquivos novos reenviados ao **mesmo**
+  rascunho. Readback: **24 de 24** campos ok, **18 de 18** arquivos com md5 conferido (13 da v1.0
+  contra o registro 22181415, 5 novos contra o disco), membros dos zips conferidos contra o
+  manifesto (tabela no topo atualizada). **Não publicado.**

@@ -80,6 +80,14 @@ _sprint-2026-10-04/REVIEW-A-rc12-2026-10-05.md
 _sprint-2026-10-04/APPLY-A-rc13.md
 _sprint-2026-10-04/REVIEW-A-rc13-2026-10-05.md
 _sprint-2026-10-04/APPLY-A-rc14.md
+_sprint-2026-10-04/REVIEW-A-rc14-2026-10-05.md
+_sprint-2026-10-04/APPLY-A-rc15.md
+_sprint-2026-10-04/REVIEW-A-rc15-2026-10-05.md
+_sprint-2026-10-04/APPLY-A-rc16.md
+_sprint-2026-10-04/REVIEW-A-rc16-2026-10-05.md
+_sprint-2026-10-04/APPLY-A-rc17.md
+_sprint-2026-10-04/REVIEW-A-rc17-2026-10-05.md
+_sprint-2026-10-04/APPLY-A-rc18.md
 """.split()
 
 SCRIPTS = """
@@ -99,6 +107,10 @@ _sprint-2026-10-04/A-rc11/parity-rc11.py
 _sprint-2026-10-04/A-rc12/parity-rc12.py
 _sprint-2026-10-04/A-rc13/parity-rc13.py
 _sprint-2026-10-04/A-rc14/parity-rc14.py
+_sprint-2026-10-04/A-rc15/parity-rc15.py
+_sprint-2026-10-04/A-rc16/parity-rc16.py
+_sprint-2026-10-04/A-rc17/parity-rc17.py
+_sprint-2026-10-04/A-rc18/parity-rc18.py
 _sprint-2026-10-04/A-filters-disaggregation/diag-residual-mismatch.py
 serving-brief.ts
 measurement/auditoria-da-cadeia.py
@@ -121,9 +133,9 @@ deposit/paperA-v1.1/build/preamble-paperA-v1.1.tex
 """.split()
 
 SOLTOS = ["deposit/paperA-v1.1/spare-capacity-narrow-surface-v1.1.md", "deposit/paperA-v1.1/spare-capacity-narrow-surface-v1.1.pdf"]
-FONTE = "_sprint-2026-10-04/A-v1.1-rc14.md"
+FONTE = "_sprint-2026-10-04/A-v1.1-rc18.md"
 
-# Censo dos caminhos citados (rc11, mantido do rc12 ao rc14): todo caminho que o manuscrito cita e que resolve, no
+# Censo dos caminhos citados (rc11, mantido do rc12 ao rc18): todo caminho que o manuscrito cita e que resolve, no
 # repositório, para `_sprint-2026-10-04/…` ou `out/…` (ou que é escrito assim) tem de estar no
 # pacote v1.1 ou nos arquivos publicados da v1.0 (MANIFEST.json + zips do registro 22181415,
 # baixados em A-recon-evidence/deposited-22181415/). Citação por nome nu (`out-ord0826.json`)
@@ -247,6 +259,14 @@ JA_REDIGIDOS = {
         ("602f25298f70703c34c3e9b1d76faccb68cfc38112fddc61b458d9138cf01e98", ["R3 x5"],
          "depois da redação, as 4 ocorrências no código (uma no docstring ficou <HOME>/) viraram "
          "os.path.join(os.path.expanduser('~'), ...), para o script rodar; saída idêntica à do original"),
+    # Revisão do rc14 (FB3, Fable), aplicada no rc15: a cópia do repositório foi redigida ANTES do
+    # primeiro commit (6fd76cb/36082af já têm a versão redigida), então o original não está no git.
+    # O hash vem da cópia local guardada fora do repositório no scrub; conferido em 2026-10-05:
+    # redige(original) == cópia do repositório, regras R2 x2.
+    "_sprint-2026-10-04/REVIEW-A-rc12-2026-10-05.md":
+        ("9d1abb0f536abc757aaf7ebe289b22856cc16b5ac712b9530b906e107ee6e6ce", ["R2 x2"], None,
+         "2026-10-05, antes do primeiro commit; o original não está no histórico do git (hash "
+         "registrado de uma cópia local mantida fora do repositório)"),
 }
 
 PRIVADO = re.compile(
@@ -303,10 +323,11 @@ def monta_zip(nome, lista, itens, achados):
                 it["sha256_no_repositorio"] = sha(orig)
                 it["redacao"] = regras
             elif rel in JA_REDIGIDOS:
-                old, regras_antigas, depois = JA_REDIGIDOS[rel]
+                old, regras_antigas, depois, *nota = JA_REDIGIDOS[rel]
                 it["sha256_no_repositorio"] = old
                 it["redacao"] = regras_antigas
-                it["redacao_no_repositorio"] = "2026-10-05 (SCRUBBED.txt); original no histórico do git"
+                it["redacao_no_repositorio"] = (nota[0] if nota else
+                                                "2026-10-05 (SCRUBBED.txt); original no histórico do git")
                 if depois:
                     it["alteracao_pos_redacao"] = depois
             itens.append(it)
@@ -356,7 +377,8 @@ def main():
                  "difere do repositório, 'redacao' diz quais regras e 'sha256_no_repositorio' guarda "
                  "o hash do original. Nos itens com 'redacao_no_repositorio', a cópia do repositório "
                  "já foi sobrescrita com a redigida (2026-10-05): 'sha256_no_repositorio' é então o "
-                 "hash do original anterior ao scrub, que segue no histórico do git."),
+                 "hash do original anterior ao scrub, que segue no histórico do git, salvo onde "
+                 "'redacao_no_repositorio' diz que o original não chegou a ser commitado."),
         "regras_de_redacao": {
             "R1": "caminho absoluto do scratchpad temporário local -> <SCRATCH>/",
             "R2": "diretório home absoluto do autor -> <HOME>/",
@@ -367,7 +389,7 @@ def main():
             "fonte": FONTE,
             "sha256_fonte": sha(fonte),
             "sha256_depositado": sha(dep),
-            "diferenca": "nenhuma: o depositado é a fonte byte a byte (gate de parity-rc14, check 'deposit')",
+            "diferenca": "nenhuma: o depositado é a fonte byte a byte (gate de parity-rc18, check 'deposit')",
             "pdf": "pandoc 3.9 + xelatex x2 via pdf-build/build-pdf.sh (em scripts-v1.1.zip); 0 glifos ausentes",
         },
         "excluidos": [{"o_que": a, "motivo": b} for a, b in EXCLUIDOS],

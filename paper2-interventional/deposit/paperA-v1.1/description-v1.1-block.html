@@ -39,9 +39,16 @@ above are superseded:</p>
   <li>"never exposed 83.78% of its own corpus": the 56,288 live chunks (83.78%) have neither a
       brief-log record nor a positive search counter. That is a lower bound on non-delivery by the
       brief and by tracked search, not a measurement that they were never exposed; non-delivery
-      across all agent-facing search is not established.</li>
-  <li>"showed 1,787 distinct chunks: 2.66%": the brief delivered 1,635 distinct live chunks
-      (2.43%); 1,787 counts the 152 that were served and later deleted.</li>
+      across all agent-facing search is not established. The bound also assumes that the brief's
+      log write, which is fail-open and records no failure, never failed: a failed write would
+      deliver items with no row.</li>
+  <li>"delivered 583,763 slots ... and showed 1,787 distinct chunks: 2.66%": the brief log records
+      583,763 selected slots and 1,635 distinct live chunks (2.43%); 1,787 counts the 152 that were
+      served and later deleted. The log is written before the text renderer, which can drop trailing
+      items at a token budget; a render check found no dropped item in the briefs reconstructed from
+      2026-08-22 to 2026-09-07, and delivery over the whole window was not verified, so these counts
+      are logged selections. The same applies to "how many distinct items an agent in production
+      actually receives": what is counted is what the brief selected and logged.</li>
   <li>"search is initiated by the agent and accounts for most of the recorded exposure": the
       search counter records that a chunk was a top candidate of some tracked call, whoever
       initiated it (automated callers included). It bounds from above what tracked search
@@ -54,11 +61,18 @@ above are superseded:</p>
       and is measured as necessary for main-set membership for one of the three (lifting it removes
       chunk 116107 from every reconstructed brief; the other two stay).
       The main pool would respond to a score adjustment, and nobody adjusts it.</li>
+  <li>"a coordinate the field's benchmarks do not measure", "they evaluate nDCG and recall over
+      query sets, and none of those metrics sees what no query ever reached": the survey's metrics
+      (its Table 3) also cover memory quality, responses and end-to-end task success. What its metric
+      taxonomy does not include is a census of distinct memory items delivered under production
+      traffic. The survey is the source inspected, not a census of the field: what its taxonomy and
+      its extracted text lack does not establish field methods or conventions.</li>
   <li>"exhausts 100% of an eligible pool of 108 chunks every day": measured on 2026-08-26 to 08-29,
       inside a period of defective session ingestion, and describing that regime. The coverage
       channel's daily reach is bounded by its eligible population (path patterns, the
       importance/pain floor and age windows); within a brief it responds to score only within
-      <code>last_served</code> ties (17/350 in the replay) and then saturates.</li>
+      <code>last_served</code> ties (17/350 in the replay, with the designation and the recorded
+      severity labels held fixed; not a maximum over all score adjustments) and then saturates.</li>
   <li>"eight are above 32.5%": seven are above 32.5% and one is at 32.5%.</li>
 </ul>
 <p>Also narrowed: in the derivation of §5 the "if and only if" entry condition now holds only
@@ -75,26 +89,28 @@ not show. The series came from a table in a pre-deposit draft, computed by a scr
 was never saved, and the statement was false as written: the table itself recorded 52 new items
 on 2026-08-20 (the <code>memory/lessons.md</code> ingestion of that day), but its minimum-age query
 excluded those chunks because they had later been deleted (<code>_sprint-2026-10-04/A-recon/RECON-52-e-sondas-2026-10-04.json</code>).
-v1.1 replaces it with two separate measurements: the same 108 coverage-side ids on every day
-from 2026-08-23 to 2026-08-29 (<code>_sprint-2026-10-04/A-rc2/COVERAGE-SET-FROM-LOG-2026-10-04.json</code>),
-and, counting serves across both channels, the 2026-08-21..22 batch at 108 distinct chunks a day
-(109 on 2026-08-26), with its minimum served age rising from 0.92 to 6.92 days in steps of 1.00
-(<code>BATCH-CYCLE-2026-08-29.json</code>).</p>
+v1.1 replaces it with two separate measurements: in the 10-row agent briefs, the same 108
+coverage-side ids on every day from 2026-08-23 to 2026-08-29
+(<code>_sprint-2026-10-04/A-rc2/COVERAGE-SET-FROM-LOG-2026-10-04.json</code>; the five health
+probes of 2026-08-26 are outside that count and served five further chunks that day), and,
+counting serves across both channels, the 2026-08-21..22 batch at 108 distinct chunks a day
+(109 on 2026-08-26), with its minimum served age rising from 0.92 on 2026-08-23 to 6.92 on
+2026-08-29 in steps of 1.00 (0.72 on 2026-08-22; <code>BATCH-CYCLE-2026-08-29.json</code>).</p>
 
 <p><strong>The package.</strong> The 13 files of v1.0 are carried over unchanged. Added:
 <code>spare-capacity-narrow-surface-v1.1.pdf</code> and its source <code>spare-capacity-narrow-surface-v1.1.md</code>;
-<code>artefatos-v1.1.zip</code> (52 files: the 2026-10-04/05 artifacts, among them the
+<code>artefatos-v1.1.zip</code> (60 files: the 2026-10-04/05 artifacts, among them the
 diagnostic of the one residual mismatch of the filter reconstruction, artifacts the text cites
 that v1.0 did not include, the current <code>DEVIATIONS-FOR-PAPER.md</code>, and the review
-records of Appendix F); <code>scripts-v1.1.zip</code> (35 files: the scripts that produced
+records of Appendix F); <code>scripts-v1.1.zip</code> (39 files: the scripts that produced
 them, the four v1.0 scripts changed since, the retired monitoring triggers, the parity checks
-of drafts rc8 to rc14, the PDF build, and <code>serving-brief.ts</code>, the brief module whose
+of drafts rc8 to rc18, the PDF build, and <code>serving-brief.ts</code>, the brief module whose
 line numbers the text cites, which v1.0 did not deposit); and <code>MANIFEST-v1.1.json</code>,
 with the sha256 of each file and a census showing that every <code>_sprint-2026-10-04/</code>
 and <code>out/</code> path the text cites is in this package or in the v1.0 files. In eight
 packaged files a local filesystem path was replaced by a placeholder; the manifest names them
 and keeps the hash of the original. The deposited manuscript is byte for byte the final draft
-(rc14, Appendix F-5).</p>
+(rc18, Appendix F-5).</p>
 
 <p><strong>What this version does not do.</strong> The verifier in the package,
 <code>claims_check.py</code>, is the v1.0 one and checks the v1.0 Portuguese text. It has not
