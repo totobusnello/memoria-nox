@@ -14,10 +14,10 @@
   "R4": "diretório temporário do macOS -> <TMP>"
  },
  "manuscrito": {
-  "fonte": "_sprint-2026-10-04/A-v1.1-rc12.md",
-  "sha256_fonte": "014231902c686481d34ea65a2c832a32b92a72f8fa32f4a335b3cb59df8f695d",
-  "sha256_depositado": "014231902c686481d34ea65a2c832a32b92a72f8fa32f4a335b3cb59df8f695d",
-  "diferenca": "nenhuma: o depositado é a fonte byte a byte (gate de parity-rc12, check 'deposit')",
+  "fonte": "_sprint-2026-10-04/A-v1.1-rc14.md",
+  "sha256_fonte": "73602894d33d554a4fda24e4188b59d4b79ce1d57b77a0dfd100e1cc7ea803fe",
+  "sha256_depositado": "73602894d33d554a4fda24e4188b59d4b79ce1d57b77a0dfd100e1cc7ea803fe",
+  "diferenca": "nenhuma: o depositado é a fonte byte a byte (gate de parity-rc14, check 'deposit')",
   "pdf": "pandoc 3.9 + xelatex x2 via pdf-build/build-pdf.sh (em scripts-v1.1.zip); 0 glifos ausentes"
  },
  "excluidos": [
@@ -48,8 +48,8 @@
  ],
  "censo_citados": {
   "escopo": "caminhos _sprint-2026-10-04/… e out/… citados pelo manuscrito",
-  "citados_no_escopo": 76,
-  "cobertos_v1_1": 47,
+  "citados_no_escopo": 82,
+  "cobertos_v1_1": 53,
   "cobertos_so_v1_0": 29,
   "lacunas": 0,
   "fora_do_escopo_nao_empacotados": [
@@ -64,26 +64,26 @@
  "envio": {
   "soltos": 2,
   "artefatos-v1.1.zip": {
-   "itens": 48,
-   "bytes": 256347
+   "itens": 52,
+   "bytes": 268770
   },
   "scripts-v1.1.zip": {
-   "itens": 33,
-   "bytes": 153055
+   "itens": 35,
+   "bytes": 167778
   }
  },
  "itens": [
   {
    "path": "MANUSCRIPT-v1.1.md",
    "no_deposito": "solto",
-   "bytes": 209875,
-   "sha256": "014231902c686481d34ea65a2c832a32b92a72f8fa32f4a335b3cb59df8f695d"
+   "bytes": 217049,
+   "sha256": "73602894d33d554a4fda24e4188b59d4b79ce1d57b77a0dfd100e1cc7ea803fe"
   },
   {
    "path": "MANUSCRIPT-v1.1.pdf",
    "no_deposito": "solto",
-   "bytes": 295508,
-   "sha256": "8dd2773c1c2831ff008337b9e07a9f2edfe236963ec339e90b55bcdc6d931433"
+   "bytes": 303437,
+   "sha256": "ff2eba942fd0cc4b3bc63807778635d1d3c91dbd35aecbb141e898bded8b4f3c"
   },
   {
    "path": "BATCH-CYCLE-2026-08-28.json",
@@ -298,6 +298,18 @@
    "sha256": "3a8fc8870a7b3ac43b4ca77b86f6d292a05cef06ee3d90496a7bd235b67a9c98"
   },
   {
+   "path": "_sprint-2026-10-04/APPLY-A-rc13.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 8530,
+   "sha256": "79539fd547aebef4f4acd97688ed57bae359ebbd751c4a281fa08b46a92c7e8f"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-A-rc14.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 6340,
+   "sha256": "7e7dc1debb8e37c57980454a1c6722083b82c8427f75a809b67d51a4f57a3173"
+  },
+  {
    "path": "_sprint-2026-10-04/APPLY-A-rc4.md",
    "no_deposito": "artefatos-v1.1.zip",
    "bytes": 15384,
@@ -361,6 +373,18 @@
    "no_deposito": "artefatos-v1.1.zip",
    "bytes": 3085,
    "sha256": "f8fbc4ad8a5936855df55b8699ccddceb1ac9ef9b2434d7d1bb0fa5a1c3adadf"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-A-rc12-2026-10-05.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 7989,
+   "sha256": "2e7de5422966b7984b6d3194ad1e6f84f88468864595c507145415516dd16ad7"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-A-rc13-2026-10-05.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 3269,
+   "sha256": "d9619dc775d5b8659896961c75f98d2f5771d2c24b6554ff4ffb10ee00a08c90"
   },
   {
    "path": "_sprint-2026-10-04/REVIEW-A-rc3-2026-10-04.md",
@@ -427,6 +451,18 @@
    "no_deposito": "scripts-v1.1.zip",
    "bytes": 17955,
    "sha256": "537c8c4a09a7a260acbfb201b27a64ab7dba1daba2848bbe00da2ff82025f600"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-rc13/parity-rc13.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 22308,
+   "sha256": "4fd16b07f8541284280deec5d92f5cc07a752dcbef0e235df0149f968be95384"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-rc14/parity-rc14.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 22641,
+   "sha256": "5e889b1437d5409fd94562614d27ae4b9f6e3254bcd054aa5c084f4f84d7c8e7"
   },
   {
    "path": "_sprint-2026-10-04/A-rc2/coverage-set-from-log.py",
