@@ -6,7 +6,7 @@
   "concept_doi": "10.5281/zenodo.22181414",
   "versao_anterior": "10.5281/zenodo.22181415 (v1.0, publicada 2026-08-30)"
  },
- "nota": "Os 13 arquivos da v1.0 entram nesta versão por files-import no servidor, byte a byte do publicado; não estão listados em 'itens' e seus md5 são conferidos contra o registro 22181415 no readback. 'itens' cobre só o que a v1.1 acrescenta. Zips determinísticos (ordem alfabética, data 2026-10-05 00:00). Onde a cópia empacotada difere do repositório, 'redacao' diz quais regras e 'sha256_no_repositorio' guarda o hash do original. Nos itens com 'redacao_no_repositorio', a cópia do repositório já foi sobrescrita com a redigida (2026-10-05): 'sha256_no_repositorio' é então o hash do original anterior ao scrub, que segue no histórico do git.",
+ "nota": "Os 13 arquivos da v1.0 entram nesta versão por files-import no servidor, byte a byte do publicado; não estão listados em 'itens' e seus md5 são conferidos contra o registro 22181415 no readback. 'itens' cobre só o que a v1.1 acrescenta. Zips determinísticos (ordem alfabética, data 2026-10-05 00:00). Onde a cópia empacotada difere do repositório, 'redacao' diz quais regras e 'sha256_no_repositorio' guarda o hash do original. Nos itens com 'redacao_no_repositorio', a cópia do repositório já foi sobrescrita com a redigida (2026-10-05): 'sha256_no_repositorio' é então o hash do original anterior ao scrub, que segue no histórico do git, salvo onde 'redacao_no_repositorio' diz que o original não chegou a ser commitado.",
  "regras_de_redacao": {
   "R1": "caminho absoluto do scratchpad temporário local -> <SCRATCH>/",
   "R2": "diretório home absoluto do autor -> <HOME>/",
@@ -14,10 +14,10 @@
   "R4": "diretório temporário do macOS -> <TMP>"
  },
  "manuscrito": {
-  "fonte": "_sprint-2026-10-04/A-v1.1-rc14.md",
-  "sha256_fonte": "73602894d33d554a4fda24e4188b59d4b79ce1d57b77a0dfd100e1cc7ea803fe",
-  "sha256_depositado": "73602894d33d554a4fda24e4188b59d4b79ce1d57b77a0dfd100e1cc7ea803fe",
-  "diferenca": "nenhuma: o depositado é a fonte byte a byte (gate de parity-rc14, check 'deposit')",
+  "fonte": "_sprint-2026-10-04/A-v1.1-rc18.md",
+  "sha256_fonte": "f8b43d2370aec9469830e35b58e42e2728f940c68a55bda920f6c07af88d2d1e",
+  "sha256_depositado": "f8b43d2370aec9469830e35b58e42e2728f940c68a55bda920f6c07af88d2d1e",
+  "diferenca": "nenhuma: o depositado é a fonte byte a byte (gate de parity-rc18, check 'deposit')",
   "pdf": "pandoc 3.9 + xelatex x2 via pdf-build/build-pdf.sh (em scripts-v1.1.zip); 0 glifos ausentes"
  },
  "excluidos": [
@@ -48,9 +48,9 @@
  ],
  "censo_citados": {
   "escopo": "caminhos _sprint-2026-10-04/… e out/… citados pelo manuscrito",
-  "citados_no_escopo": 82,
-  "cobertos_v1_1": 53,
-  "cobertos_so_v1_0": 29,
+  "citados_no_escopo": 97,
+  "cobertos_v1_1": 67,
+  "cobertos_so_v1_0": 30,
   "lacunas": 0,
   "fora_do_escopo_nao_empacotados": [
    {
@@ -64,26 +64,26 @@
  "envio": {
   "soltos": 2,
   "artefatos-v1.1.zip": {
-   "itens": 52,
-   "bytes": 268812
+   "itens": 60,
+   "bytes": 298309
   },
   "scripts-v1.1.zip": {
-   "itens": 35,
-   "bytes": 167832
+   "itens": 39,
+   "bytes": 200170
   }
  },
  "itens": [
   {
    "path": "spare-capacity-narrow-surface-v1.1.md",
    "no_deposito": "solto",
-   "bytes": 217049,
-   "sha256": "73602894d33d554a4fda24e4188b59d4b79ce1d57b77a0dfd100e1cc7ea803fe"
+   "bytes": 231132,
+   "sha256": "f8b43d2370aec9469830e35b58e42e2728f940c68a55bda920f6c07af88d2d1e"
   },
   {
    "path": "spare-capacity-narrow-surface-v1.1.pdf",
    "no_deposito": "solto",
-   "bytes": 303437,
-   "sha256": "ff2eba942fd0cc4b3bc63807778635d1d3c91dbd35aecbb141e898bded8b4f3c"
+   "bytes": 318270,
+   "sha256": "c7bed89a56ca700a5ca6c5ee52a55b61f298348a8d932bb20d28bc330490073b"
   },
   {
    "path": "BATCH-CYCLE-2026-08-28.json",
@@ -310,6 +310,30 @@
    "sha256": "19464db8ee43986a592a79cea5cb581f9e00de97ed4e867dc363389843b4d8c4"
   },
   {
+   "path": "_sprint-2026-10-04/APPLY-A-rc15.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 13182,
+   "sha256": "95606ba973636d4dc31cea2e73e3568a0f3ceb3f77b9add8beb207f5cf9b6518"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-A-rc16.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 10564,
+   "sha256": "00083224dc30351b8988e8454b45063294387c8302aadd964c1339024bd98bc9"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-A-rc17.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 9990,
+   "sha256": "bfde48166c0532285d07d28ab62ec1061c8415405c1c24aaa9d4c46aca2ff5a4"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-A-rc18.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 6170,
+   "sha256": "4f2a00bb88628c4170f908200674851ae2475e7109fc9094ff01ab11d57c8e02"
+  },
+  {
    "path": "_sprint-2026-10-04/APPLY-A-rc4.md",
    "no_deposito": "artefatos-v1.1.zip",
    "bytes": 15384,
@@ -378,13 +402,42 @@
    "path": "_sprint-2026-10-04/REVIEW-A-rc12-2026-10-05.md",
    "no_deposito": "artefatos-v1.1.zip",
    "bytes": 7989,
-   "sha256": "2e7de5422966b7984b6d3194ad1e6f84f88468864595c507145415516dd16ad7"
+   "sha256": "2e7de5422966b7984b6d3194ad1e6f84f88468864595c507145415516dd16ad7",
+   "sha256_no_repositorio": "9d1abb0f536abc757aaf7ebe289b22856cc16b5ac712b9530b906e107ee6e6ce",
+   "redacao": [
+    "R2 x2"
+   ],
+   "redacao_no_repositorio": "2026-10-05, antes do primeiro commit; o original não está no histórico do git (hash registrado de uma cópia local mantida fora do repositório)"
   },
   {
    "path": "_sprint-2026-10-04/REVIEW-A-rc13-2026-10-05.md",
    "no_deposito": "artefatos-v1.1.zip",
    "bytes": 3269,
    "sha256": "d9619dc775d5b8659896961c75f98d2f5771d2c24b6554ff4ffb10ee00a08c90"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-A-rc14-2026-10-05.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 9061,
+   "sha256": "0e102f797078100077d274d8aa73e06a0e761860ba424bbea1c74c55b6d16d95"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-A-rc15-2026-10-05.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 4733,
+   "sha256": "535269352c69e196d28df843f6b65f29cdea08fb26a30cca24db22191afc30b6"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-A-rc16-2026-10-05.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 7315,
+   "sha256": "bd310c0136e1de7ecb26f76d4c0c5449c318c32bf02c4d82e5494b6f1b24020b"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-A-rc17-2026-10-05.md",
+   "no_deposito": "artefatos-v1.1.zip",
+   "bytes": 1534,
+   "sha256": "58e224e73a78e4fbacd3fc2f321fb27bed661d33f911043ffac52d28e07d8ed4"
   },
   {
    "path": "_sprint-2026-10-04/REVIEW-A-rc3-2026-10-04.md",
@@ -463,6 +516,30 @@
    "no_deposito": "scripts-v1.1.zip",
    "bytes": 22679,
    "sha256": "15a7ac7e54ebb340d19982aaf20ccfff6a44a8f586840d72cb5a620a2f80ef4a"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-rc15/parity-rc15.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 28636,
+   "sha256": "7730e2880131ffe9fd6ae2408e33d3ac7e8906db66cd7c0ab8ff90fc08e9ba2f"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-rc16/parity-rc16.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 24127,
+   "sha256": "9af575c12dc44889632f90b0345015e8929cfcac2e5eeaf94a5281c476285131"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-rc17/parity-rc17.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 24179,
+   "sha256": "5171d0b6f8aab970a524672681dda2cd9419b9eb862505901708c5c7ef3dc206"
+  },
+  {
+   "path": "_sprint-2026-10-04/A-rc18/parity-rc18.py",
+   "no_deposito": "scripts-v1.1.zip",
+   "bytes": 20267,
+   "sha256": "f5024eb19e6f5376d81b0ddeafa0ada495897edbb101c8dcd086dccbd71d9e45"
   },
   {
    "path": "_sprint-2026-10-04/A-rc2/coverage-set-from-log.py",

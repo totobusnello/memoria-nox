@@ -1,0 +1,49 @@
+# APPLY A-rc17 (2026-10-05): findings of REVIEW-A-rc16-2026-10-05.md
+
+Input `A-v1.1-rc16.md` (sha256 `6980c9e2…918169`) → output `A-v1.1-rc17.md` (sha256
+`e6798b11…930d9d`). Gate: `A-rc17/parity-rc17.py --selftest`: PARITY OK, SELFTEST OK (29
+mutations: 28 bite on the expected check; the unit mutation is not caught, as in rc10 to rc16, and
+the selftest records that as a known limit). The deposit copy
+`deposit/paperA-v1.1/spare-capacity-narrow-surface-v1.1.md` is byte-identical to rc17 (parity
+`deposit` check).
+
+The review is saved in `REVIEW-A-rc16-2026-10-05.md`: the Codex final message, verbatim, recovered
+from the raw output of the call (receipt `adversary-receipt-codex-2026-10-05T144610-47994.txt`,
+exit 0, 334 s, verdict NO-GO; the recovered 438,705 bytes hash to the receipt's
+`output_sha256`), and the summary relayed by the shell. IDs: C17-1..C17-6 = Codex findings 1..6.
+
+parity-rc17 carries every rc16 check (numbers, footnotes, refs, code, links, headings, tables,
+history, qualifiers, the 35 `classes`, `withdrawn`, dashes, addendum, deposit). `history`: rc17
+corrects no earlier addendum, so the addenda rc5..rc16 must be byte-identical. `withdrawn` carries
+the 72 phrasings of rc11 to rc16 and adds 25 (C17-1 ×9, C17-2 ×10, C17-3 ×2, C17-4 ×2, C17-5 ×1,
+C17-6 ×1). No heading and no table row changes. One qualifier delta: `phase 0` +1 (C17-3).
+
+| # | verified against | holds? | applied? | note |
+|---|---|---|---|---|
+| C17-1 [medium] §3.1 | `serving-brief.ts` (= the deposited `serving-brief.ts` in `scripts-v1.1.zip`, md5 `ffe9d2d0…70bb87b4`; the paper cites it as `brief.ts`): the `INSERT INTO brief_log` loop runs over `result.items` at `:1081-1101`, before `renderBriefText` at `:1103-1104`; `renderBriefText` (`:867-881`) `break`s when a line's cost exceeds the remaining `TOKEN_BUDGET` (1200, `:137`), and only the `format=text` response is rendered (JSON returns every item). `sprint-desagrega-filtros-pool-principal.py` (F8 note, l.34-36) says so in its header. `A-filters-disaggregation/out-ord0826.json` `per_epoch.*.render_cut_lines_dropped_hist`: 2026-08-21 `missing_row` 282 (nothing reconstructed); 2026-08-22 `0` 385 + `missing_row` 287; 2026-08-23 to 2026-09-07 only `0` (560, then 672 a day, 441 on 09-03); 2026-09-02 absent. Nothing before 2026-08-21 | yes | yes, adapted | §3.1: "`brief_log` records the items the brief selected, and it is written before the response is rendered (`brief.ts:1081-1104`). When the brief is requested as text, the renderer stops at a token budget and can drop trailing items (`brief.ts:867-881`). The render check of the main-pool reconstruction found no dropped line in any brief it reconstructed from 2026-08-22 to 2026-09-07 (`A-filters-disaggregation/out-ord0826.json`, `render_cut_lines_dropped_hist`); delivery over the whole window was not verified. The brief's slot and distinct-chunk counts are therefore counts of logged selections, and *served*, said of the brief, means selected and logged." The window starts at 2026-08-22 (not 08-23 as relayed): 385 briefs of that day were reconstructed with 0 dropped lines. Defining *served* once avoids rewriting the 84 uses of the log's own term (outside the addenda) (`served_at`). Abstract: "The brief logged 583,763 selected slots … They hold 1,635 distinct live chunks … These are logged selections: the log is written before text rendering, and delivery over the whole window was not verified (§3.1)." §1: "logged 583,763 selected slots … They hold 1,635 distinct live chunks". **Sweep (class: a `brief_log` row called a delivery):** §1 bullet "a surface with slack delivers 2.43%" → "serves"; §4.1.1 "The surface delivers 10 items per session" and §9 "the surface delivers 10 per session" → "The brief selects"; §4.2 "what the brief delivered" → "logged"; §4.3.1 "what the channel delivered" → "contributed to the composed brief". Kept, not of the class: every "lower bound on non-delivery" (truncation can only remove logged items from what was rendered, so the bounds stand); §4.1.1 "records what was selected for delivery"; §2 "No agent asks for it: it receives it" (the brief as such); Abstract "what the agent received … was always the control" (which arm, not what the log holds); §4.4 "logged and never delivered to any agent" (the shadow arm); §4.3.2/§8.2 "the agent, which sees the item" (conditional, unmeasured loop); survey sentences on "items delivered under production traffic"; Appendix F (history). Description: the v1.0 sentence "delivered 583,763 slots … showed 1,787 distinct chunks" is superseded by the logged-selection wording, and "how many distinct items an agent in production actually receives" is covered in the same bullet. |
+| C17-2 [medium] §1, §8.3 | rc16 §1 l.214-218 and §8.3 l.2071-2073 against `measurement/survey-string-count.py` (counts strings in one PDF) and §8.1 (two neighbor papers read in full); nothing in the artifacts samples the field's methods or conventions | yes | yes, Codex short wording | §1: "the survey of 218 papers says `memory` 1,208 times (…) and `randomized` never. These terms are absent from this survey's extracted text. This does not establish field methods or conventions." §8.3: "What the absence of experimental vocabulary in the survey supports is more modest. These terms are absent from this survey's extracted text. This does not establish field methods or conventions." ("and we found that out the expensive way" goes with the sentence.) **Sweep (class: the vocabulary or taxonomy of one survey read as the methods or conventions of the field):** Abstract first sentence "Memory systems for agents are evaluated on fixed sets of queries and tasks." → "The field's canonical survey of agent memory (218 papers) catalogues evaluation on fixed sets of queries and tasks, with …"; §1 first sentence "is judged today on fixed inputs" → "In the metrics that the field's canonical survey catalogues (§8.1), … is judged on fixed inputs"; §1 "goes unasked" → "that survey's metric taxonomy does not include it"; §1 scope caveat "a coordinate the benchmarks do not measure" → "that the survey's metric taxonomy does not include"; §8.3 opening "in systems CS, it is not" dropped, and "that precedent" (whose antecedent it was) → "a precedent of prospective registration for agent memory"; §9 Third "the metrics the field uses" → "the metrics of the survey's taxonomy (§8.1)" + "it rests on that one survey, not on a census of the field's methods". Kept: §1 gap bullet and §8.1 (already scoped to the survey's taxonomy and the two neighbors read); "the one engineering optimizes" (§1, not inferred from the survey); the struck-through hypothesis of §1; Appendix F row "Nobody measures …" (history). Description: the v1.0 phrase "a coordinate the field's benchmarks do not measure" joins the existing superseding bullet, which now adds that the survey is the source inspected, not a census of the field. |
+| C17-3 [low] §4.3.2 | rc16 note l.1095-1101; §1/§5 and §4.3.1 state the never-served stratum was empty in the measured regime; §4.3.1 l.929-931: in every reconstructed brief the three pinned chunks fill the 3 shared main slots in phase 0 (`brief.ts:438-480`) | yes | yes, Codex wording + one sentence kept | "**Note:** the three constant items belong to the main pool in the reconstruction of §4.3.1, where phase 0 selects them as pinned items. Their frequency alone does not establish channel membership. The reconstruction, not a position column in the log (which does not exist), is what assigns them to a channel." The position-column remark is kept, now attached to the reconstruction. No other occurrence of the deduction. |
+| C17-4 [low] §4.3.2 | rc16 l.1119; the Abstract and §9 already read "would respond to a score adjustment, and nobody adjusts it" | yes | yes | Same sentence as the Abstract and §9. Swept for "correct/fix/remedy" said of a policy outside Appendix F: none left. |
+| C17-5 [low] §4.3.2 | `serving-salience.ts:58-71` (NULL retention → recency 1.0) and `:227-234` (access term capped at 0.20); the three `access_count` 414, 363, 911 give 0.20·ln(415)/ln(1000) = 0.175, 0.171, 0.197, all below 0.20 | yes | yes, adapted | "For those, no term decays: with importance and pain held fixed, the score of an old and once-popular chunk does not decline with elapsed time, and further tracked accesses can still raise the access component up to its cap." The computed contributions are not added to the text (they would be numbers without a locked artifact). |
+| C17-6 [low] §4.3.1 | §4.1 table: historical and live record membership, cumulative over the window; no per-day exposure measure in §4.1 | yes | yes, Codex wording | "So the main pool is not capacity-bound at the day, the unit used in this main-pool comparison." |
+
+## Number deltas (all declared in parity-rc17 with finding IDs)
+
+C17-1 §3.1: 1081, 1104, 867, 881 +1 each; 2026 +2, 08, 22, 09, 07 +1 each (the render window);
+Abstract 3.1 +1. C17-2 sweep: 8.1 +2 (§1, §9). C17-3: 4,632 −2, 4.3.1 +1, 0 +1 (`phase 0`), two −1.
+C17-6: 4.1 −1. Refs: §3.1 +1, §8.1 +2, §4.3.1 +1, §4.1 −1. Code: `brief.ts:1081-1104`,
+`brief.ts:867-881`, `A-filters-disaggregation/out-ord0826.json`, `render_cut_lines_dropped_hist`
++1 each (C17-1); `last_served ASC`, `last_served` −1 each (C17-3). Qualifier: `phase 0` +1 (C17-3).
+No footnote, link, heading or table change.
+
+## F-5
+
+"Addendum, rc17 (2026-10-05): a Codex review of rc16." appended after the rc16 addendum, before
+Open items. No earlier addendum is touched.
+
+## Package
+
+`build-package.py`: `FONTE` → rc17; `REVIEW-A-rc16-2026-10-05.md` and `APPLY-A-rc17.md` added to
+the artefacts, `A-rc17/parity-rc17.py` to the scripts (the rc17 addendum cites all three). The
+description block: the C17-1 and C17-2 sentences above, the package counts, "rc8 to rc17" and
+"(rc17, Appendix F-5)". Rebuild results are in `deposit/paperA-v1.1/DRAFT-READBACK.md`.

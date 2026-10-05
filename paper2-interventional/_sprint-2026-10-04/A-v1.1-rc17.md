@@ -114,7 +114,7 @@ one engineering optimizes (better embeddings, reranking, query expansion). It
 presupposes, without saying so, that what the agent receives is the top of that
 ranking.
 
-A question comes before it, and that survey's metric taxonomy does not include it: what does the system select for the agent?
+A question comes before it, and that survey's metric taxonomy does not include it: what does the agent receive?
 It cannot be answered with a set of queries, because it requires the system in
 operation. It can be answered, because every delivery passes through a small number of
 surfaces that can be instrumented. Here there are two: a proactive 10-item brief at the
@@ -197,8 +197,8 @@ delivered exposure is not established (§3.1, §4.1.1).
 - **The gap:** the field's canonical survey (TMLR 2602.06052v4, 218 papers) maps agent
   memory architectures and benchmarks. Its metrics cover retrieval (nDCG/recall over sets of
   queries), memory quality, responses and end-to-end task success. The survey's taxonomy of
-  metrics contains no measure of the delivery surface: how many distinct items a system in
-  production selects for an agent, and which ones.
+  metrics contains no measure of the delivery surface: how many distinct items an agent in
+  production sees, and which ones.
 
   The vocabulary of experimental methodology is also absent. Recomputed over the
   v4 PDF (`measurement/survey-string-count.py`, sha256 `497e9549…b46a6`, 429,387
@@ -330,10 +330,7 @@ and can drop trailing items (`brief.ts:867-881`). The render check of the main-p
 found no dropped line in any brief it reconstructed from 2026-08-22 to 2026-09-07
 (`A-filters-disaggregation/out-ord0826.json`, `render_cut_lines_dropped_hist`); delivery over the
 whole window was not verified. The brief's slot and distinct-chunk counts are therefore counts of
-logged selections, and *served*, said of the brief, means selected and logged. The lower-bound
-reading of *no-record* (defined below) also assumes that this log write never failed: the write is
-fail-open (`brief.ts:1099-1101`), so a failed write would deliver items with no row, and the code
-records no such failure.
+logged selections, and *served*, said of the brief, means selected and logged.
 `access_count` is incremented inside `search()` and
 `searchSemantic()` for each sub-search's own top candidates (`search.ts:396`, called at `:466`
 and `:579`), and `searchHybrid` runs several such sub-searches (FTS on the original query and on
@@ -1403,7 +1400,7 @@ quantity, which is what forced the reimplementation of item 7 as the identity
 
 A fixed-capacity surface ordered lexicographically responds to interventions on the subordinate
 coordinate only within ties of the dominant one, and that response is bounded by construction.
-To move what the brief selects beyond that bound there are three levers, and the score is not one
+To move what the agent sees beyond that bound there are three levers, and the score is not one
 of them:
 
 | lever | effect |
@@ -2050,7 +2047,7 @@ receives 10 items at once, and there is no position model. And "exposure fairnes
 normative question that we do not raise: the argument here is one of utility and
 diagnosis, not of equity among items.
 
-### 8.3 Pre-registration, and what this paper does not claim about it
+### 8.3 Pre-registration in systems CS
 
 Prospective registration of hypothesis, outcome, and analysis is routine in clinical trials and
 in parts of psychology. The survey of 218 papers from §8.1 has
@@ -2113,7 +2110,7 @@ impossible request; once the slack is measured, it is a request about design.
 **Caveat.** Nor does it follow that the policy is wrong. A 10-item surface has to
 concentrate; uniform serving is used here only as a capacity reference, and its effect on agent
 utility was not measured. What follows is that the
-boundary between "what the brief selects for the agent" and "what exists" was chosen, almost always without
+boundary between "what the agent sees" and "what exists" was chosen, almost always without
 anyone choosing it explicitly: `freshSlots = 2` was a configuration default with no
 override in the measured window (verified on 2026-08-27, `SUPERFICIE-2026-08-27.md`), and the two patterns of `GLOBAL_FRESH_PATTERNS`, together with the importance floor and the
 30-day window, carve out 0.16% of the corpus in a
@@ -2972,26 +2969,6 @@ artifacts or the text it cites; all six hold and all six were applied. The recor
   measures exposure (§4.1 reports cumulative record membership).
 
 `_sprint-2026-10-04/A-rc17/parity-rc17.py` compares rc16 with rc17 under the same rule.
-
-**Addendum, rc18 (2026-10-05): a Fable review of the rc17 diff.** Verdict GO with three low
-notes (F18-1 to F18-3), saved verbatim in `_sprint-2026-10-04/REVIEW-A-rc17-2026-10-05.md`, each
-checked against the text or the code it cites; all three hold and all three were applied. The
-record is `_sprint-2026-10-04/APPLY-A-rc18.md`. No number of rc17 was wrong. What changed:
-
-- The heading of §8.3 named systems CS, which its body no longer speaks about since rc17 (F18-1).
-  It is now "Pre-registration, and what this paper does not claim about it".
-- The §1 gap bullet asked how many distinct items an agent in production sees (F18-2); the
-  instrument counts logged selections (§3.1), so it now asks how many a system in production
-  selects for an agent. Swept for the same class: the question of §1, the design consequence of
-  §5.5 and the boundary named in §9 now speak of what is selected, not of what the agent sees or
-  receives.
-- §3.1 now states a second assumption of the lower bound (F18-3). The `brief_log` write is
-  fail-open and records no failure, so a failed write would deliver items with no row, the
-  opposite direction from truncation; reading *no-record* as a lower bound on non-delivery also
-  assumes that the write never failed. This qualifies the last sentence of the rc17 addendum
-  above, which is left as written.
-
-`_sprint-2026-10-04/A-rc18/parity-rc18.py` compares rc17 with rc18 under the same rule.
 
 ## Open items
 
