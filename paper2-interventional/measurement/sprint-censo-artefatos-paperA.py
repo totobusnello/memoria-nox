@@ -13,7 +13,7 @@ matter for Paper A:
     are expanded; a glob that matches nothing is MISSING, not silently skipped.
   * Line anchors (`brief.ts:588`) are stripped to the file.
   * Besides the repo, every path is also looked up in
-      - the local trial lastro  ~/Backups/paper2-ensaio-2026-09-21/   (read-only)
+      - the local trial lastro  <HOME>/Backups/paper2-ensaio-2026-09-21/   (read-only)
       - the PUBLISHED Paper A deposit v1.0 (Zenodo 10.5281/zenodo.22181415), via the
         published MANIFEST.json + zip listings downloaded into the sprint evidence dir
       - the nox-mem serving source trees (for `*.ts` line anchors)
@@ -44,11 +44,15 @@ import zipfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 P2 = os.path.dirname(HERE)                       # paper2-interventional/
 REPO = os.path.dirname(P2)                       # memoria-nox/
-LASTRO = os.path.expanduser("~/Backups/paper2-ensaio-2026-09-21")
+# home-relative paths are built from expanduser("~") + join, never a literal tilde-slash:
+# build-package.py redacts that prefix and its privacy gate rejects it, which would leave
+# the deposited copy unable to run (as it was between the scrub and this fix, 2026-10-05).
+HOME = os.path.expanduser("~")
+LASTRO = os.path.join(HOME, "Backups", "paper2-ensaio-2026-09-21")
 EVID = os.path.join(P2, "_sprint-2026-10-04", "A-recon-evidence", "deposited-22181415")
 SERVING_ROOTS = [
-    os.path.expanduser("~/Claude/Projetos/nox-supermem/nox-mem"),
-    os.path.expanduser("~/Claude/Projetos/nox-workspace/tools/nox-mem"),
+    os.path.join(HOME, "Claude", "Projetos", "nox-supermem", "nox-mem"),
+    os.path.join(HOME, "Claude", "Projetos", "nox-workspace", "tools", "nox-mem"),
 ]
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", ".venv-zep", "_sprint-2026-10-04"}
 
@@ -285,7 +289,7 @@ def main():
                 "origin": sorted(found[tok]["origin"]), "status": status, "how": how,
                 "repo_paths": rel, "versioned": bool(versioned) if rel else None,
                 "in_local_lastro": [os.path.relpath(x, LASTRO) for x in in_lastro],
-                "serving_source": [os.path.relpath(x, os.path.expanduser("~/Claude/Projetos")) for x in serving],
+                "serving_source": [os.path.relpath(x, os.path.join(HOME, "Claude", "Projetos")) for x in serving],
                 "in_deposit_v1_0": dep_hit,
                 "listed_in_appendix_D": bn in appD,
                 "note": KNOWN_OUTSIDE.get(p),

@@ -1,0 +1,73 @@
+<h3>What changed in v1.1 (2026-10-05)</h3>
+<p>The text above is the v1.0 description with its two dated errata, translated from the
+Portuguese published with v1.0; content and numbers are unchanged, and the Portuguese original
+stays on the v1.0 record. Version 1.1 is the manuscript translated to English and revised: the
+2026-09-21 corrections, a 2026-10-04 audit of claims that had aged, and the reviews of
+2026-10-05. Every change is recorded, with its source, in Appendix F of the manuscript; the
+2026-10-05 round is Appendix F-5. Where the v1.0 description and v1.1 differ, v1.1 holds.</p>
+
+<p><strong>Recomputed with production code.</strong> Three quantities were recomputed rather
+than relabelled, each with a dated artifact.</p>
+<ul>
+  <li><strong>Access counterfactual (§4.3.2).</strong> The published 2/3/5 → 131/129/128 came
+      from a script whose recency and <code>importance</code> default are not those of the
+      production function. With <code>calculateSalience</code> the three chunks sit at positions
+      1/3/4 and fall to a tie at 44–46 of 149 when the access component is zeroed (23–47 across
+      instants and access-timing assumptions). "Beyond rank 100" and "exactly 52 places lower"
+      are withdrawn. The claim that zeroing access takes the three out of the top-10 stands.
+      <code>out/SALIENCE-COUNTERFACTUAL-PROD-2026-10-05.json</code>.</li>
+  <li><strong>Tie-break exposure (§5.7.1).</strong> Recounted on the comparator's key instead of
+      the SQL pre-rank expression: 34–42 pairs at second resolution (0.59–0.73%) and 1,197 at day
+      resolution. The earlier 68 / 269 / 917 / 1,656 remain cited as the pre-rank count.
+      <code>out/TIEBREAK-EXPOSURE-PROD-2026-10-05.json</code>.</li>
+  <li><strong>Bonus against step (§4.4, §5.4).</strong> The 0.0946 and 1.79× used a severity
+      multiplier of 0.5 that only the replay's summary applies; production applies 0.25. The
+      bonus is 0.0473, 0.90× the largest adjacent gap, and the claim that the items crossed
+      several positions is withdrawn. <code>out/BONUS-VS-STEP-2026-10-05.json</code>.</li>
+</ul>
+
+<p><strong>Claims corrected or narrowed.</strong> Several sentences of the v1.0 description
+above are superseded:</p>
+<ul>
+  <li>"never exposed 83.78% of its own corpus": the 56,288 live chunks (83.78%) have neither a
+      brief-log record nor a positive search counter. That is a lower bound on non-delivery by the
+      brief and by tracked search, not a measurement that they were never exposed; non-delivery
+      across all agent-facing search is not established.</li>
+  <li>"showed 1,787 distinct chunks: 2.66%": the brief delivered 1,635 distinct live chunks
+      (2.43%); 1,787 counts the 152 that were served and later deleted.</li>
+  <li>"search is initiated by the agent and accounts for most of the recorded exposure": the
+      search counter records that a chunk was a top candidate of some tracked call, whoever
+      initiated it (automated callers included). It bounds from above what tracked search
+      returned and identifies no initiator.</li>
+  <li>"the main one is determined by search traffic from months ago and does not respond to
+      score adjustment": past tracked search traffic determined the positions of the three chunks present in
+      every brief of the week; the main pool would respond to a score adjustment, and nobody
+      adjusts it.</li>
+  <li>"exhausts 100% of an eligible pool of 108 chunks every day": measured on 2026-08-26 to 08-29,
+      inside a period of defective session ingestion, and describing that regime. The coverage
+      channel's daily reach is bounded by its eligible population (path patterns, the
+      importance/pain floor and age windows); within a brief it responds to score only within
+      <code>last_served</code> ties (17/350 in the replay) and then saturates.</li>
+  <li>"eight are above 32.5%": seven are above 32.5% and one is at 32.5%.</li>
+</ul>
+<p>Also narrowed: in the derivation of §5 the "if and only if" entry condition now holds only
+when the item is the only bonused one of its stratum, the closed formula for the saturating
+bonus is withdrawn, and the generality claims are stated for rankers that serve a prefix of the
+lexicographic order. Numbers in the text that have no preserved artifact are
+flagged where they appear.</p>
+
+<p><strong>The package.</strong> The 13 files of v1.0 are carried over unchanged. Added:
+<code>MANUSCRIPT-v1.1.pdf</code> and its source <code>MANUSCRIPT-v1.1.md</code>;
+<code>artefatos-v1.1.zip</code> (40 files: the 2026-10-04/05 artifacts, artifacts the text
+cites that v1.0 did not include, the current <code>DEVIATIONS-FOR-PAPER.md</code>, and the
+review records of Appendix F); <code>scripts-v1.1.zip</code> (27 files: the scripts that
+produced them, the four v1.0 scripts changed since, the retired monitoring triggers, the rc8
+parity check and the PDF build); and <code>MANIFEST-v1.1.json</code>, with the sha256 of each file. In seven
+packaged files a local filesystem path was replaced by a placeholder; the manifest names them
+and keeps the hash of the original. The manuscript differs from the reviewed text only in
+Appendix D, where the version DOI was filled in.</p>
+
+<p><strong>What this version does not do.</strong> The verifier in the package,
+<code>claims_check.py</code>, is the v1.0 one and checks the v1.0 Portuguese text. It has not
+been ported to the English text of v1.1. The numbers of v1.1 trace to the artifacts and
+commands listed in Appendix D, but this guard set does not re-verify them.</p>

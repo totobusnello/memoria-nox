@@ -1,0 +1,68 @@
+{
+ "script": "measurement/sprint-bonus-vs-passo.py",
+ "P2_DELTA_CUT": 0.043,
+ "SEVERIDADE_PAIN_production": {
+  "S0": 0.0,
+  "S1": 0.25,
+  "S2": 0.5,
+  "S3": 0.75,
+  "S4": 1.0
+ },
+ "harness_multiplier_hardcoded": {
+  "S1": 0.5,
+  "S2": 1.0,
+  "where": "replay-oportunidade.mjs:944,1014-1019"
+ },
+ "largest_adjacent_gap": {
+  "value": 0.05272030881340717,
+  "scope": "one state, t_ref 2026-08-26T20:35:00.000Z, inclusive serve-state cut, global sub-pool, all pairs"
+ },
+ "w_min_scope": "17 states of p2-serving-CLOSED-WINDOW, rowid cut (limiar-17.json)",
+ "w_min_max": 4.4,
+ "states_at_w_min_max": [
+  {
+   "ts": "2026-08-26T21:37:04.182Z",
+   "agent": "atlas",
+   "w_min": 4.4,
+   "grid_bracket": [
+    3.5,
+    4.4
+   ],
+   "entering_id": 308270,
+   "severity": "S1",
+   "multiplier_production": 0.25,
+   "bonus_at_w_min_production": 0.0473,
+   "bonus_bracket_production": [
+    0.037625,
+    0.0473
+   ],
+   "ratio_to_largest_adjacent_gap_production": 0.8972,
+   "bonus_at_w_min_harness_hardcoded_0.5": 0.0946,
+   "ratio_harness_published": 1.7944
+  },
+  {
+   "ts": "2026-08-27T05:37:02.944Z",
+   "agent": "nox",
+   "w_min": 4.4,
+   "grid_bracket": [
+    3.5,
+    4.4
+   ],
+   "entering_id": 308280,
+   "severity": "S1",
+   "multiplier_production": 0.25,
+   "bonus_at_w_min_production": 0.0473,
+   "bonus_bracket_production": [
+    0.037625,
+    0.0473
+   ],
+   "ratio_to_largest_adjacent_gap_production": 0.8972,
+   "bonus_at_w_min_harness_hardcoded_0.5": 0.0946,
+   "ratio_harness_published": 1.7944
+  }
+ ],
+ "published": {
+  "bonus": 0.0946,
+  "ratio": 1.79
+ }
+}

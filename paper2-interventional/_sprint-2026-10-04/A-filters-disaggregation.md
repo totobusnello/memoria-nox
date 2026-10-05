@@ -49,8 +49,8 @@ The only exceptions are 5 lines with `agent: null` and 5 ids, which are excluded
 ⚠️ **The list of seven comes from the code, not from the review.** The Codex review of
 2026-09-21 that named "seven serial filters" kept only its receipt
 (`memoria-nox/.remember/adversary-receipt-codex-2026-09-21T164555-79601.txt`, 435,935 output
-bytes). I searched for its output by that timestamp under `~/Claude`, `~/.claude`,
-`~/Backups` and `/private/tmp`, and only the receipt was found. Whether Codex's seven are
+bytes). I searched for its output by that timestamp under `<HOME>/Claude`, `<HOME>/.claude`,
+`<HOME>/Backups` and `<TMP>`, and only the receipt was found. Whether Codex's seven are
 these seven is therefore **NOT VERIFIABLE**. The seven above are every stage between the
 corpus and the 8 main slots in `buildBriefDiverse → pickDedup`. F8 is listed separately
 because it acts after the exposure log.
@@ -66,7 +66,7 @@ because it acts after the exposure log.
 * **Secondary: `corpus-preservado-20260908.db`** (sha256 `b277bc96…`): 67,606 chunks,
   `MAX(created_at) = 2026-09-08 02:37:34`. It is the trial corpus (09-07…09-20), included so
   the result is not limited to the pre-trial week.
-* Serving log: `~/Backups/paper2-ensaio-2026-09-21/p2-serving.ndjson` (sha256 `a25f9aef…`,
+* Serving log: `<HOME>/Backups/paper2-ensaio-2026-09-21/p2-serving.ndjson` (sha256 `a25f9aef…`,
   19,572 lines), which is the trial lastro.
 
 **Copy-first trail.** Both DBs were `cp`'d on the research VPS ($NOX_LASTRO_HOST) into

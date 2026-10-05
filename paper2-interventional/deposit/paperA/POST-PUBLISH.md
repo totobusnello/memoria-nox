@@ -164,3 +164,20 @@ documento vivo que afirme sem correção continua falhando.
 description. Texto publicado não se reescreve — se errata. Quem lê a description vê a
 afirmação de 2026-08-30 **e** a sua correção datada, que é o registro correto do que foi
 afirmado e quando deixou de valer.
+
+## 2026-10-05 — o `MANIFEST.json` local diverge do publicado desde #462/#465
+
+O `MANIFEST.json` deste diretório **não** é mais o que a v1.0 publicou. O publicado
+(registro 22181415) tem md5 `6b30ceafbd66332a933c18762cacf148`, 120 itens, 24.483 B, e é
+byte a byte o do commit `316b1fd` (o do publish). O local tem md5
+`b139a8ffe960dee008687ec7c84a7af8`, 121 itens: foi recomputado em `a79b0bc` (#462, md5
+`c3ef6f3e…`, 121 itens) e de novo em `32491aa` (#465), ambos de 2026-09-07, contra a regra
+acima de nunca recomputá-lo.
+
+Não mexi nele nem em nada que ele lista. A prova do publicado continua sendo o próprio
+registro (e `git show 316b1fd:paper2-interventional/deposit/paperA/MANIFEST.json`).
+
+A v1.1 (rascunho 23163119, DOI reservado `10.5281/zenodo.23163119`) importou os 13 arquivos
+da v1.0 **no servidor** (`files-import`), não do disco: o `MANIFEST.json` que ela carrega é o
+publicado, md5 `6b30ceaf…`, intacto, e o md5 de cada um dos 13 foi conferido contra o
+registro 22181415 no readback. Detalhe em `../paperA-v1.1/DRAFT-READBACK.md`.

@@ -144,9 +144,9 @@
     }
   },
   "artefatos": {
-    "seg": "/private/tmp/claude-501/-Users-lab-Claude-Projetos-memoria-nox/84cb6c09-c9ff-4c66-a79b-c8b374b273bb/scratchpad/gran-seg.json",
-    "min": "/private/tmp/claude-501/-Users-lab-Claude-Projetos-memoria-nox/84cb6c09-c9ff-4c66-a79b-c8b374b273bb/scratchpad/gran-min.json",
-    "hora": "/private/tmp/claude-501/-Users-lab-Claude-Projetos-memoria-nox/84cb6c09-c9ff-4c66-a79b-c8b374b273bb/scratchpad/gran-hora.json",
-    "dia": "/private/tmp/claude-501/-Users-lab-Claude-Projetos-memoria-nox/84cb6c09-c9ff-4c66-a79b-c8b374b273bb/scratchpad/gran-dia.json"
+    "seg": "<SCRATCH>/gran-seg.json",
+    "min": "<SCRATCH>/gran-min.json",
+    "hora": "<SCRATCH>/gran-hora.json",
+    "dia": "<SCRATCH>/gran-dia.json"
   }
 }

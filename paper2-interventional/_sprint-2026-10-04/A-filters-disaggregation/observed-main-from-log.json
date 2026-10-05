@@ -1,7 +1,7 @@
 {
  "generated_by": "measurement/sprint-desagrega-filtros-pool-principal.py --log-only",
  "generated_at": "2026-10-04T01:13:02.257179+00:00",
- "serving_log": "/Users/lab/Backups/paper2-ensaio-2026-09-21/p2-serving.ndjson",
+ "serving_log": "<HOME>/Backups/paper2-ensaio-2026-09-21/p2-serving.ndjson",
  "per_epoch": {
   "2026-08-21": {
    "briefs": 282,

@@ -160,9 +160,9 @@ Command: `python3 measurement/sprint-censo-artefatos-paperA.py --json _sprint-20
   `sessions/%`, `10.5281/zenodo.22110203`, …).
 * Looked up in: the repo (`paper2-interventional/`, its `out/`, `measurement/`,
   `measurement/out/`, then unique basename anywhere in `memoria-nox`); the local trial
-  lastro `~/Backups/paper2-ensaio-2026-09-21/`; the published deposit v1.0 (published
+  lastro `<HOME>/Backups/paper2-ensaio-2026-09-21/`; the published deposit v1.0 (published
   `MANIFEST.json` + the two zip listings); and, for `*.ts`, the nox-mem source trees
-  `~/Claude/Projetos/nox-supermem/nox-mem/src` and `~/Claude/Projetos/nox-workspace/tools/nox-mem/src`.
+  `<HOME>/Claude/Projetos/nox-supermem/nox-mem/src` and `<HOME>/Claude/Projetos/nox-workspace/tools/nox-mem/src`.
 * "Versioned" is read from `.git/index` (format v2, 2,290 entries) by parsing the file —
   no git command.
 * Controls: a sentinel path injected into the text must come out MISSING (it did);
@@ -383,7 +383,7 @@ Alternative: regenerate `ts-350.txt` from `out/c-350-v3.json`, rerun `porque`, a
 ## Reproduce
 
 ```sh
-cd ~/Claude/Projetos/memoria-nox/paper2-interventional
+cd <HOME>/Claude/Projetos/memoria-nox/paper2-interventional
 python3 measurement/sprint-comparabilidade-identidade-572.py _sprint-2026-10-04/A-recon-evidence/COMPARABILITY-IDENTITY-5.7.2.json   # exit 0
 python3 measurement/sprint-censo-artefatos-paperA.py --json _sprint-2026-10-04/A-recon-evidence/CENSUS-PAPERA-ARTIFACTS.json          # exit 1 (ts-350.txt)
 curl -s https://zenodo.org/api/records/22181415 | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["doi"], d["conceptdoi"], d["metadata"]["version"])'

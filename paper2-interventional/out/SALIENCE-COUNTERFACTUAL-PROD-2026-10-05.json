@@ -1,0 +1,7162 @@
+{
+ "script": "measurement/sprint-contrafactual-salience-producao.mjs",
+ "scoring_function": "serving-salience.ts::calculateSalience (imported; sha256 083399fc... per SERVING-CODE-MANIFEST.md)",
+ "input_db_sha256": "4ec7e182a6360db2bcff068abfd7ae6096a5b636017eef19ad297401fe721345",
+ "window": [
+  "2026-08-20",
+  "2026-08-27"
+ ],
+ "briefs_in_window": 4632,
+ "brief_log_rows": 46295,
+ "distinct_served": 201,
+ "served_existing": 149,
+ "served_with_52_restored": 201,
+ "organic_existing": 144,
+ "organic_with_52_restored": 196,
+ "probe_briefs_excluded": 5,
+ "ubiquitous_ids": [
+  112241,
+  116107,
+  116467
+ ],
+ "brief_log_scope_counts": {
+  "global": 46295
+ },
+ "brief_log_agent_counts": {
+  "nox": 13220,
+  "atlas": 6610,
+  "boris": 6600,
+  "cipher": 6600,
+  "forge": 6600,
+  "lex": 6640,
+  "null": 25
+ },
+ "retention_days_null": {
+  "among_149": 35,
+  "corpus": 39130,
+  "corpus_total": 67187
+ },
+ "importance_null_among_149": 0,
+ "the_three": {
+  "112241": {
+   "chunk_type": "team",
+   "retention_days": null,
+   "last_accessed_at": "2026-05-30T02:29:58.164Z",
+   "source_date": "2026-04-25",
+   "access_count": 414,
+   "importance": 0.8,
+   "pain": 1
+  },
+  "116107": {
+   "chunk_type": "team",
+   "retention_days": null,
+   "last_accessed_at": "2026-07-29T12:08:57.017Z",
+   "source_date": "2026-04-25",
+   "access_count": 363,
+   "importance": 0.8,
+   "pain": 1
+  },
+  "116467": {
+   "chunk_type": "team",
+   "retention_days": null,
+   "last_accessed_at": "2026-07-17T21:46:25.131Z",
+   "source_date": "2026-04-21",
+   "access_count": 911,
+   "importance": 0.8,
+   "pain": 1
+  }
+ },
+ "rounds": [
+  {
+   "now": "2026-08-29T00:00:00Z",
+   "union_149": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.812756
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.808959
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.833908
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 129,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.638219
+     },
+     "116107": {
+      "rank": 128,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.638219
+     },
+     "116467": {
+      "rank": 131,
+      "tie_range": [
+       131,
+       131
+      ],
+      "score": 0.636575
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 46,
+      "tie_range": [
+       44,
+       46
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 45,
+      "tie_range": [
+       44,
+       46
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 44,
+      "tie_range": [
+       44,
+       46
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 25,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 24,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 23,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 25,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 24,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 23,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "union_201_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.812756
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.808959
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.833908
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 181,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.638219
+     },
+     "116107": {
+      "rank": 180,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.638219
+     },
+     "116467": {
+      "rank": 183,
+      "tie_range": [
+       183,
+       183
+      ],
+      "score": 0.636575
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 56,
+      "tie_range": [
+       54,
+       56
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 55,
+      "tie_range": [
+       54,
+       56
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 54,
+      "tie_range": [
+       54,
+       56
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 35,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 34,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 33,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 35,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 34,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 33,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_144": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.812756
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.808959
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.833908
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 124,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.638219
+     },
+     "116107": {
+      "rank": 123,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.638219
+     },
+     "116467": {
+      "rank": 126,
+      "tie_range": [
+       126,
+       126
+      ],
+      "score": 0.636575
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 42,
+      "tie_range": [
+       40,
+       42
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 41,
+      "tie_range": [
+       40,
+       42
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 40,
+      "tie_range": [
+       40,
+       42
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 21,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 20,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 19,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 21,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 20,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 19,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_196_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.812756
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.808959
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.833908
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 176,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.638219
+     },
+     "116107": {
+      "rank": 175,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.638219
+     },
+     "116467": {
+      "rank": 178,
+      "tie_range": [
+       178,
+       178
+      ],
+      "score": 0.636575
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 52,
+      "tie_range": [
+       50,
+       52
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 51,
+      "tie_range": [
+       50,
+       52
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 50,
+      "tie_range": [
+       50,
+       52
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 31,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 30,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 29,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 31,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 30,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 29,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "scope_pool_prod_path": {
+    "prod": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.59,
+     "first_of_three_rank_in_pool": 1,
+     "strictly_above_lowest_of_three": 3,
+     "distinct_source_files_strictly_above": 2,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 5,
+       "salience": 0.864537
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 6,
+       "salience": 0.86074
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 1,
+       "salience": 0.887333
+      }
+     }
+    },
+    "prod_acc0": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 95,
+     "strictly_above_lowest_of_three": 76,
+     "distinct_source_files_strictly_above": 43,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 95,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 113,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 116,
+       "salience": 0.69
+      }
+     }
+    },
+    "prod_noacc": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 76,
+     "strictly_above_lowest_of_three": 57,
+     "distinct_source_files_strictly_above": 24,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 76,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 94,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 97,
+       "salience": 0.69
+      }
+     }
+    }
+   }
+  },
+  {
+   "now": "2026-08-29T12:00:00Z",
+   "union_149": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.81255
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.808754
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.833703
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 129,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.638014
+     },
+     "116107": {
+      "rank": 128,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.638014
+     },
+     "116467": {
+      "rank": 131,
+      "tie_range": [
+       131,
+       131
+      ],
+      "score": 0.63637
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 46,
+      "tie_range": [
+       44,
+       46
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 45,
+      "tie_range": [
+       44,
+       46
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 44,
+      "tie_range": [
+       44,
+       46
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 25,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 24,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 23,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 25,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 24,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 23,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "union_201_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.81255
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.808754
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.833703
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 181,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.638014
+     },
+     "116107": {
+      "rank": 180,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.638014
+     },
+     "116467": {
+      "rank": 183,
+      "tie_range": [
+       183,
+       183
+      ],
+      "score": 0.63637
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 56,
+      "tie_range": [
+       54,
+       56
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 55,
+      "tie_range": [
+       54,
+       56
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 54,
+      "tie_range": [
+       54,
+       56
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 35,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 34,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 33,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 35,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 34,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 33,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_144": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.81255
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.808754
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.833703
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 124,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.638014
+     },
+     "116107": {
+      "rank": 123,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.638014
+     },
+     "116467": {
+      "rank": 126,
+      "tie_range": [
+       126,
+       126
+      ],
+      "score": 0.63637
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 42,
+      "tie_range": [
+       40,
+       42
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 41,
+      "tie_range": [
+       40,
+       42
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 40,
+      "tie_range": [
+       40,
+       42
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 21,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 20,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 19,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 21,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 20,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 19,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_196_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.81255
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.808754
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.833703
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 176,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.638014
+     },
+     "116107": {
+      "rank": 175,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.638014
+     },
+     "116467": {
+      "rank": 178,
+      "tie_range": [
+       178,
+       178
+      ],
+      "score": 0.63637
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 52,
+      "tie_range": [
+       50,
+       52
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 51,
+      "tie_range": [
+       50,
+       52
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 50,
+      "tie_range": [
+       50,
+       52
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 31,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 30,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 29,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 31,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 30,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 29,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "scope_pool_prod_path": {
+    "prod": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.59,
+     "first_of_three_rank_in_pool": 1,
+     "strictly_above_lowest_of_three": 3,
+     "distinct_source_files_strictly_above": 2,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 5,
+       "salience": 0.864537
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 6,
+       "salience": 0.86074
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 1,
+       "salience": 0.887333
+      }
+     }
+    },
+    "prod_acc0": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 95,
+     "strictly_above_lowest_of_three": 76,
+     "distinct_source_files_strictly_above": 43,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 95,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 113,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 116,
+       "salience": 0.69
+      }
+     }
+    },
+    "prod_noacc": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 76,
+     "strictly_above_lowest_of_three": 57,
+     "distinct_source_files_strictly_above": 24,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 76,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 94,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 97,
+       "salience": 0.69
+      }
+     }
+    }
+   }
+  },
+  {
+   "now": "2026-08-29T23:59:59Z",
+   "union_149": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.812345
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.808548
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.833497
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 129,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.637808
+     },
+     "116107": {
+      "rank": 128,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.637808
+     },
+     "116467": {
+      "rank": 131,
+      "tie_range": [
+       131,
+       131
+      ],
+      "score": 0.636164
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 46,
+      "tie_range": [
+       44,
+       46
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 45,
+      "tie_range": [
+       44,
+       46
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 44,
+      "tie_range": [
+       44,
+       46
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 25,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 24,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 23,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 25,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 24,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 23,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "union_201_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.812345
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.808548
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.833497
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 181,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.637808
+     },
+     "116107": {
+      "rank": 180,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.637808
+     },
+     "116467": {
+      "rank": 183,
+      "tie_range": [
+       183,
+       183
+      ],
+      "score": 0.636164
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 56,
+      "tie_range": [
+       54,
+       56
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 55,
+      "tie_range": [
+       54,
+       56
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 54,
+      "tie_range": [
+       54,
+       56
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 35,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 34,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 33,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 35,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 34,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 33,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_144": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.812345
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.808548
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.833497
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 124,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.637808
+     },
+     "116107": {
+      "rank": 123,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.637808
+     },
+     "116467": {
+      "rank": 126,
+      "tie_range": [
+       126,
+       126
+      ],
+      "score": 0.636164
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 42,
+      "tie_range": [
+       40,
+       42
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 41,
+      "tie_range": [
+       40,
+       42
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 40,
+      "tie_range": [
+       40,
+       42
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 21,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 20,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 19,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 21,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 20,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 19,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_196_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.812345
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.808548
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.833497
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 176,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.637808
+     },
+     "116107": {
+      "rank": 175,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.637808
+     },
+     "116467": {
+      "rank": 178,
+      "tie_range": [
+       178,
+       178
+      ],
+      "score": 0.636164
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 52,
+      "tie_range": [
+       50,
+       52
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 51,
+      "tie_range": [
+       50,
+       52
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 50,
+      "tie_range": [
+       50,
+       52
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 31,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 30,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 29,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 31,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 30,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 29,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "scope_pool_prod_path": {
+    "prod": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.59,
+     "first_of_three_rank_in_pool": 1,
+     "strictly_above_lowest_of_three": 3,
+     "distinct_source_files_strictly_above": 2,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 5,
+       "salience": 0.864537
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 6,
+       "salience": 0.86074
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 1,
+       "salience": 0.887333
+      }
+     }
+    },
+    "prod_acc0": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 95,
+     "strictly_above_lowest_of_three": 76,
+     "distinct_source_files_strictly_above": 43,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 95,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 113,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 116,
+       "salience": 0.69
+      }
+     }
+    },
+    "prod_noacc": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 76,
+     "strictly_above_lowest_of_three": 57,
+     "distinct_source_files_strictly_above": 24,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 76,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 94,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 97,
+       "salience": 0.69
+      }
+     }
+    }
+   }
+  },
+  {
+   "now": "2026-08-20T12:00:00Z",
+   "union_149": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.816249
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.812452
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.837401
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 129,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.641712
+     },
+     "116107": {
+      "rank": 128,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.641712
+     },
+     "116467": {
+      "rank": 131,
+      "tie_range": [
+       131,
+       131
+      ],
+      "score": 0.640068
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "union_201_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.816249
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.812452
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.837401
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 181,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.641712
+     },
+     "116107": {
+      "rank": 180,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.641712
+     },
+     "116467": {
+      "rank": 183,
+      "tie_range": [
+       183,
+       183
+      ],
+      "score": 0.640068
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_144": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.816249
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.812452
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.837401
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 124,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.641712
+     },
+     "116107": {
+      "rank": 123,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.641712
+     },
+     "116467": {
+      "rank": 126,
+      "tie_range": [
+       126,
+       126
+      ],
+      "score": 0.640068
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_196_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.816249
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.812452
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.837401
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 176,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.641712
+     },
+     "116107": {
+      "rank": 175,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.641712
+     },
+     "116467": {
+      "rank": 178,
+      "tie_range": [
+       178,
+       178
+      ],
+      "score": 0.640068
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "scope_pool_prod_path": {
+    "prod": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.59,
+     "first_of_three_rank_in_pool": 1,
+     "strictly_above_lowest_of_three": 3,
+     "distinct_source_files_strictly_above": 2,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 5,
+       "salience": 0.864537
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 6,
+       "salience": 0.86074
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 1,
+       "salience": 0.887333
+      }
+     }
+    },
+    "prod_acc0": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 98,
+     "strictly_above_lowest_of_three": 79,
+     "distinct_source_files_strictly_above": 46,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 98,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 116,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 119,
+       "salience": 0.69
+      }
+     }
+    },
+    "prod_noacc": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 98,
+     "strictly_above_lowest_of_three": 79,
+     "distinct_source_files_strictly_above": 46,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 98,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 116,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 119,
+       "salience": 0.69
+      }
+     }
+    }
+   }
+  },
+  {
+   "now": "2026-08-21T12:00:00Z",
+   "union_149": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.815838
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.812041
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.836991
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 129,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.641301
+     },
+     "116107": {
+      "rank": 128,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.641301
+     },
+     "116467": {
+      "rank": 131,
+      "tie_range": [
+       131,
+       131
+      ],
+      "score": 0.639658
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "union_201_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.815838
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.812041
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.836991
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 181,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.641301
+     },
+     "116107": {
+      "rank": 180,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.641301
+     },
+     "116467": {
+      "rank": 183,
+      "tie_range": [
+       183,
+       183
+      ],
+      "score": 0.639658
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_144": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.815838
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.812041
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.836991
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 124,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.641301
+     },
+     "116107": {
+      "rank": 123,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.641301
+     },
+     "116467": {
+      "rank": 126,
+      "tie_range": [
+       126,
+       126
+      ],
+      "score": 0.639658
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_196_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.815838
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.812041
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.836991
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 176,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.641301
+     },
+     "116107": {
+      "rank": 175,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.641301
+     },
+     "116467": {
+      "rank": 178,
+      "tie_range": [
+       178,
+       178
+      ],
+      "score": 0.639658
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "scope_pool_prod_path": {
+    "prod": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.59,
+     "first_of_three_rank_in_pool": 1,
+     "strictly_above_lowest_of_three": 3,
+     "distinct_source_files_strictly_above": 2,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 5,
+       "salience": 0.864537
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 6,
+       "salience": 0.86074
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 1,
+       "salience": 0.887333
+      }
+     }
+    },
+    "prod_acc0": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 98,
+     "strictly_above_lowest_of_three": 79,
+     "distinct_source_files_strictly_above": 46,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 98,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 116,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 119,
+       "salience": 0.69
+      }
+     }
+    },
+    "prod_noacc": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 98,
+     "strictly_above_lowest_of_three": 79,
+     "distinct_source_files_strictly_above": 46,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 98,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 116,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 119,
+       "salience": 0.69
+      }
+     }
+    }
+   }
+  },
+  {
+   "now": "2026-08-22T12:00:00Z",
+   "union_149": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.815427
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.811631
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.83658
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 129,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.64089
+     },
+     "116107": {
+      "rank": 128,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.64089
+     },
+     "116467": {
+      "rank": 131,
+      "tie_range": [
+       131,
+       131
+      ],
+      "score": 0.639247
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "union_201_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.815427
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.811631
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.83658
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 181,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.64089
+     },
+     "116107": {
+      "rank": 180,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.64089
+     },
+     "116467": {
+      "rank": 183,
+      "tie_range": [
+       183,
+       183
+      ],
+      "score": 0.639247
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_144": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.815427
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.811631
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.83658
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 124,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.64089
+     },
+     "116107": {
+      "rank": 123,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.64089
+     },
+     "116467": {
+      "rank": 126,
+      "tie_range": [
+       126,
+       126
+      ],
+      "score": 0.639247
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_196_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.815427
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.811631
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.83658
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 176,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.64089
+     },
+     "116107": {
+      "rank": 175,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.64089
+     },
+     "116467": {
+      "rank": 178,
+      "tie_range": [
+       178,
+       178
+      ],
+      "score": 0.639247
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "scope_pool_prod_path": {
+    "prod": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.59,
+     "first_of_three_rank_in_pool": 1,
+     "strictly_above_lowest_of_three": 3,
+     "distinct_source_files_strictly_above": 2,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 5,
+       "salience": 0.864537
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 6,
+       "salience": 0.86074
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 1,
+       "salience": 0.887333
+      }
+     }
+    },
+    "prod_acc0": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 98,
+     "strictly_above_lowest_of_three": 79,
+     "distinct_source_files_strictly_above": 46,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 98,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 116,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 119,
+       "salience": 0.69
+      }
+     }
+    },
+    "prod_noacc": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 98,
+     "strictly_above_lowest_of_three": 79,
+     "distinct_source_files_strictly_above": 46,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 98,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 116,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 119,
+       "salience": 0.69
+      }
+     }
+    }
+   }
+  },
+  {
+   "now": "2026-08-23T12:00:00Z",
+   "union_149": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.815016
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.81122
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.836169
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 129,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.640479
+     },
+     "116107": {
+      "rank": 128,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.640479
+     },
+     "116467": {
+      "rank": 131,
+      "tie_range": [
+       131,
+       131
+      ],
+      "score": 0.638836
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "union_201_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.815016
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.81122
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.836169
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 181,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.640479
+     },
+     "116107": {
+      "rank": 180,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.640479
+     },
+     "116467": {
+      "rank": 183,
+      "tie_range": [
+       183,
+       183
+      ],
+      "score": 0.638836
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_144": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.815016
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.81122
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.836169
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 124,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.640479
+     },
+     "116107": {
+      "rank": 123,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.640479
+     },
+     "116467": {
+      "rank": 126,
+      "tie_range": [
+       126,
+       126
+      ],
+      "score": 0.638836
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_196_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.815016
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.81122
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.836169
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 176,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.640479
+     },
+     "116107": {
+      "rank": 175,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.640479
+     },
+     "116467": {
+      "rank": 178,
+      "tie_range": [
+       178,
+       178
+      ],
+      "score": 0.638836
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "scope_pool_prod_path": {
+    "prod": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.59,
+     "first_of_three_rank_in_pool": 1,
+     "strictly_above_lowest_of_three": 3,
+     "distinct_source_files_strictly_above": 2,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 5,
+       "salience": 0.864537
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 6,
+       "salience": 0.86074
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 1,
+       "salience": 0.887333
+      }
+     }
+    },
+    "prod_acc0": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 98,
+     "strictly_above_lowest_of_three": 79,
+     "distinct_source_files_strictly_above": 46,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 98,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 116,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 119,
+       "salience": 0.69
+      }
+     }
+    },
+    "prod_noacc": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 98,
+     "strictly_above_lowest_of_three": 79,
+     "distinct_source_files_strictly_above": 46,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 98,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 116,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 119,
+       "salience": 0.69
+      }
+     }
+    }
+   }
+  },
+  {
+   "now": "2026-08-24T12:00:00Z",
+   "union_149": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.814605
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.810809
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.835758
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 129,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.640068
+     },
+     "116107": {
+      "rank": 128,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.640068
+     },
+     "116467": {
+      "rank": 131,
+      "tie_range": [
+       131,
+       131
+      ],
+      "score": 0.638425
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "union_201_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.814605
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.810809
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.835758
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 181,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.640068
+     },
+     "116107": {
+      "rank": 180,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.640068
+     },
+     "116467": {
+      "rank": 183,
+      "tie_range": [
+       183,
+       183
+      ],
+      "score": 0.638425
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_144": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.814605
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.810809
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.835758
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 124,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.640068
+     },
+     "116107": {
+      "rank": 123,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.640068
+     },
+     "116467": {
+      "rank": 126,
+      "tie_range": [
+       126,
+       126
+      ],
+      "score": 0.638425
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_196_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.814605
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.810809
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.835758
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 176,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.640068
+     },
+     "116107": {
+      "rank": 175,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.640068
+     },
+     "116467": {
+      "rank": 178,
+      "tie_range": [
+       178,
+       178
+      ],
+      "score": 0.638425
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "scope_pool_prod_path": {
+    "prod": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.59,
+     "first_of_three_rank_in_pool": 1,
+     "strictly_above_lowest_of_three": 3,
+     "distinct_source_files_strictly_above": 2,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 5,
+       "salience": 0.864537
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 6,
+       "salience": 0.86074
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 1,
+       "salience": 0.887333
+      }
+     }
+    },
+    "prod_acc0": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 98,
+     "strictly_above_lowest_of_three": 79,
+     "distinct_source_files_strictly_above": 46,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 98,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 116,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 119,
+       "salience": 0.69
+      }
+     }
+    },
+    "prod_noacc": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 98,
+     "strictly_above_lowest_of_three": 79,
+     "distinct_source_files_strictly_above": 46,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 98,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 116,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 119,
+       "salience": 0.69
+      }
+     }
+    }
+   }
+  },
+  {
+   "now": "2026-08-25T12:00:00Z",
+   "union_149": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.814194
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.810398
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.835347
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 129,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.639658
+     },
+     "116107": {
+      "rank": 128,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.639658
+     },
+     "116467": {
+      "rank": 131,
+      "tie_range": [
+       131,
+       131
+      ],
+      "score": 0.638014
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "union_201_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.814194
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.810398
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.835347
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 181,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.639658
+     },
+     "116107": {
+      "rank": 180,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.639658
+     },
+     "116467": {
+      "rank": 183,
+      "tie_range": [
+       183,
+       183
+      ],
+      "score": 0.638014
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_144": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.814194
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.810398
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.835347
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 124,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.639658
+     },
+     "116107": {
+      "rank": 123,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.639658
+     },
+     "116467": {
+      "rank": 126,
+      "tie_range": [
+       126,
+       126
+      ],
+      "score": 0.638014
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_196_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.814194
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.810398
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.835347
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 176,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.639658
+     },
+     "116107": {
+      "rank": 175,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.639658
+     },
+     "116467": {
+      "rank": 178,
+      "tie_range": [
+       178,
+       178
+      ],
+      "score": 0.638014
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "scope_pool_prod_path": {
+    "prod": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.59,
+     "first_of_three_rank_in_pool": 1,
+     "strictly_above_lowest_of_three": 3,
+     "distinct_source_files_strictly_above": 2,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 5,
+       "salience": 0.864537
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 6,
+       "salience": 0.86074
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 1,
+       "salience": 0.887333
+      }
+     }
+    },
+    "prod_acc0": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 97,
+     "strictly_above_lowest_of_three": 78,
+     "distinct_source_files_strictly_above": 45,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 97,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 115,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 118,
+       "salience": 0.69
+      }
+     }
+    },
+    "prod_noacc": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 98,
+     "strictly_above_lowest_of_three": 79,
+     "distinct_source_files_strictly_above": 46,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 98,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 116,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 119,
+       "salience": 0.69
+      }
+     }
+    }
+   }
+  },
+  {
+   "now": "2026-08-26T12:00:00Z",
+   "union_149": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.813783
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.809987
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.834936
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 129,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.639247
+     },
+     "116107": {
+      "rank": 128,
+      "tie_range": [
+       128,
+       129
+      ],
+      "score": 0.639247
+     },
+     "116467": {
+      "rank": 131,
+      "tie_range": [
+       131,
+       131
+      ],
+      "score": 0.637603
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 47,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 46,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 45,
+      "tie_range": [
+       45,
+       47
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 25,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 24,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 23,
+      "tie_range": [
+       23,
+       25
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 26,
+      "tie_range": [
+       24,
+       26
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 25,
+      "tie_range": [
+       24,
+       26
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 24,
+      "tie_range": [
+       24,
+       26
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "union_201_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.813783
+     },
+     "116107": {
+      "rank": 5,
+      "tie_range": [
+       5,
+       5
+      ],
+      "score": 0.809987
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.834936
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 181,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.639247
+     },
+     "116107": {
+      "rank": 180,
+      "tie_range": [
+       180,
+       181
+      ],
+      "score": 0.639247
+     },
+     "116467": {
+      "rank": 183,
+      "tie_range": [
+       183,
+       183
+      ],
+      "score": 0.637603
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 57,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 56,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 55,
+      "tie_range": [
+       55,
+       57
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 35,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 34,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 33,
+      "tie_range": [
+       33,
+       35
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 36,
+      "tie_range": [
+       34,
+       36
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 35,
+      "tie_range": [
+       34,
+       36
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 34,
+      "tie_range": [
+       34,
+       36
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_144": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.813783
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.809987
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.834936
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 124,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.639247
+     },
+     "116107": {
+      "rank": 123,
+      "tie_range": [
+       123,
+       124
+      ],
+      "score": 0.639247
+     },
+     "116467": {
+      "rank": 126,
+      "tie_range": [
+       126,
+       126
+      ],
+      "score": 0.637603
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 43,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 42,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 41,
+      "tie_range": [
+       41,
+       43
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 21,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 20,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 19,
+      "tie_range": [
+       19,
+       21
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 22,
+      "tie_range": [
+       20,
+       22
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 21,
+      "tie_range": [
+       20,
+       22
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 20,
+      "tie_range": [
+       20,
+       22
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "organic_196_with_52_restored": {
+    "legacy_with": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.813783
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.809987
+     },
+     "116467": {
+      "rank": 2,
+      "tie_range": [
+       2,
+       2
+      ],
+      "score": 0.834936
+     }
+    },
+    "legacy_acc0": {
+     "112241": {
+      "rank": 176,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.639247
+     },
+     "116107": {
+      "rank": 175,
+      "tie_range": [
+       175,
+       176
+      ],
+      "score": 0.639247
+     },
+     "116467": {
+      "rank": 178,
+      "tie_range": [
+       178,
+       178
+      ],
+      "score": 0.637603
+     }
+    },
+    "prod": {
+     "112241": {
+      "rank": 3,
+      "tie_range": [
+       3,
+       3
+      ],
+      "score": 0.864537
+     },
+     "116107": {
+      "rank": 4,
+      "tie_range": [
+       4,
+       4
+      ],
+      "score": 0.86074
+     },
+     "116467": {
+      "rank": 1,
+      "tie_range": [
+       1,
+       1
+      ],
+      "score": 0.887333
+     }
+    },
+    "prod_acc0": {
+     "112241": {
+      "rank": 53,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 52,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 51,
+      "tie_range": [
+       51,
+       53
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_noacc": {
+     "112241": {
+      "rank": 31,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 30,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 29,
+      "tie_range": [
+       29,
+       31
+      ],
+      "score": 0.69
+     }
+    },
+    "prod_acc0_drop_future_access": {
+     "112241": {
+      "rank": 32,
+      "tie_range": [
+       30,
+       32
+      ],
+      "score": 0.69
+     },
+     "116107": {
+      "rank": 31,
+      "tie_range": [
+       30,
+       32
+      ],
+      "score": 0.69
+     },
+     "116467": {
+      "rank": 30,
+      "tie_range": [
+       30,
+       32
+      ],
+      "score": 0.69
+     }
+    }
+   },
+   "scope_pool_prod_path": {
+    "prod": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.59,
+     "first_of_three_rank_in_pool": 1,
+     "strictly_above_lowest_of_three": 3,
+     "distinct_source_files_strictly_above": 2,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 5,
+       "salience": 0.864537
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 6,
+       "salience": 0.86074
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 1,
+       "salience": 0.887333
+      }
+     }
+    },
+    "prod_acc0": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 96,
+     "strictly_above_lowest_of_three": 77,
+     "distinct_source_files_strictly_above": 44,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 96,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 114,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 117,
+       "salience": 0.69
+      }
+     }
+    },
+    "prod_noacc": {
+     "pool_size": 500,
+     "proxy_of_500th": 0.515,
+     "first_of_three_rank_in_pool": 76,
+     "strictly_above_lowest_of_three": 57,
+     "distinct_source_files_strictly_above": 24,
+     "three": {
+      "112241": {
+       "in_pool": true,
+       "rank_in_pool": 76,
+       "salience": 0.69
+      },
+      "116107": {
+       "in_pool": true,
+       "rank_in_pool": 94,
+       "salience": 0.69
+      },
+      "116467": {
+       "in_pool": true,
+       "rank_in_pool": 97,
+       "salience": 0.69
+      }
+     }
+    }
+   }
+  }
+ ],
+ "anchor_reproduces_published": true
+}

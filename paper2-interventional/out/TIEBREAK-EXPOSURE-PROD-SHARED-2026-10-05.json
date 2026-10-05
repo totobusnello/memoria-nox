@@ -1,0 +1,4241 @@
+{
+ "script": "measurement/sprint-empates-salience-producao.mjs",
+ "scoring_function": "serving-salience.ts::calculateSalience (imported; sha256 083399fc... per SERVING-CODE-MANIFEST.md)",
+ "supersedes_key_of": "TIEBREAK-EXPOSURE-2026-08-29.json (measured on the SQL pre-rank expression)",
+ "input_db_sha256": "4ec7e182a6360db2bcff068abfd7ae6096a5b636017eef19ad297401fe721345",
+ "reference_pool": "A-rc2/COVERAGE-SET-FROM-LOG-2026-10-04.json reference_ids (108)",
+ "original_instant_not_rebuildable": "the 2026-08-29 run read a live DB with julianday('now') at run time, not recorded; the extract's brief_log ends 2026-08-26 23:52:09",
+ "limits": [
+  "importance, pain, access_count, last_accessed_at as stored at the 2026-09-07 copy",
+  "last_accessed_at later than the instant: kept (calculateSalience) and dropped (calculateSalience_drop_future_access)",
+  "ties are counted, not resolved: how much of 127/281/348 the arbitrary order decides is not measured"
+ ],
+ "rounds": [
+  {
+   "instant": "2026-08-26T20:37:00Z",
+   "pool": 108,
+   "pares_possiveis": 5778,
+   "sql_prerank_expression": {
+    "valores_distintos_de_salience": 6,
+    "por_granularidade": [
+     {
+      "granularidade": "seg",
+      "pares_indistinguiveis": 59,
+      "maior_bloco_indistinguivel": 4,
+      "pct_dos_pares": 1.02
+     },
+     {
+      "granularidade": "min",
+      "pares_indistinguiveis": 288,
+      "maior_bloco_indistinguivel": 10,
+      "pct_dos_pares": 4.98
+     },
+     {
+      "granularidade": "hora",
+      "pares_indistinguiveis": 663,
+      "maior_bloco_indistinguivel": 20,
+      "pct_dos_pares": 11.47
+     },
+     {
+      "granularidade": "dia",
+      "pares_indistinguiveis": 1656,
+      "maior_bloco_indistinguivel": 42,
+      "pct_dos_pares": 28.66
+     }
+    ]
+   },
+   "calculateSalience": {
+    "valores_distintos_de_salience": 15,
+    "por_granularidade": [
+     {
+      "granularidade": "seg",
+      "pares_indistinguiveis": 42,
+      "maior_bloco_indistinguivel": 4,
+      "pct_dos_pares": 0.73
+     },
+     {
+      "granularidade": "min",
+      "pares_indistinguiveis": 213,
+      "maior_bloco_indistinguivel": 10,
+      "pct_dos_pares": 3.69
+     },
+     {
+      "granularidade": "hora",
+      "pares_indistinguiveis": 472,
+      "maior_bloco_indistinguivel": 18,
+      "pct_dos_pares": 8.17
+     },
+     {
+      "granularidade": "dia",
+      "pares_indistinguiveis": 1197,
+      "maior_bloco_indistinguivel": 42,
+      "pct_dos_pares": 20.72
+     }
+    ]
+   },
+   "calculateSalience_drop_future_access": {
+    "valores_distintos_de_salience": 15,
+    "por_granularidade": [
+     {
+      "granularidade": "seg",
+      "pares_indistinguiveis": 42,
+      "maior_bloco_indistinguivel": 4,
+      "pct_dos_pares": 0.73
+     },
+     {
+      "granularidade": "min",
+      "pares_indistinguiveis": 213,
+      "maior_bloco_indistinguivel": 10,
+      "pct_dos_pares": 3.69
+     },
+     {
+      "granularidade": "hora",
+      "pares_indistinguiveis": 472,
+      "maior_bloco_indistinguivel": 18,
+      "pct_dos_pares": 8.17
+     },
+     {
+      "granularidade": "dia",
+      "pares_indistinguiveis": 1197,
+      "maior_bloco_indistinguivel": 42,
+      "pct_dos_pares": 20.72
+     }
+    ]
+   },
+   "ties_at_second_with_calculateSalience": [
+    {
+     "size": 2,
+     "ids": [
+      308216,
+      308218
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308228,
+      308232
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308236,
+      308266
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       5
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308242,
+      308244
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308248,
+      308274
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.5
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308258,
+      308260
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308268,
+      308276
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308280,
+      308284
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 3,
+     "ids": [
+      308290,
+      308296,
+      308306
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.5
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308446,
+      308447
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 4,
+     "ids": [
+      308449,
+      308450,
+      308451,
+      308452
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 3,
+     "ids": [
+      308454,
+      308460,
+      308461
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308456,
+      308457
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.9
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 4,
+     "ids": [
+      308464,
+      308466,
+      308467,
+      308469
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 3,
+     "ids": [
+      308468,
+      308472,
+      308491
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.9
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308471,
+      308473
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308474,
+      308475
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308477,
+      308478
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308479,
+      308480
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308481,
+      308482
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308483,
+      308484
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308485,
+      308486
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308487,
+      308488
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308489,
+      308490
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308492,
+      308493
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308495,
+      308496
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "instant": "2026-08-26T22:00:00Z",
+   "pool": 108,
+   "pares_possiveis": 5778,
+   "sql_prerank_expression": {
+    "valores_distintos_de_salience": 6,
+    "por_granularidade": [
+     {
+      "granularidade": "seg",
+      "pares_indistinguiveis": 45,
+      "maior_bloco_indistinguivel": 4,
+      "pct_dos_pares": 0.78
+     },
+     {
+      "granularidade": "min",
+      "pares_indistinguiveis": 277,
+      "maior_bloco_indistinguivel": 12,
+      "pct_dos_pares": 4.79
+     },
+     {
+      "granularidade": "hora",
+      "pares_indistinguiveis": 951,
+      "maior_bloco_indistinguivel": 31,
+      "pct_dos_pares": 16.46
+     },
+     {
+      "granularidade": "dia",
+      "pares_indistinguiveis": 1656,
+      "maior_bloco_indistinguivel": 42,
+      "pct_dos_pares": 28.66
+     }
+    ]
+   },
+   "calculateSalience": {
+    "valores_distintos_de_salience": 15,
+    "por_granularidade": [
+     {
+      "granularidade": "seg",
+      "pares_indistinguiveis": 34,
+      "maior_bloco_indistinguivel": 4,
+      "pct_dos_pares": 0.59
+     },
+     {
+      "granularidade": "min",
+      "pares_indistinguiveis": 212,
+      "maior_bloco_indistinguivel": 12,
+      "pct_dos_pares": 3.67
+     },
+     {
+      "granularidade": "hora",
+      "pares_indistinguiveis": 711,
+      "maior_bloco_indistinguivel": 31,
+      "pct_dos_pares": 12.31
+     },
+     {
+      "granularidade": "dia",
+      "pares_indistinguiveis": 1197,
+      "maior_bloco_indistinguivel": 42,
+      "pct_dos_pares": 20.72
+     }
+    ]
+   },
+   "calculateSalience_drop_future_access": {
+    "valores_distintos_de_salience": 15,
+    "por_granularidade": [
+     {
+      "granularidade": "seg",
+      "pares_indistinguiveis": 34,
+      "maior_bloco_indistinguivel": 4,
+      "pct_dos_pares": 0.59
+     },
+     {
+      "granularidade": "min",
+      "pares_indistinguiveis": 212,
+      "maior_bloco_indistinguivel": 12,
+      "pct_dos_pares": 3.67
+     },
+     {
+      "granularidade": "hora",
+      "pares_indistinguiveis": 711,
+      "maior_bloco_indistinguivel": 31,
+      "pct_dos_pares": 12.31
+     },
+     {
+      "granularidade": "dia",
+      "pares_indistinguiveis": 1197,
+      "maior_bloco_indistinguivel": 42,
+      "pct_dos_pares": 20.72
+     }
+    ]
+   },
+   "ties_at_second_with_calculateSalience": [
+    {
+     "size": 2,
+     "ids": [
+      308232,
+      308242
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308258,
+      308260
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308268,
+      308276
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 3,
+     "ids": [
+      308290,
+      308296,
+      308306
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.5
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308446,
+      308447
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 4,
+     "ids": [
+      308449,
+      308450,
+      308451,
+      308452
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 3,
+     "ids": [
+      308454,
+      308460,
+      308461
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308459,
+      308468
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.9
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308462,
+      308464
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 3,
+     "ids": [
+      308466,
+      308467,
+      308469
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 4,
+     "ids": [
+      308470,
+      308471,
+      308473,
+      308474
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308472,
+      308491
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.9
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308478,
+      308479
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 3,
+     "ids": [
+      308481,
+      308482,
+      308483
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308487,
+      308488
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308490,
+      308492
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "instant": "2026-08-26T23:52:09Z",
+   "pool": 108,
+   "pares_possiveis": 5778,
+   "sql_prerank_expression": {
+    "valores_distintos_de_salience": 6,
+    "por_granularidade": [
+     {
+      "granularidade": "seg",
+      "pares_indistinguiveis": 53,
+      "maior_bloco_indistinguivel": 4,
+      "pct_dos_pares": 0.92
+     },
+     {
+      "granularidade": "min",
+      "pares_indistinguiveis": 322,
+      "maior_bloco_indistinguivel": 12,
+      "pct_dos_pares": 5.57
+     },
+     {
+      "granularidade": "hora",
+      "pares_indistinguiveis": 1024,
+      "maior_bloco_indistinguivel": 33,
+      "pct_dos_pares": 17.72
+     },
+     {
+      "granularidade": "dia",
+      "pares_indistinguiveis": 1656,
+      "maior_bloco_indistinguivel": 42,
+      "pct_dos_pares": 28.66
+     }
+    ]
+   },
+   "calculateSalience": {
+    "valores_distintos_de_salience": 15,
+    "por_granularidade": [
+     {
+      "granularidade": "seg",
+      "pares_indistinguiveis": 39,
+      "maior_bloco_indistinguivel": 4,
+      "pct_dos_pares": 0.67
+     },
+     {
+      "granularidade": "min",
+      "pares_indistinguiveis": 238,
+      "maior_bloco_indistinguivel": 12,
+      "pct_dos_pares": 4.12
+     },
+     {
+      "granularidade": "hora",
+      "pares_indistinguiveis": 749,
+      "maior_bloco_indistinguivel": 33,
+      "pct_dos_pares": 12.96
+     },
+     {
+      "granularidade": "dia",
+      "pares_indistinguiveis": 1197,
+      "maior_bloco_indistinguivel": 42,
+      "pct_dos_pares": 20.72
+     }
+    ]
+   },
+   "calculateSalience_drop_future_access": {
+    "valores_distintos_de_salience": 15,
+    "por_granularidade": [
+     {
+      "granularidade": "seg",
+      "pares_indistinguiveis": 39,
+      "maior_bloco_indistinguivel": 4,
+      "pct_dos_pares": 0.67
+     },
+     {
+      "granularidade": "min",
+      "pares_indistinguiveis": 238,
+      "maior_bloco_indistinguivel": 12,
+      "pct_dos_pares": 4.12
+     },
+     {
+      "granularidade": "hora",
+      "pares_indistinguiveis": 749,
+      "maior_bloco_indistinguivel": 33,
+      "pct_dos_pares": 12.96
+     },
+     {
+      "granularidade": "dia",
+      "pares_indistinguiveis": 1197,
+      "maior_bloco_indistinguivel": 42,
+      "pct_dos_pares": 20.72
+     }
+    ]
+   },
+   "ties_at_second_with_calculateSalience": [
+    {
+     "size": 3,
+     "ids": [
+      308228,
+      308232,
+      308242
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308240,
+      308256
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.5
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308248,
+      308274
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.5
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308268,
+      308276
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 3,
+     "ids": [
+      308290,
+      308296,
+      308306
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.5
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308300,
+      308310
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.5
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308446,
+      308447
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308449,
+      308450
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308451,
+      308452
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 3,
+     "ids": [
+      308453,
+      308454,
+      308455
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308459,
+      308468
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.9
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308460,
+      308461
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308462,
+      308464
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308467,
+      308469
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 4,
+     "ids": [
+      308470,
+      308471,
+      308473,
+      308474
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308472,
+      308491
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.9
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308475,
+      308476
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 3,
+     "ids": [
+      308477,
+      308478,
+      308479
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 3,
+     "ids": [
+      308481,
+      308482,
+      308483
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308484,
+      308485
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308487,
+      308488
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 3,
+     "ids": [
+      308490,
+      308492,
+      308493
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "instant": "2026-08-25T23:59:59Z",
+   "pool": 108,
+   "pares_possiveis": 5778,
+   "sql_prerank_expression": {
+    "valores_distintos_de_salience": 6,
+    "por_granularidade": [
+     {
+      "granularidade": "seg",
+      "pares_indistinguiveis": 59,
+      "maior_bloco_indistinguivel": 4,
+      "pct_dos_pares": 1.02
+     },
+     {
+      "granularidade": "min",
+      "pares_indistinguiveis": 335,
+      "maior_bloco_indistinguivel": 14,
+      "pct_dos_pares": 5.8
+     },
+     {
+      "granularidade": "hora",
+      "pares_indistinguiveis": 1022,
+      "maior_bloco_indistinguivel": 34,
+      "pct_dos_pares": 17.69
+     },
+     {
+      "granularidade": "dia",
+      "pares_indistinguiveis": 1656,
+      "maior_bloco_indistinguivel": 42,
+      "pct_dos_pares": 28.66
+     }
+    ]
+   },
+   "calculateSalience": {
+    "valores_distintos_de_salience": 15,
+    "por_granularidade": [
+     {
+      "granularidade": "seg",
+      "pares_indistinguiveis": 43,
+      "maior_bloco_indistinguivel": 4,
+      "pct_dos_pares": 0.74
+     },
+     {
+      "granularidade": "min",
+      "pares_indistinguiveis": 245,
+      "maior_bloco_indistinguivel": 14,
+      "pct_dos_pares": 4.24
+     },
+     {
+      "granularidade": "hora",
+      "pares_indistinguiveis": 774,
+      "maior_bloco_indistinguivel": 34,
+      "pct_dos_pares": 13.4
+     },
+     {
+      "granularidade": "dia",
+      "pares_indistinguiveis": 1197,
+      "maior_bloco_indistinguivel": 42,
+      "pct_dos_pares": 20.72
+     }
+    ]
+   },
+   "calculateSalience_drop_future_access": {
+    "valores_distintos_de_salience": 15,
+    "por_granularidade": [
+     {
+      "granularidade": "seg",
+      "pares_indistinguiveis": 43,
+      "maior_bloco_indistinguivel": 4,
+      "pct_dos_pares": 0.74
+     },
+     {
+      "granularidade": "min",
+      "pares_indistinguiveis": 245,
+      "maior_bloco_indistinguivel": 14,
+      "pct_dos_pares": 4.24
+     },
+     {
+      "granularidade": "hora",
+      "pares_indistinguiveis": 774,
+      "maior_bloco_indistinguivel": 34,
+      "pct_dos_pares": 13.4
+     },
+     {
+      "granularidade": "dia",
+      "pares_indistinguiveis": 1197,
+      "maior_bloco_indistinguivel": 42,
+      "pct_dos_pares": 20.72
+     }
+    ]
+   },
+   "ties_at_second_with_calculateSalience": [
+    {
+     "size": 2,
+     "ids": [
+      308240,
+      308306
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.5
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308242,
+      308244
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308256,
+      308272
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.5
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308258,
+      308260
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308268,
+      308270
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308278,
+      308282
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.5
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308280,
+      308284
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308312,
+      308318
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308445,
+      308446
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308447,
+      308449
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308450,
+      308451
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308452,
+      308455
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 4,
+     "ids": [
+      308453,
+      308454,
+      308460,
+      308461
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308456,
+      308457
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.9
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308458,
+      308459
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.9
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 4,
+     "ids": [
+      308462,
+      308464,
+      308466,
+      308469
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308467,
+      308470
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308471,
+      308473
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 4,
+     "ids": [
+      308474,
+      308475,
+      308476,
+      308477
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308479,
+      308480
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308481,
+      308482
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308483,
+      308484
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308485,
+      308486
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308487,
+      308488
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308489,
+      308490
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308491,
+      308494
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.9
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308492,
+      308493
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308495,
+      308496
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "instant": "2026-08-24T23:59:59Z",
+   "pool": 108,
+   "pares_possiveis": 5778,
+   "sql_prerank_expression": {
+    "valores_distintos_de_salience": 6,
+    "por_granularidade": [
+     {
+      "granularidade": "seg",
+      "pares_indistinguiveis": 66,
+      "maior_bloco_indistinguivel": 4,
+      "pct_dos_pares": 1.14
+     },
+     {
+      "granularidade": "min",
+      "pares_indistinguiveis": 352,
+      "maior_bloco_indistinguivel": 14,
+      "pct_dos_pares": 6.09
+     },
+     {
+      "granularidade": "hora",
+      "pares_indistinguiveis": 1172,
+      "maior_bloco_indistinguivel": 37,
+      "pct_dos_pares": 20.28
+     },
+     {
+      "granularidade": "dia",
+      "pares_indistinguiveis": 1656,
+      "maior_bloco_indistinguivel": 42,
+      "pct_dos_pares": 28.66
+     }
+    ]
+   },
+   "calculateSalience": {
+    "valores_distintos_de_salience": 15,
+    "por_granularidade": [
+     {
+      "granularidade": "seg",
+      "pares_indistinguiveis": 44,
+      "maior_bloco_indistinguivel": 4,
+      "pct_dos_pares": 0.76
+     },
+     {
+      "granularidade": "min",
+      "pares_indistinguiveis": 256,
+      "maior_bloco_indistinguivel": 14,
+      "pct_dos_pares": 4.43
+     },
+     {
+      "granularidade": "hora",
+      "pares_indistinguiveis": 884,
+      "maior_bloco_indistinguivel": 37,
+      "pct_dos_pares": 15.3
+     },
+     {
+      "granularidade": "dia",
+      "pares_indistinguiveis": 1197,
+      "maior_bloco_indistinguivel": 42,
+      "pct_dos_pares": 20.72
+     }
+    ]
+   },
+   "calculateSalience_drop_future_access": {
+    "valores_distintos_de_salience": 15,
+    "por_granularidade": [
+     {
+      "granularidade": "seg",
+      "pares_indistinguiveis": 44,
+      "maior_bloco_indistinguivel": 4,
+      "pct_dos_pares": 0.76
+     },
+     {
+      "granularidade": "min",
+      "pares_indistinguiveis": 256,
+      "maior_bloco_indistinguivel": 14,
+      "pct_dos_pares": 4.43
+     },
+     {
+      "granularidade": "hora",
+      "pares_indistinguiveis": 884,
+      "maior_bloco_indistinguivel": 37,
+      "pct_dos_pares": 15.3
+     },
+     {
+      "granularidade": "dia",
+      "pares_indistinguiveis": 1197,
+      "maior_bloco_indistinguivel": 42,
+      "pct_dos_pares": 20.72
+     }
+    ]
+   },
+   "ties_at_second_with_calculateSalience": [
+    {
+     "size": 2,
+     "ids": [
+      308228,
+      308232
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308236,
+      308266
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       5
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 3,
+     "ids": [
+      308240,
+      308296,
+      308306
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.5
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308242,
+      308244
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308248,
+      308274
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.5
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308258,
+      308260
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308268,
+      308270
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308278,
+      308282
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.5
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308280,
+      308284
+     ],
+     "same_source_file": false,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.25
+      ],
+      "access_count": [
+       2
+      ],
+      "retention_days": [
+       90
+      ],
+      "last_accessed_at": [
+       "2026-08-30T11:28:07.528Z"
+      ],
+      "created_at": [
+       "2026-08-21 22:51:23"
+      ],
+      "source_file_class": [
+       "memory/entities/*"
+      ]
+     }
+    },
+    {
+     "size": 3,
+     "ids": [
+      308446,
+      308447,
+      308449
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308450,
+      308451
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308452,
+      308455
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308453,
+      308460
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308454,
+      308461
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308456,
+      308457
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.9
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308462,
+      308464
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 4,
+     "ids": [
+      308466,
+      308467,
+      308469,
+      308470
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308471,
+      308473
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308472,
+      308491
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.9
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308474,
+      308475
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 4,
+     "ids": [
+      308476,
+      308477,
+      308478,
+      308479
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 3,
+     "ids": [
+      308480,
+      308481,
+      308482
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308483,
+      308484
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308485,
+      308486
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308487,
+      308488
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308489,
+      308490
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308492,
+      308493
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    },
+    {
+     "size": 2,
+     "ids": [
+      308495,
+      308496
+     ],
+     "same_source_file": true,
+     "shared": {
+      "importance": [
+       0.9
+      ],
+      "pain": [
+       0.4
+      ],
+      "access_count": [
+       0
+      ],
+      "retention_days": [
+       180
+      ],
+      "last_accessed_at": [
+       null
+      ],
+      "created_at": [
+       "2026-08-22 02:01:58"
+      ],
+      "source_file_class": [
+       "memory/lessons.md"
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}
