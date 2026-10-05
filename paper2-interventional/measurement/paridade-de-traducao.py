@@ -27,7 +27,11 @@ import sys
 from collections import Counter
 
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
-PT = RAIZ / "MANUSCRIPT.md"
+# 2026-10-05: o português da v1.0 deixou de ser `MANUSCRIPT.md` (que agora é o inglês
+# da v1.1) e vive em `MANUSCRIPT-v1.0-pt.md`. Esta paridade compara aquele português
+# com a tradução PARCIAL `MANUSCRIPT-en.md`; apontá-la para o novo `MANUSCRIPT.md`
+# compararia inglês com inglês e passaria por construção.
+PT = RAIZ / "MANUSCRIPT-v1.0-pt.md"
 EN = RAIZ / "MANUSCRIPT-en.md"
 
 # seções presentes no EN hoje. Crescer esta lista é o que "avançar a tradução" significa.

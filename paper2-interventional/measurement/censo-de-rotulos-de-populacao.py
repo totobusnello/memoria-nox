@@ -29,6 +29,7 @@ Uso:
 """
 import argparse
 import json
+import os
 import pathlib
 import re
 import sys
@@ -36,18 +37,19 @@ import sys
 # Números que nomeiam uma população no manuscrito, com o script que os produz e a
 # condição que os define. A coluna `condicoes` é o que o leitor precisa para julgar
 # se o rótulo cabe.
+# 2026-10-05: valores na notação inglesa do manuscrito da v1.1 (`67,187`).
 POPULACOES = [
-    {"valor": "67.187", "script": "superficie-de-exposicao.py",
+    {"valor": "67,187", "script": "superficie-de-exposicao.py",
      "condicoes": ["nenhuma — é o corpus vivo inteiro"]},
-    {"valor": "56.288", "script": "superficie-de-exposicao.py",
+    {"valor": "56,288", "script": "superficie-de-exposicao.py",
      "condicoes": ["NOT (id IN brief_log OR access_count > 0)"]},
-    {"valor": "13.388", "script": "exposicao-por-coorte.py",
-     "condicoes": ["importance >= 0,7 OR pain >= 0,7"]},
-    {"valor": "10.008", "script": "composicao-do-piso.py",
-     "condicoes": ["importance >= 0,7 OR pain >= 0,7",
+    {"valor": "13,388", "script": "exposicao-por-coorte.py",
+     "condicoes": ["importance >= 0.7 OR pain >= 0.7"]},
+    {"valor": "10,008", "script": "composicao-do-piso.py",
+     "condicoes": ["importance >= 0.7 OR pain >= 0.7",
                    "NOT (id IN brief_log OR access_count > 0)"]},
     {"valor": "108", "script": "pool-elegivel.py",
-     "condicoes": ["importance >= 0,7 OR pain >= 0,7",
+     "condicoes": ["importance >= 0.7 OR pain >= 0.7",
                    "source_file LIKE 'memory/entities/%' OR 'memory/lessons.md'",
                    "idade <= 30 dias (sub-pool global) / 7 dias (por agente)"]},
     {"valor": "149", "script": "contrafactual-do-topo.py",
@@ -57,11 +59,24 @@ POPULACOES = [
 ]
 
 # Rótulos que já se provaram perigosos: cada um foi escrito errado ao menos uma vez.
+# 2026-10-05: o manuscrito passou a ser inglês. Cada padrão português ganhou o seu
+# equivalente inglês na MESMA linha da lista (mesma razão, mesmo alcance); os
+# portugueses ficam, porque o script também roda sobre textos em português
+# (`--doc MANUSCRIPT-v1.0-pt.md`). "judged (it) relevant" entra junto de "marked as
+# relevant" porque é a tradução que a v1.1 de fato usa para "julgou relevante".
 ROTULOS_DE_RISCO = [
-    (r"piso d[eo] (?:relevância d[eo] )?(?:próprio )?sistema", "atribui ao SISTEMA o que é de um canal"),
-    (r"(?:o )?(?:canal|sistema) considera(?:ria)? elegí", "confunde UMA condição com as TRÊS"),
-    (r"(?:o )?sistema marcou como relevante", "atribui julgamento global a limiar de canal"),
-    (r"elegívei?s? pelo piso", "piso é condição necessária, não suficiente"),
+    (r"piso d[eo] (?:relevância d[eo] )?(?:próprio )?sistema"
+     r"|(?:relevance |importance )?floor of the (?:system|whole system)"
+     r"|system'?s own (?:relevance |importance )?floor",
+     "atribui ao SISTEMA o que é de um canal"),
+    (r"(?:o )?(?:canal|sistema) considera(?:ria)? elegí"
+     r"|(?:channel|system) (?:would )?considers? (?:\w+ ){0,2}eligible",
+     "confunde UMA condição com as TRÊS"),
+    (r"(?:o )?sistema marcou como relevante"
+     r"|system (?:marked|judged) (?:it |them )?(?:as )?relevant",
+     "atribui julgamento global a limiar de canal"),
+    (r"elegívei?s? pelo piso|eligible (?:by|through|via|under) the (?:importance )?floor",
+     "piso é condição necessária, não suficiente"),
 ]
 
 
@@ -70,12 +85,15 @@ def main():
     ap.add_argument("--raiz", default=str(pathlib.Path(__file__).resolve().parent.parent))
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--out")
+    # o manuscrito: `--doc`, senão `$P2_MANUSCRIPT` (exportado pelo
+    # `claims_check --manuscript`), senão RAIZ/MANUSCRIPT.md
+    ap.add_argument("--doc", default=os.environ.get("P2_MANUSCRIPT"))
     a = ap.parse_args()
 
     raiz = pathlib.Path(a.raiz)
-    doc = (raiz / "MANUSCRIPT.md")
+    doc = pathlib.Path(a.doc or raiz / "MANUSCRIPT.md")
     if not doc.exists():
-        print("⛔ MANUSCRIPT.md não encontrado", file=sys.stderr)
+        print(f"⛔ {doc} não encontrado", file=sys.stderr)
         return 1
     texto = doc.read_text(encoding="utf-8")
 
@@ -93,8 +111,12 @@ def main():
     # Agora: citação é (a) trecho entre aspas, (b) precedido de verbo de retratação,
     # ou (c) DENTRO do Apêndice H, que é o único lugar onde o rótulo errado tem
     # direito de aparecer.
-    ini_h = texto.find("## Apêndice H")
-    CITACAO = [r'"[^"\n]{0,80}$', r"\bdizia\b", r"versão anterior", r"não alcançou"]
+    # 2026-10-05: na v1.1 o histórico de correções é o **Apêndice F**; no texto
+    # português da v1.0 era o H. Os marcadores de citação ganharam o equivalente
+    # inglês ("said", "earlier/previous version", "did not reach").
+    ini_h = max(texto.find("## Apêndice H"), texto.find("## Appendix F"))
+    CITACAO = [r'"[^"\n]{0,80}$', r"\bdizia\b", r"versão anterior", r"não alcançou",
+               r"\bsaid\b", r"(?:earlier|previous) version", r"did not reach"]
     reincidentes, citados = [], []
     for pat, porque in ROTULOS_DE_RISCO:
         for m in re.finditer(pat, texto, re.I):
@@ -163,7 +185,7 @@ def main():
         print(f"\n✅ nenhum rótulo de risco reincidiu como AFIRMAÇÃO "
               f"({len(ROTULOS_DE_RISCO)} padrões vigiados; {len(citados)} ocorrência(s) "
               f"são citação dentro da própria retratação, que é o uso correto)")
-        print("\n⚠️ o par que mais confunde: **13.388** passa o piso; **108** é o pool "
+        print("\n⚠️ o par que mais confunde: **13,388** passa o piso; **108** é o pool "
               "elegível de fato. Duas ordens de grandeza, e três redações do rótulo "
               "foram necessárias para dizer isso sem afirmar demais.")
 

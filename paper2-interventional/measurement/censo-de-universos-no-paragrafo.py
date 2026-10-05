@@ -31,14 +31,17 @@ Uso:
 """
 import argparse
 import json
+import os
 import pathlib
 import re
 import sys
 
+RAIZ = pathlib.Path(__file__).resolve().parent.parent
+
 # valor no texto → (população, denominador, é_percentual)
 # `superficie` é o que discrimina: dois números podem dividir o mesmo denominador e
 # ainda contar coisas diferentes, que é exatamente o caso 2,66% × 83,78%.
-UNIVERSO = {
+UNIVERSO_PT = {
     "67.187":  ("corpus vivo",              "corpus",     False),
     "583.763": ("slots entregues",          "slots",      False),
     "1.787":   ("distintos no brief, HISTORICO", "brief-hist", False),
@@ -68,6 +71,19 @@ UNIVERSO = {
     "99,98":   ("cobertura uniforme",       "contrafactual", True),
 }
 
+
+def _para_ingles(v: str) -> str:
+    """`583.763` → `583,763` e `2,66` → `2.66`: troca os papéis de `.` e `,`."""
+    return v.replace(".", "\0").replace(",", ".").replace("\0", ",")
+
+
+# 2026-10-05: o manuscrito da v1.1 é inglês. Os MESMOS valores e rótulos, na notação
+# inglesa; a escolha da tabela é pela língua do texto (ver `main`). Sem isto o censo
+# passava VAZIO no texto inglês — só `108` e `350` casavam, nenhum percentual, logo
+# nenhuma colisão possível — e o verde saía de cegueira, não de texto limpo.
+UNIVERSO_EN = {_para_ingles(k): v for k, v in UNIVERSO_PT.items()}
+UNIVERSO = UNIVERSO_PT
+
 # Marcadores que declaram a fronteira. Se um deles está no parágrafo, a mudança de
 # universo foi anunciada e o leitor tem como se orientar.
 TRANSICAO = [
@@ -78,6 +94,22 @@ TRANSICAO = [
     r"\bpopulaç\w+", r"\bsuperfícies?\b", r"\boutra grandeza\b", r"\bmesma base\b",
     r"\bnão se soma\w*\b", r"\bnão somam\b", r"\bapenas o brief\b", r"\bsó o brief\b",
     r"\bunião\b", r"\bagregad[oa]\b", r"\bcoorte\w*\b", r"\bpiso\b", r"\bpool\b",
+    # inglês (2026-10-05), termo a termo: dos quais/desses/destes → of which/of these/
+    # of those; entre os → among (the|these|those); condicionado → conditioned/
+    # conditioning; restringe → restrict*; subconjunto → subset; por outro lado → on
+    # the other hand; enquanto/ao passo que → while/whereas; já o/a → as for; em
+    # contraste → in/by contrast; não são comparáveis → are not comparable;
+    # denominador/universo/população/superfície → denominator/universe/population/
+    # surface; outra grandeza → another quantity; mesma base → same base; não se
+    # somam → do not add (up); só/apenas o brief → only the brief; união → union;
+    # agregado → aggregate; coorte → cohort; piso → floor; pool → pool
+    r"\bof which\b", r"\bof (?:these|those)\b", r"\bamong (?:the|these|those)\b",
+    r"\bcondition(?:ed|ing)\b", r"\brestrict\w*", r"\bsubset\b",
+    r"\bon the other hand\b", r"\bwhile\b", r"\bwhereas\b", r"\bas for\b",
+    r"\b(?:in|by) contrast\b", r"\bare not comparable\b", r"\bdenominator\w*\b",
+    r"\buniverses?\b", r"\bpopulations?\b", r"\bsurfaces?\b", r"\banother quantity\b",
+    r"\bsame base\b", r"\bdo(?:es)? not add\b", r"\bonly the brief\b", r"\bunion\b",
+    r"\baggregate\b", r"\bcohorts?\b", r"\bfloor\b",
 ]
 
 
@@ -93,7 +125,10 @@ TRANSICAO = [
 # isso a marca aqui é vocabulário de VERIFICAÇÃO, não forma de tabela, e o teste de
 # mutação abaixo prova que o caso real (2,66% × 83,78%) segue mordendo.
 META = [r"\bsem guarda\b", r"\bcom guarda\b", r"\bartefatos?\b", r"\brem[ée]dio\b",
-        r"\brecomputar no guarda\b", r"\balegaç\w+ numéricas?\b", r"\bverificador\b"]
+        r"\brecomputar no guarda\b", r"\balegaç\w+ numéricas?\b", r"\bverificador\b",
+        # inglês (2026-10-05), termo a termo
+        r"\bunguarded\b", r"\bguarded\b", r"\bartifacts?\b", r"\bremed(?:y|ies)\b",
+        r"\brecompute in the guard\b", r"\bnumeric claims?\b", r"\bverifier\b"]
 
 
 def paragrafos(texto: str):
@@ -115,7 +150,10 @@ def paragrafos(texto: str):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--doc", default="MANUSCRIPT.md")
+    # 2026-10-05: default era relativo ao CWD; agora `$P2_MANUSCRIPT` (exportado pelo
+    # `claims_check --manuscript`), senão o MANUSCRIPT.md ao lado deste pacote.
+    ap.add_argument("--doc", default=os.environ.get("P2_MANUSCRIPT")
+                    or str(RAIZ / "MANUSCRIPT.md"))
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--out")
     a = ap.parse_args()
@@ -126,11 +164,14 @@ def main():
         return 1
     texto = doc.read_text(encoding="utf-8")
 
-    ini_h = texto.find("## Apêndice H")
+    # a língua decide a notação e o apêndice de histórico (H na v1.0 pt, F na v1.1 en)
+    ingles = "## 1. Introduction" in texto
+    universo = UNIVERSO_EN if ingles else UNIVERSO_PT
+    ini_h = texto.find("## Appendix F" if ingles else "## Apêndice H")
     achados, examinados = [], 0
     for p in paragrafos(texto):
         presentes = {}
-        for val, (rot, sup, pct) in UNIVERSO.items():
+        for val, (rot, sup, pct) in universo.items():
             if re.search(rf"(?<![\d.,]){re.escape(val)}(?![\d])", p):
                 presentes.setdefault(sup, []).append((val, rot, pct))
         if len(presentes) < 2:

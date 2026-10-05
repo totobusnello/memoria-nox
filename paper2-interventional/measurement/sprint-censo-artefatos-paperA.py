@@ -164,7 +164,9 @@ def extract(text):
 
 
 def appendix_d(text):
-    m = re.search(r"^## Apêndice D.*?(?=^## )", text, re.S | re.M)
+    # 2026-10-05: MANUSCRIPT.md is now the English v1.1 ("## Appendix D"); the
+    # Portuguese v1.0 ("## Apêndice D") is still read when passed with --doc.
+    m = re.search(r"^## (?:Apêndice|Appendix) D.*?(?=^## )", text, re.S | re.M)
     if not m:
         return set()
     toks = set()
@@ -193,7 +195,8 @@ def deposited_index():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--doc", default=os.path.join(P2, "MANUSCRIPT.md"))
+    ap.add_argument("--doc", default=os.environ.get("P2_MANUSCRIPT")
+                    or os.path.join(P2, "MANUSCRIPT.md"))
     ap.add_argument("--json", default=None, help="write the full census here")
     a = ap.parse_args()
 

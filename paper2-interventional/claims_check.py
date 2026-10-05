@@ -75,6 +75,20 @@ present", never as "the package is consistent".
 USAGE
     python3 claims_check.py            # check, exit 1 on any failure
     python3 claims_check.py --show     # print the recomputed table and exit 0
+    python3 claims_check.py --manuscript /path/to/copy.md   # check another text
+
+THE MANUSCRIPT IT READS (2026-10-05)
+    `MANUSCRIPT.md` is the English text of Paper A v1.1, byte-identical to the
+    deposited `deposit/paperA-v1.1/spare-capacity-narrow-surface-v1.1.md`
+    (Zenodo 10.5281/zenodo.23163119). The Portuguese v1.0 text it replaced lives
+    on as `MANUSCRIPT-v1.0-pt.md`, a frozen record that no guard reads as the
+    manuscript. Every anchor below that reads the manuscript was ported to the
+    English wording and to English numeric notation (`583,763`, `2.43%`); a
+    guard whose claim v1.1 withdrew on purpose was inverted into a "must NOT
+    appear" guard or retired with a dated reason next to it — never loosened to
+    pass. `--manuscript` (or the env var `P2_MANUSCRIPT`, which the census
+    subprocesses inherit) points every guard and census at another file, which
+    is how the mutation tests run on a temporary copy.
 
 No dependencies: standard library only, like every other canonical script here.
 """
@@ -84,11 +98,43 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import re
 import hashlib
 import subprocess
 import sys
 from pathlib import Path
+
+# ---------------------------------------------------------------------------
+# The manuscript under check, and its numeric notation.
+# ---------------------------------------------------------------------------
+
+#: Env var that overrides the manuscript path. `main()` sets it from
+#: `--manuscript`, so the censuses run as subprocesses read the SAME file.
+MANUSCRIPT_ENV = "P2_MANUSCRIPT"
+
+
+def _manuscrito(root: Path) -> Path:
+    """Path of the manuscript under check: `$P2_MANUSCRIPT`, else `root/MANUSCRIPT.md`."""
+    p = os.environ.get(MANUSCRIPT_ENV)
+    return Path(p) if p else root / "MANUSCRIPT.md"
+
+
+def _texto_manuscrito(root: Path) -> str:
+    return _manuscrito(root).read_text(encoding="utf-8")
+
+
+def _en(x: float, casas: int | None = None) -> str:
+    """English notation, the one v1.1 is written in: `583,763` and `2.43`.
+
+    The v1.0 guards wrote `f"{n:,}".replace(",", ".")` and `.replace(".", ",")`
+    (pt-BR: `583.763`, `2,43`). Swapping the roles of `.` and `,` halfway is the
+    translation risk `measurement/paridade-de-traducao.py` exists for, so every
+    guard builds its literal through this one function instead of by hand.
+    """
+    if casas is None:
+        return f"{x:,}"
+    return f"{x:,.{casas}f}"
 
 # ---------------------------------------------------------------------------
 # Frozen constants. These are THE inputs; everything below is derived.
@@ -932,17 +978,19 @@ def terceiro_eixo_check(root: Path) -> list[str]:
                 f"tabela do §5.7.2 perdeu o lastro"]
     d1 = json.loads(a1.read_text(encoding="utf-8"))["ancora"]["publicada"]
     d2 = json.loads(a2.read_text(encoding="utf-8"))["ancora"]["publicada"]
-    texto = (root / "MANUSCRIPT.md").read_text(encoding="utf-8")
+    texto = _texto_manuscrito(root)
     fails = []
     if d1 == d2:
         fails.append(
             "§5.7.2 afirma que a exclusão de sondas MOVE a âncora, mas os dois "
             "artefatos agora coincidem — o achado inverteu e o texto não acompanhou"
         )
+    # 2026-10-05: rótulos da tabela portados para o inglês da v1.1 ("distinct
+    # `last_served` groups", "position of the first chunk of the study").
     for pat, rot in (
-        (rf"grupos de `last_served` distintos \| {d1['grupos_last_served']} \| "
+        (rf"distinct `last_served` groups \| {d1['grupos_last_served']} \| "
          rf"\*\*{d2['grupos_last_served']}\*\*", "linha dos grupos"),
-        (rf"posição do primeiro chunk do estudo \| {d1['posicao_primeiro_estudo']} \| "
+        (rf"position of the first chunk of the study \| {d1['posicao_primeiro_estudo']} \| "
          rf"\*\*{d2['posicao_primeiro_estudo']}\*\*", "linha da posição"),
     ):
         if not re.search(pat, texto):
@@ -993,9 +1041,19 @@ def terceiro_eixo_check(root: Path) -> list[str]:
             f"volta a ser atribuível ao corpus tanto quanto às sondas")
     if tb["mexeu"] != 13:
         fails.append(f"§5.7.2: braço COM exclusão dá {tb['mexeu']}/350, texto afirma 13")
-    for alvo, rot in (("3,71", "teto sob exclusão"), ("4,86", "teto publicado")):
-        if alvo not in texto:
-            fails.append(f"§5.7.2: {rot} ({alvo}%) ausente do texto")
+    # 2026-10-05: a v1.0 só exigia `"3,71" in texto` e `"4,86" in texto` — presença
+    # solta, que `4.86` satisfaz em 21 lugares. Portado ANCORADO à linha da tabela
+    # pareada, com os dois tetos recomputados dos braços (17/350 e 13/350), o que é
+    # mais forte, não mais fraco.
+    pa = _en(100 * ta["mexeu"] / ta["estados"], 2)
+    pb = _en(100 * tb["mexeu"] / tb["estados"], 2)
+    for alvo, rot in (
+            (rf"\| ceiling \| {re.escape(pa)}% \| \*\*{re.escape(pb)}%\*\* \|",
+             f"tetos publicado ({pa}%) e sob exclusão ({pb}%)"),
+            (rf"\| states that change \(of {ta['estados']}\) \| {ta['mexeu']} \| "
+             rf"\*\*{tb['mexeu']}\*\* \|", "estados que mudam, por braço")):
+        if not re.search(alvo, texto):
+            fails.append(f"§5.7.2: {rot} não casa ancorado à tabela pareada (/{alvo}/)")
     # ⚠️ O achado mais forte é a NÃO-ANINHAÇÃO: de 17 e 13 estados sensíveis, só 1 é
     # comum. Quem comparasse apenas os totais leria "quatro a menos" e concluiria que a
     # convenção quase não importa. Se um dia os conjuntos passarem a se aninhar, o
@@ -1061,42 +1119,140 @@ def censos_check(root: Path) -> list[str]:
 
 
 def contrafactual_check(root: Path) -> list[str]:
-    """Trava a tabela do contrafactual do topo (§5) ao artefato.
+    """Trava a tabela do contrafactual do topo (§4.3.2) ao artefato com a função de produção.
 
     A alegação que ela sustenta é a mais causal do paper — "o topo do brief é
-    DETERMINADO pelo tráfego de busca de meses atrás" — e ela só se sustenta porque as
-    posições mudam de 2/3/5 para 131/129/128 quando o componente de acesso é zerado.
-    Se o artefato mudar e as posições convergirem, a palavra "determinado" deixa de
-    valer e o texto tem de acusar.
+    DETERMINADO pelo tráfego de busca de meses atrás" — e ela só se sustenta porque os
+    três saem do top-10 quando o componente de acesso é zerado.
+
+    ⚠️ Rebaseado em 2026-10-05 (rc4; Codex-2 e CHECK-A-rc4-B-rc4.md D-A1). A versão
+    anterior lia `TOP-COUNTERFACTUAL-2026-08-29.json` e exigia 2/3/5 → 131/129/128, que
+    vinham de `contrafactual-do-topo.py`, cuja recência (linear em 365 d a partir de
+    `source_date`) e default de `importance` (0,5) não são os de `calculateSalience`.
+    Agora a fonte é `out/SALIENCE-COUNTERFACTUAL-PROD-2026-10-05.json` (função de produção
+    importada), que reproduz o 131/129/128 antigo como âncora. Até 2026-10-05 este guarda
+    lia o `MANUSCRIPT.md` português da v1.0 e FALHAVA de propósito (o texto guardado tinha
+    os números da função errada); com a promoção do texto depositado da v1.1 (rc18,
+    10.5281/zenodo.23163119) a `MANUSCRIPT.md`, as frases em inglês abaixo são as dele.
+
+    7. (2026-10-05, inversão) as alegações que a v1.1 RETIROU não podem voltar ao corpo
+       (antes do Apêndice F): `131/129/128` só como o número da "first version" do
+       contrafactual; "exactly 52 places lower" nunca; "beyond rank 100" só na negação
+       "none places them beyond rank 100". O Apêndice F cita as três de propósito.
+
+    O que ele exige, tudo derivado do artefato (nada escrito à mão aqui):
+      1. os dois artefatos existem e o novo reproduz a âncora antiga;
+      2. o veredito causal: com acesso, os três no top-10 (posição de `prod`); com acesso
+         zerado, fora do top-10 em TODA variante (`prod_acc0`, `prod_noacc`,
+         `prod_acc0_drop_future_access`), TODO instante e TODA população (149, 201, 144,
+         196) — e nenhuma além da posição 100, que o texto também afirma;
+      3. a linha de cada chunk ancorada ao id: importance, pain, acessos, posição com
+         acesso e o bloco de empate com acesso zerado em 2026-08-29T00:00Z;
+      4. a população declarada ("149 chunks served in the window");
+      5. o pool de escopo com os números de CADA variante, separados (D-A1: a frase do
+         rc4 misturava o 76 de `prod_noacc` com o 76–79 / 43–46 de `prod_acc0`);
+      6. (rc5, Codex-R5) a faixa de sensibilidade "positions span LO–HI", com LO–HI
+         derivado do artefato (envelope de `prod_acc0` e `prod_acc0_drop_future_access`
+         na população de 149, todos os instantes), e a AUSÊNCIA de "the true position
+         lies in": a faixa é sensibilidade sobre população retrospectiva fixa, não a
+         posição histórica reconstruída.
     """
-    art = root / "out" / "TOP-COUNTERFACTUAL-2026-08-29.json"
-    if not art.exists():
-        return [f"{art.name} ausente — a alegação causal do §5 perdeu o contrafactual"]
-    d = json.loads(art.read_text(encoding="utf-8"))
-    texto = (root / "MANUSCRIPT.md").read_text(encoding="utf-8")
+    antigo = root / "out" / "TOP-COUNTERFACTUAL-2026-08-29.json"
+    art = root / "out" / "SALIENCE-COUNTERFACTUAL-PROD-2026-10-05.json"
     fails = []
-    if d.get("veredito") != "DETERMINA":
-        fails.append(
-            f"§5: o contrafactual devolve veredito {d.get('veredito')!r} e o texto diz "
-            f"'determinado' — a alegação causal deixou de estar sustentada"
-        )
-    for l in d["detalhe"]:
-        alvo = (rf"\| {l['chunk_id']} \|[^|]*\|[^|]*\|[^|]*{l['access_count']}[^|]*\| "
-                rf"\*\*{l['posicao_com_acesso']}\*\* \| \*\*"
-                rf"{l['posicao_sem_acesso']}\*\* \|")
+    for a in (antigo, art):
+        if not a.exists():
+            fails.append(f"{a.name} ausente — a alegação causal do §4.3.2 perdeu o contrafactual")
+    if fails:
+        return fails
+    d = json.loads(art.read_text(encoding="utf-8"))
+    texto = _texto_manuscrito(root)
+    if d.get("anchor_reproduces_published") is not True:
+        fails.append("§4.3.2: o artefato de produção não reproduz a âncora 131/129/128 — "
+                     "as duas funções deixaram de estar amarradas")
+    tres = [str(k) for k in d["the_three"]]
+    acesso_zero = ("prod_acc0", "prod_noacc", "prod_acc0_drop_future_access")
+    pops = ("union_149", "union_201_with_52_restored", "organic_144", "organic_196_with_52_restored")
+    piores, melhores_com = [], []
+    for r in d["rounds"]:
+        for pop in pops:
+            if not r.get(pop):
+                fails.append(f"§4.3.2: rodada {r['now']} sem a população {pop}")
+                continue
+            for c in tres:
+                melhores_com.append(r[pop]["prod"][c]["rank"])
+                for v in acesso_zero:
+                    piores.append(r[pop][v][c]["tie_range"][0])
+                    piores.append(r[pop][v][c]["tie_range"][1])
+    if melhores_com and max(melhores_com) > 10:
+        fails.append(f"§4.3.2: com acesso, um dos três está na posição {max(melhores_com)} — "
+                     f"o texto os põe no top-10")
+    if piores and min(piores) <= 10:
+        fails.append(f"§4.3.2: com acesso zerado, um dos três fica na posição {min(piores)} — "
+                     f"'determinado' deixa de estar sustentado")
+    if piores and max(piores) > 100:
+        fails.append(f"§4.3.2: uma variante põe os três na posição {max(piores)} — "
+                     f"o texto diz 'none places them beyond rank 100'")
+    r0 = next((r for r in d["rounds"] if r["now"] == "2026-08-29T00:00:00Z"), None)
+    if r0 is None:
+        return fails + ["§4.3.2: o artefato não tem a rodada 2026-08-29T00:00:00Z da tabela"]
+    for c in tres:
+        m = d["the_three"][c]
+        com = r0["union_149"]["prod"][c]["rank"]
+        lo, hi = r0["union_149"]["prod_acc0"][c]["tie_range"]
+        alvo = (rf"\| {c} \| {m['importance']:.2f} \| {m['pain']:.2f} \| {m['access_count']} \| "
+                rf"\*\*{com}\*\* \| \*\*{lo}–{hi}\*\*")
         if not re.search(alvo, texto):
             fails.append(
-                f"§5: a linha do chunk {l['chunk_id']} deveria ler acessos="
-                f"{l['access_count']}, posição {l['posicao_com_acesso']} → "
-                f"{l['posicao_sem_acesso']} — não casa ancorada ao id"
+                f"§4.3.2: a linha do chunk {c} deveria ler importance {m['importance']:.2f}, "
+                f"pain {m['pain']:.2f}, acessos {m['access_count']}, posição {com} → "
+                f"{lo}–{hi} — não casa ancorada ao id"
             )
-    # o número de comparação que dá força ao argumento
-    if f"{d['candidatos_servidos_na_janela']} chunks servidos na janela" not in texto:
+    if f"{d['served_existing']} chunks served in the window" not in texto:
         fails.append(
-            f"§5: a população do contrafactual ({d['candidatos_servidos_na_janela']} "
-            f"chunks servidos na janela) não está declarada — sem ela as posições não "
-            f"têm denominador"
+            f"§4.3.2: a população do contrafactual ({d['served_existing']} chunks served in the "
+            f"window) não está declarada — sem ela as posições não têm denominador"
         )
+    sp = [r["scope_pool_prod_path"] for r in d["rounds"]]
+    for v, frase in (("prod_acc0", "{a} candidates from {f} distinct source files"),
+                     ("prod_noacc", "{a} candidates from {f} files")):
+        acima = sorted({x[v]["strictly_above_lowest_of_three"] for x in sp})
+        arqs = sorted({x[v]["distinct_source_files_strictly_above"] for x in sp})
+        faixa = lambda xs: f"{xs[0]}–{xs[-1]}" if xs[0] != xs[-1] else f"{xs[0]}"  # noqa: E731
+        esperado = frase.format(a=faixa(acima), f=faixa(arqs))
+        if esperado not in texto:
+            fails.append(f"§4.3.2: pool de escopo ({v}) deveria dizer '{esperado}' — "
+                         f"não encontrado; os números de uma variante não podem ir para a outra")
+    # 6. (rc5, Codex-R5) faixa de sensibilidade derivada do artefato; quebra de linha no
+    # markdown não pode decidir o resultado, então compara com espaço normalizado.
+    plano = " ".join(texto.split())
+    env = [x for r in d["rounds"] for c in tres
+           for v in ("prod_acc0", "prod_acc0_drop_future_access")
+           for x in r["union_149"][v][c]["tie_range"]]
+    esperado = f"positions span {min(env)}–{max(env)} in this fixed retrospective population"
+    if esperado not in plano:
+        fails.append(f"§4.3.2: a faixa de sensibilidade deveria dizer '{esperado}' — "
+                     f"não encontrado (envelope do artefato)")
+    if "the true position lies in" in plano:
+        fails.append("§4.3.2: 'the true position lies in' voltou — a faixa é sensibilidade sobre "
+                     "população retrospectiva fixa, não posição histórica reconstruída (Codex-R5)")
+    # 7. (2026-10-05) as retiradas da v1.1 não voltam ao corpo. O Apêndice F as cita de
+    # propósito, por isso o corte; e a frase que o texto afirma sobre o teto de 100 é
+    # exigida explicitamente, em vez de só não contrariada pelo artefato.
+    corte = texto.find("\n## Appendix F")
+    corpo = " ".join((texto[:corte] if corte >= 0 else texto).split())
+    if "none places them beyond rank 100" not in corpo:
+        fails.append("§4.3.2: 'none places them beyond rank 100' sumiu do corpo — o artefato "
+                     "sustenta a frase e o texto deixou de afirmá-la")
+    for m in re.finditer(r"131/129/128", corpo):
+        if "first version" not in corpo[max(0, m.start() - 300):m.start()]:
+            fails.append("§4.3.2: '131/129/128' reaparece no corpo fora da frase sobre a "
+                         "'first version' do contrafactual — é o número da função errada, "
+                         "retirado na v1.1 (Codex-2)")
+    for pat, rot in ((r"\b52 places lower", "'exactly 52 places lower'"),
+                     (r"(?<!none places them )beyond rank 100", "'beyond rank 100'")):
+        if re.search(pat, corpo):
+            fails.append(f"§4.3.2: {rot} voltou ao corpo — retirado na v1.1 (Apêndice F-5)")
     return fails
 
 
@@ -1112,7 +1268,7 @@ def catalogo_check(root: Path) -> list[str]:
     Este guarda conta as linhas e exige que o texto concorde. É o tipo de verificação
     que não precisa de artefato: a fonte da verdade é o próprio documento.
     """
-    doc = (root / "MANUSCRIPT.md").read_text(encoding="utf-8")
+    doc = _texto_manuscrito(root)
 
     def linhas_de(inicio: str, fim: str) -> int:
         # ⚠️ `fim` procurado A PARTIR de `inicio`: buscá-lo do começo do documento
@@ -1126,25 +1282,25 @@ def catalogo_check(root: Path) -> list[str]:
             return -1
         return len([l for l in doc[i:j].splitlines()
                     if l.startswith("|") and not l.startswith("|---")
-                    and "| número que ele mudou" not in l])
+                    and "| number it changed" not in l])
 
-    n6 = linhas_de("## 6. Defeitos", "### 6.1")
-    nE = linhas_de("As oito do §6 mais as nove abaixo", "\n## ") - 1  # menos o cabeçalho
+    # 2026-10-05: âncoras portadas para o inglês da v1.1. A v1.0 escrevia os
+    # contadores em negrito (`**17 defeitos que nós cometemos**`); a v1.1 os escreve
+    # sem negrito, e o predicado continua ancorado às mesmas palavras vizinhas.
+    n6 = linhas_de("## 6. Instrument defects", "### 6.1")
+    nE = linhas_de("of §6 plus the", "\n## ") - 1  # menos o cabeçalho
     if n6 < 0:
         return ["§6: não encontrei os limites da tabela de defeitos"]
     total = n6 + nE
-    por_extenso = {7: "sete", 8: "oito", 9: "nove", 10: "dez"}
+    por_extenso = {7: "seven", 8: "eight", 9: "nine", 10: "ten"}
     e6, eE = por_extenso.get(n6, str(n6)), por_extenso.get(nE, str(nE))
     fails = []
     for padrao, rotulo in (
-        (rf"\*\*{total} defeitos que nós cometemos\*\*, {e6} deles", "§1: total e subtotal"),
-        (rf"catálogo integral tem \*\*{total}\*\* entradas", "§6: catálogo integral"),
-        (rf"as \*\*{e6} que mudaram um número", "§6: subtotal na abertura"),
-        # ⚠️ o `**` fecha DEPOIS da frase, não depois do numeral — o padrão anterior
-        # exigia `as **oito** que`, e o texto escreve `as **oito que mudaram ...**`.
-        # Guarda com âncora errada não morde e não avisa: some do relatório.
-        (rf"O padrão que atravessa as {e6},", "§6: 'atravessa as N'"),
-        (rf"As {e6} do §6 mais as {eE} abaixo", "Apêndice E: a soma"),
+        (rf"It lists {total} defects that we committed, {e6} of them", "§1: total e subtotal"),
+        (rf"The full catalog has {total} entries", "§6: catálogo integral"),
+        (rf"Here are the {e6} that changed a number", "§6: subtotal na abertura"),
+        (rf"The pattern running through all {e6},", "§6: 'running through all N'"),
+        (rf"The {e6} of §6 plus the {eE} below", "Apêndice E: a soma"),
     ):
         if not re.search(padrao, doc):
             fails.append(
@@ -1200,11 +1356,15 @@ def cobertura_check(root: Path) -> list[str]:
     if proc.returncode != 0:
         return [f"censo de cobertura saiu {proc.returncode}: {proc.stderr.strip()[:200]}"]
     c = json.loads(proc.stdout)
-    texto = (root / "MANUSCRIPT.md").read_text(encoding="utf-8")
-    pct = f"{c['pct_sem_guarda']:.1f}".replace(".", ",")
+    texto = _texto_manuscrito(root)
+    pct = _en(c["pct_sem_guarda"], 1)
     n = c["contagem"].get("SEM_GUARDA", 0)
-    if not re.search(rf"\*\*{n} das {c['alegacoes_curadas']}[^*.]*(?:\*\*)?[^.]*?"
-                     rf"{re.escape(pct)}%", texto):
+    # 2026-10-05: a v1.0 escrevia `**0 das 32 … 0,0%**`; a v1.1, "reaching 0 of 32
+    # (0.0%; …)". O `[^.]*?` da v1.0 entre o par e a taxa não cabe na notação inglesa
+    # (a taxa tem ponto), então o par e a taxa são exigidos contíguos, ancorados ao
+    # verbo da frase que os declara.
+    if not re.search(rf"reaching {n} of {c['alegacoes_curadas']} \({re.escape(pct)}%",
+                     texto):
         return [
             f"§ metodologia: o censo mede {n}/{c['alegacoes_curadas']} sem guarda "
             f"({pct}%) e o texto não declara esse par — uma taxa de cobertura não "
@@ -1231,30 +1391,34 @@ def superficie_check(root: Path) -> list[str]:
     resto. Foi a segunda que faltou.
     """
     art = root / "out" / "superficie.json"
-    doc = root / "MANUSCRIPT.md"
     if not art.exists():
         return [f"{art.name} ausente — os números do §1 não têm artefato"]
     d = json.loads(art.read_text(encoding="utf-8"))
-    texto = doc.read_text(encoding="utf-8")
+    texto = _texto_manuscrito(root)
     fails = []
     cum, conc = d["cumulativo_exato"], d["concentracao_do_brief"]
     corpus = d["corpus"]
+    mil = _en  # 2026-10-05: notação inglesa da v1.1 (583,763), não a pt-BR (583.763)
 
-    def mil(n: int) -> str:
-        return f"{n:,}".replace(",", ".")
-
-    # (1) valores diretos, ancorados ao rótulo que os identifica
+    # (1) valores diretos, ancorados ao rótulo que os identifica.
+    # 2026-10-05: rótulos portados para o inglês da v1.1. Dois mudaram de PALAVRA, não
+    # só de idioma, e a mudança é correção registrada no Apêndice F-5, não tradução:
+    # "o brief entregou N slots" virou "logged N selected slots" (seleções registradas,
+    # a entrega na janela inteira não foi verificada), e a linha da busca da tabela do
+    # §4.1 virou "positive search counter (live)" (a contagem é viva, §3.1).
     for padrao, rotulo, valor in (
-        (rf"\*\*{mil(conc['slots_historicos_ATE_AGORA_serie_viva'])} slots\*\*",
+        (rf"logged {mil(conc['slots_historicos_ATE_AGORA_serie_viva'])} selected slots",
          "slots acumulados", conc["slots_historicos_ATE_AGORA_serie_viva"]),
-        (rf"Serviu \*\*{mil(cum['brief'] - cum['servidos_no_brief_e_depois_apagados'])}\s*\n?distintos",
+        (rf"They hold {mil(cum['brief'] - cum['servidos_no_brief_e_depois_apagados'])}\s*\n?"
+         rf"distinct live chunks",
          "distintos no brief (VIVO)", cum["brief"] - cum["servidos_no_brief_e_depois_apagados"]),
-        (rf"exposto na busca \(histórico\) \| {mil(cum['busca'])}", "expostos na busca", cum["busca"]),
-        (rf"\*\*apagados depois\*\* \| {cum['servidos_no_brief_e_depois_apagados']}",
+        (rf"positive search counter \(live\) \| {mil(cum['busca'])}", "expostos na busca",
+         cum["busca"]),
+        (rf"\*\*deleted afterwards\*\* \| {cum['servidos_no_brief_e_depois_apagados']}",
          "servidos e apagados", cum["servidos_no_brief_e_depois_apagados"]),
-        (rf"top-10 leva \*\*{str(conc['pct_top10']).replace('.', ',')}%\*\*",
+        (rf"top-10 takes {re.escape(_en(conc['pct_top10'], 2))}%",
          "fração do top-10", conc["pct_top10"]),
-        (rf"{mil(conc['briefs_7d'])} briefs da semana", "briefs na janela", conc["briefs_7d"]),
+        (rf"{mil(conc['briefs_7d'])} briefs of the week", "briefs na janela", conc["briefs_7d"]),
     ):
         if not re.search(padrao, texto):
             fails.append(
@@ -1269,25 +1433,20 @@ def superficie_check(root: Path) -> list[str]:
     # e ele reapareceu aqui porque a classe não fica consertada onde foi achada.
     # Custo assumido: edição legítima que mude o número de menções atualiza a
     # contagem aqui, de propósito.
-    # ⚠️ Atualizado DE PROPÓSITO em 29/08: a §6.1 nova cita `583.763` e `2,66%` mais
-    # uma vez cada, ao explicar o erro que a falta de guarda produziu.
-    # ⚠️ "8,7 vezes" subiu para 3 em 30/08 (achado Codex): o §9 dizia "capacidade para
-    # mostrar tudo NOVE vezes", e 583.763/67.187 = 8,69 — nove passagens exigiriam
-    # 604.683 slots. Três lugares diziam nove; agora dizem o que a divisão dá.
-    OCORRENCIAS = {"8,7 vezes": 3, "47,16%": 3, "2,43%": 6, "583.763": 7,
-                   # ⚠️ +1 em 30/08: o §4.3.1 passou a citar 10.899 para OUTRA
-                   # grandeza (chunks de `sessions/%` que passam o piso), cujo
-                   # tamanho coincide com o da união viva neste instante. A
-                   # colisão está declarada no texto; a contagem sobe de propósito.
-                   # ⚠️ −1 em 30/08 (item B3): a ressalva "a busca é iniciada pelo
-                   # agente" aparecia 5× no corpo; duas repetições viraram ponteiro
-                   # ao §4.1.1, que é onde ela é o argumento e não a lembrança. A
-                   # do §2 levava consigo a única menção a 10.899 daquele parágrafo.
-                   # ⚠️ +2 em 30/08 (achado GLM): a remissão `↩ H-3.2` ficara vazia no
-                   # ponto de uso — "a linha dos 152 é o que faz a ponte" sem dizer
-                   # ponte entre o quê. A reconciliação `11.051 − 152 = 10.899` e
-                   # `67.187 − 10.899 = 56.288` voltou para o corpo.
-                   "10.899": 15}   # 12 -> 15 em 2026-09-21: a errata da interseção acrescenta 3
+    #
+    # 2026-10-05 — contagens RECONTADAS sobre o texto depositado da v1.1 (rc18), com
+    # o literal em notação inglesa. Histórico das contagens da v1.0 (pt), mantido
+    # porque é a razão de cada uma: "8,7 vezes" 3 (30/08, Codex: "NOVE vezes" virou o
+    # que a divisão dá); "47,16%" 3; "2,43%" 6; "583.763" 7 (29/08: a §6.1 cita o erro);
+    # "10.899" 15 (30/08 +1 §4.3.1, −1 item B3, +2 achado GLM; 2026-09-21 +3 errata).
+    # Na v1.1: "8.7 times" 3 (as outras menções escrevem "8.7×", que não é este
+    # literal), "2.43%" 6 e "10,899" 15 inalterados; "583,763" 11 (+4: a §6.1 data a
+    # série "stood at 583,763 on 2026-08-28", o §9 e o F-1 citam a razão
+    # "583,763/1,787 ≈ 327", e o F-5 registra a troca "delivered" → "logged");
+    # "47.16%" 5 (+2: a tabela do §4.3 traz a fração também na linha "without the 5
+    # probes", e o parágrafo seguinte diz que ela não muda).
+    OCORRENCIAS = {"8.7 times": 3, "47.16%": 5, "2.43%": 6, "583,763": 11,
+                   "10,899": 15}
 
     def conta(literal: str, rotulo: str) -> None:
         esperado = OCORRENCIAS.get(literal)
@@ -1301,7 +1460,7 @@ def superficie_check(root: Path) -> list[str]:
             )
 
     mult = conc["slots_historicos_ATE_AGORA_serie_viva"] / corpus
-    conta(f"{mult:.1f}".replace(".", ",") + " vezes", "slots/corpus recomputado")
+    conta(f"{_en(mult, 1)} times", "slots/corpus recomputado")
     # 🔴 Até 2026-09-21 isto era `100 * cum["brief"] / corpus` — numerador HISTÓRICO
     # (inclui os servidos-e-apagados) sobre denominador VIVO, dando 2,66%. O guarda
     # recomputava fielmente a conta errada: recomputar protege contra o texto
@@ -1309,9 +1468,9 @@ def superficie_check(root: Path) -> list[str]:
     # ("o percentual citado é sobre o corpus vivo") não estava codificada aqui.
     brief_vivo = cum["brief"] - cum["servidos_no_brief_e_depois_apagados"]
     pct = 100 * brief_vivo / corpus
-    conta(f"{pct:.2f}".replace(".", ",") + "%", "cobertura do brief recomputada")
+    conta(f"{_en(pct, 2)}%", "cobertura do brief recomputada")
     conta(mil(conc["slots_historicos_ATE_AGORA_serie_viva"]), "slots acumulados")
-    conta(str(conc["pct_top10"]).replace(".", ",") + "%", "fração do top-10")
+    conta(f"{_en(conc['pct_top10'], 2)}%", "fração do top-10")
 
     # (3) a união viva, que é a linha que fecha a tabela do §4.1 em um universo
     viva = cum["uniao"] - cum["servidos_no_brief_e_depois_apagados"]
@@ -1321,6 +1480,36 @@ def superficie_check(root: Path) -> list[str]:
             f"de fechar num universo só"
         )
     conta(mil(viva), "união viva recomputada")
+
+    # (3b) 2026-10-05: as âncoras de (1) que o texto repete são satisfeitas por UMA
+    # ocorrência — a mutação "The brief delivered 583,763 slots" num dos dois lugares
+    # passou ilesa, porque o outro ainda dizia "logged". A frase rotulada também tem
+    # contagem travada, e o verbo que a v1.1 retirou ("delivered"/"served" N slots:
+    # seleções registradas, não entrega verificada — Apêndice F-5) não pode voltar.
+    slots = mil(conc["slots_historicos_ATE_AGORA_serie_viva"])
+    vivos = mil(cum["brief"] - cum["servidos_no_brief_e_depois_apagados"])
+    for frase, esperado in ((f"logged {slots} selected slots", 2),
+                            (f"They hold {vivos} distinct live chunks", 2)):
+        visto = len(re.findall(r"\s+".join(map(re.escape, frase.split())), texto))
+        if visto != esperado:
+            fails.append(f"§1/Abstract: '{frase}' aparece {visto}× e deveria aparecer "
+                         f"{esperado}× (Abstract e §1) — uma das duas mudou")
+    if re.search(rf"(?:deliver(?:ed|s)?|served|serves?)\s+{re.escape(slots)}", texto):
+        fails.append(f"§1/Abstract: '{slots}' voltou a ser dito entregue/servido — a v1.1 o "
+                     f"chama de seleções registradas (logged selected slots), F-5")
+
+    # (4) 2026-10-05, inversão: o 2,66% misto (1.787/67.187, numerador histórico sobre
+    # denominador vivo) foi corrigido em 2026-09-21 e só pode aparecer na frase do §6.1
+    # que narra o erro do próprio guarda. Qualquer outra ocorrência é a conta errada de
+    # volta como cobertura do brief.
+    misto = f"{_en(100 * cum['brief'] / corpus, 2)}%"
+    narrado = (f"The recomputed value was `{mil(cum['brief'])} / {mil(corpus)} = {misto}`")
+    if texto.count(misto) != texto.count(narrado):
+        fails.append(
+            f"§1/§4.1: {misto} (cobertura MISTA, {cum['brief']}/{corpus}) aparece "
+            f"{texto.count(misto)}× e só pode aparecer na narração do erro no §6.1 "
+            f"({texto.count(narrado)}×) — a cobertura do brief é {_en(pct, 2)}% (viva)"
+        )
     return fails
 
 
@@ -1333,32 +1522,33 @@ def eixo_check(root: Path) -> list[str]:
     não continue afirmando o vazio depois disso.
     """
     art = root / "out" / "SIZE-AXIS-GAP-2026-08-29.json"
-    doc = root / "MANUSCRIPT.md"
     if not art.exists():
         return [f"{art.name} ausente — a tabela do vazio no §4.2 não tem artefato"]
     d = json.loads(art.read_text(encoding="utf-8"))
-    texto = doc.read_text(encoding="utf-8")
+    texto = _texto_manuscrito(root)
     fails = []
     if d["tipos_na_faixa_intermediaria"] != 0:
         fails.append(
             f"§4.2: o artefato tem {d['tipos_na_faixa_intermediaria']} tipo(s) na faixa "
             f"intermediária — 'duas nuvens' deixou de valer e o texto ainda afirma"
         )
-    dec = str(d["maior_lacuna"]["decadas"]).replace(".", ",")
-    pct = str(d["pct_da_amplitude_sem_ponto"]).replace(".", ",")
+    # 2026-10-05: rótulos e notação portados para o inglês da v1.1 (`1.295 decades`,
+    # `100 ≤ n < 1,000`, `(from 1,046 to 32,920)`).
+    dec = str(d["maior_lacuna"]["decadas"])
+    pct = str(d["pct_da_amplitude_sem_ponto"])
     for padrao, rotulo in (
-        (rf"maior lacuna no eixo[^|]*\|[^|]*\*\*{re.escape(dec)} décadas\*\*, entre "
-         rf"`{d['maior_lacuna']['de']['tipo']}` \({d['maior_lacuna']['de']['n']}\)",
+        (rf"largest gap on the log₁₀\(n\) axis[^|]*\|[^|]*\*\*{re.escape(dec)} decades\*\*, "
+         rf"between `{d['maior_lacuna']['de']['tipo']}` \({d['maior_lacuna']['de']['n']}\)",
          f"maior lacuna ({dec} décadas)"),
-        (rf"\*\*{re.escape(pct)}%, sem um único ponto\*\*",
+        (rf"\*\*{re.escape(pct)}%, without a single point\*\*",
          f"fração da amplitude ({pct}%)"),
-        (rf"100 ≤ n < 1\.000 \| \*\*{d['tipos_na_faixa_intermediaria']}\*\*",
+        (rf"100 ≤ n < 1,000 \| \*\*{d['tipos_na_faixa_intermediaria']}\*\*",
          "faixa intermediária vazia"),
-        (rf"tipos com n < 100 \| \*\*{d['nuvem_pequenos']['tipos']}\*\* "
-         rf"\(de {d['nuvem_pequenos']['n_min']} a {d['nuvem_pequenos']['n_max']}\)",
+        (rf"types with n < 100 \| \*\*{d['nuvem_pequenos']['tipos']}\*\* "
+         rf"\(from {d['nuvem_pequenos']['n_min']} to {d['nuvem_pequenos']['n_max']}\)",
          "nuvem dos pequenos"),
-        (rf"tipos com n ≥ 1\.000 \| \*\*{d['nuvem_grandes']['tipos']}\*\* "
-         rf"\(de 1\.046 a 32\.920\)", "nuvem dos grandes"),
+        (rf"types with n ≥ 1,000 \| \*\*{d['nuvem_grandes']['tipos']}\*\* "
+         rf"\(from 1,046 to 32,920\)", "nuvem dos grandes"),
     ):
         if not re.search(padrao, texto):
             fails.append(
@@ -1624,9 +1814,9 @@ def sem_guarda_check(root: Path) -> list[str]:
     afirmando os antigos sem que nada acusasse. O `--out` foi acrescentado em 30/08 e
     `out/SIZE-ROBUSTNESS-2026-08-30.json` é o primeiro artefato que eles têm.
     """
-    doc = root / "MANUSCRIPT.md"
+    doc = _manuscrito(root)
     if not doc.exists():
-        return ["MANUSCRIPT.md ausente"]
+        return [f"{doc.name} ausente"]
     texto = doc.read_text(encoding="utf-8")
     fails = []
 
@@ -1634,26 +1824,34 @@ def sem_guarda_check(root: Path) -> list[str]:
         return s in texto
 
     # ── (a) deriváveis: recomputadas, não copiadas ──────────────────────────
+    # 2026-10-05: literais em notação inglesa (`8.7`, `99.98`, `46,280`, `82.2`).
     SLOTS, CORPUS, DISTINTOS = 583_763, 67_187, 1_787
+    APAGADOS = 152
     NUNCA, PISO_NUNCA = 56_288, 10_008
 
-    cap = SLOTS / CORPUS                                   # 8,688…
-    if not afirma(f"{cap:.1f}".replace(".", ",")):
+    cap = SLOTS / CORPUS                                   # 8.688…
+    if not afirma(_en(cap, 1)):
         fails.append(f"capacidade: {SLOTS}/{CORPUS} = {cap:.1f}× e o texto não afirma")
-    cob = 100 * DISTINTOS / CORPUS                          # 2,659…
-    if not afirma(f"{cob:.2f}".replace(".", ",")):
-        fails.append(f"cobertura do brief: {cob:.2f}% ausente do texto")
+    # 🔴 2026-10-05, perna INVERTIDA. A v1.0 exigia `afirma("2,66")` = 1.787/67.187, a
+    # cobertura MISTA (numerador histórico, denominador vivo) que a errata de 2026-09-21
+    # corrigiu para 1.635/67.187 = 2,43%. Desde então o literal só sobrevivia no texto
+    # dentro da frase do §6.1 que narra o erro, e o guarda passava por causa da própria
+    # narração: exigia a presença da conta retirada. Agora exige a cobertura VIVA e
+    # deixa a proibição do 2.66% fora da narração ao `superficie_check` (perna 4).
+    cob = 100 * (DISTINTOS - APAGADOS) / CORPUS            # 2.433…
+    if not afirma(f"{_en(cob, 2)}%"):
+        fails.append(f"cobertura do brief (viva): {cob:.2f}% ausente do texto")
     # cobertura esperada se os mesmos slots fossem sorteados uniformemente
-    unif = 100 * (1 - (1 - 1 / CORPUS) ** SLOTS)             # 99,983…
-    if not afirma(f"{unif:.2f}".replace(".", ",")):
+    unif = 100 * (1 - (1 - 1 / CORPUS) ** SLOTS)             # 99.983…
+    if not afirma(_en(unif, 2)):
         fails.append(
             f"contrafactual uniforme: 1−(1−1/{CORPUS})^{SLOTS} = {unif:.2f}% e o texto "
-            f"não afirma — é o limite superior que dá sentido ao 2,66%")
-    abaixo = NUNCA - PISO_NUNCA                             # 46.280
-    if not afirma(f"{abaixo:,}".replace(",", ".")):
+            f"não afirma — é o limite superior que dá sentido à cobertura do brief")
+    abaixo = NUNCA - PISO_NUNCA                             # 46,280
+    if not afirma(_en(abaixo)):
         fails.append(f"nunca expostos abaixo do piso: {NUNCA}−{PISO_NUNCA} = {abaixo}")
-    frac = 100 * abaixo / NUNCA                             # 82,22…
-    if not afirma(f"{frac:.1f}".replace(".", ",")):
+    frac = 100 * abaixo / NUNCA                             # 82.22…
+    if not afirma(_en(frac, 1)):
         fails.append(f"fração abaixo do piso: {frac:.1f}% ausente do texto")
 
     # ── (b) artefatos que existiam e ninguém abria ──────────────────────────
@@ -1680,7 +1878,7 @@ def sem_guarda_check(root: Path) -> list[str]:
         # ⚠️ O texto arredonda: 36,29→36%, 80,29→80%. O guarda compara o VALOR do
         # artefato com o arredondamento que o texto usa, não a string — comparar
         # string faria o guarda morder o arredondamento honesto.
-        for g, alvo in (("seg", "4,86"), ("min", "36"), ("hora", "80")):
+        for g, alvo in (("seg", "4.86"), ("min", "36"), ("hora", "80")):
             if g not in tetos:
                 fails.append(f"teto: granularidade '{g}' ausente do artefato")
             elif not afirma(alvo):
@@ -1718,6 +1916,12 @@ def sem_guarda_check(root: Path) -> list[str]:
                                 "Pearson, 13 publicados")):
             if abs(got - alvo) > 0.0005:
                 fails.append(f"{rot}: artefato diz {got}, manuscrito afirma {alvo}")
+            # 2026-10-05: a v1.0 comparava o artefato ao literal deste arquivo e nunca
+            # conferia que o TEXTO afirma o literal; agora confere, em notação inglesa e
+            # com o sinal tipográfico que o texto usa (`−0.961`).
+            lit = f"{alvo:.3f}".replace("-", "−")
+            if not afirma(lit):
+                fails.append(f"{rot}: o manuscrito não afirma {lit}")
         # o argumento do §4.2 é que o β sobrevive ao filtro e o r não; se isso
         # inverter, a seção inteira muda de conclusão e o número sozinho não acusa.
         if abs(rob["correlacoes"]["spearman_15_todos"]) > 0.15:
@@ -1744,11 +1948,11 @@ def coorte_check(root: Path) -> list[str]:
     parágrafo.
     """
     art = root / "out" / "EXPOSURE-BY-COHORT-2026-08-29.json"
-    doc = root / "MANUSCRIPT.md"
+    doc = _manuscrito(root)
     if not art.exists():
         return [f"{art.name} ausente — a tabela de coortes do §4.1 não tem artefato"]
     if not doc.exists():
-        return ["MANUSCRIPT.md ausente"]
+        return [f"{doc.name} ausente"]
     d = json.loads(art.read_text(encoding="utf-8"))
     texto = doc.read_text(encoding="utf-8")
     fails = []
@@ -1760,19 +1964,21 @@ def coorte_check(root: Path) -> list[str]:
             f"os 56.288/83,78% do §4.1 — definição de 'exposto' divergiu entre os dois"
         )
 
-    # (2) cada linha, ancorada ao rótulo da coorte
-    rot = {"a) < 1 semana": r"\| < 1 semana \|", "b) 1-4 semanas": r"\| 1–4 semanas \|",
-           "c) 4-12 semanas": r"\| 4–12 semanas \|",
-           "d) > 12 semanas": r"\| \*\*> 12 semanas\*\* \|"}
+    # (2) cada linha, ancorada ao rótulo da coorte.
+    # 2026-10-05: rótulos ("week"/"weeks") e notação (`61,325`, `85.50%`) da v1.1; as
+    # chaves são as do artefato, que continua em português.
+    rot = {"a) < 1 semana": r"\| < 1 week \|", "b) 1-4 semanas": r"\| 1–4 weeks \|",
+           "c) 4-12 semanas": r"\| 4–12 weeks \|",
+           "d) > 12 semanas": r"\| \*\*> 12 weeks\*\* \|"}
     for l in d["por_coorte"]:
         pref = rot.get(l["coorte"])
         if pref is None:
             fails.append(f"coorte {l['coorte']!r} sem âncora declarada neste guarda")
             continue
         n, k = l["chunks"], l["nunca_expostos"]
-        pct = f"{l['pct_nunca_exposto']:.2f}".replace(".", ",")
-        # milhar com ponto, como o documento escreve
-        fn, fk = f"{n:,}".replace(",", "."), f"{k:,}".replace(",", ".")
+        pct = _en(l["pct_nunca_exposto"], 2)
+        # milhar com vírgula, como o documento (inglês) escreve
+        fn, fk = _en(n), _en(k)
         if not re.search(pref + rf"[^|]*{re.escape(fn)}[^|]*\|[^|]*{re.escape(fk)}"
                          rf"[^|]*\|[^|]*{re.escape(pct)}%", texto):
             fails.append(
@@ -1817,10 +2023,12 @@ def coorte_check(root: Path) -> list[str]:
                 f"coorte mede {piso['nunca_expostos']} — populações divergiram"
             )
         cm = f"{dom['comprimento_medio']:.0f}"
-        pc = str(dom["pct_do_piso"]).replace(".", ",")
-        alvo = (rf"\*\*{dom['chunks']:,}".replace(",", r"\.") +
-                rf" \({re.escape(pc)}%\) são `{dom['tipo']}`\*\*: fragmentos de sessão "
-                rf"de \*\*{cm} caracteres\*\*")
+        pc = str(dom["pct_do_piso"])
+        # 2026-10-05: a v1.0 punha o par em negrito ("**8.928 (89,2%) são `distilled`**:
+        # fragmentos de sessão de **232 caracteres**"); a v1.1 escreve sem negrito e a
+        # âncora segue nas mesmas palavras vizinhas.
+        alvo = (rf"{re.escape(_en(dom['chunks']))} \({re.escape(pc)}%\) are "
+                rf"`{dom['tipo']}`: session fragments averaging\s*\n?{cm} characters")
         if not re.search(alvo, texto):
             fails.append(
                 f"§4.1: a qualificação deveria ler {dom['chunks']} ({pc}%) `{dom['tipo']}` "
@@ -1829,7 +2037,7 @@ def coorte_check(root: Path) -> list[str]:
         # a média do tipo inteiro só pode aparecer marcada COMO a do tipo inteiro
         mc = f"{cc['no_corpus_inteiro']['comprimento_medio']:.0f}"
         if mc in texto and not re.search(
-                rf"\*\*{mc}\*\* caracteres,? que é a média de\s*\n?\*\*todos os", texto):
+                rf"{mc} characters, which is the mean of\s*\n?all ", texto):
             fails.append(
                 f"§4.1: {mc} aparece sem estar marcado como a média do tipo INTEIRO — "
                 f"é exatamente a confusão de população de 27/08"
@@ -1839,10 +2047,12 @@ def coorte_check(root: Path) -> list[str]:
     #      ficam ABAIXO do piso. Recomputado, não ancorado — é derivado de dois
     #      números que este mesmo guarda já trava.
     abaixo = d["nunca_expostos"] - d["condicionado_ao_piso"]["nunca_expostos"]
-    fabaixo = f"{abaixo:,}".replace(",", ".")
-    pabaixo = f"{100 * abaixo / d['nunca_expostos']:.1f}".replace(".", ",")
-    if not re.search(rf"\*\*{re.escape(fabaixo)} — {re.escape(pabaixo)}% — não passam nem "
-                     rf"esse piso", texto):
+    fabaixo = _en(abaixo)
+    pabaixo = _en(100 * abaixo / d["nunca_expostos"], 1)
+    # 2026-10-05: "**46.280 — 82,2% — não passam nem esse piso" → "46,280 (82.2%) do not
+    # pass even this importance floor".
+    if not re.search(rf"{re.escape(fabaixo)} \({re.escape(pabaixo)}%\) do not pass even "
+                     rf"this\s*\n?importance floor", texto):
         fails.append(
             f"§4.1: o complementar recomputa {fabaixo} ({pabaixo}%) — não casa ancorado "
             f"ao seu rótulo; texto e artefato divergiram"
@@ -1855,11 +2065,12 @@ def coorte_check(root: Path) -> list[str]:
     # vale 52.432. Terceira vez em um dia que escrevo um guarda sobre variável
     # ligada noutro escopo — o diagnóstico saiu com o número errado e apontou para
     # o lugar errado. Expressão direta.
-    nfk = f"{d['condicionado_ao_piso']['nunca_expostos']:,}".replace(",", ".")
-    frac = f"{100 * d['condicionado_ao_piso']['nunca_expostos'] / d['corpus']:.1f}"
-    frac = frac.replace(".", ",")
-    if not re.search(rf"\*\*sobram {nfk} chunks — {re.escape(frac)}% do\s*\n?corpus\*\*",
-                     texto):
+    nfk = _en(d["condicionado_ao_piso"]["nunca_expostos"])
+    frac = _en(100 * d["condicionado_ao_piso"]["nunca_expostos"] / d["corpus"], 1)
+    # 2026-10-05: "**sobram 10.008 chunks — 14,9% do corpus**" → "10,008 chunks remain
+    # (14.9% of the corpus)".
+    if not re.search(rf"{re.escape(nfk)} chunks remain \({re.escape(frac)}% of the\s*\n?"
+                     rf"corpus\)", texto):
         fails.append(
             f"§4.1: a fração do corpus recomputa {frac}% de {nfk} chunks — não casa "
             f"ancorada ao rótulo; 'um décimo' foi a forma errada desse número"
@@ -1870,19 +2081,22 @@ def coorte_check(root: Path) -> list[str]:
     # e `f"{pf}%" in texto` foi satisfeito pela outra quando a mutação alterou só uma
     # (M4, 29/08, não mordeu). Cada ocorrência tem de ser ancorada ao SEU contexto.
     p = d["condicionado_ao_piso"]
-    pf = f"{p['pct']:.2f}".replace(".", ",")
-    fk = f"{p['nunca_expostos']:,}".replace(",", ".")
-    fn = f"{p['chunks']:,}".replace(",", ".")
+    pf = _en(p["pct"], 2)
+    fk = _en(p["nunca_expostos"])
+    fn = _en(p["chunks"])
     for padrao, onde in (
         # ⚠️ "considera elegível" foi para "passa o piso de importância" em 30/08:
         # passar o piso é UMA das três condições do canal (piso + padrão de caminho +
         # janela), e o pool elegível de fato é 108, não 13.388. Terceira redação deste
         # rótulo, e as duas anteriores eram falsas em graus diferentes.
-        (rf"### 4\.1 [^\n]*{re.escape(pf)}% do que passa o piso de importância",
-         "título do §4.1"),
-        (rf"{re.escape(fn)} chunks que passam o piso de\s*\n?elegibilidade do "
-         rf"\*\*canal de cobertura\*\*", "denominador, com o canal nomeado"),
-        (rf"\*\*{re.escape(fk)} = {re.escape(pf)}% nunca foram expostos\*\*",
+        # 2026-10-05: portado para o inglês da v1.1. A co-manchete mudou de predicado
+        # de propósito — "nunca foram expostos" virou "have no exposure record" (§3.1:
+        # a contagem é exata sobre a ausência de REGISTRO, não sobre a exposição).
+        (rf"### 4\.1 [^\n]*{re.escape(pf)}% of what passes the coverage channel's "
+         rf"importance floor", "título do §4.1"),
+        (rf"of the {re.escape(fn)} chunks that pass the importance\s*\n?floor of the "
+         rf"coverage channel", "denominador, com o canal nomeado"),
+        (rf"{re.escape(fk)} = {re.escape(pf)}% have no exposure record",
          "co-manchete no parágrafo"),
     ):
         if not re.search(padrao, texto):
@@ -1912,47 +2126,73 @@ def remissao_check(root: Path) -> list[str]:
     se fosse constante vira falsidade por decurso de prazo.
     """
     fails: list[str] = []
-    texto = (root / "MANUSCRIPT.md").read_text(encoding="utf-8")
+    texto = _texto_manuscrito(root)
 
+    # 2026-10-05: na v1.1 o Apêndice H virou o **Apêndice F** ("Correction history"),
+    # e as remissões viraram `↩ F-n`. Sem este porte as pernas (1) e (2) passavam
+    # VAZIAS no texto inglês: o regex `↩ (H-…)` não casava nada, e "nenhuma remissão
+    # quebrada" saía de "nenhuma remissão lida" — a classe da regra 9.
     # (1) toda remissão acha a sua entrada
     # ⚠️ A primeira versão usava `(H-[\d.]+?)(?=[\s).,])` — lazy, com o PONTO dentro da
     # classe do lookahead. Em `↩ H-3.9` ela casava `H-3` e parava, e `### H-3 —` existe:
     # a perna nunca podia falhar. Foi achada exigindo a MENSAGEM da mutação e não a
     # contagem de falhas — a mutação disparava, mas pela perna (2), e o placar dizia
     # "3/3 mordem". Guarda cujo predicado não alcança o defeito é decoração.
-    for alvo in sorted(set(re.findall(r"↩ (H-\d+(?:\.\d+)*)", texto))):
-        # entrada de nível 1 é `### H-2 —`; de nível 2 é `**H-3.4 · `
+    remissoes = sorted(set(re.findall(r"↩ (F-\d+(?:\.\d+)*)", texto)))
+    if not remissoes:
+        fails.append("Apêndice F: nenhuma remissão `↩ F-n` no texto — ou o formato mudou "
+                     "e este guarda não lê mais nada, ou as remissões saíram do corpo")
+    for alvo in remissoes:
+        # entrada de nível 1 é `### F-2 —`; de nível 2 é `**F-3.4 · `
         if not re.search(rf"^### {re.escape(alvo)} —", texto, re.M) and \
            not re.search(rf"^\*\*{re.escape(alvo)} · ", texto, re.M):
             fails.append(
-                f"Apêndice H: a remissão `↩ {alvo}` não tem entrada — o leitor que a "
+                f"Apêndice F: a remissão `↩ {alvo}` não tem entrada — o leitor que a "
                 f"seguir não acha a explicação, e nada no documento denuncia"
             )
 
-    # (2) e nenhuma entrada H-3.x fica órfã: se ninguém remete a ela, ela virou
+    # (2) e nenhuma entrada F-3.x fica órfã: se ninguém remete a ela, ela virou
     #     material solto no apêndice em vez de correção de um ponto do texto.
-    for entrada in sorted(set(re.findall(r"^\*\*(H-3\.\d+) · ", texto, re.M))):
+    for entrada in sorted(set(re.findall(r"^\*\*(F-3\.\d+) · ", texto, re.M))):
         if f"↩ {entrada}" not in texto:
             fails.append(
-                f"Apêndice H: {entrada} existe e ninguém remete a ela — retratação sem "
+                f"Apêndice F: {entrada} existe e ninguém remete a ela — retratação sem "
                 f"o ponto do corpo que ela corrige"
             )
 
-    # (3) a densidade: recomputada do artefato, e o Apêndice H tem de citá-la
+    # (3) a densidade: recomputada do artefato, e o Apêndice F tem de citá-la.
+    # 2026-10-05: "**91 de 297 parágrafos marcados (30,6%)**" → "91 of 297 paragraphs
+    # were marked (30.6%)". A v1.1 acrescenta a recontagem de 2026-10-03 sobre o texto
+    # português de 2.058 linhas (corpo 100/307, documento 119/363) com artefato próprio;
+    # ela é travada aqui também (perna 3b). As duas contagens são do texto PORTUGUÊS — o
+    # próprio Apêndice F diz que a tradução precisa de medição própria.
     art = root / "out" / "WARNING-DENSITY-2026-08-30.json"
     if not art.exists():
-        fails.append(f"{art.name} ausente — a densidade do Apêndice H volta a ser prosa")
+        fails.append(f"{art.name} ausente — a densidade do Apêndice F volta a ser prosa")
         return fails
     d = json.loads(art.read_text(encoding="utf-8"))
-    pct = str(d["pct_corpo_marcado"]).replace(".", ",")
-    padrao = (rf"\*\*{d['corpo_marcados']} de {d['paragrafos_do_corpo']}\s*\n?"
-              rf"par[áa]grafos marcados \({re.escape(pct)}%\)\*\*")
+    pct = _en(d["pct_corpo_marcado"], 1)
+    padrao = (rf"{d['corpo_marcados']} of {d['paragrafos_do_corpo']}\s*\n?"
+              rf"paragraphs were marked \({re.escape(pct)}%\)")
     if not re.search(padrao, texto):
         fails.append(
-            f"Apêndice H: a densidade recomputa {d['corpo_marcados']} de "
+            f"Apêndice F: a densidade recomputa {d['corpo_marcados']} de "
             f"{d['paragrafos_do_corpo']} ({pct}%) e o texto não diz isso ancorado "
             f"(/{padrao}/ não casa) — o número do apêndice envelheceu"
         )
+    rec = root / "_sprint-2026-10-04" / "A-aging" / "WARNING-DENSITY-recomputed-2026-10-03.json"
+    if rec.exists():
+        r = json.loads(rec.read_text(encoding="utf-8"))
+        for pad, rot in (
+                (rf"the body has\s*\n?{r['corpo_marcados']} of {r['paragrafos_do_corpo']} "
+                 rf"marked \({re.escape(_en(r['pct_corpo_marcado'], 1))}%\)", "corpo"),
+                (rf"the whole document {r['paragrafos_marcados']} of {r['paragrafos']} "
+                 rf"\({re.escape(_en(r['pct_paragrafos_marcados'], 1))}%\)", "documento")):
+            if not re.search(pad, texto):
+                fails.append(f"Apêndice F: a recontagem de 2026-10-03 ({rot}) não casa "
+                             f"ancorada (/{pad}/) — {rec.name} e o texto divergiram")
+    elif "WARNING-DENSITY-recomputed-2026-10-03.json" in texto:
+        fails.append(f"Apêndice F cita {rec.name} e o arquivo não existe")
     return fails
 
 
@@ -1967,59 +2207,105 @@ def deposito_check(root: Path) -> list[str]:
 
     ⚠️ A description NÃO pode citar um número que o manuscrito não contenha, e as
     contagens do pacote são recomputadas do disco, nunca lidas do texto.
+
+    2026-10-05 — portado para a v1.1 (10.5281/zenodo.23163119): lê
+    `deposit/paperA-v1.1/description-v1.1.html` e `MANIFEST-v1.1.json`, e o manuscrito
+    é o texto inglês. Duas pernas da v1.0 foram APOSENTADAS, com razão:
+
+      * a perna inteira sobre `deposit/paperA/description.html` (pt) — os dois lados
+        dela estão congelados (a description da v1.0 é registro publicado e o texto
+        português virou `MANUSCRIPT-v1.0-pt.md`), então ela compararia dois arquivos
+        imutáveis entre si, e a description da v1.0 cita uma contagem de guardas que
+        este próprio PR muda;
+      * a contagem de guardas — a description v1.1 só a cita na seção v1.0 traduzida
+        ("19 guards", o verificador PUBLICADO da v1.0, sha256 `fff34edd…` no
+        MANIFEST v1.0, que não está no repositório para ser recontado) e a seção v1.1
+        declara que o verificador do pacote é o da v1.0. Nenhum metadado da v1.1
+        afirma o número de guardas deste arquivo, logo não há afirmação a travar.
+
+    E uma perna NOVA, porque a v1.1 a afirma: "the deposited manuscript is byte for
+    byte the final draft" — o `MANUSCRIPT.md` da raiz tem de ser byte a byte o `.md`
+    depositado, com o sha256 do manifesto. Ela lê sempre `root/MANUSCRIPT.md`, não o
+    `--manuscript`: senão toda cópia mutada "seria pega" por esta perna e o teste de
+    mutação dos outros guardas deixaria de medir alguma coisa.
     """
     fails: list[str] = []
-    desc = root / "deposit" / "paperA" / "description.html"
+    dep = root / "deposit" / "paperA-v1.1"
+    desc = dep / "description-v1.1.html"
     if not desc.exists():
         return []  # pacote ainda não montado — não é defeito
     d = desc.read_text(encoding="utf-8")
-    texto = (root / "MANUSCRIPT.md").read_text(encoding="utf-8")
+    texto = _texto_manuscrito(root)
 
-    # (1) todo número da description existe no manuscrito
+    # (1) todo número da description existe no manuscrito (notação inglesa)
     for n in sorted({m for m in re.findall(
-            r"\b\d{1,3}(?:\.\d{3})+\b|\b\d+,\d+%|\b\d+,\d+\b|\b\d{2,3}%", d)}):
+            r"\b\d{1,3}(?:,\d{3})+\b|\b\d+\.\d+%|\b\d+\.\d+\b|\b\d{2,3}%", d)}):
         if n not in texto:
             fails.append(
                 f"depósito: a description cita {n!r} e o manuscrito não — número que "
-                f"iria para um registro imutável sem estar no paper"
+                f"foi para um registro imutável sem estar no paper"
             )
 
-    # (2) a contagem de defeitos: recomputada do §6 e do Apêndice E via o texto que o
-    #     `catalogo_check` já trava, não recontada aqui (contador ad-hoc ao lado do
-    #     instrumento validado é a classe de 2026-08-30).
-    m6 = re.search(r"as \*\*(\w+) que mudaram um número", texto)
-    mE = re.search(r"As (\w+) do §6 mais as (\w+) abaixo", texto)
-    if m6 and mE:
-        if not re.search(rf"<strong>17 defeitos de instrumento</strong>", d):
-            fails.append("depósito: a description não diz 17 defeitos ancorado")
+    # (2) a contagem de defeitos: lida do texto que o `catalogo_check` já trava, não
+    #     recontada aqui (contador ad-hoc ao lado do instrumento validado é a classe de
+    #     2026-08-30), e o TOTAL recomputado das duas parcelas em vez de escrito à mão.
+    extenso = {"seven": 7, "eight": 8, "nine": 9, "ten": 10}
+    m6 = re.search(r"Here are the (\w+) that changed a number", texto)
+    mE = re.search(r"The (\w+) of §6 plus the (\w+) below", texto)
+    if not (m6 and mE):
+        fails.append("depósito: não achei as contagens do §6 e do Apêndice E no texto — "
+                     "a comparação com a description não pode rodar")
+    else:
+        n6 = extenso.get(m6.group(1))
+        nE = extenso.get(mE.group(2))
+        if n6 is None or nE is None:
+            fails.append(f"depósito: contagens por extenso não reconhecidas "
+                         f"({m6.group(1)!r}, {mE.group(2)!r})")
+        elif not re.search(rf"<strong>{n6 + nE} instrument defects</strong>", d):
+            fails.append(f"depósito: a description não diz {n6 + nE} defeitos ancorado")
         # ⚠️ Ancorado ao CONTEXTO, não à presença da palavra. A primeira versão fazia
         # `if m6.group(1) not in d`, e a mutação oito→doze passou ileso porque "oito"
-        # também aparece em "oito estão acima de 32,5%". Presença de substring no
+        # também aparecia em "oito estão acima de 32,5%". Presença de substring no
         # documento concatenado é decoração — a mesma lição de 2026-08-26/27.
-        if not re.search(rf"\b{re.escape(m6.group(1))} deles alterando números", d):
+        if not re.search(rf"\b{re.escape(m6.group(1))} of them altering numbers", d):
             fails.append(
                 f"depósito: o §6 diz {m6.group(1)!r} defeitos que mudaram números e a "
                 f"description não diz isso ancorado — as duas contagens divergiram"
             )
 
-    # (3) contagens do pacote: recomputadas do disco
-    man = root / "deposit" / "paperA" / "MANIFEST.json"
-    if man.exists():
-        itens = [i["path"] for i in json.loads(man.read_text(encoding="utf-8"))["itens"]]
-        for pref, rot in (("out/", "artefatos"), ("measurement/", "scripts")):
-            n = sum(1 for p in itens if p.startswith(pref))
-            if not re.search(rf"\b{n}\b", d):
+    # (3) contagens do pacote: recomputadas do manifesto v1.1
+    man = dep / "MANIFEST-v1.1.json"
+    if not man.exists():
+        fails.append(f"{man.name} ausente — a description v1.1 descreve um pacote sem manifesto")
+        return fails
+    m = json.loads(man.read_text(encoding="utf-8"))
+    itens = m["itens"]
+    for zipname in ("artefatos-v1.1.zip", "scripts-v1.1.zip"):
+        n = sum(1 for i in itens if i.get("no_deposito") == zipname)
+        if not re.search(rf"<code>{re.escape(zipname)}</code> \({n} files", d):
+            fails.append(
+                f"depósito: o manifesto põe {n} arquivos em {zipname} e a description não "
+                f"diz esse número ancorado — recomputado do manifesto"
+            )
+
+    # (4) o manuscrito promovido é byte a byte o depositado (ver docstring)
+    md = next((i for i in itens if i["path"].endswith(".md") and i.get("no_deposito") == "solto"),
+              None)
+    if md is None:
+        fails.append(f"{man.name}: nenhum .md solto — o manuscrito depositado não está pinado")
+    else:
+        depositado = dep / md["path"]
+        promovido = root / "MANUSCRIPT.md"
+        for f, rot in ((depositado, "depositado"), (promovido, "MANUSCRIPT.md")):
+            if not f.exists():
+                fails.append(f"depósito: {f.name} ({rot}) ausente")
+                continue
+            sha = hashlib.sha256(f.read_bytes()).hexdigest()
+            if sha != md["sha256"]:
                 fails.append(
-                    f"depósito: o pacote tem {n} {rot} em {pref} e a description não "
-                    f"diz esse número — recomputado do manifesto"
+                    f"depósito: sha256 de {f.name} ({rot}) é {sha[:16]}…, o manifesto pina "
+                    f"{md['sha256'][:16]}… — o texto guardado não é o texto publicado"
                 )
-    guardas = len(re.findall(r"^def (\w+_check)\(",
-                             (root / "claims_check.py").read_text(encoding="utf-8"), re.M))
-    if not re.search(rf"<code>claims_check\.py</code>,\s*\n?{guardas}\s*\n?guardas", d):
-        fails.append(
-            f"depósito: são {guardas} guardas e a description não diz isso ancorado — "
-            f"o número muda toda vez que um guarda entra"
-        )
     return fails
 
 
@@ -2074,11 +2360,24 @@ def escolha_check(root: Path) -> list[str]:
         r"(fica|permanece|segue|continua)[^.]{0,20}abert",
         re.I,
     )
-    for md in sorted(root.glob("*.md")):
+    # 2026-10-05: o manuscrito passou a ser inglês. Os padrões em português continuam
+    # valendo para os documentos de trabalho (todos em português); para o MANUSCRITO a
+    # mesma reabertura é procurada em inglês, senão o guarda deixaria de cobrir o
+    # único documento que mudou de idioma. Escopo deliberadamente restrito ao
+    # manuscrito: estender o inglês aos outros documentos é outra decisão, não porte.
+    REABRE_EN = re.compile(
+        r"(analysis choice|choice of analysis|analysis of Epoch 1|Epoch 1 analysis)"
+        r"[^.]{0,80}(remains|stays|is still|is left)[^.]{0,20}open",
+        re.I,
+    )
+    manu = _manuscrito(root).resolve()
+    alvos = sorted({p.resolve() for p in root.glob("*.md")} | {manu})
+    for md in alvos:
         if md.name in DATADOS:
             continue
+        padroes = (REABRE, REABRE_EN) if md.resolve() == manu else (REABRE,)
         for i, linha in enumerate(md.read_text().split("\n"), 1):
-            if REABRE.search(linha):
+            if any(p.search(linha) for p in padroes):
                 fails.append(
                     f"{md.name}:{i}: volta a chamar a escolha de análise do Epoch 1 "
                     f"de aberta, e ela foi fechada em 2026-09-04 — `{linha.strip()[:70]}`"
@@ -2148,9 +2447,24 @@ def comecou_check(root: Path) -> list[str]:
         r"|rodada 31774052",             # a rodada drand da randomização
     )
 
+    # 2026-10-05: o manuscrito passou a ser inglês. Para ELE (e só para ele — os
+    # documentos de trabalho seguem em português, e estender o inglês a eles é outra
+    # decisão) os padrões portugueses viram estes, com a mesma força: frase de estado
+    # sobre o ensaio, não palavra solta.
+    PADROES_EN = (
+        r"[Tt]he (?:study|trial) \*\*has not (?:yet )?started\*\*",
+        r"[Tt]he (?:study|trial) has not (?:yet )?started",
+        r"no randomi[sz]ed epoch exists",
+        r"no arm has been assigned",
+        r"zero randomi[sz]ed epochs",
+    )
+    manu = _manuscrito(root).resolve()
+
     fails: list[str] = []
-    for p in sorted(list(root.rglob("*.md")) + list(root.rglob("*.html"))):
-        rel = p.relative_to(root).as_posix()
+    raiz = root.resolve()
+    for p in sorted({q.resolve() for q in list(root.rglob("*.md")) + list(root.rglob("*.html"))}
+                    | {manu}):
+        rel = p.relative_to(raiz).as_posix() if p.is_relative_to(raiz) else p.name
         if "_archive" in rel or "/_archive/" in rel:
             continue
         if p.name in DATADOS:
@@ -2158,7 +2472,7 @@ def comecou_check(root: Path) -> list[str]:
         texto = p.read_text(encoding="utf-8", errors="replace")
         if CORRECAO.search(texto):
             continue                     # documento traz a correção datada e verificável
-        for pat in PADROES:
+        for pat in PADROES + (PADROES_EN if p.resolve() == manu else ()):
             for m in re.finditer(pat, texto):
                 # tachado ou marcado como superado não conta
                 ctx = texto[max(0, m.start() - 120): m.end() + 200]
@@ -2187,7 +2501,7 @@ def estrutura_check(root: Path) -> list[str]:
     Este é genérico de propósito. Travar "a 5.7.2 fica entre a 5.7.1 e a §6" resolveria
     o caso e deixaria a classe viva; a classe é *subseção fora da sua seção*.
     """
-    texto = (root / "MANUSCRIPT.md").read_text(encoding="utf-8")
+    texto = _texto_manuscrito(root)
     linhas = texto.splitlines()
     fails: list[str] = []
 
@@ -2585,7 +2899,13 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--show", action="store_true", help="print the recomputed table")
     ap.add_argument("--root", default=str(Path(__file__).parent))
+    ap.add_argument("--manuscript", default=None,
+                    help="manuscript to check (default: $P2_MANUSCRIPT, else ROOT/MANUSCRIPT.md)")
     args = ap.parse_args()
+    if args.manuscript:
+        # exported, not passed around: the censuses run as subprocesses and must read
+        # the same file, or a mutation test would mutate one text and census another.
+        os.environ[MANUSCRIPT_ENV] = str(Path(args.manuscript).resolve())
 
     if args.show:
         show()

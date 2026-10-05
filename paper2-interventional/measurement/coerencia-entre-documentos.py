@@ -31,32 +31,48 @@ Uso:
 """
 import argparse
 import json
+import os
 import pathlib
 import re
 import sys
 
-# Rótulo canônico → (padrão que o localiza, valor vigente no manuscrito).
+# Rótulo canônico → (padrão PT, padrão EN, valor vigente no manuscrito).
 # Só entram números que o manuscrito AFIRMA hoje; um número que só existe no
 # histórico não tem valor canônico contra o qual divergir.
+#
+# 2026-10-05: o manuscrito da v1.1 é inglês, e os documentos de trabalho seguem em
+# português. Cada rótulo passou a ter os dois localizadores, e a comparação é por
+# VALOR NUMÉRICO normalizado pela notação do localizador que casou (pt: `.` milhar e
+# `,` decimal; en: o inverso) — comparar a string compararia notações, não números.
+# O valor vigente é conferido contra o manuscrito na notação inglesa dele.
 CANONICOS = [
-    ("corpus vivo", r"67\.187", "67.187"),
-    ("nunca expostos", r"56\.288", "56.288"),
-    ("taxa de não-exposição", r"83,78\s*%", "83,78%"),
-    ("slots acumulados", r"583\.\d{3}", "583.763"),
-    ("distintos no brief", r"1\.787", "1.787"),
-    ("pool elegível do canal", r"\b108\b(?!\d)", "108"),
-    ("teto do canal", r"4,86\s*%", "4,86%"),
-    ("teto sob outro sorteio", r"7,43\s*%", "7,43%"),
-    ("elegíveis nunca expostos", r"10\.008", "10.008"),
-    ("chunks que passam o piso", r"13\.388", "13.388"),
-    ("estados do replay", r"350 de 350|350 estados", "350"),
+    ("corpus vivo", r"67\.187", r"67,187", "67,187"),
+    ("nunca expostos", r"56\.288", r"56,288", "56,288"),
+    ("taxa de não-exposição", r"83,78\s*%", r"83\.78\s*%", "83.78%"),
+    ("slots acumulados", r"583\.\d{3}", r"583,\d{3}", "583,763"),
+    ("distintos no brief", r"1\.787", r"1,787", "1,787"),
+    ("pool elegível do canal", r"\b108\b(?!\d)", r"\b108\b(?![\d,])", "108"),
+    ("teto do canal", r"4,86\s*%", r"4\.86\s*%", "4.86%"),
+    ("teto sob outro sorteio", r"7,43\s*%", r"7\.43\s*%", "7.43%"),
+    ("elegíveis nunca expostos", r"10\.008", r"10,008", "10,008"),
+    ("chunks que passam o piso", r"13\.388", r"13,388", "13,388"),
+    ("estados do replay", r"350 de 350|350 estados", r"350 of 350|350 states", "350"),
 ]
+
+
+def _valor(cru: str, ingles: bool) -> float:
+    cru = cru.rstrip(".,")
+    limpo = cru.replace(",", "") if ingles else cru.replace(".", "").replace(",", ".")
+    return float(limpo)
+
 
 # Documentos que registram estado ANTERIOR por desenho: divergência neles é o
 # histórico funcionando, não defeito.
 HISTORICOS = re.compile(
     r"(RETRACTION|AMENDMENT|REMEDIATION|DEVIATIONS|DECISION-|PREREG|"
-    r"-DRAFT|DEFECT|_archive|HANDOFF|SPLIT|SEED)", re.I)
+    r"-DRAFT|DEFECT|_archive|HANDOFF|SPLIT|SEED|"
+    # 2026-10-05: o texto português da v1.0, congelado ao ser substituído pelo inglês
+    r"-v1\.0-pt)", re.I)
 
 
 def main():
@@ -64,18 +80,21 @@ def main():
     ap.add_argument("--raiz", default=str(pathlib.Path(__file__).resolve().parent.parent))
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--out")
+    # o manuscrito: `--doc`, senão `$P2_MANUSCRIPT`, senão RAIZ/MANUSCRIPT.md
+    ap.add_argument("--doc", default=os.environ.get("P2_MANUSCRIPT"))
     a = ap.parse_args()
 
     raiz = pathlib.Path(a.raiz)
-    docs = sorted(p for p in raiz.glob("*.md") if p.name != "MANUSCRIPT.md")
-    manu = raiz / "MANUSCRIPT.md"
+    manu = pathlib.Path(a.doc) if a.doc else raiz / "MANUSCRIPT.md"
     if not manu.exists():
-        print("⛔ MANUSCRIPT.md não encontrado", file=sys.stderr)
+        print(f"⛔ {manu} não encontrado", file=sys.stderr)
         return 1
+    docs = sorted(p for p in raiz.glob("*.md")
+                  if p.name != "MANUSCRIPT.md" and p.resolve() != manu.resolve())
     texto_manu = manu.read_text(encoding="utf-8")
 
     # (0) o canônico tem de estar no manuscrito; se não estiver, a lista envelheceu
-    fora = [rot for rot, pat, val in CANONICOS if val not in texto_manu]
+    fora = [rot for rot, _pt, _en, val in CANONICOS if val not in texto_manu]
     if fora:
         print(f"⛔ valor(es) canônico(s) ausente(s) do manuscrito: {fora} — a lista "
               f"deste script envelheceu junto com o texto.", file=sys.stderr)
@@ -89,26 +108,32 @@ def main():
             t = doc.read_text(encoding="utf-8")
         except Exception:
             continue
-        for rot, pat, canon in CANONICOS:
-            for m in re.finditer(pat, t):
-                # ⚠️ Comparar a FRASE casada com o valor canônico dá falso positivo:
-                # "350 de 350" normalizado vira "350de350", que difere de "350". O que
-                # se compara é o NÚMERO, extraído do match — a frase é só o localizador.
-                num = re.search(r"\d[\d.,]*", m.group(0))
-                if not num:
-                    continue
-                visto = num.group(0).rstrip(".,")
-                examinadas += 1
-                if visto == canon.rstrip("%").strip():
-                    continue
-                item = {
-                    "documento": doc.name, "rotulo": rot,
-                    "canonico": canon, "encontrado": visto,
-                    "linha": t[:m.start()].count("\n") + 1,
-                    "contexto": t[max(0, m.start() - 80):m.end() + 60]
-                                 .replace("\n", " ").strip(),
-                }
-                (historicos if HISTORICOS.search(doc.name) else achados).append(item)
+        for rot, pat_pt, pat_en, canon in CANONICOS:
+            alvo = _valor(canon.rstrip("%").strip(), ingles=True)
+            vistos_ini = set()
+            for pat, ingles in ((pat_pt, False), (pat_en, True)):
+                for m in re.finditer(pat, t):
+                    if m.start() in vistos_ini:      # mesmo trecho casado pelos dois localizadores
+                        continue
+                    vistos_ini.add(m.start())
+                    # ⚠️ Comparar a FRASE casada com o valor canônico dá falso positivo:
+                    # "350 de 350" normalizado vira "350de350", que difere de "350". O que
+                    # se compara é o NÚMERO, extraído do match — a frase é só o localizador.
+                    num = re.search(r"\d[\d.,]*", m.group(0))
+                    if not num:
+                        continue
+                    visto = num.group(0).rstrip(".,")
+                    examinadas += 1
+                    if abs(_valor(visto, ingles) - alvo) < 1e-9:
+                        continue
+                    item = {
+                        "documento": doc.name, "rotulo": rot,
+                        "canonico": canon, "encontrado": visto,
+                        "linha": t[:m.start()].count("\n") + 1,
+                        "contexto": t[max(0, m.start() - 80):m.end() + 60]
+                                     .replace("\n", " ").strip(),
+                    }
+                    (historicos if HISTORICOS.search(doc.name) else achados).append(item)
 
     saida = {
         "documentos_varridos": len(docs),
