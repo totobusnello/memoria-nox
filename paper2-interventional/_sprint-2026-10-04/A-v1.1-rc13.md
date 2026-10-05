@@ -59,8 +59,8 @@ goes up. The 3 chunks present in 100% of the 4,632 briefs of the week rank 1, 3 
 salience among the 149 served chunks that still exist (last accessed 42, 90 and 30 days before
 the close of the window, 2026-08-28; §4.3.2). With the access term zeroed they fall to ranks
 44–46: tracked search traffic from months ago (§3.1) is necessary for their observed salience
-ranks in the measured counterfactual. The high-pain pin selects them in phase 0, before the quota
-pass, but it protects only items that the score has already placed there (`brief.ts:819-821`), and lifting it
+ranks in the measured counterfactual. The high-pain pin places them first in every brief, but it
+protects only items that the score has already placed there (`brief.ts:819-821`), and lifting it
 removes only one of the three from the main set (§4.3.2). The top-10 takes 47.16% of the slots. The other 2 slots are a *coverage* channel, whose declared
 purpose is to serve the never-served, and it freezes for a different reason:
 its eligible population is 108 chunks in a corpus of 67,187 (0.16%, carved out by
@@ -137,7 +137,7 @@ the identical set from 2026-08-24 to 2026-09-19, from 5,376 main slots on a 672-
 
 We examined them, and we located the concentration. The 8 slots of the main pool
 converge: 3 chunks appear in 100% of briefs (measured over 2026-08-21 to 09-21, §4.3.1). The
-high-pain pin (`pain ≥ 0.9`) selects them in phase 0, before the quota pass, and they fill the three shared main-pool slots; it protects
+high-pain pin (`pain ≥ 0.9`) places them first, in the three shared main-pool slots; it protects
 only what the score has already placed in the brief, and it is measured as necessary for
 main-set membership for one of the three (§4.3.2). The top-10 takes 47.16% of a week's slots. The remaining 2
 slots are a coverage channel, which exists precisely to serve the never-served.
@@ -146,18 +146,16 @@ That channel has two distinct constraints: eligibility (path patterns, the impor
 1. **Calendar:** the channel cuts by age, and ingestion arrives in batches. Between
    batches no new item enters the coverage pool (on 2026-08-26 to 08-29 its per-agent
    sub-pool held 0 eligible chunks and its global sub-pool 108, §4.3.1), and the channel
-   serves the same set for days: the serving log shows the same 108 coverage-side ids on
-   every day from 2026-08-23 to 2026-08-29 (`A-rc2/COVERAGE-SET-FROM-LOG-2026-10-04.json`).
-   Separately, counting serves across both channels, the batch of 2026-08-21 to 08-22
-   contributed 108 distinct chunks a day from 2026-08-22 to 2026-08-29, except 109 on
-   2026-08-26, and its minimum served age, reported to two decimal places, rose from 0.92
-   to 6.92 days in daily increments of 1.00 (`BATCH-CYCLE-2026-08-29.json`). We later
+   serves the same set for days: the batch of 2026-08-21 to 08-22 was served at 108
+   distinct chunks a day (109 on 2026-08-26), with the minimum age of what it served
+   rising by exactly +1.00 per day from 2026-08-23 to 2026-08-29
+   (`BATCH-CYCLE-2026-08-29.json`), the signature of a frozen set. We later
    established that those days fell inside an ingestion defect, not the normal cadence
    of ingestion: session ingestion produced zero chunks from 2026-08-11 until its repair
    on 2026-09-07 (`DEVIATIONS-FOR-PAPER.md` §10.7; §4.3.1), so they describe the channel
    under defective ingestion, not its steady state. The window is not unique: there
    are two sub-pools, the per-agent one with 7 days and the global one with 30 (§4.3.1),
-   and the coverage-served portion of that batch belongs to the global sub-pool. Applying the per-agent sub-pool's
+   and that batch belongs to the second. Applying the per-agent sub-pool's
    window to a batch of the global sub-pool is an error we made and that a registered
    prediction refuted (F-2);
 2. **Algebra:** the channel orders by a lexicographic comparator
@@ -284,8 +282,8 @@ Three parameters of this description are themselves results, and §5 establishes
   No measured day lacked one: §4.3.1 finds 108 eligible on each of 2026-08-26 to 08-29, and
   coverage filled exactly 2 slots in each of the 40 briefs attributed by channel
   (`CHANNEL-ATTRIBUTION-2026-08-29.json`). The frozen days that §1 cites (2026-08-23 to
-  2026-08-29) are days on which the served coverage set did not change
-  (`A-rc2/COVERAGE-SET-FROM-LOG-2026-10-04.json`), not days without a candidate (§4.3.1);
+  2026-08-29) are days on which the served coverage set did not change, not days without a
+  candidate (§4.3.1);
 - and the comparator being lexicographic, rather than a weighted sum, is what gives
   `salience` the role of a subordinate coordinate inside the coverage channel.
 
@@ -764,13 +762,10 @@ month's 37-id main union) cannot tell a main-pool change from a coverage one. Wh
 served set is not established here, and neither is how it relates to the pool of 55 that a copy
 frozen on 2026-09-08 gives (below). Every coverage-channel number in
 this section was measured inside that broken regime, including the 108-chunk pool and its daily
-exhaustion on 2026-08-26 to 2026-08-29; so was the frozen set that §1 cites, the same 108
-coverage-side ids on every day from 2026-08-23 to 2026-08-29 (the log-only method above).
-Separately, counting serves across both channels (`ciclo-do-lote.py` selects the batch by
-creation date and attributes no serve to a channel), the batch of 2026-08-21 to 08-22
-contributed 108 distinct chunks a day from 2026-08-22 to 2026-08-29, except 109 on 2026-08-26,
-and its minimum served age, reported to two decimal places, rose from 0.92 on 2026-08-23 to
-6.92 on 2026-08-29 in daily increments of 1.00 (`BATCH-CYCLE-2026-08-29.json`).
+exhaustion on 2026-08-26 to 2026-08-29; so was the frozen set that §1 cites: the batch of
+2026-08-21 to 08-22 was served at 108 distinct chunks a day from 2026-08-22 to 2026-08-29 (109
+on 2026-08-26), and its minimum served age rose by exactly +1.00 per day, from 0.92 on
+2026-08-23 to 6.92 on 2026-08-29 (`BATCH-CYCLE-2026-08-29.json`).
 They describe the channel under defective ingestion, not its steady state.
 
 **Caveat.** This makes the composition of the channel unstable in a way that the table above hides: a
@@ -2090,7 +2085,7 @@ and whose value, 4.86% under the conventions in force on the 2026-08-26 corpus
 for the opposite reason: there the score is the dominant coordinate, and three of its four terms
 do not decay. The access component is monotone in a counter that only goes up, so
 the three constant chunks hold ranks 1, 3 and 4 by salience only through tracked search traffic from months ago, whoever initiated it (§3.1; measured counterfactual, §4.3.2: last accessed 42, 90 and
-30 days before the window closed on 2026-08-28, in chunks that won 4,632 of 4,632 briefs). The high-pain pin, which selects them in phase 0 of every brief, before the quota pass, protects what that score placed there and is measured as necessary for main-set membership for one of the three (§4.3.2).
+30 days before the window closed on 2026-08-28, in chunks that won 4,632 of 4,632 briefs). The high-pain pin, which places them first in every brief, protects what that score placed there and is measured as necessary for main-set membership for one of the three (§4.3.2).
 
 The main pool would respond to a score adjustment, and nobody adjusts it. The coverage channel,
 designed to compensate for the main pool, has a daily reach bounded by its eligible population (path patterns, the
@@ -2773,27 +2768,20 @@ All eight were applied, C1 and C2 with the wording Codex proposed. What changed:
 
 - The frozen set of §1 (DS1). §1 said that we measured five consecutive days with zero new items,
   the minimum served age rising by exactly +1.00 per day. No preserved artifact holds that series:
-  v1.0 stated it in §1, item 1 of the coverage channel's two reasons, and its §2 said that §4.3.1
-  showed five consecutive days without an eligible candidate, which v1.0's §4.3.1 does not show.
-  The table it came from was in a pre-deposit draft, computed by `regime-cobertura.py`, whose
-  output was not kept.
-  The claim also does not hold as written: that table itself showed 52 new items on 2026-08-20,
-  the `memory/lessons.md` ingestion of that day, which its age column could not see because the
-  chunks were later deleted (§4.3.1, the counting trap). §1 now cites two measurements that
-  artifacts hold, kept apart: the serving log shows the same 108 coverage-side ids on every day
-  from 2026-08-23 to 2026-08-29 (`A-rc2/COVERAGE-SET-FROM-LOG-2026-10-04.json`); separately,
-  counting serves across both channels, the batch of 2026-08-21 to 08-22 contributed 108
-  distinct chunks a day, except 109 on 2026-08-26, its minimum served age rising from 0.92 to
-  6.92 days in daily increments of 1.00 (`BATCH-CYCLE-2026-08-29.json`). §4.3.1 states both with
-  those dates, and §2 calls those days frozen days rather than five days without new items. The
-  coverage-served portion of that batch belongs to the global sub-pool, so §1 no longer assigns
-  the observation to the per-agent one. (This item was corrected in rc14; see below.)
+  the table that carried it lived only in the v1.0 text, computed by `regime-cobertura.py`, whose
+  output was not kept. The claim also does not hold as written: that table itself showed 52 new
+  items on 2026-08-20, the `memory/lessons.md` ingestion of that day, which its age column could
+  not see because the chunks were later deleted (§4.3.1, the counting trap). §1 now cites what an
+  artifact holds: the batch of 2026-08-21 to 08-22 served at 108 distinct chunks a day, its
+  minimum served age rising by exactly +1.00 per day from 2026-08-23 to 2026-08-29
+  (`BATCH-CYCLE-2026-08-29.json`). §4.3.1 states it with those dates, and §2 calls those days
+  frozen days rather than five days without new items. That batch belongs to the global sub-pool,
+  so §1 no longer assigns the observation to the per-agent one.
 - The three constant chunks (C1, DS2, DS6). Tracked search traffic is necessary for their
   salience ranks; the pin affects selection, and lifting it removes one of the three (116107)
   from the main set. The Abstract, §1, §4.3.2 and §9 now keep the two apart: the Abstract no
   longer says that the pin keeps them in every brief, and §1 names the slots as the three shared
-  main-pool slots. The pin selects them in phase 0, before the quota pass; it does not fix their
-  position in the brief (wording corrected in rc14).
+  main-pool slots.
 - §4.3.1 fidelity (C2). On the days where `fresh_added` is not null, a brief that fails the
   stricter test leaves 9 or 10 ids, not 9; on 2026-09-03 and 2026-09-07 all 10 served ids stay.
 - Scope and denominators (DS3, DS4, DS5). §2 calls *no-record* a verifiable property of the
@@ -2804,30 +2792,6 @@ All eight were applied, C1 and C2 with the wording Codex proposed. What changed:
 `_sprint-2026-10-04/A-rc13/parity-rc13.py` compares rc12 with rc13 under the same rule: every
 changed numeric token, reference, code span, link, heading and table row must be one that a
 finding above declares.
-
-**Addendum, rc14 (2026-10-05): a Codex review of rc13.** Two findings (CR1, CR2), saved verbatim
-in `_sprint-2026-10-04/REVIEW-A-rc13-2026-10-05.md`, both checked against the artifacts and the
-serving code and both applied; the record is `_sprint-2026-10-04/APPLY-A-rc14.md`. The rc13
-addendum above is part of this unpublished version, so its two affected items were corrected in
-place rather than left as history. What changed:
-
-- Two measurements kept apart (CR1). rc13 read `BATCH-CYCLE-2026-08-29.json` as the frozen
-  coverage set. Its query selects the batch by creation date and counts serves in both channels,
-  so its 109 on 2026-08-26 is not a coverage-channel count: the serving log gives the same 108
-  coverage-side ids on that day as on every day from 2026-08-23 to 2026-08-29
-  (`A-rc2/COVERAGE-SET-FROM-LOG-2026-10-04.json`). §1 and §4.3.1 now state the coverage set from
-  the log and, separately, the batch's serves across both channels (108 a day, except 109 on
-  2026-08-26) with its minimum served age rising from 0.92 to 6.92 days in daily increments of
-  1.00, reported to two decimal places. §1 assigns the coverage-served portion of the batch to the
-  global sub-pool, and §2 cites the coverage-set artifact.
-- Selection is not position (CR2). Phase 0 of `pickDedup` selects the pinned items before the
-  quota pass, and the picked list is then sorted by score (`brief.ts:483`), so the pin does not
-  place them first in the brief. The Abstract, §1 and §9 now say that the pin selects them in
-  phase 0, before the quota pass; the measured necessity of the pin for one of the three stays.
-- The rc13 addendum also said that the table behind the withdrawn five-day series was in the v1.0
-  text. It was in a pre-deposit draft; v1.0 carried the statement in §1 and a pointer in §2.
-
-`_sprint-2026-10-04/A-rc14/parity-rc14.py` compares rc13 with rc14 under the same rule.
 
 ## Open items
 

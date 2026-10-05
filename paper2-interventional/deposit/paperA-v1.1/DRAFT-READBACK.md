@@ -13,11 +13,11 @@
 
 | key | bytes | md5 | origem |
 |---|---:|---|---|
-| `MANUSCRIPT-v1.1.pdf` | 295.508 | `2d39642b9b0f4da08af09a871e156fd3` | novo, 49 páginas |
-| `MANUSCRIPT-v1.1.md` | 209.875 | `6edf286b0a3c68b9c8258f2a871ab650` | novo, = rc12 byte a byte |
-| `MANIFEST-v1.1.json` | 22.097 | `75c27929e1d1deafef61fea910e5cdee` | novo |
-| `artefatos-v1.1.zip` | 256.347 | `36c876a0c4f36e697b0216c40911b04d` | novo, 48 membros |
-| `scripts-v1.1.zip` | 153.055 | `f45c8cd9dca7f3c4249e5ab6a0c0b88c` | novo, 33 membros |
+| `MANUSCRIPT-v1.1.pdf` | 303.437 | `9c31328d7540cb4637c7c70108c22918` | novo, 50 páginas |
+| `MANUSCRIPT-v1.1.md` | 217.049 | `0e1eb38ee42e4f8d3fa31e5a5881d6a7` | novo, = rc14 byte a byte |
+| `MANIFEST-v1.1.json` | 23.437 | `2f2cb8033612c0fdc52809962db3f482` | novo |
+| `artefatos-v1.1.zip` | 268.770 | `c0ac131f3838bcaa8bfa718e4b1b5bd2` | novo, 52 membros |
+| `scripts-v1.1.zip` | 167.778 | `7b97f1ce0ca2b82b2d5723d7a3a389e3` | novo, 35 membros |
 | `MANUSCRIPT.md` | 126.564 | `a08076709e14b13ecf148c53ffb8f863` | v1.0, files-import |
 | `MANIFEST.json` | 24.483 | `6b30ceafbd66332a933c18762cacf148` | v1.0, files-import |
 | `claims_check.py` | 117.840 | `76a75af212fb0e9fbcd00b44e8cbc9fe` | v1.0, files-import |
@@ -54,14 +54,14 @@ o que já bate).
 
 ## O que o pacote é
 
-- **Manuscrito:** `_sprint-2026-10-04/A-v1.1-rc12.md`, byte a byte (sha256 `01423190…f695d`;
+- **Manuscrito:** `_sprint-2026-10-04/A-v1.1-rc14.md`, byte a byte (sha256 `73602894…ea803fe`;
   o `build-package.py` sai 1 se o depositado divergir da fonte). Até o rc8 havia uma
   substituição no Apêndice D; desde o rc10 o DOI está no próprio rascunho.
 - **PDF:** pandoc 3.9 + xelatex (2 passadas), mesmo preâmbulo do Paper 1 (`paper/preamble.tex`)
-  mais 25 glifos mapeados para símbolos matemáticos; **0 "Missing character"** no log. 49
+  mais 25 glifos mapeados para símbolos matemáticos; **0 "Missing character"** no log. 50
   páginas, Letter. O bloco de título (autor, ORCID, versão, DOI) vem de metadata do pandoc e
   não está no `.md`.
-- **Redação:** em 7 arquivos empacotados um caminho local virou marcador (`<HOME>/`,
+- **Redação:** em 8 arquivos empacotados um caminho local virou marcador (`<HOME>/`,
   `<SCRATCH>/`, `<TMP>`); o manifesto lista quais e guarda o sha256 do original. Gate final
   sobre todo byte empacotado (zips, soltos, texto e bytes do PDF, manifesto): **0** host, IP
   não-loopback ou caminho pessoal. Controle positivo do gate conferido (`/Users/…`, `~/`,
@@ -263,6 +263,88 @@ bloco da description declara.
   que o pin protege só o que o score já pôs no brief e é necessário para um dos três), então nada
   de conteúdo mudou; foram atualizadas as contagens (48/33), "parity checks of drafts rc8 to
   rc12" e "the final draft (rc12, Appendix F-5)". `description-v1.1.html` md5 `8a12eb81a06a14a04e189e8e271f6138`.
+- **Rascunho 23163119:** metadata regravada e os 5 arquivos novos reenviados ao **mesmo**
+  rascunho. Readback: **22 de 22** campos ok, **18 de 18** arquivos com md5 conferido (13 da v1.0
+  contra o registro 22181415, 5 novos contra o disco), membros dos zips conferidos contra o
+  manifesto (tabela acima atualizada). **Não publicado.**
+
+## Rodada de 2026-10-05 (rc13): revisões Codex e DeepSeek do rc12
+
+- **Texto:** rc12 → rc13 com os 8 achados de `_sprint-2026-10-04/REVIEW-A-rc12-2026-10-05.md`
+  (as duas saídas verbatim, recuperadas dos transcripts das cascas; recibos Codex
+  `…125855-34251` e DeepSeek `…125812-33216`, ambos exit 0), todos conferidos antes de aplicar
+  (`_sprint-2026-10-04/APPLY-A-rc13.md`):
+  - **C1** §4.3.2: o tráfego de busca rastreado é necessário para os ranks de salience; o pin
+    afeta a seleção e é necessário para um dos três (116107). Varredura: Abstract (DS2), §1 (DS6)
+    e §9 deixaram de tratar o pin como condição de rank.
+  - **C2** §4.3.1: nos dias com `fresh_added` não nulo, o brief que falha o teste estrito deixa
+    9 ou 10 ids (ex. 2026-08-24: 672 briefs, 649 exatos, 23 ≠ 8, 5.400 = 5.376 + 24); em
+    2026-09-03 e 2026-09-07 ficam os 10.
+  - **DS1** §1: nenhum artefato guarda os "cinco dias seguidos com zero itens novos" (a tabela
+    da v1.0 vinha de `regime-cobertura.py` sem saída preservada, e a própria tabela mostrava 52
+    novos em 20/08, invisíveis ao `JOIN chunks`). Trocado pelo que `BATCH-CYCLE-2026-08-29.json`
+    guarda: o lote de 2026-08-21..22 servido a 108 por dia (109 em 08-26), idade mínima subindo
+    exatamente +1,00/dia de 0,92 (08-23) a 6,92 (08-29); §4.3.1 e §2 dizem o mesmo com datas.
+  - **DS3–DS6:** §2 *no-record* verificável e cota inferior; cabeçalho da tabela de filtros
+    "(of a 672-brief day)" + nota de 2026-09-03 (441, 126); §1 nomeia os sub-pools (por agente 0,
+    global 108); "three shared main-pool slots".
+  - `A-rc13/parity-rc13.py --selftest`: **PARITY OK**, **SELFTEST OK** (24 mutações; 23 mordem,
+    a de unidade segue como limite documentado). `withdrawn` carrega as 10 do rc12 e acrescenta
+    10. F-5 ganhou o "Addendum, rc13". `MANUSCRIPT-v1.1.md` = rc13 byte a byte.
+- **Pacote:** `FONTE` → rc13; entraram `REVIEW-A-rc12-2026-10-05.md` e `APPLY-A-rc13.md`
+  (artefatos, 48 → 50) e `A-rc13/parity-rc13.py` (scripts, 33 → 34). **Censo:** 79 caminhos no
+  escopo, **0 lacunas** (50 cobertos pela v1.1, 29 só pela v1.0). **Gate de privacidade: 0**
+  (8 arquivos redigidos; o REVIEW novo leva R2 ×2). PDF refeito: **50 páginas**, **0 glifos
+  ausentes**, md5 `28808db457959a0f972a32b19f464120`.
+- **Description:** o item do bloco "What changed in v1.1" chamava o pin de "the other
+  condition" do rank; agora diz que o pin afeta a seleção separadamente, põe os três primeiro em
+  todo brief, protege só o que o score já pôs ali e é necessário para um dos três. Contagens
+  50/34, "drafts rc8 to rc13", "(rc13, Appendix F-5)", "In eight packaged files".
+  `description-v1.1.html` md5 `e77c8be16fcba3e88c25305d063d30e8`.
+- **Rascunho 23163119:** metadata regravada e os 5 arquivos novos reenviados ao **mesmo**
+  rascunho. Readback: **22 de 22** campos ok, **18 de 18** arquivos com md5 conferido (13 da v1.0
+  contra o registro 22181415, 5 novos contra o disco), membros dos zips conferidos contra o
+  manifesto (tabela acima atualizada). **Não publicado.**
+
+## Rodada de 2026-10-05 (rc14): revisão Codex do rc13
+
+- **Texto:** rc13 → rc14 com os 2 achados de `_sprint-2026-10-04/REVIEW-A-rc13-2026-10-05.md`
+  (verbatim; recibo Codex `…132453-63584`, exit 0), ambos conferidos antes de aplicar
+  (`_sprint-2026-10-04/APPLY-A-rc14.md`):
+  - **CR1** §1, §4.3.1, §2 e o addendum rc13: `BATCH-CYCLE-2026-08-29.json` vem de
+    `ciclo-do-lote.py`, que pega o lote por data de criação e conta serves dos **dois** canais;
+    o 109 de 2026-08-26 não é contagem de cobertura (o log dá os mesmos 108 ids do lado da
+    cobertura em todo dia de 08-23 a 08-29, 08-26 incluído:
+    `A-rc2/COVERAGE-SET-FROM-LOG-2026-10-04.json`). O texto agora separa as duas medições: o
+    conjunto de cobertura pelo log e, à parte, o lote nos dois canais (108/dia, exceto 109 em
+    08-26; idade mínima de 0,92 a 6,92 em passos de 1,00, a duas casas). "that batch belongs to
+    the second" → "the coverage-served portion of that batch belongs to the global sub-pool";
+    "the signature of a frozen set" sai.
+  - **CR2** Abstract, §1, §9: o pin seleciona os três na fase 0, antes do quota pass; a lista
+    escolhida é depois reordenada por score (`serving-brief.ts:483`), então "places them first"
+    sai. A necessidade medida para um dos três (116107) fica.
+  - **V10** addendum rc13: dizia que a tabela dos "cinco dias" estava no texto da v1.0. Não
+    estava: entrou em `MANUSCRIPT.md` no `bcca3a3` (2026-08-28) e saiu no `734e59a`, antes do
+    depósito. A v1.0 publicada trazia a afirmação no **§1** (Introdução, item 1 "calendário",
+    l.228-232 do `MANUSCRIPT.md` publicado) e um ponteiro no **§2** (Sistema sob medição,
+    l.337-338: "o §4.3.1 mostra cinco dias seguidos em que não houve" candidato), sem nada
+    correspondente no §4.3.1. A rodada rc13 acima repete o mesmo deslize ("a tabela da v1.0").
+  - `A-rc14/parity-rc14.py --selftest`: **PARITY OK**, **SELFTEST OK** (26 mutações; 25 mordem,
+    a de unidade segue como limite documentado). `history` exige rc5..rc12 idênticos e o
+    addendum rc13 uma vez (ele foi corrigido no lugar, com deltas declarados); `withdrawn`
+    carrega as 20 e acrescenta 8, entre elas "places them first". F-5 ganhou o "Addendum, rc14".
+    `MANUSCRIPT-v1.1.md` = rc14 byte a byte.
+- **Pacote:** `FONTE` → rc14; entraram `REVIEW-A-rc13-2026-10-05.md` e `APPLY-A-rc14.md`
+  (artefatos, 50 → 52) e `A-rc14/parity-rc14.py` (scripts, 34 → 35). **Censo:** 82 caminhos no
+  escopo, **0 lacunas** (53 cobertos pela v1.1, 29 só pela v1.0). **Gate de privacidade: 0**
+  (8 arquivos redigidos, os mesmos). PDF refeito: **50 páginas**, **0 glifos ausentes**, md5
+  `9c31328d7540cb4637c7c70108c22918`.
+- **Description:** novo parágrafo "A v1.0 statement withdrawn." depois do "Also narrowed": a
+  afirmação estava no §1 da v1.0 (com o ponteiro do §2), a série vinha de um rascunho anterior
+  ao depósito sem saída preservada, era falsa como escrita (52 itens de 2026-08-20,
+  `RECON-52-e-sondas-2026-10-04.json`), e a v1.1 a troca pelas duas medições separadas. O item
+  do pin diz "selects them in phase 0, before the quota pass". Contagens 52/35, "drafts rc8 to
+  rc14", "(rc14, Appendix F-5)". `description-v1.1.html` md5 `a4f992fd2285ad571e5df6768bcff209`.
 - **Rascunho 23163119:** metadata regravada e os 5 arquivos novos reenviados ao **mesmo**
   rascunho. Readback: **22 de 22** campos ok, **18 de 18** arquivos com md5 conferido (13 da v1.0
   contra o registro 22181415, 5 novos contra o disco), membros dos zips conferidos contra o

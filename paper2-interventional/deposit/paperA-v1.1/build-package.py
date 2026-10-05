@@ -76,6 +76,10 @@ _sprint-2026-10-04/APPLY-A-rc10.md
 _sprint-2026-10-04/APPLY-A-rc11.md
 _sprint-2026-10-04/REVIEW-A-rc11-2026-10-05.md
 _sprint-2026-10-04/APPLY-A-rc12.md
+_sprint-2026-10-04/REVIEW-A-rc12-2026-10-05.md
+_sprint-2026-10-04/APPLY-A-rc13.md
+_sprint-2026-10-04/REVIEW-A-rc13-2026-10-05.md
+_sprint-2026-10-04/APPLY-A-rc14.md
 """.split()
 
 SCRIPTS = """
@@ -93,6 +97,8 @@ _sprint-2026-10-04/A-rc9/parity-rc9.py
 _sprint-2026-10-04/A-rc10/parity-rc10.py
 _sprint-2026-10-04/A-rc11/parity-rc11.py
 _sprint-2026-10-04/A-rc12/parity-rc12.py
+_sprint-2026-10-04/A-rc13/parity-rc13.py
+_sprint-2026-10-04/A-rc14/parity-rc14.py
 _sprint-2026-10-04/A-filters-disaggregation/diag-residual-mismatch.py
 serving-brief.ts
 measurement/auditoria-da-cadeia.py
@@ -115,9 +121,9 @@ deposit/paperA-v1.1/build/preamble-paperA-v1.1.tex
 """.split()
 
 SOLTOS = ["deposit/paperA-v1.1/MANUSCRIPT-v1.1.md", "deposit/paperA-v1.1/MANUSCRIPT-v1.1.pdf"]
-FONTE = "_sprint-2026-10-04/A-v1.1-rc12.md"
+FONTE = "_sprint-2026-10-04/A-v1.1-rc14.md"
 
-# Censo dos caminhos citados (rc11, mantido no rc12): todo caminho que o manuscrito cita e que resolve, no
+# Censo dos caminhos citados (rc11, mantido do rc12 ao rc14): todo caminho que o manuscrito cita e que resolve, no
 # repositório, para `_sprint-2026-10-04/…` ou `out/…` (ou que é escrito assim) tem de estar no
 # pacote v1.1 ou nos arquivos publicados da v1.0 (MANIFEST.json + zips do registro 22181415,
 # baixados em A-recon-evidence/deposited-22181415/). Citação por nome nu (`out-ord0826.json`)
@@ -361,7 +367,7 @@ def main():
             "fonte": FONTE,
             "sha256_fonte": sha(fonte),
             "sha256_depositado": sha(dep),
-            "diferenca": "nenhuma: o depositado é a fonte byte a byte (gate de parity-rc12, check 'deposit')",
+            "diferenca": "nenhuma: o depositado é a fonte byte a byte (gate de parity-rc14, check 'deposit')",
             "pdf": "pandoc 3.9 + xelatex x2 via pdf-build/build-pdf.sh (em scripts-v1.1.zip); 0 glifos ausentes",
         },
         "excluidos": [{"o_que": a, "motivo": b} for a, b in EXCLUIDOS],

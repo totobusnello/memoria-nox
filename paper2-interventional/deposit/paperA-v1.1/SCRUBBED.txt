@@ -62,3 +62,7 @@ Consequences (both resolved 2026-10-05, later the same day):
   'redacao_no_repositorio' and, for the script, 'alteracao_pos_redacao'; it fails if any of the
   7 loses its record, or if a scrubbed file would need redaction again. Rebuilt manifest:
   md5 c462ff5cd8ee548a512e03b010297778 (7 items with both fields), uploaded to the draft.
+
+2026-10-05 (rc14): _sprint-2026-10-04/REVIEW-A-rc12-2026-10-05.md — two Codex links carried a local
+absolute path; the repository copy now holds the same bytes as the packaged one (`/Users/<user>/`
+→ `<HOME>/`), so it no longer needs redaction at build time. Original kept outside the repository.
