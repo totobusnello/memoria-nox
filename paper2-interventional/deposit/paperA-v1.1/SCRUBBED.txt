@@ -48,7 +48,7 @@ measurement/sprint-censo-artefatos-paperA.py
                resolve. They now read os.path.join(os.path.expanduser('~'), ...): no personal
                path, and no literal tilde-slash, which build-package.py would redact again (R3)
                and its privacy gate would reject. The docstring keeps <HOME>/ as a redaction.
-               Run against MANUSCRIPT-v1.1.md, its output is byte-identical to the pre-scrub
+               Run against spare-capacity-narrow-surface-v1.1.md, its output is byte-identical to the pre-scrub
                original's (the scrubbed copy found 0 lastro/serving-tree hits; the fix finds 7,
                as the original). Repository copy == the copy now in scripts-v1.1.zip.
 

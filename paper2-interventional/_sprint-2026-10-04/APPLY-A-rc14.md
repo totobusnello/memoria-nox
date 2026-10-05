@@ -4,7 +4,8 @@ Input `A-v1.1-rc13.md` (sha256 `9c3cefc0…f1eb86c`) → output `A-v1.1-rc14.md`
 `73602894…ea803fe`). Gate: `A-rc14/parity-rc14.py --selftest`: PARITY OK, SELFTEST OK (26
 mutations: 25 bite on the expected check; the unit mutation is not caught, as in rc10 to rc13, and
 the selftest records that as a known limit). The deposit copy
-`deposit/paperA-v1.1/MANUSCRIPT-v1.1.md` is byte-identical to rc14 (parity `deposit` check).
+`deposit/paperA-v1.1/spare-capacity-narrow-surface-v1.1.md` (named `MANUSCRIPT-v1.1.md` until
+the 2026-10-05 rename; same bytes) is byte-identical to rc14 (parity `deposit` check).
 
 The review is saved verbatim in `REVIEW-A-rc13-2026-10-05.md`: the Codex final message (receipt
 `adversary-receipt-codex-2026-10-05T132453-63584.txt`, exit 0). IDs: CR1, CR2 = Codex findings

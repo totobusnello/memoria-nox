@@ -30,8 +30,11 @@ HERE = pathlib.Path(__file__).resolve().parent
 API = "https://zenodo.org/api"
 V10 = "22181415"
 ORCID = "0009-0007-5911-8141"
-NOVOS = ["MANUSCRIPT-v1.1.pdf", "MANUSCRIPT-v1.1.md", "MANIFEST-v1.1.json",
+NOVOS = ["spare-capacity-narrow-surface-v1.1.pdf", "spare-capacity-narrow-surface-v1.1.md", "MANIFEST-v1.1.json",
          "artefatos-v1.1.zip", "scripts-v1.1.zip"]
+# Chaves com o nome antigo do manuscrito (renomeado em 2026-10-05, mesmos bytes). Saem do
+# rascunho no passo 3 e o readback exige que não existam mais.
+OBSOLETOS = ["MANUSCRIPT-v1.1.pdf", "MANUSCRIPT-v1.1.md"]
 
 
 def token():
@@ -98,7 +101,7 @@ def main():
         po = c["person_or_org"]
         po.pop("identifiers", None)
         po["identifiers"] = [{"scheme": "orcid", "identifier": ORCID}]
-    rc8 = (HERE / "MANUSCRIPT-v1.1.md").read_text(encoding="utf-8")
+    rc8 = (HERE / "spare-capacity-narrow-surface-v1.1.md").read_text(encoding="utf-8")
     titulo = rc8.split("\n", 1)[0].lstrip("# ").strip()
     m.update({"title": titulo, "version": "1.1", "publication_date": "2026-10-05",
               "description": desc, "languages": [{"id": "eng"}]})
@@ -123,6 +126,11 @@ def main():
     # --- 3. arquivos novos, uma chave por vez ------------------------------------
     st, ent = req("GET", f"{D}/files")
     tem = {e["key"]: e for e in ent.get("entries", [])}
+    for k in OBSOLETOS:
+        if k in tem:
+            st, r = req("DELETE", f"{D}/files/{k}")
+            assert st == 204, f"DELETE {k} {st}: {str(r)[:300]}"
+            print(f"3. removido (nome antigo): {k}")
     for k in NOVOS:
         loc = md5(HERE / k)
         e = tem.get(k)
@@ -188,6 +196,8 @@ def main():
         falhas.append(f"FALTA no rascunho: {k}")
     for k in sorted(set(tem) - set(esperado)):
         falhas.append(f"SOBRA no rascunho: {k}")
+    for k in OBSOLETOS:
+        campo(f"chave antiga ausente: {k}", k in tem, False)
     for k in sorted(set(tem) & set(esperado)):
         e = tem[k]
         ok = e.get("status") == "completed" and e.get("checksum") == esperado[k]
