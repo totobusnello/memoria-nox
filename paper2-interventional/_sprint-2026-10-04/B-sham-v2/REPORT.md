@@ -204,7 +204,7 @@ deadline is about 48 %.
 - Byte identity of the `dist`.
 - The slowdown under contention.
 
-The sham result itself is pending the job.
+The sham result is in section 7.
 
 ## 6. Provenance and housekeeping
 
@@ -216,3 +216,32 @@ The sham result itself is pending the job.
   `calibration/` (incl. `REAL-w4.json.gz`), `TEST-…txt`, `RESUMO.txt`, `lanca-job.sh`.
 - **Not touched:** no git command; no MANUSCRIPT or existing file edited; production
   ($NOX_PROD_HOST) untouched.
+
+## 7. Result (job `job-v2b`, CONCLUIDO 2026-10-04T23:47:06Z, 21/21 validated)
+
+K = 20 shams, w = 4.0, 2,646 brief states (the w = 4 epochs). Statistic: number of states whose
+brief changed (`mexeu`) and total churn, REAL designation against 20 shams matched on severity
+and boost mass, drawn from the 36 boostable items.
+
+| statistic | REAL | 20 shams (min to max) | shams >= REAL | p = (1 + #shams >= REAL) / (K + 1) |
+|---|---:|---|---:|---:|
+| `mexeu` | 132 | 81 to 122 | 0 | 0.0476 |
+| `churn_total` | 146 | 84 to 132 | 0 | 0.0476 |
+
+Positive control (w = 100,000): REAL 155, shams 81 to 122.
+Fidelity of the REAL run to production: 2646/2646 states, 0 divergences;
+the REAL run is byte-identical in its dose detail to the calibration run (`calibration/REAL-w4.json.gz`).
+
+Reading: no sham reached the REAL designation on either statistic, so p = 1/21 = 0.0476, the floor
+for K = 20. To be declared with it: the state set is restricted to the w = 4 epochs (a declared
+deviation from the configured instrument); shams were drawn from the 36 boostable items; p at the
+floor says REAL exceeded every sham, not by how much in probability.
+
+Throttling: SHAM-012 to 014 ran under host CPU throttling (~10 h 15 min each, against ~65 min
+unthrottled); the replay is deterministic, so this changed timing only.
+
+Artifacts: `job-v2b/` (summary, receipts, hashes; `RUNS.sha256`), `job-v2b-runs.tgz` (the 21 runs),
+`job-v1.sha256` (the inherited 13 runs, identical bytes inside `job-v2b`). VPS work dir deleted
+2026-10-04 22:45 BRT after a per-file hash match with the local copy; the irreplaceable inputs
+(`vivo-v2.db`, `in/`, `cal/`, shams, diag) were moved to
+`/var/backups/nox-mem/paper2-bancos-ensaio/sham-v2-2026-10-04/` with `SHA256SUMS`.
