@@ -1,0 +1,41 @@
+inicio 2026-10-04T11:19:52Z teto=128000s prazo=370000s (ate 2026-10-08T18:05:17Z) paralelo=3 corridas=21 estados=2646 doses=4 100000
+instrumento: e8034af60059ebf5 bancos: 23378a9ea83cd27d 25b1743689b1088c 
+2026-10-04T11:19:57Z REAL HERDADA de /var/tmp/sprint-sham-v2-w/job sha256=475f4cc21c1aad0c (1/21)
+2026-10-04T11:19:59Z SHAM-000 HERDADA de /var/tmp/sprint-sham-v2-w/job sha256=0629b1437ae25c07 (2/21)
+2026-10-04T11:20:02Z SHAM-001 HERDADA de /var/tmp/sprint-sham-v2-w/job sha256=d6646dd09f7b9ecf (3/21)
+2026-10-04T11:20:05Z SHAM-002 HERDADA de /var/tmp/sprint-sham-v2-w/job sha256=b3e962ce0a4cfd52 (4/21)
+2026-10-04T11:20:08Z SHAM-003 HERDADA de /var/tmp/sprint-sham-v2-w/job sha256=444a7514828df2ba (5/21)
+2026-10-04T11:20:11Z SHAM-004 HERDADA de /var/tmp/sprint-sham-v2-w/job sha256=99d093b4f8203263 (6/21)
+2026-10-04T11:20:14Z SHAM-005 HERDADA de /var/tmp/sprint-sham-v2-w/job sha256=66ecd7b17e81b58d (7/21)
+2026-10-04T11:20:17Z SHAM-006 HERDADA de /var/tmp/sprint-sham-v2-w/job sha256=65603e0bcdfbe7da (8/21)
+2026-10-04T11:20:19Z SHAM-007 HERDADA de /var/tmp/sprint-sham-v2-w/job sha256=c6da7c94a4cb0c5c (9/21)
+2026-10-04T11:20:21Z SHAM-008 HERDADA de /var/tmp/sprint-sham-v2-w/job sha256=346fdd3fba1b3e08 (10/21)
+2026-10-04T11:20:23Z SHAM-009 HERDADA de /var/tmp/sprint-sham-v2-w/job sha256=51d94cbc2c4e8055 (11/21)
+2026-10-04T11:20:27Z SHAM-010 HERDADA de /var/tmp/sprint-sham-v2-w/job sha256=6d153c6a1280a378 (12/21)
+2026-10-04T11:20:30Z SHAM-011 HERDADA de /var/tmp/sprint-sham-v2-w/job sha256=05a27fe09ecd64a7 (13/21)
+modo completar: herdadas=13 a_rodar=8 (SHAM-012 SHAM-013 SHAM-014 SHAM-015 SHAM-016 SHAM-017 SHAM-018 SHAM-019) ref=/var/tmp/sprint-sham-v2-w/job
+2026-10-04T11:20:31Z SHAM-012 lancada teto=128000s
+2026-10-04T11:20:33Z SHAM-013 lancada teto=128000s
+2026-10-04T11:20:35Z SHAM-014 lancada teto=128000s
+2026-10-04T21:35:57Z SHAM-014 exit=0 dur=36922s sha_designacao=2216555e486e4bcd
+2026-10-04T21:35:57Z SHAM-014 VALIDADA (14/21)
+2026-10-04T21:35:57Z SHAM-015 lancada teto=128000s
+2026-10-04T21:36:21Z SHAM-013 exit=0 dur=36948s sha_designacao=e4ddac67cbc0cf83
+2026-10-04T21:36:22Z SHAM-013 VALIDADA (15/21)
+2026-10-04T21:36:22Z SHAM-016 lancada teto=128000s
+2026-10-04T21:36:22Z SHAM-012 exit=0 dur=36951s sha_designacao=c2512f19ad9a5403
+2026-10-04T21:36:22Z SHAM-012 VALIDADA (16/21)
+2026-10-04T21:36:22Z SHAM-017 lancada teto=128000s
+2026-10-04T22:41:23Z SHAM-017 exit=0 dur=3901s sha_designacao=1ce280e816fc9c5c
+2026-10-04T22:41:23Z SHAM-017 VALIDADA (17/21)
+2026-10-04T22:41:23Z SHAM-018 lancada teto=128000s
+2026-10-04T22:41:33Z SHAM-015 exit=0 dur=3936s sha_designacao=3ef5500f512553a2
+2026-10-04T22:41:33Z SHAM-015 VALIDADA (18/21)
+2026-10-04T22:41:33Z SHAM-019 lancada teto=128000s
+2026-10-04T22:41:38Z SHAM-016 exit=0 dur=3916s sha_designacao=4c132b667118952b
+2026-10-04T22:41:38Z SHAM-016 VALIDADA (19/21)
+2026-10-04T23:46:20Z SHAM-018 exit=0 dur=3897s sha_designacao=fedcc592147475aa
+2026-10-04T23:46:20Z SHAM-018 VALIDADA (20/21)
+2026-10-04T23:46:58Z SHAM-019 exit=0 dur=3925s sha_designacao=ded61acc8da5ab0a
+2026-10-04T23:46:58Z SHAM-019 VALIDADA (21/21)
+fim 2026-10-04T23:47:06Z -- 21/21 corridas validadas em 44909s
