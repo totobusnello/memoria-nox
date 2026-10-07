@@ -1,0 +1,201 @@
+{
+  "objeto": "F4: Epoch-1 stopping rule (PROSPECTIVE-ESTIMAND §3-bis, threshold 36.7%) under the w = 4 promotable set",
+  "derivacao": "signature promotable at w iff its designated item is in would_enter in >= 1 of the 350 states of out/dose-350-v3.json at that w; reproduces the CONCENTRATION w = 2 list exactly",
+  "limiar": 0.367,
+  "promoviveis": {
+    "0.5": [
+      "Bash|fs:mutacao",
+      "mcp__openclaw__memory_search|consulta",
+      "mcp__plugin_context_mode_context_mode__ctx_batch_execute|sem-alvo"
+    ],
+    "1": [
+      "Bash|fs:mutacao",
+      "mcp__openclaw__memory_search|consulta",
+      "mcp__openclaw__terminal|shell:outro",
+      "mcp__openclaw__web_fetch|rede",
+      "mcp__plugin_context_mode_context_mode__ctx_batch_execute|sem-alvo"
+    ],
+    "2": [
+      "Bash|fs:mutacao",
+      "Bash|shell:outro",
+      "mcp__openclaw__memory_get|arquivo:doc",
+      "mcp__openclaw__memory_search|consulta",
+      "mcp__openclaw__terminal|shell:outro",
+      "mcp__openclaw__web_fetch|rede",
+      "mcp__plugin_context_mode_context_mode__ctx_batch_execute|sem-alvo"
+    ],
+    "4": [
+      "Bash|fs:mutacao",
+      "Bash|shell:outro",
+      "Read|arquivo:doc",
+      "Read|arquivo:outro",
+      "ToolSearch|consulta",
+      "mcp__openclaw__memory_get|arquivo:doc",
+      "mcp__openclaw__memory_search|consulta",
+      "mcp__openclaw__terminal|shell:outro",
+      "mcp__openclaw__web_fetch|rede",
+      "mcp__plugin_context_mode_context_mode__ctx_batch_execute|sem-alvo"
+    ],
+    "7.5": [
+      "Bash|fs:mutacao",
+      "Bash|shell:outro",
+      "Read|arquivo:doc",
+      "Read|arquivo:outro",
+      "ToolSearch|consulta",
+      "mcp__openclaw__automations|sem-alvo",
+      "mcp__openclaw__browser|rede",
+      "mcp__openclaw__memory_get|arquivo:doc",
+      "mcp__openclaw__memory_search|consulta",
+      "mcp__openclaw__terminal|shell:outro",
+      "mcp__openclaw__web_fetch|rede",
+      "mcp__plugin_context_mode_context_mode__ctx_batch_execute|sem-alvo"
+    ],
+    "15": [
+      "Bash|fs:mutacao",
+      "Bash|shell:outro",
+      "Read|arquivo:doc",
+      "Read|arquivo:outro",
+      "ToolSearch|consulta",
+      "mcp__openclaw__automations|sem-alvo",
+      "mcp__openclaw__browser|rede",
+      "mcp__openclaw__memory_get|arquivo:doc",
+      "mcp__openclaw__memory_search|consulta",
+      "mcp__openclaw__terminal|shell:outro",
+      "mcp__openclaw__web_fetch|rede",
+      "mcp__plugin_context_mode_context_mode__ctx_batch_execute|sem-alvo"
+    ],
+    "100": [
+      "Bash|fs:mutacao",
+      "Bash|shell:outro",
+      "Read|arquivo:doc",
+      "Read|arquivo:outro",
+      "ToolSearch|consulta",
+      "mcp__openclaw__automations|sem-alvo",
+      "mcp__openclaw__browser|rede",
+      "mcp__openclaw__memory_get|arquivo:doc",
+      "mcp__openclaw__memory_search|consulta",
+      "mcp__openclaw__terminal|shell:outro",
+      "mcp__openclaw__web_fetch|rede",
+      "mcp__plugin_context_mode_context_mode__ctx_batch_execute|sem-alvo"
+    ],
+    "100000": [
+      "Bash|fs:mutacao",
+      "Bash|shell:outro",
+      "Read|arquivo:doc",
+      "Read|arquivo:outro",
+      "ToolSearch|consulta",
+      "mcp__openclaw__automations|sem-alvo",
+      "mcp__openclaw__browser|rede",
+      "mcp__openclaw__memory_get|arquivo:doc",
+      "mcp__openclaw__memory_search|consulta",
+      "mcp__openclaw__terminal|shell:outro",
+      "mcp__openclaw__web_fetch|rede",
+      "mcp__plugin_context_mode_context_mode__ctx_batch_execute|sem-alvo"
+    ]
+  },
+  "n_promoviveis": {
+    "0.5": 3,
+    "1": 5,
+    "2": 7,
+    "4": 10,
+    "7.5": 12,
+    "15": 12,
+    "100": 12,
+    "100000": 12
+  },
+  "acrescentadas_em_w4": [
+    "Read|arquivo:doc",
+    "Read|arquivo:outro",
+    "ToolSearch|consulta"
+  ],
+  "corpus_de_planejamento": {
+    "oportunidades": 1526,
+    "cobertas_w2": 611,
+    "cobertas_w4": 677,
+    "cobertura_w2": 0.4004,
+    "cobertura_w4": 0.4436,
+    "por_assinatura_acrescentada": {
+      "Read|arquivo:doc": 60,
+      "Read|arquivo:outro": 6,
+      "ToolSearch|consulta": 0
+    }
+  },
+  "epoch_1": {
+    "2": {
+      "epoch_1_inteiro": {
+        "oportunidades": 139,
+        "cobertas": 45,
+        "cobertura": 0.3237,
+        "wilson95": [
+          0.2516,
+          0.4054
+        ],
+        "abaixo_do_limiar": true
+      },
+      "epoch_1_pos_washout": {
+        "oportunidades": 75,
+        "cobertas": 30,
+        "cobertura": 0.4,
+        "wilson95": [
+          0.2966,
+          0.5131
+        ],
+        "abaixo_do_limiar": false
+      },
+      "epoch_1_fase_active": {
+        "oportunidades": 101,
+        "cobertas": 34,
+        "cobertura": 0.3366,
+        "wilson95": [
+          0.252,
+          0.4333
+        ],
+        "abaixo_do_limiar": true
+      },
+      "ponderada_regra_do_ensaio": {
+        "oportunidades_ponderadas": 65.505,
+        "cobertas_ponderadas": 35.725,
+        "cobertura": 0.5454,
+        "abaixo_do_limiar": false
+      }
+    },
+    "4": {
+      "epoch_1_inteiro": {
+        "oportunidades": 139,
+        "cobertas": 52,
+        "cobertura": 0.3741,
+        "wilson95": [
+          0.2981,
+          0.4569
+        ],
+        "abaixo_do_limiar": false
+      },
+      "epoch_1_pos_washout": {
+        "oportunidades": 75,
+        "cobertas": 36,
+        "cobertura": 0.48,
+        "wilson95": [
+          0.3707,
+          0.5913
+        ],
+        "abaixo_do_limiar": false
+      },
+      "epoch_1_fase_active": {
+        "oportunidades": 101,
+        "cobertas": 41,
+        "cobertura": 0.4059,
+        "wilson95": [
+          0.3153,
+          0.5035
+        ],
+        "abaixo_do_limiar": false
+      },
+      "ponderada_regra_do_ensaio": {
+        "oportunidades_ponderadas": 65.505,
+        "cobertas_ponderadas": 42.67,
+        "cobertura": 0.6514,
+        "abaixo_do_limiar": false
+      }
+    }
+  }
+}

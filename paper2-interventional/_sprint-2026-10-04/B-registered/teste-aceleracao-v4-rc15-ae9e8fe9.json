@@ -1,0 +1,145 @@
+{
+  "scipy": "1.18.0",
+  "numpy": "2.4.4",
+  "caso_a_mao": {
+    "T": [
+      1,
+      2,
+      4
+    ],
+    "C": [
+      0,
+      3
+    ],
+    "sum_q2": "355/216",
+    "sum_q3": "20/243",
+    "a_exato": 0.006510443418102376,
+    "a_script": 0.006510443418102381,
+    "a_scipy": 0.00651044341810238,
+    "a_uma_amostra_v3": 0.003432059029480418
+  },
+  "dados_reais": [
+    {
+      "perna": "registrado",
+      "h": "H1",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": 0.133487,
+      "a_scipy": 0.13348745912151402,
+      "a_v3": 0.153025,
+      "confere": true
+    },
+    {
+      "perna": "registrado",
+      "h": "H1a",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": 0.133447,
+      "a_scipy": 0.13344714025473964,
+      "a_v3": 0.152983,
+      "confere": true
+    },
+    {
+      "perna": "registrado",
+      "h": "H1c",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": -0.012926,
+      "a_scipy": -0.012925598843426546,
+      "a_v3": -0.012704,
+      "confere": true
+    },
+    {
+      "perna": "sens_registrado_sem_sessoes_atravessadas",
+      "h": "H1",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": -0.000589,
+      "a_scipy": -0.0005888846026340207,
+      "a_v3": -0.001471,
+      "confere": true
+    },
+    {
+      "perna": "sens_registrado_sem_sessoes_atravessadas",
+      "h": "H1a",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": 0.006053,
+      "a_scipy": 0.006053217314251383,
+      "a_v3": 0.005066,
+      "confere": true
+    },
+    {
+      "perna": "sens_registrado_sem_sessoes_atravessadas",
+      "h": "H1c",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": -0.010358,
+      "a_scipy": -0.010358496127072228,
+      "a_v3": -0.010548,
+      "confere": true
+    },
+    {
+      "perna": "registrado",
+      "h": "H2_t_win",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": 0.024805,
+      "a_scipy": 0.024805010613307494,
+      "a_v3": 0.02586,
+      "confere": true
+    },
+    {
+      "perna": "registrado",
+      "h": "H2_t_raw",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": -0.125613,
+      "a_scipy": -0.12561302697268675,
+      "a_v3": -0.128531,
+      "confere": true
+    },
+    {
+      "perna": "registrado",
+      "h": "H2_k_win",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": 0.026765,
+      "a_scipy": 0.026764726629601766,
+      "a_v3": 0.026196,
+      "confere": true
+    },
+    {
+      "perna": "registrado",
+      "h": "H2_k_raw",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": 0.054908,
+      "a_scipy": 0.0549081652261691,
+      "a_v3": 0.053045,
+      "confere": true
+    }
+  ],
+  "falhas": [],
+  "ok": true
+}

@@ -1,0 +1,139 @@
+SCRUBBED — packaged copies that differ from their source (Paper B v2.0)
+
+The repository and the ballast were NOT overwritten: each copy below was redacted only inside the
+zip. MANIFEST-v2.0.json keeps both hashes ('sha256_source', 'sha256') and the rules.
+
+_ballast/MANIFESTO-LASTRO-P2.json
+  in:             artifacts-v2.0.zip  [R2 x183]
+  source sha256:  d310e4e9354206a55434dea2662ec154ec9ea7d352bf1bc9dce9057e1ce973b6
+  packaged:       d06db92d776a0bbb7fdac55587217c533eb209210b741fe5b57a83335391aa0f
+
+_ballast/recibos/backup-20260921T194737Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  04ee0814b8c875a18b8d2e009af9d8fe82668f62e6ab6797af518fe008c9d3cc
+  packaged:       525c9cfdc76c0dc098089e3bbb830d4a06fb7455ec973a762472d460e9876703
+
+_ballast/recibos/backup-20260921T194853Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  4a31cc9aa63a6c767e6dc5ca040f278e2f6e7fa72cca1ec924a83add34f2c799
+  packaged:       f5a5c7bdd0a9508d28fc8129bc5d9164639caaacd5e69e13944cc978618b9212
+
+_ballast/recibos/backup-20260921T194909Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  7e4f770ece0e4e2678ba8811b1df1a60764cccdd64d13d023b6f0024e9e82753
+  packaged:       657d56ec7204068d2f67238b7ce1e7ddf159116a23e58564089e365f285bafa8
+
+_ballast/recibos/backup-20260921T194912Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  f87d19b758b9e2ac9a0c46cedbfdd6eba00e59f610fae23b3e740aa0b0a3e5eb
+  packaged:       f12139236129ff92937129f9cdf6dc1a64e68f169cb8b82d282c2036a322ef4f
+
+_ballast/recibos/backup-20260921T194942Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  d37467c46dc1cf505f6d4e20da085fea8ba42dd969532d98480418c64c27043c
+  packaged:       439f5f2198d199b73b6341531c08828cd410f10779efe3a79234072c0a47a943
+
+_ballast/recibos/backup-20260921T194943Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  7d524c21d46ead82b29720733642d48cf61fedaecbefd22a5b23f34f66beb640
+  packaged:       00a862c2033f9f6aad9a294a20cdc0cfb323f088bd399211d76be55e7d744b9e
+
+_ballast/recibos/backup-20260921T195541Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  24c3bc532bacaaa7c630ed7b948b30e2f59a158897e283503fae66be962c9051
+  packaged:       66565d44691eb3e00da704bbcdd0c19b2a1b1a45b79a5af833b5addef88a3ae0
+
+_ballast/recibos/backup-20260921T195544Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  56f2295873d4312999b83368edbfd819efc7951a9fe7762ac653ee75b17e250f
+  packaged:       a94c3be8e9e240f336c6265ef0225c40a73e15b3440079588c2524ca730d09cf
+
+_ballast/recibos/backup-20260921T195546Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  3427746ae09ed92e7caece8bd085077bb95d95ace9f04e4ad04df1fc2c087f7e
+  packaged:       e53f1b9f98dec397337f9f626cd1c956d9c4717fa24e957541ab0fc7293ba6ce
+
+_ballast/recibos/backup-20260921T235147Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  16798f71fbcd9a50318bb07eef946c486854330accc91ff803f6701c73816703
+  packaged:       47d5a84fcb43e78281fb1cb622d15418f0596e62507859ae74c016b58a0923db
+
+_ballast/recibos/backup-20260921T235204Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  b623dbb140d7239c2b1405605777e3fd46245cb1c8b4c2ca362cfbb42f7deba9
+  packaged:       d5f0b4099a151483df6b084cff714d1d57e6d480736315faf762d60ff710f3ae
+
+_ballast/recibos/backup-20260921T235228Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  b12714120a4d06af059762b4d747fc04478a1f4065db4c5d6dfd7a09b2e32392
+  packaged:       b2f99640505653e2ffef92be7488db26b4f4aa00143ac3f8415c523c87548460
+
+_ballast/recibos/backup-20260921T235229Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  b015bea1daecf7abcd210f4d7e5585e27b40cebffe532b08902b6032fb5c2641
+  packaged:       baceec3b88000ec9ef3f896675c06bf9f5d089a936f2c6735ae0b8c09a7dd31c
+
+_ballast/recibos/backup-20260922T014727Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  d9a91b224e9b6f3fc1b5098e322e5da9ca6c89c29d59e06638b77cd229b85242
+  packaged:       745562a378492c935db58418440983146547385d2bc4399244999dd7afbaf66d
+
+_ballast/recibos/backup-20260922T014836Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  65b5b9f8562b1e13f32de656b3f1df209fc9d3c13668d35014f8c5f1ed498129
+  packaged:       2b4672db5062b730dc4866c1a883be365ac5c3a193aa032d7d521c51df8f0570
+
+_ballast/recibos/backup-20261005T125749Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  f6ff13ccbc5fdcea398cdd099fdccb13caf9e9dce1ac65b1ffb23a723ce34819
+  packaged:       78b408217e05d4b3a6c6c99c7f48c5b0e6492269d14f726f054cefea96341299
+
+_ballast/recibos/backup-20261005T125933Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  fcce876143588129f710b2468f44d6afe06b71687660bd7b3d16306f81dac7c5
+  packaged:       dd522da8bdad916bf2244032704816b99d96b832c3aaa703dd98235b26b8d29d
+
+_ballast/recibos/backup-20261005T130243Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  3cafcccbc90303f08516b1da85ecb9ff4901d2f8266dd3afc6225fc50009e956
+  packaged:       4acc6989b4c7f50c1202c3c9eddc51700092c69410288df22fa4f4c7cc2df901
+
+_ballast/recibos/backup-20261005T130316Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  144a1098247d38814804fc153f9f87c1c4461c840e7bf702f7fc97e620a859dd
+  packaged:       ffe1802ab0298e1bd2a2d26370736556b9e1c802d03d0b288f3517861227d554
+
+_ballast/recibos/backup-20261007T120120Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  2b1458d5a4a03d8bc1e7039c9109007e8f15d8e3e221fe585f2dcdb2a1fb1b65
+  packaged:       dc6d54c943740dcae3e4257f8ab66bac005d4980d48595c621882ab8c0036e7b
+
+_ballast/recibos/backup-20261007T120248Z.txt
+  in:             artifacts-v2.0.zip  [R2 x2]
+  source sha256:  2cb200cbb0fbd425e6f8606fae2c05940fa7a6456251ffae2fd7804e65ef7103
+  packaged:       00913996c14edd0e258e5c355167c645834d96b5f331fb00ae950c4d58b6131c
+
+_sprint-2026-10-04/APPLY-B-rc12.md
+  in:             artifacts-v2.0.zip  [R2b x1]
+  source sha256:  7eefc6e4b449bc2cc10ef82d06fd199fc20fc779c0ab03831e2386e963683905
+  packaged:       385a698296365f84c340cbd2e45a35a0c7af4fc337b1e5b8038000fe10facaeb
+
+_sprint-2026-10-04/APPLY-B-rc13.md
+  in:             artifacts-v2.0.zip  [R2c x1]
+  source sha256:  1fd0dfa6a48df10d6ab52f09d60ad8b3ebcdc149903394d7aba2370ff0e8f040
+  packaged:       69033f0e7d5726a5f6403c14595d95ffdf7dcab6d60a98067e0adb7172a43ebc
+
+_sprint-2026-10-04/B-sham-v2/JANELA-LANCAMENTO.md
+  in:             artifacts-v2.0.zip  [R5 x1]
+  source sha256:  6cff1885c17eff237e3a0b912cff0f91c7e0be8902830890394872cebcf14df3
+  packaged:       63d5fb2cbd411d19f396613b51ac0a8eb4b1558914c108481be9f60a66de4f8b
+
+_sprint-2026-10-04/REVIEW-B-rc23-codex-2026-10-07.md
+  in:             artifacts-v2.0.zip  [R2 x5]
+  source sha256:  3ad0545d57accc74b6de775e24ab01f99a1fd8819bce983696cf23ec5594d59d
+  packaged:       356aad1f47fc44be87d58753e1796dea44420e3b093a6f2dce344e96e6bc9f7a
+
+_sprint-2026-10-04/phase2-inputs/B-figures.json
+  in:             artifacts-v2.0.zip  [R2 x10]
+  source sha256:  c9b066c7e97d3f0c0ab2919e2ff717a10236a69a26e0bff7a7666f571424d139
+  packaged:       e1e836de0bc25f86b684963b2fb019670be2799971361dbb8c4ed8e182ff5c49

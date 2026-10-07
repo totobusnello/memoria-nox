@@ -1,0 +1,187 @@
+{
+  "scipy": "1.18.0",
+  "numpy": "2.4.4",
+  "caso_a_mao": {
+    "T": [
+      1,
+      2,
+      4
+    ],
+    "C": [
+      0,
+      3
+    ],
+    "sum_q2": "355/216",
+    "sum_q3": "20/243",
+    "a_exato": 0.006510443418102376,
+    "a_script": 0.006510443418102381,
+    "a_scipy": 0.00651044341810238,
+    "a_uma_amostra_v3": 0.003432059029480418
+  },
+  "dados_reais": [
+    {
+      "perna": "registrado",
+      "h": "H1",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": 0.133487,
+      "a_scipy": 0.13348745912151402,
+      "a_v3": 0.153025,
+      "a_v4_cru": 0.13348745912151402,
+      "dif_cru": 0.0,
+      "confere_cru": true,
+      "confere_arredondado": true,
+      "confere": true
+    },
+    {
+      "perna": "registrado",
+      "h": "H1a",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": 0.133447,
+      "a_scipy": 0.13344714025473964,
+      "a_v3": 0.152983,
+      "a_v4_cru": 0.1334471402547397,
+      "dif_cru": 5.551115123125783e-17,
+      "confere_cru": true,
+      "confere_arredondado": true,
+      "confere": true
+    },
+    {
+      "perna": "registrado",
+      "h": "H1c",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": -0.012926,
+      "a_scipy": -0.012925598843426546,
+      "a_v3": -0.012704,
+      "a_v4_cru": -0.01292559884342654,
+      "dif_cru": 5.204170427930421e-18,
+      "confere_cru": true,
+      "confere_arredondado": true,
+      "confere": true
+    },
+    {
+      "perna": "sens_registrado_sem_sessoes_atravessadas",
+      "h": "H1",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": -0.000589,
+      "a_scipy": -0.0005888846026340207,
+      "a_v3": -0.001471,
+      "a_v4_cru": -0.0005888846026340257,
+      "dif_cru": 4.9873299934333204e-18,
+      "confere_cru": true,
+      "confere_arredondado": true,
+      "confere": true
+    },
+    {
+      "perna": "sens_registrado_sem_sessoes_atravessadas",
+      "h": "H1a",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": 0.006053,
+      "a_scipy": 0.006053217314251383,
+      "a_v3": 0.005066,
+      "a_v4_cru": 0.006053217314251308,
+      "dif_cru": 7.546047120499111e-17,
+      "confere_cru": true,
+      "confere_arredondado": true,
+      "confere": true
+    },
+    {
+      "perna": "sens_registrado_sem_sessoes_atravessadas",
+      "h": "H1c",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": -0.010358,
+      "a_scipy": -0.010358496127072228,
+      "a_v3": -0.010548,
+      "a_v4_cru": -0.010358496127072224,
+      "dif_cru": 3.469446951953614e-18,
+      "confere_cru": true,
+      "confere_arredondado": true,
+      "confere": true
+    },
+    {
+      "perna": "registrado",
+      "h": "H2_t_win",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": 0.024805,
+      "a_scipy": 0.024805010613307494,
+      "a_v3": 0.02586,
+      "a_v4_cru": 0.024805010613307636,
+      "dif_cru": 1.4224732503009818e-16,
+      "confere_cru": true,
+      "confere_arredondado": true,
+      "confere": true
+    },
+    {
+      "perna": "registrado",
+      "h": "H2_t_raw",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": -0.125613,
+      "a_scipy": -0.12561302697268675,
+      "a_v3": -0.128531,
+      "a_v4_cru": -0.12561302697268673,
+      "dif_cru": 2.7755575615628914e-17,
+      "confere_cru": true,
+      "confere_arredondado": true,
+      "confere": true
+    },
+    {
+      "perna": "registrado",
+      "h": "H2_k_win",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": 0.026765,
+      "a_scipy": 0.026764726629601766,
+      "a_v3": 0.026196,
+      "a_v4_cru": 0.026764726629601755,
+      "dif_cru": 1.0408340855860843e-17,
+      "confere_cru": true,
+      "confere_arredondado": true,
+      "confere": true
+    },
+    {
+      "perna": "registrado",
+      "h": "H2_k_raw",
+      "n": [
+        11,
+        8
+      ],
+      "a_v4": 0.054908,
+      "a_scipy": 0.0549081652261691,
+      "a_v3": 0.053045,
+      "a_v4_cru": 0.054908165226169224,
+      "dif_cru": 1.249000902703301e-16,
+      "confere_cru": true,
+      "confere_arredondado": true,
+      "confere": true
+    }
+  ],
+  "tolerancia_cru": 1e-12,
+  "max_dif_cru": 1.4224732503009818e-16,
+  "falhas": [],
+  "ok": true
+}

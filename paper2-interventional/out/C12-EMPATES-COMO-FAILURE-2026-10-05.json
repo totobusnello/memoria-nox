@@ -1,0 +1,119 @@
+{
+  "gerado_em": "2026-10-05",
+  "objeto": "C12 do Paper B rc4: empates exatos por braco no conjunto de quatro votos",
+  "regra": "carregar_verdicts (pilot_replay.py): piso 3 substantivos; maioria estrita; empate (n/2 falhas, n par) -> not_failure; falha = nivel >= TAU",
+  "tau": "S1",
+  "conjunto_quatro_votos": "ensaio-20260921-PRIMARIO-3fam.jsonl + ensaio-20260921-SENSIB-deepseek.jsonl (DEVIATIONS §10.31)",
+  "entradas_sha256": {
+    "ensaio-20260921-PRIMARIO-3fam.jsonl": "ccff1a1458b1d7394f2b8a06ce02b65d2d6effe758f407099d43e224ebb0ff49",
+    "ensaio-20260921-SENSIB-deepseek.jsonl": "c7ae6714b07fe8c4dc837167f93b615a4bcb4c938dbdcc69a931f2cacf1033f0",
+    "episodios-ensaio-20260921.jsonl": "bcf451823ea192629787c91fbf9fbf7f837b4e6d6020f5f95f141c29da73689f",
+    "ITT-2026-09-21.json": "19afa7cc2214bedd7de5e83f79b1d60d116e5e43122f78475cbd54c7c60fc5ee",
+    "ASSIGNMENT-SERVING.json": "8957cc5fe8696204c8a71416c0e1f89374d46f1f75db982c52067adbb43d625c",
+    "estimador_itt.py": "f07395a941ff29930de1560ae0b1215d3e90e8bcc7548763ef0659be6ce668a8",
+    "pilot_replay.py": "5af42ed327a8e96ff4dff751619223f11da6dd9c33d86932b2ef5673bea63ce2",
+    "estrato-b-ids-20260921.txt": "ab4249f113612012ee135d692b68176f6beb9837e2ff7df02a4f3636201ae065"
+  },
+  "controles": {
+    "c1_manifesto": "ok (estrato-b-ids fora do manifesto; coberto por c2)",
+    "c2_itt_primario_reproduzido": "ok: oportunidades, repeats, unknown, n_epochs por braco",
+    "c3_deviations_10_31": {
+      "resgates_ganhos": 20,
+      "empates_perdas": 28,
+      "nota": "reproduz 'ganhos 20 · perdas 28' de DEVIATIONS §10.31(6): resgates ao piso de 3 e empates exatos; nenhum dos dois e mudanca de rotulo",
+      "empates_que_mudam_rotulo_failure_para_not_failure": 3,
+      "empates_ja_not_failure_com_3_familias": 25,
+      "resgates_que_entram_como_failure": 13
+    },
+    "c4_repeats": {
+      "condicao_i_inalterada": false,
+      "por_braco": {
+        "treatment": {
+          "repeats_3fam": 76.84,
+          "repeats_4votos": 76.84,
+          "delta": 0.0,
+          "ganhos_menos_perdas_peso": 0.0
+        },
+        "control": {
+          "repeats_3fam": 106.67,
+          "repeats_4votos": 107.67,
+          "delta": 1.0,
+          "ganhos_menos_perdas_peso": 1.0
+        }
+      }
+    },
+    "c5_regra_de_empate_na_condicao_i": {
+      "assinaturas_cujo_primeiro_failure_muda": 0,
+      "nota": "resolver os empates que mudam rotulo como failure nao altera a condicao (i)"
+    }
+  },
+  "empates_total_conjunto_4v": 28,
+  "empates_fora_da_janela": 7,
+  "peso_estrato_b": 6.945,
+  "por_braco": {
+    "treatment": {
+      "empates": 10,
+      "empates_que_mudam_rotulo": 1,
+      "resgates": 6,
+      "empates_oportunidade": 4,
+      "empates_oportunidade_peso": 27.78,
+      "perdas_oportunidade": 0,
+      "perdas_oportunidade_peso": 0.0,
+      "ganhos_oportunidade": 0,
+      "ganhos_oportunidade_peso": 0.0,
+      "episodios_adjudicados_4v": 360
+    },
+    "control": {
+      "empates": 11,
+      "empates_que_mudam_rotulo": 1,
+      "resgates": 4,
+      "empates_oportunidade": 7,
+      "empates_oportunidade_peso": 36.725,
+      "perdas_oportunidade": 0,
+      "perdas_oportunidade_peso": 0.0,
+      "ganhos_oportunidade": 1,
+      "ganhos_oportunidade_peso": 1.0,
+      "episodios_adjudicados_4v": 336
+    }
+  },
+  "h1c_ponto": {
+    "tres_familias": {
+      "treatment": 0.069613,
+      "control": 0.089552
+    },
+    "quatro_votos": {
+      "treatment": 0.067489,
+      "control": 0.088332
+    },
+    "diferenca_3fam": -0.019939,
+    "diferenca_4votos": -0.020843,
+    "nota": "ponto apenas (estimador_itt.py com --boot 1); sem intervalo; nao e resultado do paper"
+  },
+  "contrafactual_empate_como_failure": {
+    "regra": "empate exato (n/2 de n) -> failure, so neste bloco; o resto do arquivo usa a regra do paper",
+    "empates_resolvidos": 28,
+    "por_braco": {
+      "treatment": {
+        "oportunidades": 1138.47,
+        "repeats": 104.62,
+        "H1c_prop": 0.09189
+      },
+      "control": {
+        "oportunidades": 1218.92,
+        "repeats": 144.4,
+        "H1c_prop": 0.118461
+      }
+    },
+    "diferenca_4votos_regra_do_paper": -0.020843,
+    "diferenca_4votos_empate_como_failure": -0.026571,
+    "primeira_ordem": {
+      "por_braco": {
+        "treatment": 0.091895,
+        "control": 0.118461
+      },
+      "diferenca": -0.026566,
+      "nota": "repeats + peso HT dos empates-oportunidade, oportunidades fixas; ignora a realimentacao da condicao (i)"
+    },
+    "nota": "ponto apenas (estimador_itt.py com --boot 1); sem intervalo; nao e resultado do paper"
+  }
+}

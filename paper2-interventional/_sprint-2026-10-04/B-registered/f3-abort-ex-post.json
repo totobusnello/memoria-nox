@@ -1,0 +1,313 @@
+{
+  "objeto": "F3: deposited safety abort (PREREG l.804-806) evaluated ex post over adjudicated episodes only",
+  "nao_e": "the registered evaluation (script at every epoch boundary over the incident stream)",
+  "regra_de_nivel": "strict majority of substantive panelist levels >= S3 (>= S4), floor of 3 verdicts, as carregar_verdicts applies at tau",
+  "3fam": {
+    "por_epoch": {
+      "2026-09-01": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 2,
+        "algum_painelista_S4": 0,
+        "adjudicados": 26
+      },
+      "2026-09-02": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 34
+      },
+      "2026-09-03": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 38
+      },
+      "2026-09-04": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 1,
+        "algum_painelista_S4": 0,
+        "adjudicados": 22
+      },
+      "2026-09-05": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 13
+      },
+      "2026-09-06": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 26
+      },
+      "2026-09-07": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 3,
+        "algum_painelista_S4": 0,
+        "adjudicados": 56
+      },
+      "2026-09-08": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 49
+      },
+      "2026-09-09": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 1,
+        "algum_painelista_S4": 0,
+        "adjudicados": 17
+      },
+      "2026-09-10": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 25
+      },
+      "2026-09-11": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 1,
+        "algum_painelista_S4": 0,
+        "adjudicados": 40
+      },
+      "2026-09-12": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 35
+      },
+      "2026-09-13": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 35
+      },
+      "2026-09-14": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 77
+      },
+      "2026-09-15": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 1,
+        "algum_painelista_S4": 1,
+        "adjudicados": 27
+      },
+      "2026-09-16": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 1,
+        "algum_painelista_S4": 0,
+        "adjudicados": 47
+      },
+      "2026-09-17": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 31
+      },
+      "2026-09-18": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 34
+      },
+      "2026-09-19": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 15
+      },
+      "2026-09-20": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 39
+      }
+    },
+    "total": {
+      "adjudicados": 686,
+      "S3_maioria": 0,
+      "S4_maioria": 0,
+      "algum_painelista_S3": 10,
+      "algum_painelista_S4": 1
+    },
+    "clausula_a_dispararia": false,
+    "clausula_b_max_janela_3_epochs": 0,
+    "clausula_b_dispararia_com_baseline_zero": false
+  },
+  "substituicao": {
+    "por_epoch": {
+      "2026-09-01": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 2,
+        "algum_painelista_S4": 0,
+        "adjudicados": 26
+      },
+      "2026-09-02": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 34
+      },
+      "2026-09-03": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 38
+      },
+      "2026-09-04": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 1,
+        "algum_painelista_S4": 0,
+        "adjudicados": 23
+      },
+      "2026-09-05": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 13
+      },
+      "2026-09-06": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 26
+      },
+      "2026-09-07": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 3,
+        "algum_painelista_S4": 0,
+        "adjudicados": 56
+      },
+      "2026-09-08": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 49
+      },
+      "2026-09-09": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 1,
+        "algum_painelista_S4": 0,
+        "adjudicados": 21
+      },
+      "2026-09-10": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 26
+      },
+      "2026-09-11": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 1,
+        "algum_painelista_S4": 0,
+        "adjudicados": 41
+      },
+      "2026-09-12": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 35
+      },
+      "2026-09-13": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 36
+      },
+      "2026-09-14": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 78
+      },
+      "2026-09-15": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 1,
+        "algum_painelista_S4": 1,
+        "adjudicados": 27
+      },
+      "2026-09-16": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 1,
+        "algum_painelista_S4": 0,
+        "adjudicados": 47
+      },
+      "2026-09-17": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 31
+      },
+      "2026-09-18": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 35
+      },
+      "2026-09-19": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 15
+      },
+      "2026-09-20": {
+        "S3_maioria": 0,
+        "S4_maioria": 0,
+        "algum_painelista_S3": 0,
+        "algum_painelista_S4": 0,
+        "adjudicados": 39
+      }
+    },
+    "total": {
+      "adjudicados": 696,
+      "S3_maioria": 0,
+      "S4_maioria": 0,
+      "algum_painelista_S3": 10,
+      "algum_painelista_S4": 1
+    },
+    "clausula_a_dispararia": false,
+    "clausula_b_max_janela_3_epochs": 0,
+    "clausula_b_dispararia_com_baseline_zero": false
+  }
+}

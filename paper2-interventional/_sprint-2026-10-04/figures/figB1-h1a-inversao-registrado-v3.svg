@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 830" width="820" height="830" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11">
+<style>:root{--ink:#1a1a1a;--mut:#6b6b6b;--grid:#e3e3e3;--tr:#b4472f;--ct:#2f6bb4;--bg:#fcfcfb}@media (prefers-color-scheme:dark){:root{--ink:#eaeaea;--mut:#9a9a9a;--grid:#333;--tr:#d47456;--ct:#4f8ee0;--bg:#1a1a19}}text{fill:var(--ink)}.mut{fill:var(--mut)}</style>
+<rect width="820" height="830" fill="var(--bg)"/>
+<text x="78" y="22" font-size="13" font-weight="600">H1a: the intervals that excluded zero came from long sessions split across epochs; counted at their start, none does</text>
+<text x="78" y="48" font-weight="600">(a) Session-hours per epoch, registered window and washout, each session in its start epoch (span = last − first event, summed)</text>
+<line x1="78" y1="280.0" x2="780" y2="280.0" stroke="var(--grid)"/>
+<text x="70" y="284.0" text-anchor="end" class="mut">0</text>
+<line x1="78" y1="238.0" x2="780" y2="238.0" stroke="var(--grid)"/>
+<text x="70" y="242.0" text-anchor="end" class="mut">50</text>
+<line x1="78" y1="196.0" x2="780" y2="196.0" stroke="var(--grid)"/>
+<text x="70" y="200.0" text-anchor="end" class="mut">100</text>
+<line x1="78" y1="154.0" x2="780" y2="154.0" stroke="var(--grid)"/>
+<text x="70" y="158.0" text-anchor="end" class="mut">150</text>
+<line x1="78" y1="112.0" x2="780" y2="112.0" stroke="var(--grid)"/>
+<text x="70" y="116.0" text-anchor="end" class="mut">200</text>
+<line x1="78" y1="70.0" x2="780" y2="70.0" stroke="var(--grid)"/>
+<text x="70" y="74.0" text-anchor="end" class="mut">250</text>
+<path d="M79.0,280 V279.9 Q79.0,279.7 79.1,279.7 H113.8 Q113.9,279.7 113.9,279.9 V280 Z" fill="var(--tr)"><title>2026-09-01 · treatment (w=4) · 0.31 h</title></path>
+<text x="96.5" y="294" text-anchor="middle" class="mut" font-size="9">01</text>
+<text x="96.5" y="306" text-anchor="middle" class="mut" font-size="8">w4</text>
+<path d="M115.9,280 V279.9 Q115.9,279.8 116.0,279.8 H150.8 Q150.9,279.8 150.9,279.9 V280 Z" fill="var(--ct)"><title>2026-09-03 · control (w=0) · 0.23 h</title></path>
+<text x="133.4" y="294" text-anchor="middle" class="mut" font-size="9">03</text>
+<text x="133.4" y="306" text-anchor="middle" class="mut" font-size="8">ctl</text>
+<path d="M152.9,280 V279.9 Q152.9,279.8 153.0,279.8 H187.7 Q187.8,279.8 187.8,279.9 V280 Z" fill="var(--tr)"><title>2026-09-04 · treatment (w=2) · 0.25 h</title></path>
+<text x="170.4" y="294" text-anchor="middle" class="mut" font-size="9">04</text>
+<text x="170.4" y="306" text-anchor="middle" class="mut" font-size="8">w2</text>
+<path d="M189.8,280 V279.9 Q189.8,279.8 190.0,279.8 H224.7 Q224.8,279.8 224.8,279.9 V280 Z" fill="var(--tr)"><title>2026-09-05 · treatment (w=2) · 0.29 h</title></path>
+<text x="207.3" y="294" text-anchor="middle" class="mut" font-size="9">05</text>
+<text x="207.3" y="306" text-anchor="middle" class="mut" font-size="8">w2</text>
+<path d="M226.8,280 V279.8 Q226.8,279.7 227.0,279.7 H261.6 Q261.7,279.7 261.7,279.8 V280 Z" fill="var(--tr)"><title>2026-09-06 · treatment (w=7.5) · 0.40 h</title></path>
+<text x="244.3" y="294" text-anchor="middle" class="mut" font-size="9">06</text>
+<text x="244.3" y="306" text-anchor="middle" class="mut" font-size="8">w7.5</text>
+<path d="M263.7,280 V279.8 Q263.7,279.6 264.0,279.6 H298.5 Q298.7,279.6 298.7,279.8 V280 Z" fill="var(--ct)"><title>2026-09-07 · control (w=0) · 0.53 h</title></path>
+<text x="281.2" y="294" text-anchor="middle" class="mut" font-size="9">07</text>
+<text x="281.2" y="306" text-anchor="middle" class="mut" font-size="8">ctl</text>
+<path d="M300.7,280 V81.8 Q300.7,77.8 304.7,77.8 H331.6 Q335.6,77.8 335.6,81.8 V280 Z" fill="var(--tr)"><title>2026-09-08 · treatment (w=2) · 240.75 h</title></path>
+<text x="318.2" y="294" text-anchor="middle" class="mut" font-size="9">08</text>
+<text x="318.2" y="306" text-anchor="middle" class="mut" font-size="8">w2</text>
+<path d="M337.6,280 V279.9 Q337.6,279.8 337.8,279.8 H372.5 Q372.6,279.8 372.6,279.9 V280 Z" fill="var(--tr)"><title>2026-09-09 · treatment (w=2) · 0.28 h</title></path>
+<text x="355.1" y="294" text-anchor="middle" class="mut" font-size="9">09</text>
+<text x="355.1" y="306" text-anchor="middle" class="mut" font-size="8">w2</text>
+<path d="M374.6,280 V279.9 Q374.6,279.7 374.7,279.7 H409.4 Q409.5,279.7 409.5,279.9 V280 Z" fill="var(--ct)"><title>2026-09-10 · control (w=0) · 0.30 h</title></path>
+<text x="392.1" y="294" text-anchor="middle" class="mut" font-size="9">10</text>
+<text x="392.1" y="306" text-anchor="middle" class="mut" font-size="8">ctl</text>
+<path d="M411.5,280 V238.4 Q411.5,234.4 415.5,234.4 H442.5 Q446.5,234.4 446.5,238.4 V280 Z" fill="var(--ct)"><title>2026-09-11 · control (w=0) · 54.31 h</title></path>
+<text x="429.0" y="294" text-anchor="middle" class="mut" font-size="9">11</text>
+<text x="429.0" y="306" text-anchor="middle" class="mut" font-size="8">ctl</text>
+<path d="M448.5,280 V215.7 Q448.5,211.7 452.5,211.7 H479.4 Q483.4,211.7 483.4,215.7 V280 Z" fill="var(--tr)"><title>2026-09-12 · treatment (w=4) · 81.37 h</title></path>
+<text x="465.9" y="294" text-anchor="middle" class="mut" font-size="9">12</text>
+<text x="465.9" y="306" text-anchor="middle" class="mut" font-size="8">w4</text>
+<path d="M485.4,280 V279.7 Q485.4,279.5 485.7,279.5 H520.1 Q520.4,279.5 520.4,279.7 V280 Z" fill="var(--ct)"><title>2026-09-13 · control (w=0) · 0.62 h</title></path>
+<text x="502.9" y="294" text-anchor="middle" class="mut" font-size="9">13</text>
+<text x="502.9" y="306" text-anchor="middle" class="mut" font-size="8">ctl</text>
+<path d="M522.4,280 V279.8 Q522.4,279.6 522.6,279.6 H557.1 Q557.3,279.6 557.3,279.8 V280 Z" fill="var(--tr)"><title>2026-09-14 · treatment (w=4) · 0.46 h</title></path>
+<text x="539.8" y="294" text-anchor="middle" class="mut" font-size="9">14</text>
+<text x="539.8" y="306" text-anchor="middle" class="mut" font-size="8">w4</text>
+<path d="M559.3,280 V279.9 Q559.3,279.8 559.4,279.8 H594.2 Q594.3,279.8 594.3,279.9 V280 Z" fill="var(--tr)"><title>2026-09-15 · treatment (w=4) · 0.25 h</title></path>
+<text x="576.8" y="294" text-anchor="middle" class="mut" font-size="9">15</text>
+<text x="576.8" y="306" text-anchor="middle" class="mut" font-size="8">w4</text>
+<path d="M596.3,280 V279.9 Q596.3,279.8 596.4,279.8 H631.1 Q631.2,279.8 631.2,279.9 V280 Z" fill="var(--tr)"><title>2026-09-16 · treatment (w=2) · 0.28 h</title></path>
+<text x="613.7" y="294" text-anchor="middle" class="mut" font-size="9">16</text>
+<text x="613.7" y="306" text-anchor="middle" class="mut" font-size="8">w2</text>
+<path d="M633.2,280 V279.9 Q633.2,279.7 633.3,279.7 H668.0 Q668.2,279.7 668.2,279.9 V280 Z" fill="var(--ct)"><title>2026-09-17 · control (w=0) · 0.30 h</title></path>
+<text x="650.7" y="294" text-anchor="middle" class="mut" font-size="9">17</text>
+<text x="650.7" y="306" text-anchor="middle" class="mut" font-size="8">ctl</text>
+<path d="M670.2,280 V279.9 Q670.2,279.8 670.3,279.8 H705.0 Q705.1,279.8 705.1,279.9 V280 Z" fill="var(--ct)"><title>2026-09-18 · control (w=0) · 0.29 h</title></path>
+<text x="687.6" y="294" text-anchor="middle" class="mut" font-size="9">18</text>
+<text x="687.6" y="306" text-anchor="middle" class="mut" font-size="8">ctl</text>
+<path d="M707.1,280 V279.9 Q707.1,279.8 707.2,279.8 H741.9 Q742.1,279.8 742.1,279.9 V280 Z" fill="var(--tr)"><title>2026-09-19 · treatment (w=2) · 0.29 h</title></path>
+<text x="724.6" y="294" text-anchor="middle" class="mut" font-size="9">19</text>
+<text x="724.6" y="306" text-anchor="middle" class="mut" font-size="8">w2</text>
+<path d="M744.1,280 V279.8 Q744.1,279.6 744.3,279.6 H778.8 Q779.0,279.6 779.0,279.8 V280 Z" fill="var(--ct)"><title>2026-09-20 · control (w=0) · 0.48 h</title></path>
+<text x="761.5" y="294" text-anchor="middle" class="mut" font-size="9">20</text>
+<text x="761.5" y="306" text-anchor="middle" class="mut" font-size="8">ctl</text>
+<text x="32" y="294" class="mut" font-size="9">Sep</text>
+<text x="32" y="306" class="mut" font-size="8">arm</text>
+<text x="18" y="175.0" class="mut" text-anchor="middle" transform="rotate(-90 18 175.0)">hours</text>
+<line x1="332.2" y1="83.8" x2="378.2" y2="97.8" stroke="var(--mut)"/>
+<text x="382.2" y="101.8" text-anchor="start" font-size="10">2026-09-08: 240.75 h = 74% of all treatment exposure;</text>
+<text x="382.2" y="114.8" text-anchor="start" font-size="10">one session with 60 episodes, counted in its start epoch, spans 240.42 h</text>
+<text x="382.2" y="127.8" text-anchor="start" font-size="10">2026-09-11: 54.31 h, of which one session with 2 episodes spans 54.00 h</text>
+<text x="382.2" y="140.8" text-anchor="start" font-size="10">2026-09-12: 81.37 h, of which one session with 67 episodes spans 81.01 h</text>
+<text x="382.2" y="153.8" text-anchor="start" font-size="10">other 16 epochs: 0.23–0.62 h; 09-02 excluded (served no brief)</text>
+<rect x="84" y="74" width="10" height="10" rx="2" fill="var(--tr)"/>
+<text x="100" y="83" font-size="10">treatment · 324.95 h over 11 epochs</text>
+<rect x="84" y="90" width="10" height="10" rx="2" fill="var(--ct)"/>
+<text x="100" y="99" font-size="10">control · 57.06 h over 8 epochs</text>
+<text x="78" y="334" font-weight="600">(b) H1a difference, treatment − control (opportunities per session-hour), 95% cluster-bootstrap interval</text>
+<line x1="378.0" y1="358" x2="378.0" y2="670" stroke="var(--grid)"/>
+<text x="378.0" y="686" text-anchor="middle" class="mut">−400</text>
+<line x1="431.6" y1="358" x2="431.6" y2="670" stroke="var(--grid)"/>
+<text x="431.6" y="686" text-anchor="middle" class="mut">−300</text>
+<line x1="485.2" y1="358" x2="485.2" y2="670" stroke="var(--grid)"/>
+<text x="485.2" y="686" text-anchor="middle" class="mut">−200</text>
+<line x1="538.8" y1="358" x2="538.8" y2="670" stroke="var(--grid)"/>
+<text x="538.8" y="686" text-anchor="middle" class="mut">−100</text>
+<line x1="592.4" y1="358" x2="592.4" y2="670" stroke="var(--grid)"/>
+<text x="592.4" y="686" text-anchor="middle" class="mut">0</text>
+<line x1="646.0" y1="358" x2="646.0" y2="670" stroke="var(--grid)"/>
+<text x="646.0" y="686" text-anchor="middle" class="mut">+100</text>
+<line x1="699.6" y1="358" x2="699.6" y2="670" stroke="var(--grid)"/>
+<text x="699.6" y="686" text-anchor="middle" class="mut">+200</text>
+<line x1="753.2" y1="358" x2="753.2" y2="670" stroke="var(--grid)"/>
+<text x="753.2" y="686" text-anchor="middle" class="mut">+300</text>
+<line x1="592.4" y1="352" x2="592.4" y2="670" stroke="var(--ink)" stroke-width="1.5"/>
+<text x="596.4" y="350" font-size="10" class="mut">zero</text>
+<text x="78" y="375.0" font-size="10.5">registered · locked</text>
+<text x="78" y="388.0" font-size="10" class="mut">19 epochs (09-02 excluded), BCa</text>
+<text x="78" y="401.0" font-size="10" class="mut">−15.22 [−372.20; +314.65] · contains zero</text>
+<line x1="392.9" y1="384.0" x2="761.1" y2="384.0" stroke="var(--ink)" stroke-width="2"/>
+<line x1="392.9" y1="379.0" x2="392.9" y2="389.0" stroke="var(--ink)" stroke-width="2"/>
+<line x1="761.1" y1="379.0" x2="761.1" y2="389.0" stroke="var(--ink)" stroke-width="2"/>
+<circle cx="584.2" cy="384.0" r="5" fill="var(--bg)" stroke="var(--ink)" stroke-width="2"/>
+<text x="78" y="427.0" font-size="10.5">registered · pre-committed sensitivity (spec §9.1)</text>
+<text x="78" y="440.0" font-size="10" class="mut">partials 09-01, 09-03, 09-20 removed, BCa</text>
+<text x="78" y="453.0" font-size="10" class="mut">−10.51 [−359.53; +321.30] · contains zero</text>
+<line x1="399.7" y1="436.0" x2="764.6" y2="436.0" stroke="var(--ink)" stroke-width="2"/>
+<line x1="399.7" y1="431.0" x2="399.7" y2="441.0" stroke="var(--ink)" stroke-width="2"/>
+<line x1="764.6" y1="431.0" x2="764.6" y2="441.0" stroke="var(--ink)" stroke-width="2"/>
+<circle cx="586.8" cy="436.0" r="5" fill="var(--bg)" stroke="var(--ink)" stroke-width="2"/>
+<text x="78" y="479.0" font-size="10.5">registered · post-hoc sensitivity</text>
+<text x="78" y="492.0" font-size="10" class="mut">09-14 removed, chosen after seeing the data, BCa</text>
+<text x="78" y="505.0" font-size="10" class="mut">−15.76 [−373.87; +300.07] · contains zero</text>
+<line x1="392.0" y1="488.0" x2="753.2" y2="488.0" stroke="var(--ink)" stroke-width="2"/>
+<line x1="392.0" y1="483.0" x2="392.0" y2="493.0" stroke="var(--ink)" stroke-width="2"/>
+<line x1="753.2" y1="483.0" x2="753.2" y2="493.0" stroke="var(--ink)" stroke-width="2"/>
+<circle cx="584.0" cy="488.0" r="5" fill="var(--bg)" stroke="var(--ink)" stroke-width="2"/>
+<text x="78" y="531.0" font-size="10.5">registered · without boundary-straddling sessions</text>
+<text x="78" y="544.0" font-size="10" class="mut">PREREG §2 'without' sensitivity, BCa</text>
+<text x="78" y="557.0" font-size="10" class="mut">−51.12 [−115.60; +22.07] · contains zero</text>
+<line x1="530.4" y1="540.0" x2="604.2" y2="540.0" stroke="var(--ink)" stroke-width="2"/>
+<line x1="530.4" y1="535.0" x2="530.4" y2="545.0" stroke="var(--ink)" stroke-width="2"/>
+<line x1="604.2" y1="535.0" x2="604.2" y2="545.0" stroke="var(--ink)" stroke-width="2"/>
+<circle cx="565.0" cy="540.0" r="5" fill="var(--bg)" stroke="var(--ink)" stroke-width="2"/>
+<text x="78" y="583.0" font-size="10.5">rc9 analysis (sessions split by epoch) · locked</text>
+<text x="78" y="596.0" font-size="10" class="mut">washout out, each episode in its own epoch, BCa</text>
+<text x="78" y="609.0" font-size="10" class="mut">−233.20 [−352.07; −80.31] · excludes zero</text>
+<line x1="403.7" y1="592.0" x2="549.4" y2="592.0" stroke="var(--ink)" stroke-width="2"/>
+<line x1="403.7" y1="587.0" x2="403.7" y2="597.0" stroke="var(--ink)" stroke-width="2"/>
+<line x1="549.4" y1="587.0" x2="549.4" y2="597.0" stroke="var(--ink)" stroke-width="2"/>
+<circle cx="467.4" cy="592.0" r="5" fill="var(--ink)" stroke="var(--ink)" stroke-width="2"/>
+<text x="78" y="635.0" font-size="10.5">rc7 analysis (sensitivity) · locked</text>
+<text x="78" y="648.0" font-size="10" class="mut">20 epochs, percentile, no window cut</text>
+<text x="78" y="661.0" font-size="10" class="mut">−143.92 [−209.80; −15.34] · excludes zero</text>
+<line x1="479.9" y1="644.0" x2="584.2" y2="644.0" stroke="var(--ink)" stroke-width="2"/>
+<line x1="479.9" y1="639.0" x2="479.9" y2="649.0" stroke="var(--ink)" stroke-width="2"/>
+<line x1="584.2" y1="639.0" x2="584.2" y2="649.0" stroke="var(--ink)" stroke-width="2"/>
+<circle cx="515.3" cy="644.0" r="5" fill="var(--ink)" stroke="var(--ink)" stroke-width="2"/>
+<text x="78" y="710" class="mut" font-size="10">filled marker = interval excludes zero · hollow = contains zero · coverage of these intervals not established (§4.1.1, §4.1.2)</text>
+<text x="78" y="726" class="mut" font-size="10">registered re-randomization test (different estimand, §4.0.2): unadjusted p = 0.2599;</text>
+<text x="78" y="740" class="mut" font-size="10">Holm-adjusted 1.0000 (m = 5) / 1.0000 (m = 4): H1a is not rejected under the registered decision rule</text>
+</svg>

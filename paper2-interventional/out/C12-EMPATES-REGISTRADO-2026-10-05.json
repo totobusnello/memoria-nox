@@ -1,0 +1,126 @@
+{
+  "gerado_em": "2026-10-05",
+  "objeto": "Paper B rc8: exact ties of the four-vote set under the REGISTERED window (expiry cut + SPEC §2 offsets) and the 19-epoch set (09-02 excluded); the rc4 files out/C12-EMPATES-*.json are unchanged",
+  "gerado_por": "_sprint-2026-10-04/B-rc8/checks-rc8.py (block C)",
+  "regra": "carregar_verdicts (pilot_replay.py): floor 3 substantive; strict majority; tie (n/2 failures, n even) -> not_failure; failure = level >= TAU",
+  "janela_registrada": {
+    "2026-09-01": [
+      "2026-09-01T10:37:01.943000+00:00",
+      null
+    ],
+    "2026-09-03": [
+      "2026-09-03T17:23:39.777000+00:00",
+      null
+    ],
+    "2026-09-20": [
+      null,
+      "2026-09-20T22:51:23+00:00"
+    ]
+  },
+  "conjunto_excluido": [
+    "2026-09-02"
+  ],
+  "controle_rc4_reproduzido": "ok: per-arm ties, tied opportunities and HT weights, ties outside the window, four-vote H1c points (-0.020843 / -0.026571) under the current window",
+  "empates_total_conjunto_4v": 28,
+  "empates_no_painel_registrado_substituicao": 0,
+  "censo_registrado": {
+    "por_braco": {
+      "treatment": {
+        "empates": 10,
+        "empates_oportunidade": 4,
+        "empates_oportunidade_peso": 27.78
+      },
+      "control": {
+        "empates": 10,
+        "empates_oportunidade": 7,
+        "empates_oportunidade_peso": 36.725
+      }
+    },
+    "fora": {
+      "fora_da_janela_de_datas": 7,
+      "fora_da_exposicao_2026-09-03": 1
+    }
+  },
+  "censo_atual": {
+    "por_braco": {
+      "treatment": {
+        "empates": 10,
+        "empates_oportunidade": 4,
+        "empates_oportunidade_peso": 27.78
+      },
+      "control": {
+        "empates": 11,
+        "empates_oportunidade": 7,
+        "empates_oportunidade_peso": 36.725
+      }
+    },
+    "fora": {
+      "fora_da_janela_de_datas": 7
+    }
+  },
+  "h1c_ponto_4votos_registrado": {
+    "regra_do_paper": {
+      "por_braco": {
+        "control": {
+          "oportunidades": 1101.75,
+          "repeats": 87.72,
+          "H1c_prop": 0.079623
+        },
+        "treatment": {
+          "oportunidades": 1138.47,
+          "repeats": 76.84,
+          "H1c_prop": 0.067489
+        }
+      },
+      "diferenca": -0.012134
+    },
+    "empate_como_failure": {
+      "por_braco": {
+        "control": {
+          "oportunidades": 1101.75,
+          "repeats": 124.45,
+          "H1c_prop": 0.112957
+        },
+        "treatment": {
+          "oportunidades": 1138.47,
+          "repeats": 104.62,
+          "H1c_prop": 0.09189
+        }
+      },
+      "diferenca": -0.021067
+    },
+    "nota": "point only; no interval; not a result of the paper"
+  },
+  "h1c_ponto_4votos_atual": {
+    "regra_do_paper": {
+      "por_braco": {
+        "control": {
+          "oportunidades": 1218.92,
+          "repeats": 107.67,
+          "H1c_prop": 0.088332
+        },
+        "treatment": {
+          "oportunidades": 1138.47,
+          "repeats": 76.84,
+          "H1c_prop": 0.067489
+        }
+      },
+      "diferenca": -0.020843
+    },
+    "empate_como_failure": {
+      "por_braco": {
+        "control": {
+          "oportunidades": 1218.92,
+          "repeats": 144.4,
+          "H1c_prop": 0.118461
+        },
+        "treatment": {
+          "oportunidades": 1138.47,
+          "repeats": 104.62,
+          "H1c_prop": 0.09189
+        }
+      },
+      "diferenca": -0.026571
+    }
+  }
+}

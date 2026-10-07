@@ -1,0 +1,201 @@
+{
+  "n_episodes": 50,
+  "panel_outcome": {
+    "agree": 46,
+    "agreement": 0.92,
+    "changes": [
+      {
+        "episode_id": "ebb8c9075eedac15",
+        "new": "failure",
+        "sep": "unknown"
+      },
+      {
+        "episode_id": "5972b9a5264d6d50",
+        "new": "failure",
+        "sep": "not_failure"
+      },
+      {
+        "episode_id": "2ddadc739cab2e5e",
+        "new": "not_failure",
+        "sep": "failure"
+      },
+      {
+        "episode_id": "d39172d64c1b2a37",
+        "new": "unknown",
+        "sep": "not_failure"
+      }
+    ],
+    "new": {
+      "failure": 3,
+      "not_failure": 46,
+      "unknown": 1
+    },
+    "rule": "pilot_replay.carregar_verdicts, tau=S1, strict majority, abstain absent, <3 substantive -> unknown; 3 families",
+    "sep": {
+      "failure": 2,
+      "not_failure": 47,
+      "unknown": 1
+    },
+    "wilson95": [
+      0.8116,
+      0.9685
+    ]
+  },
+  "per_provider": {
+    "google": {
+      "abstain_new": 1,
+      "abstain_sep": 0,
+      "label_agree": 47,
+      "label_agreement": 0.94,
+      "label_changes": [
+        {
+          "episode_id": "5d16a63d50a362df",
+          "new": "failure",
+          "new_level": "S2",
+          "sep": "not_failure",
+          "sep_level": "S0"
+        },
+        {
+          "episode_id": "aba030bb8bbb51b4",
+          "new": "failure",
+          "new_level": "S3",
+          "sep": "not_failure",
+          "sep_level": "S0"
+        },
+        {
+          "episode_id": "d39172d64c1b2a37",
+          "new": "abstain",
+          "new_level": null,
+          "sep": "failure",
+          "sep_level": "S2"
+        }
+      ],
+      "label_wilson95": [
+        0.8378,
+        0.9794
+      ],
+      "level_agree": 46,
+      "level_agreement": 0.92,
+      "level_transitions": {
+        "failure/S2 -> abstain/None": 1,
+        "failure/S2 -> failure/S3": 1,
+        "not_failure/S0 -> failure/S2": 1,
+        "not_failure/S0 -> failure/S3": 1
+      },
+      "model_served_new": {
+        "gemini-2.5-pro": 50
+      },
+      "model_served_sep": {
+        "gemini-2.5-pro": 50
+      },
+      "not_ok_new": 0,
+      "not_ok_sep": 0,
+      "pairs_compared": 50,
+      "verdicts_new": {
+        "abstain": 1,
+        "failure": 10,
+        "not_failure": 39
+      },
+      "verdicts_sep": {
+        "failure": 9,
+        "not_failure": 41
+      }
+    },
+    "xai": {
+      "abstain_new": 0,
+      "abstain_sep": 0,
+      "label_agree": 50,
+      "label_agreement": 1.0,
+      "label_changes": [],
+      "label_wilson95": [
+        0.9286,
+        1.0
+      ],
+      "level_agree": 50,
+      "level_agreement": 1.0,
+      "level_transitions": {},
+      "model_served_new": {
+        "grok-4.5": 50
+      },
+      "model_served_sep": {
+        "grok-4.5": 50
+      },
+      "not_ok_new": 0,
+      "not_ok_sep": 0,
+      "pairs_compared": 50,
+      "verdicts_new": {
+        "failure": 2,
+        "not_failure": 48
+      },
+      "verdicts_sep": {
+        "failure": 2,
+        "not_failure": 48
+      }
+    },
+    "zhipu": {
+      "abstain_new": 0,
+      "abstain_sep": 1,
+      "label_agree": 46,
+      "label_agreement": 0.92,
+      "label_changes": [
+        {
+          "episode_id": "ebb8c9075eedac15",
+          "new": "failure",
+          "new_level": "S1",
+          "sep": "abstain",
+          "sep_level": null
+        },
+        {
+          "episode_id": "5802f9bcb50b7ad6",
+          "new": "not_failure",
+          "new_level": "S0",
+          "sep": "failure",
+          "sep_level": "S1"
+        },
+        {
+          "episode_id": "5972b9a5264d6d50",
+          "new": "failure",
+          "new_level": "S3",
+          "sep": "not_failure",
+          "sep_level": "S0"
+        },
+        {
+          "episode_id": "2ddadc739cab2e5e",
+          "new": "not_failure",
+          "new_level": "S0",
+          "sep": "failure",
+          "sep_level": "S1"
+        }
+      ],
+      "label_wilson95": [
+        0.8116,
+        0.9685
+      ],
+      "level_agree": 46,
+      "level_agreement": 0.92,
+      "level_transitions": {
+        "abstain/None -> failure/S1": 1,
+        "failure/S1 -> not_failure/S0": 2,
+        "not_failure/S0 -> failure/S3": 1
+      },
+      "model_served_new": {
+        "glm-5.2": 50
+      },
+      "model_served_sep": {
+        "glm-5.2": 50
+      },
+      "not_ok_new": 0,
+      "not_ok_sep": 0,
+      "pairs_compared": 50,
+      "verdicts_new": {
+        "failure": 2,
+        "not_failure": 48
+      },
+      "verdicts_sep": {
+        "abstain": 1,
+        "failure": 2,
+        "not_failure": 47
+      }
+    }
+  }
+}

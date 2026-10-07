@@ -1,0 +1,108 @@
+R01  l.60    value   `p = 0.0127`
+R02  l.61    rewrite Under the deposited Holm correction no member of the H1a–H1c family rejects (§1).
+R03  l.64    value   `p = 0.1603`
+R04  l.72    value   (70.7%; 47.1% without `09-14`)
+R05  l.73    value   22.5
+R06  l.75    value   15.5
+R07  l.76    value   6.9
+R08  l.86    rewrite The spec counts partial epochs by fractional exposure, and that counting governs the power statement: under it
+R09  l.98    value   20 clusters, 11 treatment and 9 control,
+R10  l.101   value   `p = 0.1603`
+R11  l.102   value   22%
+R12  l.169   value   `p = 0.1603`
+R13  l.169   value   `p = 0.0127`
+R14  l.170   rewrite Under the deposited Holm correction no member of the H1a–H1c family rejects: H2 was not computed (§5) and H1b 
+R15  l.251   rewrite Counting whole epochs at the ITT's 11 treatment and 9 control, a cut the spec does not include, the verdict fl
+R16  l.308   value   **20**
+R17  l.308   rewrite every designated epoch. `09-02` served no brief but its sessions produced **88 episodes**; it was designated c
+R18  l.311   rewrite An earlier draft said "19 analyzable clusters" throughout. That is the coverage denominator applied to the ITT
+R19  l.317   rewrite The ITT of this version includes it, which the spec did not pre-commit.
+R20  l.365   rewrite ~~The analysis window closes at that instant.~~ The estimator of this version selects episodes by epoch date a
+R21  l.426   rewrite ~~Coverage 100%.~~ All 1 195 were submitted to the three-family panel; 1 159 (97.0%) met the three-substantive
+R22  l.449   value   −0.0208 to −0.0266
+R23  l.476   rewrite Percentile cluster bootstrap with the epoch as the resampling unit, resampled within arm, 10 000 replicates, s
+R24  l.801   value   **0.1603**
+R25  l.802   value   **0.0855**
+R26  l.803   value   **0.0127**
+R27  l.808   value   −0.0323
+R28  l.808   value   −0.0199
+R29  l.822   value   70.7%
+R30  l.822   value   22.5
+R31  l.823   value   15.5
+R32  l.836   value   20
+R33  l.836   value   0.0696
+R34  l.836   value   0.0896
+R35  l.836   value   **−0.0199**
+R36  l.836   value   [−0.0560; +0.0086]
+R37  l.837   value   0.0721
+R38  l.837   value   0.0994
+R39  l.837   value   −0.0273
+R40  l.837   value   [−0.0725; +0.0061]
+R41  l.838   value   −0.0244
+R42  l.838   value   [−0.0619; +0.0051]
+R43  l.850   rewrite This is the stable outcome of the study, and all three legs agree.
+R44  l.859   value   `H1c = 0.0896`
+R45  l.859   value   −0.0896
+R46  l.860   value   0.0335
+R47  l.890   value   [−0.0560; +0.0086]
+R48  l.890   value   11 and 9 clusters
+R49  l.894   value   `p = 0.1603`
+R50  l.895   value   22%
+R51  l.911   rewrite and 91.49 at the ITT's 20, with `09-02` added as a full ninth control epoch (10.9375 treatment, 8.23375 contro
+R52  l.913   rewrite at 91.49 the verdict flips on a 4.1% drop in ICC
+R53  l.924   rewrite At the ITT's 11 treatment and 9 control the verdict flips: the effective size is 96.41 against 95.26, so total
+R54  l.954   value   `p = 0.1603`
+R55  l.966   value   20
+R56  l.968   value   12.70 / 5.16
+R57  l.968   value   12.16 / 4.08
+R58  l.968   value   **5.57 / 5.16**
+R59  l.969   value   −143.92 · CI [−209.80; −15.34] · **excludes zero**
+R60  l.969   value   −133.34 · CI [−203.62; **+7.41**] · **contains zero**
+R61  l.969   value   −63.04 · CI [−120.45; **+1.76**] · **contains zero**
+R62  l.973   value   `p = 0.0855`
+R63  l.980   value   nineteen epochs fall between 0.32 and 0.97 h
+R64  l.981   value   56%
+R65  l.1003  value   20 clusters
+R66  l.1020  value   56% of all treatment exposure (12.70 h over 11 epochs, against 5.16 h over 9 control epochs)
+R67  l.1026  value   −143.92 [−209.80; −15.34]
+R68  l.1027  value   −133.34 [−203.62; +7.41]
+R69  l.1028  value   −63.04 [−120.45; +1.76]
+R70  l.1032  value   `p = 0.0855`
+R71  l.1043  value   −14.62, CI [−20.51; −4.79]
+R72  l.1044  value   −15.59, CI [−22.43; −4.05]
+R73  l.1045  value   −9.74, CI [−16.21; −2.99]
+R74  l.1070  value   0.557 treatment against 0.573 control
+R75  l.1071  value   −9.74
+R76  l.1072  value   132.3 opportunities and 11.85 repeats per epoch against 93.4 and 6.08
+R77  l.1080  value   20 clusters
+R78  l.1088  value   70.7%
+R79  l.1089  value   6.050 against 20.672
+R80  l.1089  value   47.1%
+R81  l.1090  value   22.5 and 15.0
+R82  l.1092  value   15.5 and 10.3
+R83  l.1093  value   10.3 and 6.9
+R84  l.1098  value   9 and 11 epochs
+R85  l.1289  rewrite not computed in this version; the reason is stated with the registered re-analysis
+R86  l.1290  rewrite not computed in this version; the reason is stated with the registered re-analysis
+R87  l.1341  rewrite That is the rule as stated. The primary analysis of this version did not implement it: its verdict file holds 
+R88  l.1356  rewrite under whole-epoch counting at the ITT's allocation it is borderline (§4.1.1).
+R89  l.1371  value   −0.0208 to −0.0266
+R90  l.1375  value   100.3 treatment, 132.3 control
+R91  l.1517  value   20 periods
+R92  l.1524  value   20 clusters, split 11/9
+R93  l.1571  rewrite whole-epoch counting at the ITT's 20 clusters flips it
+R94  l.1612  rewrite Counting whole epochs at the ITT's 11 treatment and 9 control, the verdict flips (effective size 96.41 against
+R95  l.1741  value   `p = 0.0127`
+R96  l.1741  rewrite under the deposited Holm correction no member of the family rejects
+R97  l.1749  rewrite the analysis of this version departs from the registered one in four places, each declared where it acts: perc
+R98  l.1817  rewrite power at 11T/9C (effective size 96.41 against 95.26, relative MDE 0.996, i.e. 80% power only for reductions of
+R99  l.1818  value   70.7% / 47.1%; 22.5 / 15.0 and 10.3 / 6.9
+R100  l.1818  value   −22%
+R101  l.1819  value   15.5 / 10.3
+R102  l.1820  value   and 89% (91.49)
+R103  l.1820  value   / 91.47
+R104  l.1821  value   1 195 submitted, 1 159 with three substantive verdicts, 36 `unknown`
+R105  l.1825  value   100.3 / 132.3
+R106  l.1825  value   1 103.75 / 11 and 1 191.14 / 9
+R107  l.1830  value   −0.0208
+R108  l.1830  value   −0.0266

@@ -1,0 +1,2320 @@
+{
+  "objeto": "Paper B rc15 checks (registered analysis v4: v3 + arm-stratified BCa acceleration)",
+  "gerado_por": "_sprint-2026-10-04/B-rc15/checks-rc15.py",
+  "sha256_script": "603695e08221de5225463fdbbc896b3af2ff8a3c88cbb71ba890cda9cfc524d8",
+  "sha256_ITT_REGISTRADO_v4": "3ed7637e526e61255bafbfbdf17f1e48f3e9dedeb4d7d625187bf4ee78e6b442",
+  "G_guardas": {
+    "atual": "reproduced: points, percentile and BCa intervals, per-arm totals",
+    "registrado": "reproduced: points, percentile and BCa intervals, per-arm totals",
+    "sens_registrado_sem_sessoes_atravessadas": "reproduced: points, percentile and BCa intervals, per-arm totals",
+    "registrado_v2_equivalente": "reproduced: points, percentile and BCa intervals, per-arm totals",
+    "v2_igual_a_v4_sem_switch_6_com_aceleracao_v3": "points, intervals (one-sample acceleration) and p-values equal"
+  },
+  "A_pernas_registradas": {
+    "registrado": {
+      "removidos": [
+        "2026-09-02"
+      ],
+      "n_epochs": {
+        "control": 8,
+        "treatment": 11
+      },
+      "por_braco": {
+        "control": {
+          "n_epochs": 8,
+          "oportunidades": 1079.91,
+          "repeats": 86.72,
+          "horas_sessao": 57.06,
+          "H1_densidade": 1.519869,
+          "H1a_taxa_oport": 18.925679,
+          "H1c_prop": 0.080307,
+          "unknown_no_denominador": 3
+        },
+        "treatment": {
+          "n_epochs": 11,
+          "oportunidades": 1203.98,
+          "repeats": 79.84,
+          "horas_sessao": 324.95,
+          "H1_densidade": 0.245685,
+          "H1a_taxa_oport": 3.705141,
+          "H1c_prop": 0.066309,
+          "unknown_no_denominador": 2
+        }
+      },
+      "H1": {
+        "ponto": -1.274184,
+        "ic95": [
+          -28.364131,
+          23.152967
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -29.624532,
+          19.311068
+        ],
+        "bca": {
+          "n_jackknife": 19,
+          "z0": -0.025821,
+          "acel": 0.133487,
+          "alfa_ajustado": [
+            0.055298,
+            0.995081
+          ],
+          "fallback": null,
+          "aceleracao": "arm-stratified (multi-sample): arm-specific leave-one-epoch-out jackknife influences, centred within arm and scaled by (n_g-1)/n_g; SciPy _bca_interval",
+          "n_jackknife_por_braco": {
+            "treatment": 11,
+            "control": 8
+          },
+          "n_por_braco": {
+            "treatment": 11,
+            "control": 8
+          },
+          "acel_uma_amostra_v3": 0.153025,
+          "fallback_uma_amostra_v3": null,
+          "ic95_bca_uma_amostra_v3": [
+            -28.151441,
+            23.50335
+          ]
+        },
+        "exclui_zero": false
+      },
+      "H1a": {
+        "ponto": -15.220538,
+        "ic95": [
+          -373.699037,
+          310.823666
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -385.925617,
+          282.408497
+        ],
+        "bca": {
+          "n_jackknife": 19,
+          "z0": -0.013536,
+          "acel": 0.133447,
+          "alfa_ajustado": [
+            0.057554,
+            0.99555
+          ],
+          "fallback": null,
+          "aceleracao": "arm-stratified (multi-sample): arm-specific leave-one-epoch-out jackknife influences, centred within arm and scaled by (n_g-1)/n_g; SciPy _bca_interval",
+          "n_jackknife_por_braco": {
+            "treatment": 11,
+            "control": 8
+          },
+          "n_por_braco": {
+            "treatment": 11,
+            "control": 8
+          },
+          "acel_uma_amostra_v3": 0.152983,
+          "fallback_uma_amostra_v3": null,
+          "ic95_bca_uma_amostra_v3": [
+            -372.2028,
+            314.654494
+          ]
+        },
+        "exclui_zero": false
+      },
+      "H1c": {
+        "ponto": -0.013998,
+        "ic95": [
+          -0.046363,
+          0.010955
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -0.045057,
+          0.011746
+        ],
+        "bca": {
+          "n_jackknife": 19,
+          "z0": -0.016795,
+          "acel": -0.012926,
+          "alfa_ajustado": [
+            0.020408,
+            0.969862
+          ],
+          "fallback": null,
+          "aceleracao": "arm-stratified (multi-sample): arm-specific leave-one-epoch-out jackknife influences, centred within arm and scaled by (n_g-1)/n_g; SciPy _bca_interval",
+          "n_jackknife_por_braco": {
+            "treatment": 11,
+            "control": 8
+          },
+          "n_por_braco": {
+            "treatment": 11,
+            "control": 8
+          },
+          "acel_uma_amostra_v3": -0.012704,
+          "fallback_uma_amostra_v3": null,
+          "ic95_bca_uma_amostra_v3": [
+            -0.046363,
+            0.010973
+          ]
+        },
+        "exclui_zero": false
+      }
+    },
+    "registrado_precomprometida": {
+      "removidos": [
+        "2026-09-01",
+        "2026-09-02",
+        "2026-09-03",
+        "2026-09-20"
+      ],
+      "n_epochs": {
+        "control": 6,
+        "treatment": 10
+      },
+      "por_braco": {
+        "control": {
+          "n_epochs": 6,
+          "oportunidades": 790.11,
+          "repeats": 70.78,
+          "horas_sessao": 56.35,
+          "H1_densidade": 1.256079,
+          "H1a_taxa_oport": 14.021569,
+          "H1c_prop": 0.089582,
+          "unknown_no_denominador": 2
+        },
+        "treatment": {
+          "n_epochs": 10,
+          "oportunidades": 1138.47,
+          "repeats": 77.84,
+          "horas_sessao": 324.64,
+          "H1_densidade": 0.239758,
+          "H1a_taxa_oport": 3.506888,
+          "H1c_prop": 0.068368,
+          "unknown_no_denominador": 2
+        }
+      },
+      "H1": {
+        "ponto": -1.016321,
+        "ic95": [
+          -30.25945,
+          24.024364
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -31.512976,
+          21.079382
+        ],
+        "bca": {
+          "n_jackknife": 16,
+          "z0": -0.051158,
+          "acel": 0.121592,
+          "alfa_ajustado": [
+            0.047745,
+            0.992545
+          ],
+          "fallback": null,
+          "aceleracao": "arm-stratified (multi-sample): arm-specific leave-one-epoch-out jackknife influences, centred within arm and scaled by (n_g-1)/n_g; SciPy _bca_interval",
+          "n_jackknife_por_braco": {
+            "treatment": 10,
+            "control": 6
+          },
+          "n_por_braco": {
+            "treatment": 10,
+            "control": 6
+          },
+          "acel_uma_amostra_v3": 0.150459,
+          "fallback_uma_amostra_v3": null,
+          "ic95_bca_uma_amostra_v3": [
+            -29.993064,
+            24.622256
+          ]
+        },
+        "exclui_zero": false
+      },
+      "H1a": {
+        "ponto": -10.514681,
+        "ic95": [
+          -362.545606,
+          315.49511
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -374.541798,
+          296.228271
+        ],
+        "bca": {
+          "n_jackknife": 16,
+          "z0": -0.06547,
+          "acel": 0.121534,
+          "alfa_ajustado": [
+            0.045436,
+            0.991706
+          ],
+          "fallback": null,
+          "aceleracao": "arm-stratified (multi-sample): arm-specific leave-one-epoch-out jackknife influences, centred within arm and scaled by (n_g-1)/n_g; SciPy _bca_interval",
+          "n_jackknife_por_braco": {
+            "treatment": 10,
+            "control": 6
+          },
+          "n_por_braco": {
+            "treatment": 10,
+            "control": 6
+          },
+          "acel_uma_amostra_v3": 0.1504,
+          "fallback_uma_amostra_v3": null,
+          "ic95_bca_uma_amostra_v3": [
+            -359.525609,
+            321.301122
+          ]
+        },
+        "exclui_zero": false
+      },
+      "H1c": {
+        "ponto": -0.021214,
+        "ic95": [
+          -0.062332,
+          0.007328
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -0.060032,
+          0.008529
+        ],
+        "bca": {
+          "n_jackknife": 16,
+          "z0": -0.003509,
+          "acel": -0.023077,
+          "alfa_ajustado": [
+            0.019691,
+            0.969149
+          ],
+          "fallback": null,
+          "aceleracao": "arm-stratified (multi-sample): arm-specific leave-one-epoch-out jackknife influences, centred within arm and scaled by (n_g-1)/n_g; SciPy _bca_interval",
+          "n_jackknife_por_braco": {
+            "treatment": 10,
+            "control": 6
+          },
+          "n_por_braco": {
+            "treatment": 10,
+            "control": 6
+          },
+          "acel_uma_amostra_v3": -0.021272,
+          "fallback_uma_amostra_v3": null,
+          "ic95_bca_uma_amostra_v3": [
+            -0.062197,
+            0.007419
+          ]
+        },
+        "exclui_zero": false
+      }
+    },
+    "registrado_pos_hoc_sem_0914": {
+      "removidos": [
+        "2026-09-02",
+        "2026-09-14"
+      ],
+      "n_epochs": {
+        "control": 8,
+        "treatment": 10
+      },
+      "por_braco": {
+        "control": {
+          "n_epochs": 8,
+          "oportunidades": 1079.91,
+          "repeats": 86.72,
+          "horas_sessao": 57.06,
+          "H1_densidade": 1.519869,
+          "H1a_taxa_oport": 18.925679,
+          "H1c_prop": 0.080307,
+          "unknown_no_denominador": 3
+        },
+        "treatment": {
+          "n_epochs": 10,
+          "oportunidades": 1027.24,
+          "repeats": 63.84,
+          "horas_sessao": 324.49,
+          "H1_densidade": 0.196727,
+          "H1a_taxa_oport": 3.165769,
+          "H1c_prop": 0.062142,
+          "unknown_no_denominador": 1
+        }
+      },
+      "H1": {
+        "ponto": -1.323142,
+        "ic95": [
+          -28.399903,
+          18.792772
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -29.626767,
+          16.099955
+        ],
+        "bca": {
+          "n_jackknife": 18,
+          "z0": -0.024317,
+          "acel": 0.133539,
+          "alfa_ajustado": [
+            0.055586,
+            0.995146
+          ],
+          "fallback": null,
+          "aceleracao": "arm-stratified (multi-sample): arm-specific leave-one-epoch-out jackknife influences, centred within arm and scaled by (n_g-1)/n_g; SciPy _bca_interval",
+          "n_jackknife_por_braco": {
+            "treatment": 10,
+            "control": 8
+          },
+          "n_por_braco": {
+            "treatment": 10,
+            "control": 8
+          },
+          "acel_uma_amostra_v3": 0.152311,
+          "fallback_uma_amostra_v3": null,
+          "ic95_bca_uma_amostra_v3": [
+            -28.257352,
+            19.303249
+          ]
+        },
+        "exclui_zero": false
+      },
+      "H1a": {
+        "ponto": -15.75991,
+        "ic95": [
+          -375.882337,
+          295.32583
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -386.595318,
+          265.704852
+        ],
+        "bca": {
+          "n_jackknife": 18,
+          "z0": -0.019804,
+          "acel": 0.133501,
+          "alfa_ajustado": [
+            0.056403,
+            0.995319
+          ],
+          "fallback": null,
+          "aceleracao": "arm-stratified (multi-sample): arm-specific leave-one-epoch-out jackknife influences, centred within arm and scaled by (n_g-1)/n_g; SciPy _bca_interval",
+          "n_jackknife_por_braco": {
+            "treatment": 10,
+            "control": 8
+          },
+          "n_por_braco": {
+            "treatment": 10,
+            "control": 8
+          },
+          "acel_uma_amostra_v3": 0.152271,
+          "fallback_uma_amostra_v3": null,
+          "ic95_bca_uma_amostra_v3": [
+            -373.867633,
+            300.065453
+          ]
+        },
+        "exclui_zero": false
+      },
+      "H1c": {
+        "ponto": -0.018165,
+        "ic95": [
+          -0.050913,
+          0.007324
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -0.048949,
+          0.008497
+        ],
+        "bca": {
+          "n_jackknife": 18,
+          "z0": -0.027075,
+          "acel": -0.009371,
+          "alfa_ajustado": [
+            0.020094,
+            0.969357
+          ],
+          "fallback": null,
+          "aceleracao": "arm-stratified (multi-sample): arm-specific leave-one-epoch-out jackknife influences, centred within arm and scaled by (n_g-1)/n_g; SciPy _bca_interval",
+          "n_jackknife_por_braco": {
+            "treatment": 10,
+            "control": 8
+          },
+          "n_por_braco": {
+            "treatment": 10,
+            "control": 8
+          },
+          "acel_uma_amostra_v3": -0.009134,
+          "fallback_uma_amostra_v3": null,
+          "ic95_bca_uma_amostra_v3": [
+            -0.050851,
+            0.007328
+          ]
+        },
+        "exclui_zero": false
+      }
+    },
+    "horas_por_epoch_registrado": {
+      "por_epoch": {
+        "2026-09-01": 0.3088,
+        "2026-09-03": 0.2288,
+        "2026-09-04": 0.2531,
+        "2026-09-05": 0.2933,
+        "2026-09-06": 0.4019,
+        "2026-09-07": 0.5316,
+        "2026-09-08": 240.7548,
+        "2026-09-09": 0.2847,
+        "2026-09-10": 0.2983,
+        "2026-09-11": 54.3149,
+        "2026-09-12": 81.3672,
+        "2026-09-13": 0.6192,
+        "2026-09-14": 0.4633,
+        "2026-09-15": 0.2521,
+        "2026-09-16": 0.2823,
+        "2026-09-17": 0.3008,
+        "2026-09-18": 0.2851,
+        "2026-09-19": 0.2869,
+        "2026-09-20": 0.482
+      },
+      "pico": "2026-09-08",
+      "pico_h": 240.7548,
+      "pico_share_tratamento": 0.7409,
+      "outros_n": 18,
+      "outros_min": 0.2288,
+      "outros_max": 81.3672,
+      "outros_min_epoch": "2026-09-03",
+      "outros_max_epoch": "2026-09-12"
+    },
+    "H1_reducoes_e_razoes": {
+      "registrado": {
+        "H1_t": 0.245685,
+        "H1_c": 1.519869,
+        "reducao": 0.8384,
+        "razoes": {
+          "calibracao_11_de_350": 26.67,
+          "realizada_335_de_7350": 18.39,
+          "maior_por_epoch_6.85pct": 12.24
+        }
+      },
+      "registrado_pos_hoc_sem_0914": {
+        "H1_t": 0.196727,
+        "H1_c": 1.519869,
+        "reducao": 0.8706,
+        "razoes": {
+          "calibracao_11_de_350": 27.7,
+          "realizada_335_de_7350": 19.1,
+          "maior_por_epoch_6.85pct": 12.71
+        }
+      },
+      "registrado_precomprometida": {
+        "H1_t": 0.239758,
+        "H1_c": 1.256079,
+        "reducao": 0.8091,
+        "razoes": {
+          "calibracao_11_de_350": 25.74,
+          "realizada_335_de_7350": 17.75,
+          "maior_por_epoch_6.85pct": 11.81
+        }
+      }
+    },
+    "volumes_por_epoch": {
+      "registrado": {
+        "treatment": {
+          "oport_por_epoch": 109.5,
+          "repeats_por_epoch": 7.26,
+          "horas_por_epoch": 29.541
+        },
+        "control": {
+          "oport_por_epoch": 135.0,
+          "repeats_por_epoch": 10.84,
+          "horas_por_epoch": 7.133
+        }
+      },
+      "registrado_pos_hoc_sem_0914": {
+        "treatment": {
+          "oport_por_epoch": 102.7,
+          "repeats_por_epoch": 6.38,
+          "horas_por_epoch": 32.449
+        },
+        "control": {
+          "oport_por_epoch": 135.0,
+          "repeats_por_epoch": 10.84,
+          "horas_por_epoch": 7.133
+        }
+      }
+    },
+    "identidade_H1_igual_H1c_vezes_H1a": {
+      "celulas": 6,
+      "erro_relativo_max": 3.83e-06
+    },
+    "H1c_registrado": {
+      "controle": 0.080307,
+      "reducao_relativa": 0.1743,
+      "eliminacao_total": -0.080307,
+      "ic95": [
+        -0.046363,
+        0.010955
+      ],
+      "distancia_ic_inferior_a_eliminacao_total": 0.0339
+    },
+    "bca_quantis": {
+      "H1": {
+        "alfa_ajustado": [
+          0.055298,
+          0.995081
+        ],
+        "indice_0_based": [
+          552,
+          9950
+        ],
+        "rank_inferior_1_based": 553,
+        "n": 10000,
+        "z0": -0.025821,
+        "acel": 0.133487,
+        "acel_uma_amostra_v3": 0.153025
+      },
+      "H1a": {
+        "alfa_ajustado": [
+          0.057554,
+          0.99555
+        ],
+        "indice_0_based": [
+          575,
+          9955
+        ],
+        "rank_inferior_1_based": 576,
+        "n": 10000,
+        "z0": -0.013536,
+        "acel": 0.133447,
+        "acel_uma_amostra_v3": 0.152983
+      },
+      "H1c": {
+        "alfa_ajustado": [
+          0.020408,
+          0.969862
+        ],
+        "indice_0_based": [
+          204,
+          9698
+        ],
+        "rank_inferior_1_based": 205,
+        "n": 10000,
+        "z0": -0.016795,
+        "acel": -0.012926,
+        "acel_uma_amostra_v3": -0.012704
+      }
+    }
+  },
+  "V_v3_para_v4": {
+    "registrado.H1": {
+      "v3": [
+        -28.151441,
+        23.50335
+      ],
+      "v4": [
+        -28.364131,
+        23.152967
+      ],
+      "exclui_zero": [
+        false,
+        false
+      ]
+    },
+    "registrado.H1a": {
+      "v3": [
+        -372.2028,
+        314.654494
+      ],
+      "v4": [
+        -373.699037,
+        310.823666
+      ],
+      "exclui_zero": [
+        false,
+        false
+      ]
+    },
+    "registrado.H1c": {
+      "v3": [
+        -0.046363,
+        0.010973
+      ],
+      "v4": [
+        -0.046363,
+        0.010955
+      ],
+      "exclui_zero": [
+        false,
+        false
+      ]
+    },
+    "registrado_precomprometida.H1": {
+      "v3": [
+        -29.993064,
+        24.622256
+      ],
+      "v4": [
+        -30.25945,
+        24.024364
+      ],
+      "exclui_zero": [
+        false,
+        false
+      ]
+    },
+    "registrado_precomprometida.H1a": {
+      "v3": [
+        -359.525609,
+        321.301122
+      ],
+      "v4": [
+        -362.545606,
+        315.49511
+      ],
+      "exclui_zero": [
+        false,
+        false
+      ]
+    },
+    "registrado_precomprometida.H1c": {
+      "v3": [
+        -0.062197,
+        0.007419
+      ],
+      "v4": [
+        -0.062332,
+        0.007328
+      ],
+      "exclui_zero": [
+        false,
+        false
+      ]
+    },
+    "registrado_pos_hoc_sem_0914.H1": {
+      "v3": [
+        -28.257352,
+        19.303249
+      ],
+      "v4": [
+        -28.399903,
+        18.792772
+      ],
+      "exclui_zero": [
+        false,
+        false
+      ]
+    },
+    "registrado_pos_hoc_sem_0914.H1a": {
+      "v3": [
+        -373.867633,
+        300.065453
+      ],
+      "v4": [
+        -375.882337,
+        295.32583
+      ],
+      "exclui_zero": [
+        false,
+        false
+      ]
+    },
+    "registrado_pos_hoc_sem_0914.H1c": {
+      "v3": [
+        -0.050851,
+        0.007328
+      ],
+      "v4": [
+        -0.050913,
+        0.007324
+      ],
+      "exclui_zero": [
+        false,
+        false
+      ]
+    },
+    "sha256_checks_rc10": "b774e61c7c3a20f7af921dc7910f4abc9b66bbbb0586795fd9ef17d90040133a"
+  },
+  "R_analises_rc8_rc9_em_v4": {
+    "rc9.registrado": {
+      "H1": {
+        "ponto": -19.853897,
+        "ic95_v4": [
+          -32.68669,
+          -9.862817
+        ],
+        "ic95_v3": [
+          -32.68669,
+          -9.887339
+        ],
+        "exclui_zero_v4": true,
+        "exclui_zero_v3": true,
+        "confere_checks": true
+      },
+      "H1a": {
+        "ponto": -233.204434,
+        "ic95_v4": [
+          -351.70316,
+          -79.807247
+        ],
+        "ic95_v3": [
+          -352.073828,
+          -80.311005
+        ],
+        "exclui_zero_v4": true,
+        "exclui_zero_v3": true,
+        "confere_checks": true
+      },
+      "H1c": {
+        "ponto": -0.012134,
+        "ic95_v4": [
+          -0.044485,
+          0.012532
+        ],
+        "ic95_v3": [
+          -0.044485,
+          0.012532
+        ],
+        "exclui_zero_v4": false,
+        "exclui_zero_v3": false,
+        "confere_checks": true
+      },
+      "horas": {
+        "control": 3.25,
+        "treatment": 10.75
+      }
+    },
+    "rc9.registrado_precomprometida": {
+      "H1": {
+        "ponto": -21.301866,
+        "ic95_v4": [
+          -35.133302,
+          -9.778448
+        ],
+        "ic95_v3": [
+          -34.936217,
+          -9.7404
+        ],
+        "exclui_zero_v4": true,
+        "exclui_zero_v3": true,
+        "confere_checks": true
+      },
+      "H1a": {
+        "ponto": -219.263874,
+        "ic95_v4": [
+          -348.56097,
+          -54.933251
+        ],
+        "ic95_v3": [
+          -349.293106,
+          -55.448529
+        ],
+        "exclui_zero_v4": true,
+        "exclui_zero_v3": true,
+        "confere_checks": true
+      },
+      "H1c": {
+        "ponto": -0.018658,
+        "ic95_v4": [
+          -0.059628,
+          0.009394
+        ],
+        "ic95_v3": [
+          -0.059611,
+          0.00941
+        ],
+        "exclui_zero_v4": false,
+        "exclui_zero_v3": false,
+        "confere_checks": true
+      },
+      "horas": {
+        "control": 2.52,
+        "treatment": 10.44
+      }
+    },
+    "rc9.registrado_pos_hoc_sem_0914": {
+      "H1": {
+        "ponto": -11.629533,
+        "ic95_v4": [
+          -20.316359,
+          -3.403851
+        ],
+        "ic95_v3": [
+          -20.314461,
+          -3.401758
+        ],
+        "exclui_zero_v4": true,
+        "exclui_zero_v3": true,
+        "confere_checks": true
+      },
+      "H1a": {
+        "ponto": -97.849517,
+        "ic95_v4": [
+          -162.77127,
+          -26.28223
+        ],
+        "ic95_v3": [
+          -162.77127,
+          -26.428803
+        ],
+        "exclui_zero_v4": true,
+        "exclui_zero_v3": true,
+        "confere_checks": true
+      },
+      "H1c": {
+        "ponto": -0.015908,
+        "ic95_v4": [
+          -0.048455,
+          0.009765
+        ],
+        "ic95_v3": [
+          -0.048455,
+          0.009765
+        ],
+        "exclui_zero_v4": false,
+        "exclui_zero_v3": false,
+        "confere_checks": true
+      },
+      "horas": {
+        "control": 3.25,
+        "treatment": 3.96
+      }
+    },
+    "rc8.registrado": {
+      "H1": {
+        "ponto": -14.119798,
+        "ic95_v4": [
+          -22.153162,
+          -7.052874
+        ],
+        "ic95_v3": [
+          -22.148776,
+          -7.037223
+        ],
+        "exclui_zero_v4": true,
+        "exclui_zero_v3": true,
+        "confere_checks": true
+      },
+      "H1a": {
+        "ponto": -163.520923,
+        "ic95_v4": [
+          -281.486088,
+          -61.015246
+        ],
+        "ic95_v3": [
+          -282.291958,
+          -61.120086
+        ],
+        "exclui_zero_v4": true,
+        "exclui_zero_v3": true,
+        "confere_checks": true
+      },
+      "H1c": {
+        "ponto": -0.012134,
+        "ic95_v4": [
+          -0.044485,
+          0.012532
+        ],
+        "ic95_v3": [
+          -0.044485,
+          0.012532
+        ],
+        "exclui_zero_v4": false,
+        "exclui_zero_v3": false,
+        "confere_checks": true
+      },
+      "horas": {
+        "control": 4.33,
+        "treatment": 12.56
+      }
+    },
+    "rc8.registrado_precomprometida": {
+      "H1": {
+        "ponto": -13.926983,
+        "ic95_v4": [
+          -23.043832,
+          -5.824456
+        ],
+        "ic95_v3": [
+          -22.97674,
+          -5.700644
+        ],
+        "exclui_zero_v4": true,
+        "exclui_zero_v3": true,
+        "confere_checks": true
+      },
+      "H1a": {
+        "ponto": -138.907354,
+        "ic95_v4": [
+          -254.181203,
+          -28.883615
+        ],
+        "ic95_v3": [
+          -254.181203,
+          -28.820445
+        ],
+        "exclui_zero_v4": true,
+        "exclui_zero_v3": true,
+        "confere_checks": true
+      },
+      "H1c": {
+        "ponto": -0.018658,
+        "ic95_v4": [
+          -0.059628,
+          0.009394
+        ],
+        "ic95_v3": [
+          -0.059611,
+          0.00941
+        ],
+        "exclui_zero_v4": false,
+        "exclui_zero_v3": false,
+        "confere_checks": true
+      },
+      "horas": {
+        "control": 3.57,
+        "treatment": 12.16
+      }
+    },
+    "rc8.registrado_pos_hoc_sem_0914": {
+      "H1": {
+        "ponto": -9.030189,
+        "ic95_v4": [
+          -14.677528,
+          -1.886344
+        ],
+        "ic95_v3": [
+          -14.677528,
+          -1.885565
+        ],
+        "exclui_zero_v4": true,
+        "exclui_zero_v3": true,
+        "confere_checks": true
+      },
+      "H1a": {
+        "ponto": -78.271822,
+        "ic95_v4": [
+          -146.191443,
+          2.112806
+        ],
+        "ic95_v3": [
+          -146.223022,
+          1.951246
+        ],
+        "exclui_zero_v4": false,
+        "exclui_zero_v3": false,
+        "confere_checks": true
+      },
+      "H1c": {
+        "ponto": -0.015908,
+        "ic95_v4": [
+          -0.048455,
+          0.009765
+        ],
+        "ic95_v3": [
+          -0.048455,
+          0.009765
+        ],
+        "exclui_zero_v4": false,
+        "exclui_zero_v3": false,
+        "confere_checks": true
+      },
+      "horas": {
+        "control": 4.33,
+        "treatment": 5.43
+      }
+    },
+    "sha256_checks": {
+      "rc8": "af67c1ea6945dbce65dc8512ddd2cf9b77e39d942d4f271319f7daa4400d4f57",
+      "rc9": "23e4a57cb5c7ce09c939dcd86efca324cd43e320638e85d9d4e22559191c4453"
+    }
+  },
+  "W_washout": {
+    "episodios_no_conjunto_registrado": 3301,
+    "episodios_removidos_pelo_washout": 972,
+    "por_braco": {
+      "treatment": 603,
+      "control": 369
+    },
+    "horas_v2": {
+      "control": 3.25,
+      "treatment": 10.75
+    },
+    "horas_v3": {
+      "control": 57.06,
+      "treatment": 324.95
+    },
+    "sessao_mais_longa_0914": {
+      "span_h": 0.1338,
+      "episodios": 56,
+      "id_prefix": "ddebd94e"
+    },
+    "sessoes_0914": 14
+  },
+  "S_sessoes_atravessadas": {
+    "sessoes": {
+      "60686aff": {
+        "inicio": "2026-08-24T17:12:06.365000+00:00",
+        "epoch_de_inicio": "2026-08-24",
+        "braco_de_inicio": null,
+        "offset_inicio_h": 8.2,
+        "span_h": 40.68,
+        "episodios": 45,
+        "epochs_tocados": [
+          "2026-08-24",
+          "2026-08-26"
+        ],
+        "na_janela": false,
+        "inicio_na_janela": false
+      },
+      "c41df8dd": {
+        "inicio": "2026-08-24T21:38:51.389000+00:00",
+        "epoch_de_inicio": "2026-08-24",
+        "braco_de_inicio": null,
+        "offset_inicio_h": 12.65,
+        "span_h": 46.7,
+        "episodios": 21,
+        "epochs_tocados": [
+          "2026-08-24",
+          "2026-08-25",
+          "2026-08-26"
+        ],
+        "na_janela": false,
+        "inicio_na_janela": false
+      },
+      "1a5d8840": {
+        "inicio": "2026-08-27T20:19:09.131000+00:00",
+        "epoch_de_inicio": "2026-08-27",
+        "braco_de_inicio": null,
+        "offset_inicio_h": 11.32,
+        "span_h": 257.46,
+        "episodios": 49,
+        "epochs_tocados": [
+          "2026-08-27",
+          "2026-08-28",
+          "2026-08-30",
+          "2026-08-31",
+          "2026-09-02",
+          "2026-09-03",
+          "2026-09-05",
+          "2026-09-06",
+          "2026-09-07"
+        ],
+        "na_janela": true,
+        "inicio_na_janela": false
+      },
+      "d37a5964": {
+        "inicio": "2026-09-08T20:14:33.446000+00:00",
+        "epoch_de_inicio": "2026-09-08",
+        "braco_de_inicio": "treatment",
+        "offset_inicio_h": 11.24,
+        "span_h": 240.42,
+        "episodios": 60,
+        "epochs_tocados": [
+          "2026-09-08",
+          "2026-09-09",
+          "2026-09-10",
+          "2026-09-11",
+          "2026-09-12",
+          "2026-09-13",
+          "2026-09-14",
+          "2026-09-15",
+          "2026-09-16",
+          "2026-09-17",
+          "2026-09-18"
+        ],
+        "na_janela": true,
+        "inicio_na_janela": true
+      },
+      "ce6f5640": {
+        "inicio": "2026-09-11T15:23:19.835000+00:00",
+        "epoch_de_inicio": "2026-09-11",
+        "braco_de_inicio": "control",
+        "offset_inicio_h": 6.39,
+        "span_h": 54.0,
+        "episodios": 2,
+        "epochs_tocados": [
+          "2026-09-11",
+          "2026-09-13"
+        ],
+        "na_janela": true,
+        "inicio_na_janela": true
+      },
+      "74de1e72": {
+        "inicio": "2026-09-13T01:19:55.030000+00:00",
+        "epoch_de_inicio": "2026-09-12",
+        "braco_de_inicio": "treatment",
+        "offset_inicio_h": 16.33,
+        "span_h": 81.01,
+        "episodios": 67,
+        "epochs_tocados": [
+          "2026-09-12",
+          "2026-09-16"
+        ],
+        "na_janela": true,
+        "inicio_na_janela": true
+      }
+    },
+    "sessoes_em_mais_de_um_epoch": 6,
+    "das_quais_tocam_a_janela": 4,
+    "das_quais_iniciam_na_janela": 3,
+    "todas_na_janela_com_span_maior_que_24h": true,
+    "horas_por_epoch_v3": {
+      "2026-09-01": 0.30878,
+      "2026-09-03": 0.22885,
+      "2026-09-04": 0.25308,
+      "2026-09-05": 0.29332,
+      "2026-09-06": 0.40192,
+      "2026-09-07": 0.53162,
+      "2026-09-08": 240.7548,
+      "2026-09-09": 0.28466,
+      "2026-09-10": 0.29828,
+      "2026-09-11": 54.31492,
+      "2026-09-12": 81.36723,
+      "2026-09-13": 0.61925,
+      "2026-09-14": 0.46334,
+      "2026-09-15": 0.25206,
+      "2026-09-16": 0.28235,
+      "2026-09-17": 0.30079,
+      "2026-09-18": 0.28511,
+      "2026-09-19": 0.28694,
+      "2026-09-20": 0.48202
+    },
+    "com": {
+      "H1": {
+        "ponto": -1.274184,
+        "ic95": [
+          -28.364131,
+          23.152967
+        ],
+        "construcao": "BCa",
+        "p_rerand": 0.3294,
+        "horas": {
+          "control": 57.06,
+          "treatment": 324.95
+        },
+        "oportunidades": {
+          "control": 1079.91,
+          "treatment": 1203.98
+        },
+        "repeats": {
+          "control": 86.72,
+          "treatment": 79.84
+        },
+        "n_epochs": {
+          "control": 8,
+          "treatment": 11
+        }
+      },
+      "H1a": {
+        "ponto": -15.220538,
+        "ic95": [
+          -373.699037,
+          310.823666
+        ],
+        "construcao": "BCa",
+        "p_rerand": 0.2599,
+        "horas": {
+          "control": 57.06,
+          "treatment": 324.95
+        },
+        "oportunidades": {
+          "control": 1079.91,
+          "treatment": 1203.98
+        },
+        "repeats": {
+          "control": 86.72,
+          "treatment": 79.84
+        },
+        "n_epochs": {
+          "control": 8,
+          "treatment": 11
+        }
+      },
+      "H1c": {
+        "ponto": -0.013998,
+        "ic95": [
+          -0.046363,
+          0.010955
+        ],
+        "construcao": "BCa",
+        "p_rerand": 0.4006,
+        "horas": {
+          "control": 57.06,
+          "treatment": 324.95
+        },
+        "oportunidades": {
+          "control": 1079.91,
+          "treatment": 1203.98
+        },
+        "repeats": {
+          "control": 86.72,
+          "treatment": 79.84
+        },
+        "n_epochs": {
+          "control": 8,
+          "treatment": 11
+        }
+      }
+    },
+    "sem": {
+      "H1": {
+        "ponto": -7.401289,
+        "ic95": [
+          -16.315478,
+          1.651191
+        ],
+        "construcao": "BCa",
+        "p_rerand": 0.1957,
+        "horas": {
+          "control": 3.06,
+          "treatment": 3.52
+        },
+        "oportunidades": {
+          "control": 1079.91,
+          "treatment": 1064.02
+        },
+        "repeats": {
+          "control": 86.72,
+          "treatment": 73.84
+        },
+        "n_epochs": {
+          "control": 8,
+          "treatment": 11
+        }
+      },
+      "H1a": {
+        "ponto": -51.120159,
+        "ic95": [
+          -115.530816,
+          22.229888
+        ],
+        "construcao": "BCa",
+        "p_rerand": 0.1501,
+        "horas": {
+          "control": 3.06,
+          "treatment": 3.52
+        },
+        "oportunidades": {
+          "control": 1079.91,
+          "treatment": 1064.02
+        },
+        "repeats": {
+          "control": 86.72,
+          "treatment": 73.84
+        },
+        "n_epochs": {
+          "control": 8,
+          "treatment": 11
+        }
+      },
+      "H1c": {
+        "ponto": -0.010915,
+        "ic95": [
+          -0.042461,
+          0.013759
+        ],
+        "construcao": "BCa",
+        "p_rerand": 0.4571,
+        "horas": {
+          "control": 3.06,
+          "treatment": 3.52
+        },
+        "oportunidades": {
+          "control": 1079.91,
+          "treatment": 1064.02
+        },
+        "repeats": {
+          "control": 86.72,
+          "treatment": 73.84
+        },
+        "n_epochs": {
+          "control": 8,
+          "treatment": 11
+        }
+      }
+    }
+  },
+  "C_empates_v3": {
+    "empates": 28,
+    "por_destino": {
+      "fora_das_datas": 7,
+      "washout": 9,
+      "fora_da_exposicao": 1,
+      "treatment": 4,
+      "control": 7
+    },
+    "empates_em_sessoes_atravessadas": 1,
+    "h1c_4votos_regra_do_paper": -0.013998,
+    "h1c_4votos_empate_como_failure": -0.024932
+  },
+  "F_do_artefato_v4": {
+    "multiplicidade": {
+      "atual": {
+        "leitura_depositada": {
+          "regra": "PREREG l.1025: H1 primary, alone at alpha=0.05; H1a-c + H2 Holm within the secondary family",
+          "H1_isolada_a_005": {
+            "p": 0.0127,
+            "rejeita": true
+          },
+          "holm_H1a_H1b_H1c_H2x2": {
+            "p_brutos": {
+              "H1a": 0.0855,
+              "H1b": null,
+              "H1c": 0.1603,
+              "H2_tempo": 0.892,
+              "H2_tokens": 0.95
+            },
+            "A_familia_registada_inavaliaveis_como_p1": {
+              "m": 5,
+              "p_ajustado": {
+                "H1a": 0.4275,
+                "H1c": 0.6412,
+                "H2_tempo": 1.0,
+                "H2_tokens": 1.0,
+                "H1b": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1c": false,
+                "H2_tempo": false,
+                "H2_tokens": false,
+                "H1b": false
+              }
+            },
+            "B_so_membros_avaliaveis": {
+              "m": 4,
+              "p_ajustado": {
+                "H1a": 0.342,
+                "H1c": 0.4809,
+                "H2_tempo": 1.0,
+                "H2_tokens": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1c": false,
+                "H2_tempo": false,
+                "H2_tokens": false
+              }
+            }
+          }
+        },
+        "leitura_da_troca": {
+          "regra": "PROSPECTIVE-ESTIMAND §3-bis: H1c primary; H1/H1a/H1b secondary; the registration's rule for secondaries (Holm) applied to them. Variant m6/m5 keeps H1c in the family (review F2); variant sem_H1c tests H1c alone and Holms the rest",
+          "H1c_primaria_isolada_a_005": {
+            "p": 0.1603,
+            "rejeita": false
+          },
+          "holm_H1_H1a_H1b_H1c_H2x2_m6_m5": {
+            "p_brutos": {
+              "H1": 0.0127,
+              "H1a": 0.0855,
+              "H1b": null,
+              "H2_tempo": 0.892,
+              "H2_tokens": 0.95,
+              "H1c": 0.1603
+            },
+            "A_familia_registada_inavaliaveis_como_p1": {
+              "m": 6,
+              "p_ajustado": {
+                "H1": 0.0762,
+                "H1a": 0.4275,
+                "H1c": 0.6412,
+                "H2_tempo": 1.0,
+                "H2_tokens": 1.0,
+                "H1b": 1.0
+              },
+              "rejeita": {
+                "H1": false,
+                "H1a": false,
+                "H1c": false,
+                "H2_tempo": false,
+                "H2_tokens": false,
+                "H1b": false
+              }
+            },
+            "B_so_membros_avaliaveis": {
+              "m": 5,
+              "p_ajustado": {
+                "H1": 0.0635,
+                "H1a": 0.342,
+                "H1c": 0.4809,
+                "H2_tempo": 1.0,
+                "H2_tokens": 1.0
+              },
+              "rejeita": {
+                "H1": false,
+                "H1a": false,
+                "H1c": false,
+                "H2_tempo": false,
+                "H2_tokens": false
+              }
+            }
+          },
+          "holm_H1_H1a_H1b_H2x2_sem_H1c_m5_m4": {
+            "p_brutos": {
+              "H1": 0.0127,
+              "H1a": 0.0855,
+              "H1b": null,
+              "H2_tempo": 0.892,
+              "H2_tokens": 0.95
+            },
+            "A_familia_registada_inavaliaveis_como_p1": {
+              "m": 5,
+              "p_ajustado": {
+                "H1": 0.0635,
+                "H1a": 0.342,
+                "H2_tempo": 1.0,
+                "H2_tokens": 1.0,
+                "H1b": 1.0
+              },
+              "rejeita": {
+                "H1": false,
+                "H1a": false,
+                "H2_tempo": false,
+                "H2_tokens": false,
+                "H1b": false
+              }
+            },
+            "B_so_membros_avaliaveis": {
+              "m": 4,
+              "p_ajustado": {
+                "H1": 0.0508,
+                "H1a": 0.2565,
+                "H2_tempo": 1.0,
+                "H2_tokens": 1.0
+              },
+              "rejeita": {
+                "H1": false,
+                "H1a": false,
+                "H2_tempo": false,
+                "H2_tokens": false
+              }
+            }
+          }
+        },
+        "H1_isolada_a_005": {
+          "p": 0.0127,
+          "rejeita": true
+        },
+        "H1c_primaria_PROSPECTIVE_ESTIMAND": {
+          "p": 0.1603,
+          "rejeita": false
+        },
+        "holm_H1a_H1b_H1c_H2x2": {
+          "p_brutos": {
+            "H1a": 0.0855,
+            "H1b": null,
+            "H1c": 0.1603,
+            "H2_tempo": 0.892,
+            "H2_tokens": 0.95
+          },
+          "A_familia_registada_inavaliaveis_como_p1": {
+            "m": 5,
+            "p_ajustado": {
+              "H1a": 0.4275,
+              "H1c": 0.6412,
+              "H2_tempo": 1.0,
+              "H2_tokens": 1.0,
+              "H1b": 1.0
+            },
+            "rejeita": {
+              "H1a": false,
+              "H1c": false,
+              "H2_tempo": false,
+              "H2_tokens": false,
+              "H1b": false
+            }
+          },
+          "B_so_membros_avaliaveis": {
+            "m": 4,
+            "p_ajustado": {
+              "H1a": 0.342,
+              "H1c": 0.4809,
+              "H2_tempo": 1.0,
+              "H2_tokens": 1.0
+            },
+            "rejeita": {
+              "H1a": false,
+              "H1c": false,
+              "H2_tempo": false,
+              "H2_tokens": false
+            }
+          }
+        }
+      },
+      "registrado": {
+        "leitura_depositada": {
+          "regra": "PREREG l.1025: H1 primary, alone at alpha=0.05; H1a-c + H2 Holm within the secondary family",
+          "H1_isolada_a_005": {
+            "p": 0.3294,
+            "rejeita": false
+          },
+          "holm_H1a_H1b_H1c_H2x2": {
+            "p_brutos": {
+              "H1a": 0.2599,
+              "H1b": null,
+              "H1c": 0.4006,
+              "H2_tempo": 0.8285,
+              "H2_tokens": 0.3372
+            },
+            "A_familia_registada_inavaliaveis_como_p1": {
+              "m": 5,
+              "p_ajustado": {
+                "H1a": 1.0,
+                "H2_tokens": 1.0,
+                "H1c": 1.0,
+                "H2_tempo": 1.0,
+                "H1b": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H2_tokens": false,
+                "H1c": false,
+                "H2_tempo": false,
+                "H1b": false
+              }
+            },
+            "B_so_membros_avaliaveis": {
+              "m": 4,
+              "p_ajustado": {
+                "H1a": 1.0,
+                "H2_tokens": 1.0,
+                "H1c": 1.0,
+                "H2_tempo": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H2_tokens": false,
+                "H1c": false,
+                "H2_tempo": false
+              }
+            }
+          }
+        },
+        "leitura_da_troca": {
+          "regra": "PROSPECTIVE-ESTIMAND §3-bis: H1c primary; H1/H1a/H1b secondary; the registration's rule for secondaries (Holm) applied to them. Variant m6/m5 keeps H1c in the family (review F2); variant sem_H1c tests H1c alone and Holms the rest",
+          "H1c_primaria_isolada_a_005": {
+            "p": 0.4006,
+            "rejeita": false
+          },
+          "holm_H1_H1a_H1b_H1c_H2x2_m6_m5": {
+            "p_brutos": {
+              "H1": 0.3294,
+              "H1a": 0.2599,
+              "H1b": null,
+              "H2_tempo": 0.8285,
+              "H2_tokens": 0.3372,
+              "H1c": 0.4006
+            },
+            "A_familia_registada_inavaliaveis_como_p1": {
+              "m": 6,
+              "p_ajustado": {
+                "H1a": 1.0,
+                "H1": 1.0,
+                "H2_tokens": 1.0,
+                "H1c": 1.0,
+                "H2_tempo": 1.0,
+                "H1b": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1": false,
+                "H2_tokens": false,
+                "H1c": false,
+                "H2_tempo": false,
+                "H1b": false
+              }
+            },
+            "B_so_membros_avaliaveis": {
+              "m": 5,
+              "p_ajustado": {
+                "H1a": 1.0,
+                "H1": 1.0,
+                "H2_tokens": 1.0,
+                "H1c": 1.0,
+                "H2_tempo": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1": false,
+                "H2_tokens": false,
+                "H1c": false,
+                "H2_tempo": false
+              }
+            }
+          },
+          "holm_H1_H1a_H1b_H2x2_sem_H1c_m5_m4": {
+            "p_brutos": {
+              "H1": 0.3294,
+              "H1a": 0.2599,
+              "H1b": null,
+              "H2_tempo": 0.8285,
+              "H2_tokens": 0.3372
+            },
+            "A_familia_registada_inavaliaveis_como_p1": {
+              "m": 5,
+              "p_ajustado": {
+                "H1a": 1.0,
+                "H1": 1.0,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0,
+                "H1b": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1": false,
+                "H2_tokens": false,
+                "H2_tempo": false,
+                "H1b": false
+              }
+            },
+            "B_so_membros_avaliaveis": {
+              "m": 4,
+              "p_ajustado": {
+                "H1a": 1.0,
+                "H1": 1.0,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1": false,
+                "H2_tokens": false,
+                "H2_tempo": false
+              }
+            }
+          }
+        },
+        "H1_isolada_a_005": {
+          "p": 0.3294,
+          "rejeita": false
+        },
+        "H1c_primaria_PROSPECTIVE_ESTIMAND": {
+          "p": 0.4006,
+          "rejeita": false
+        },
+        "holm_H1a_H1b_H1c_H2x2": {
+          "p_brutos": {
+            "H1a": 0.2599,
+            "H1b": null,
+            "H1c": 0.4006,
+            "H2_tempo": 0.8285,
+            "H2_tokens": 0.3372
+          },
+          "A_familia_registada_inavaliaveis_como_p1": {
+            "m": 5,
+            "p_ajustado": {
+              "H1a": 1.0,
+              "H2_tokens": 1.0,
+              "H1c": 1.0,
+              "H2_tempo": 1.0,
+              "H1b": 1.0
+            },
+            "rejeita": {
+              "H1a": false,
+              "H2_tokens": false,
+              "H1c": false,
+              "H2_tempo": false,
+              "H1b": false
+            }
+          },
+          "B_so_membros_avaliaveis": {
+            "m": 4,
+            "p_ajustado": {
+              "H1a": 1.0,
+              "H2_tokens": 1.0,
+              "H1c": 1.0,
+              "H2_tempo": 1.0
+            },
+            "rejeita": {
+              "H1a": false,
+              "H2_tokens": false,
+              "H1c": false,
+              "H2_tempo": false
+            }
+          }
+        }
+      },
+      "sens_registrado_sem_sessoes_atravessadas": {
+        "leitura_depositada": {
+          "regra": "PREREG l.1025: H1 primary, alone at alpha=0.05; H1a-c + H2 Holm within the secondary family",
+          "H1_isolada_a_005": {
+            "p": 0.1957,
+            "rejeita": false
+          },
+          "holm_H1a_H1b_H1c_H2x2": {
+            "p_brutos": {
+              "H1a": 0.1501,
+              "H1b": null,
+              "H1c": 0.4571,
+              "H2_tempo": 0.8119,
+              "H2_tokens": 0.6053
+            },
+            "A_familia_registada_inavaliaveis_como_p1": {
+              "m": 5,
+              "p_ajustado": {
+                "H1a": 0.7505,
+                "H1c": 1.0,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0,
+                "H1b": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1c": false,
+                "H2_tokens": false,
+                "H2_tempo": false,
+                "H1b": false
+              }
+            },
+            "B_so_membros_avaliaveis": {
+              "m": 4,
+              "p_ajustado": {
+                "H1a": 0.6004,
+                "H1c": 1.0,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1c": false,
+                "H2_tokens": false,
+                "H2_tempo": false
+              }
+            }
+          }
+        },
+        "leitura_da_troca": {
+          "regra": "PROSPECTIVE-ESTIMAND §3-bis: H1c primary; H1/H1a/H1b secondary; the registration's rule for secondaries (Holm) applied to them. Variant m6/m5 keeps H1c in the family (review F2); variant sem_H1c tests H1c alone and Holms the rest",
+          "H1c_primaria_isolada_a_005": {
+            "p": 0.4571,
+            "rejeita": false
+          },
+          "holm_H1_H1a_H1b_H1c_H2x2_m6_m5": {
+            "p_brutos": {
+              "H1": 0.1957,
+              "H1a": 0.1501,
+              "H1b": null,
+              "H2_tempo": 0.8119,
+              "H2_tokens": 0.6053,
+              "H1c": 0.4571
+            },
+            "A_familia_registada_inavaliaveis_como_p1": {
+              "m": 6,
+              "p_ajustado": {
+                "H1a": 0.9006,
+                "H1": 0.9785,
+                "H1c": 1.0,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0,
+                "H1b": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1": false,
+                "H1c": false,
+                "H2_tokens": false,
+                "H2_tempo": false,
+                "H1b": false
+              }
+            },
+            "B_so_membros_avaliaveis": {
+              "m": 5,
+              "p_ajustado": {
+                "H1a": 0.7505,
+                "H1": 0.7828,
+                "H1c": 1.0,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1": false,
+                "H1c": false,
+                "H2_tokens": false,
+                "H2_tempo": false
+              }
+            }
+          },
+          "holm_H1_H1a_H1b_H2x2_sem_H1c_m5_m4": {
+            "p_brutos": {
+              "H1": 0.1957,
+              "H1a": 0.1501,
+              "H1b": null,
+              "H2_tempo": 0.8119,
+              "H2_tokens": 0.6053
+            },
+            "A_familia_registada_inavaliaveis_como_p1": {
+              "m": 5,
+              "p_ajustado": {
+                "H1a": 0.7505,
+                "H1": 0.7828,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0,
+                "H1b": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1": false,
+                "H2_tokens": false,
+                "H2_tempo": false,
+                "H1b": false
+              }
+            },
+            "B_so_membros_avaliaveis": {
+              "m": 4,
+              "p_ajustado": {
+                "H1a": 0.6004,
+                "H1": 0.6004,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1": false,
+                "H2_tokens": false,
+                "H2_tempo": false
+              }
+            }
+          }
+        },
+        "H1_isolada_a_005": {
+          "p": 0.1957,
+          "rejeita": false
+        },
+        "H1c_primaria_PROSPECTIVE_ESTIMAND": {
+          "p": 0.4571,
+          "rejeita": false
+        },
+        "holm_H1a_H1b_H1c_H2x2": {
+          "p_brutos": {
+            "H1a": 0.1501,
+            "H1b": null,
+            "H1c": 0.4571,
+            "H2_tempo": 0.8119,
+            "H2_tokens": 0.6053
+          },
+          "A_familia_registada_inavaliaveis_como_p1": {
+            "m": 5,
+            "p_ajustado": {
+              "H1a": 0.7505,
+              "H1c": 1.0,
+              "H2_tokens": 1.0,
+              "H2_tempo": 1.0,
+              "H1b": 1.0
+            },
+            "rejeita": {
+              "H1a": false,
+              "H1c": false,
+              "H2_tokens": false,
+              "H2_tempo": false,
+              "H1b": false
+            }
+          },
+          "B_so_membros_avaliaveis": {
+            "m": 4,
+            "p_ajustado": {
+              "H1a": 0.6004,
+              "H1c": 1.0,
+              "H2_tokens": 1.0,
+              "H2_tempo": 1.0
+            },
+            "rejeita": {
+              "H1a": false,
+              "H1c": false,
+              "H2_tokens": false,
+              "H2_tempo": false
+            }
+          }
+        }
+      },
+      "registrado_v2_equivalente": {
+        "leitura_depositada": {
+          "regra": "PREREG l.1025: H1 primary, alone at alpha=0.05; H1a-c + H2 Holm within the secondary family",
+          "H1_isolada_a_005": {
+            "p": 0.0302,
+            "rejeita": true
+          },
+          "holm_H1a_H1b_H1c_H2x2": {
+            "p_brutos": {
+              "H1a": 0.0168,
+              "H1b": null,
+              "H1c": 0.434,
+              "H2_tempo": 0.8305,
+              "H2_tokens": 0.6844
+            },
+            "A_familia_registada_inavaliaveis_como_p1": {
+              "m": 5,
+              "p_ajustado": {
+                "H1a": 0.084,
+                "H1c": 1.0,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0,
+                "H1b": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1c": false,
+                "H2_tokens": false,
+                "H2_tempo": false,
+                "H1b": false
+              }
+            },
+            "B_so_membros_avaliaveis": {
+              "m": 4,
+              "p_ajustado": {
+                "H1a": 0.0672,
+                "H1c": 1.0,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1c": false,
+                "H2_tokens": false,
+                "H2_tempo": false
+              }
+            }
+          }
+        },
+        "leitura_da_troca": {
+          "regra": "PROSPECTIVE-ESTIMAND §3-bis: H1c primary; H1/H1a/H1b secondary; the registration's rule for secondaries (Holm) applied to them. Variant m6/m5 keeps H1c in the family (review F2); variant sem_H1c tests H1c alone and Holms the rest",
+          "H1c_primaria_isolada_a_005": {
+            "p": 0.434,
+            "rejeita": false
+          },
+          "holm_H1_H1a_H1b_H1c_H2x2_m6_m5": {
+            "p_brutos": {
+              "H1": 0.0302,
+              "H1a": 0.0168,
+              "H1b": null,
+              "H2_tempo": 0.8305,
+              "H2_tokens": 0.6844,
+              "H1c": 0.434
+            },
+            "A_familia_registada_inavaliaveis_como_p1": {
+              "m": 6,
+              "p_ajustado": {
+                "H1a": 0.1008,
+                "H1": 0.151,
+                "H1c": 1.0,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0,
+                "H1b": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1": false,
+                "H1c": false,
+                "H2_tokens": false,
+                "H2_tempo": false,
+                "H1b": false
+              }
+            },
+            "B_so_membros_avaliaveis": {
+              "m": 5,
+              "p_ajustado": {
+                "H1a": 0.084,
+                "H1": 0.1208,
+                "H1c": 1.0,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1": false,
+                "H1c": false,
+                "H2_tokens": false,
+                "H2_tempo": false
+              }
+            }
+          },
+          "holm_H1_H1a_H1b_H2x2_sem_H1c_m5_m4": {
+            "p_brutos": {
+              "H1": 0.0302,
+              "H1a": 0.0168,
+              "H1b": null,
+              "H2_tempo": 0.8305,
+              "H2_tokens": 0.6844
+            },
+            "A_familia_registada_inavaliaveis_como_p1": {
+              "m": 5,
+              "p_ajustado": {
+                "H1a": 0.084,
+                "H1": 0.1208,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0,
+                "H1b": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1": false,
+                "H2_tokens": false,
+                "H2_tempo": false,
+                "H1b": false
+              }
+            },
+            "B_so_membros_avaliaveis": {
+              "m": 4,
+              "p_ajustado": {
+                "H1a": 0.0672,
+                "H1": 0.0906,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1": false,
+                "H2_tokens": false,
+                "H2_tempo": false
+              }
+            }
+          }
+        },
+        "H1_isolada_a_005": {
+          "p": 0.0302,
+          "rejeita": true
+        },
+        "H1c_primaria_PROSPECTIVE_ESTIMAND": {
+          "p": 0.434,
+          "rejeita": false
+        },
+        "holm_H1a_H1b_H1c_H2x2": {
+          "p_brutos": {
+            "H1a": 0.0168,
+            "H1b": null,
+            "H1c": 0.434,
+            "H2_tempo": 0.8305,
+            "H2_tokens": 0.6844
+          },
+          "A_familia_registada_inavaliaveis_como_p1": {
+            "m": 5,
+            "p_ajustado": {
+              "H1a": 0.084,
+              "H1c": 1.0,
+              "H2_tokens": 1.0,
+              "H2_tempo": 1.0,
+              "H1b": 1.0
+            },
+            "rejeita": {
+              "H1a": false,
+              "H1c": false,
+              "H2_tokens": false,
+              "H2_tempo": false,
+              "H1b": false
+            }
+          },
+          "B_so_membros_avaliaveis": {
+            "m": 4,
+            "p_ajustado": {
+              "H1a": 0.0672,
+              "H1c": 1.0,
+              "H2_tokens": 1.0,
+              "H2_tempo": 1.0
+            },
+            "rejeita": {
+              "H1a": false,
+              "H1c": false,
+              "H2_tokens": false,
+              "H2_tempo": false
+            }
+          }
+        }
+      },
+      "registrado_v1_equivalente": {
+        "leitura_depositada": {
+          "regra": "PREREG l.1025: H1 primary, alone at alpha=0.05; H1a-c + H2 Holm within the secondary family",
+          "H1_isolada_a_005": {
+            "p": 0.0133,
+            "rejeita": true
+          },
+          "holm_H1a_H1b_H1c_H2x2": {
+            "p_brutos": {
+              "H1a": 0.0241,
+              "H1b": null,
+              "H1c": 0.434,
+              "H2_tempo": 0.8305,
+              "H2_tokens": 0.6844
+            },
+            "A_familia_registada_inavaliaveis_como_p1": {
+              "m": 5,
+              "p_ajustado": {
+                "H1a": 0.1205,
+                "H1c": 1.0,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0,
+                "H1b": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1c": false,
+                "H2_tokens": false,
+                "H2_tempo": false,
+                "H1b": false
+              }
+            },
+            "B_so_membros_avaliaveis": {
+              "m": 4,
+              "p_ajustado": {
+                "H1a": 0.0964,
+                "H1c": 1.0,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0
+              },
+              "rejeita": {
+                "H1a": false,
+                "H1c": false,
+                "H2_tokens": false,
+                "H2_tempo": false
+              }
+            }
+          }
+        },
+        "leitura_da_troca": {
+          "regra": "PROSPECTIVE-ESTIMAND §3-bis: H1c primary; H1/H1a/H1b secondary; the registration's rule for secondaries (Holm) applied to them. Variant m6/m5 keeps H1c in the family (review F2); variant sem_H1c tests H1c alone and Holms the rest",
+          "H1c_primaria_isolada_a_005": {
+            "p": 0.434,
+            "rejeita": false
+          },
+          "holm_H1_H1a_H1b_H1c_H2x2_m6_m5": {
+            "p_brutos": {
+              "H1": 0.0133,
+              "H1a": 0.0241,
+              "H1b": null,
+              "H2_tempo": 0.8305,
+              "H2_tokens": 0.6844,
+              "H1c": 0.434
+            },
+            "A_familia_registada_inavaliaveis_como_p1": {
+              "m": 6,
+              "p_ajustado": {
+                "H1": 0.0798,
+                "H1a": 0.1205,
+                "H1c": 1.0,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0,
+                "H1b": 1.0
+              },
+              "rejeita": {
+                "H1": false,
+                "H1a": false,
+                "H1c": false,
+                "H2_tokens": false,
+                "H2_tempo": false,
+                "H1b": false
+              }
+            },
+            "B_so_membros_avaliaveis": {
+              "m": 5,
+              "p_ajustado": {
+                "H1": 0.0665,
+                "H1a": 0.0964,
+                "H1c": 1.0,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0
+              },
+              "rejeita": {
+                "H1": false,
+                "H1a": false,
+                "H1c": false,
+                "H2_tokens": false,
+                "H2_tempo": false
+              }
+            }
+          },
+          "holm_H1_H1a_H1b_H2x2_sem_H1c_m5_m4": {
+            "p_brutos": {
+              "H1": 0.0133,
+              "H1a": 0.0241,
+              "H1b": null,
+              "H2_tempo": 0.8305,
+              "H2_tokens": 0.6844
+            },
+            "A_familia_registada_inavaliaveis_como_p1": {
+              "m": 5,
+              "p_ajustado": {
+                "H1": 0.0665,
+                "H1a": 0.0964,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0,
+                "H1b": 1.0
+              },
+              "rejeita": {
+                "H1": false,
+                "H1a": false,
+                "H2_tokens": false,
+                "H2_tempo": false,
+                "H1b": false
+              }
+            },
+            "B_so_membros_avaliaveis": {
+              "m": 4,
+              "p_ajustado": {
+                "H1": 0.0532,
+                "H1a": 0.0723,
+                "H2_tokens": 1.0,
+                "H2_tempo": 1.0
+              },
+              "rejeita": {
+                "H1": false,
+                "H1a": false,
+                "H2_tokens": false,
+                "H2_tempo": false
+              }
+            }
+          }
+        },
+        "H1_isolada_a_005": {
+          "p": 0.0133,
+          "rejeita": true
+        },
+        "H1c_primaria_PROSPECTIVE_ESTIMAND": {
+          "p": 0.434,
+          "rejeita": false
+        },
+        "holm_H1a_H1b_H1c_H2x2": {
+          "p_brutos": {
+            "H1a": 0.0241,
+            "H1b": null,
+            "H1c": 0.434,
+            "H2_tempo": 0.8305,
+            "H2_tokens": 0.6844
+          },
+          "A_familia_registada_inavaliaveis_como_p1": {
+            "m": 5,
+            "p_ajustado": {
+              "H1a": 0.1205,
+              "H1c": 1.0,
+              "H2_tokens": 1.0,
+              "H2_tempo": 1.0,
+              "H1b": 1.0
+            },
+            "rejeita": {
+              "H1a": false,
+              "H1c": false,
+              "H2_tokens": false,
+              "H2_tempo": false,
+              "H1b": false
+            }
+          },
+          "B_so_membros_avaliaveis": {
+            "m": 4,
+            "p_ajustado": {
+              "H1a": 0.0964,
+              "H1c": 1.0,
+              "H2_tokens": 1.0,
+              "H2_tempo": 1.0
+            },
+            "rejeita": {
+              "H1a": false,
+              "H1c": false,
+              "H2_tokens": false,
+              "H2_tempo": false
+            }
+          }
+        }
+      }
+    },
+    "rerand_observado": {
+      "H1": -5.515947,
+      "H1a": -75.355524,
+      "H1c": -0.017353
+    }
+  }
+}
