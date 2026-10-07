@@ -1,0 +1,85 @@
+{
+ "svg": "figB1-h1a-inversao-registrado.svg",
+ "fonte": {
+  "ITT-REGISTRADO": "72642ad9ca3e6160cedb7b2151835fc6e0794f8466e014b8a4e4186b683b41b7",
+  "checks-rc8.json": "af67c1ea6945dbce65dc8512ddd2cf9b77e39d942d4f271319f7daa4400d4f57"
+ },
+ "horas_por_braco": {
+  "treatment": 12.5615,
+  "control": 4.335
+ },
+ "pico": "2026-09-14",
+ "pico_h": 7.1329,
+ "pico_share": 0.5678,
+ "outros_n": 18,
+ "outros_min_max": [
+  0.2455,
+  0.9726
+ ],
+ "sessao_esparsa": {
+  "id_prefix": "d37a5964",
+  "episodios": 3,
+  "span_h": 6.3267
+ },
+ "sessoes_ocupadas": [
+  {
+   "id_prefix": "ea84e8bd",
+   "episodios": 74,
+   "span_min": 9.71
+  },
+  {
+   "id_prefix": "e996a4c6",
+   "episodios": 65,
+   "span_min": 8.86
+  },
+  {
+   "id_prefix": "ddebd94e",
+   "episodios": 56,
+   "span_min": 8.03
+  }
+ ],
+ "legs": [
+  {
+   "leg": "registered · locked",
+   "removidos": "19 epochs (09-02 excluded), BCa",
+   "dif_pontual": -163.520923,
+   "ic95": [
+    -282.291958,
+    -61.120086
+   ]
+  },
+  {
+   "leg": "registered · pre-committed sensitivity (spec §9.1)",
+   "removidos": "partials 09-01, 09-03, 09-20 removed, BCa",
+   "dif_pontual": -138.907354,
+   "ic95": [
+    -254.181203,
+    -28.820445
+   ]
+  },
+  {
+   "leg": "registered · post-hoc sensitivity",
+   "removidos": "09-14 removed, chosen after seeing the data, BCa",
+   "dif_pontual": -78.271822,
+   "ic95": [
+    -146.223022,
+    1.951246
+   ]
+  },
+  {
+   "leg": "rc7 analysis (sensitivity) · locked",
+   "removidos": "20 epochs, percentile, no window cut",
+   "dif_pontual": -143.922996,
+   "ic95": [
+    -209.79805,
+    -15.338629
+   ]
+  }
+ ],
+ "H1a_p_bruto": 0.0241,
+ "H1a_holm_ajustado": {
+  "m5": 0.1205,
+  "m4": 0.0964
+ },
+ "png": "figB1-h1a-inversao-registrado.png"
+}

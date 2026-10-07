@@ -1,0 +1,112 @@
+{
+ "gerado_em": "2026-10-05T21:21:26+00:00",
+ "A_share": {
+  "artifact_mexeu_over_n": [
+   337,
+   7392,
+   0.04559
+  ],
+  "active": [
+   335,
+   7350,
+   0.045578
+  ],
+  "shadow": [
+   2,
+   42
+  ],
+  "0901_active": [
+   22,
+   630,
+   0.034921
+  ],
+  "calibration_share_w2": [
+   11,
+   350,
+   0.031429
+  ]
+ },
+ "B_coverage": {
+  "treatment_all": [
+   2068,
+   7392
+  ],
+  "control_all": [
+   1385,
+   5145
+  ],
+  "treatment_active": [
+   2057,
+   7350,
+   0.279864
+  ],
+  "treatment_shadow": [
+   11,
+   42
+  ]
+ },
+ "A_ratios": {
+  "locked": {
+   "calibration": 22.51,
+   "realized_active": 15.52,
+   "max_epoch": 10.33
+  },
+  "sem_0914": {
+   "calibration": 15.0,
+   "realized_active": 10.34,
+   "max_epoch": 6.88
+  }
+ },
+ "A_reductions": {
+  "locked": 0.70731,
+  "sem_0914": 0.47129
+ },
+ "C_power": {
+  "effective_19_served": 84.799,
+  "effective_20_itt": 91.487,
+  "0901_clock_22.38h": {
+   "19_served": 84.784,
+   "20_itt": 91.469
+  },
+  "power_p1_increase": {
+   "19:0.2": 0.632,
+   "19:0.25": 0.862,
+   "19:0.3": 0.964,
+   "20:0.2": 0.665,
+   "20:0.25": 0.887,
+   "20:0.3": 0.974
+  },
+  "power_p1_zero": {
+   "19": 0.752,
+   "20": 0.784
+  }
+ },
+ "D_adjudication": {
+  "submitted": 1195,
+  "three_substantive": 1159,
+  "unknown": 36,
+  "families": {
+   "google": 1195,
+   "xai": 1202,
+   "zhipu": 1195
+  }
+ },
+ "E_concentration": {
+  "bucket": 573,
+  "covered_opportunities": 611,
+  "share": 0.9378
+ },
+ "F_preliminar": {
+  "mtime_utc": "2026-09-21T19:16:44+00:00",
+  "replicas": 2000,
+  "H1a": {
+   "dif_pontual": -143.922996,
+   "ic95": [
+    -210.894134,
+    -15.667034
+   ],
+   "n_replicas": 2000
+  },
+  "cites": "INAVALIAVEL — colisao de locks, ver DEVIATIONS 10.32"
+ }
+}

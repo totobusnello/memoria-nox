@@ -1,0 +1,19 @@
+02:12:32 usado=61.0% steal=7.9% nodes=3 quota_kissat=260000
+02:12:47 usado=59.6% steal=9.3% nodes=3 quota_kissat=260000
+02:13:02 usado=58.6% steal=11.5% nodes=3 quota_kissat=260000
+02:13:17 usado=62.0% steal=10.0% nodes=3 quota_kissat=260000
+02:13:32 usado=61.5% steal=8.7% nodes=3 quota_kissat=260000
+02:13:48 usado=61.4% steal=7.3% nodes=3 quota_kissat=260000
+02:14:03 usado=54.6% steal=13.4% nodes=3 quota_kissat=260000
+02:14:18 usado=59.3% steal=8.6% nodes=3 quota_kissat=260000
+02:14:33 usado=63.1% steal=5.1% nodes=3 quota_kissat=260000
+02:14:48 usado=60.9% steal=7.2% nodes=3 quota_kissat=260000
+02:15:03 usado=55.1% steal=13.5% nodes=3 quota_kissat=260000
+02:15:18 usado=51.5% steal=16.8% nodes=3 quota_kissat=260000
+02:15:33 usado=59.3% steal=9.3% nodes=3 quota_kissat=260000
+02:15:48 usado=58.5% steal=10.5% nodes=3 quota_kissat=260000
+02:16:03 usado=55.9% steal=13.1% nodes=3 quota_kissat=260000
+02:16:19 usado=57.0% steal=12.1% nodes=3 quota_kissat=260000
+02:16:34 usado=62.6% steal=7.7% nodes=3 quota_kissat=260000
+02:16:49 usado=65.8% steal=7.0% nodes=3 quota_kissat=260000
+AGREGADO 272s: usado=59.3% (4.75 de 8 CPUs) steal=9.9%

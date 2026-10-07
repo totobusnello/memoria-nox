@@ -1,0 +1,5513 @@
+{
+ "generated_by": "deposit/paperB/build-package.py",
+ "record": {
+  "concept_doi": "10.5281/zenodo.21964093",
+  "previous_version": "10.5281/zenodo.22110203 (v1.12, published 2026-08-26T12:01Z)",
+  "new_version_of": "22110203 (POST /api/records/22110203/versions)",
+  "version": "2.0",
+  "doi": null,
+  "dry_run": true,
+  "note": "DRY RUN (--no-doi): the version DOI placeholder is still in the text and the PDF; NOT FOR DEPOSIT"
+ },
+ "manuscript": {
+  "source": "_sprint-2026-10-04/B-v2-rc27.md",
+  "sha256_source": "cb38c5cf0319bbea3ce997a47be6182909145086dbd37f5611a41475d3880b96",
+  "sha256_deposited": "cb38c5cf0319bbea3ce997a47be6182909145086dbd37f5611a41475d3880b96",
+  "placeholder": "the token VERSION-DOI in square brackets, 2x: the status header and working-list item 8",
+  "placeholder_count": 2,
+  "difference": "none (dry run): the placeholder is kept",
+  "pdf": "pandoc + xelatex x2 via pdf-build/build-pdf.sh (in scripts-v2.0.zip); 74 pages; 0 missing glyphs; figures B1/B2 rendered from the PNG that the same generator wrote beside each SVG (no SVG converter in this TeX install); the .md is not edited",
+  "pdf_pages": 74
+ },
+ "layout": {
+  "zip paths": "relative to paper2-interventional/",
+  "_repo/": "repository root (memoria-nox/)",
+  "_ballast/": "the trial ballast kept outside the repository (Appendix B: 79 artifacts outside)",
+  "pdf-build/": "the PDF build",
+  "_derived/": "files derived for this deposit from sources that are not deposited",
+  "deposit-paperB/": "the script that writes _derived/"
+ },
+ "derived": {
+  "panel-verdicts/": "the two panel-verdict files the manuscript cites (ensaio-20260921-PRIMARIO-3fam.jsonl, ensaio-20260921-SENSIB-deepseek.jsonl) with the free-text fields `reason` and `detail` removed; kept per row: episode_id, panelist, family, model, model_served, verdict, level, status, stop_reason, attempts (the sources carry no timestamp field). Written by deposit-paperB/sanitize-verdicts.py; SANITIZED.json gives the source and derived sha256 and the label counts. The manuscript does not cite these copies."
+ },
+ "redaction_rules": {
+  "R1": "absolute path of the local temporary scratchpad -> <SCRATCH>/",
+  "R2": "author's absolute home directory -> <HOME>/ (R2b: at end of token -> <HOME>)",
+  "R4": "macOS temporary directory -> <TMP>",
+  "R5": "VPS host name -> <HOST>",
+  "not redacted": "'~/' (home-relative, carries no user name): kept so receipts and ballast copies keep the bytes their recorded hashes cover"
+ },
+ "never_packaged": [
+  {
+   "pattern": "(^|/)B-censo/raw/",
+   "why": "episode excerpts and panelist reasons (Appendix B states it is not in the ballast either)"
+  },
+  {
+   "pattern": "\\.db$",
+   "why": "production corpus databases with real work content"
+  },
+  {
+   "pattern": "(^|/)episodios-[^/]*\\.jsonl$|(^|/)alvo-painel-[^/]*\\.jsonl$",
+   "why": "episode text of the trial"
+  },
+  {
+   "pattern": "(^|/)__pycache__/",
+   "why": "bytecode"
+  },
+  {
+   "pattern": "(^|/)\\.DS_Store$|(^|/)\\.gitignore$",
+   "why": "filesystem metadata"
+  },
+  {
+   "pattern": "(^|/)job-[^/]+/runs/",
+   "why": "per-run outputs; packaged as the job's -runs.tgz"
+  },
+  {
+   "pattern": "^deposit/",
+   "why": "the deposit mechanism, not its object (this folder and Paper A's)"
+  },
+  {
+   "pattern": "^docs/HANDOFF\\.md$",
+   "why": "the project's working log (third-party e-mail addresses, network names); versioned in the public repository, which is where the manuscript points"
+  }
+ ],
+ "excluded_cited_files": [
+  {
+   "path": "_ballast/episodios-ensaio-20260921.jsonl",
+   "why": "episode text of the trial"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-censo/raw/cost-gate1.json",
+   "why": "episode excerpts and panelist reasons (Appendix B states it is not in the ballast either)"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-censo/raw/cost-gate2.json",
+   "why": "episode excerpts and panelist reasons (Appendix B states it is not in the ballast either)"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-censo/raw/gate1-calls.jsonl",
+   "why": "episode excerpts and panelist reasons (Appendix B states it is not in the ballast either)"
+  },
+  {
+   "path": "deposit/PLAN-v1.13.md",
+   "why": "the deposit mechanism, not its object (this folder and Paper A's)"
+  },
+  {
+   "path": "_repo/docs/HANDOFF.md",
+   "why": "the project's working log (third-party e-mail addresses, network names); versioned in the public repository, which is where the manuscript points"
+  }
+ ],
+ "declared_not_packaged": [
+  {
+   "cited": "corpus-SERVING-REAL-e20260903-recuperado.db",
+   "why": "production corpus database (kept off-machine, sha256 in BANCOS.sha256)"
+  },
+  {
+   "cited": "corpus-preservado-20260908.db",
+   "why": "production corpus database (kept off-machine, sha256 in BANCOS.sha256)"
+  },
+  {
+   "cited": "current.db",
+   "why": "the live production database pointer (epochs/current.db); a database, see NEVER"
+  },
+  {
+   "cited": "e20260826T060003Z.db",
+   "why": "a pruned epoch database; the manuscript states it no longer exists"
+  },
+  {
+   "cited": "ensaio-20260921-*.jsonl",
+   "why": "the two panel-verdict files above"
+  },
+  {
+   "cited": "ensaio-20260921-PRIMARIO-3fam.jsonl",
+   "why": "panel verdicts of the trial (three families); each row carries the panelist's free-text reason about the episode, so it is episode-derived text; kept in the ballast (sha256 in MANIFESTO-LASTRO-P2.json, packaged), both copies verified; a derived copy without the free-text fields is packaged as _derived/panel-verdicts/ensaio-20260921-PRIMARIO-3fam.no-reason.jsonl"
+  },
+  {
+   "cited": "ensaio-20260921-SENSIB-deepseek.jsonl",
+   "why": "panel verdicts of the fourth family (sensitivity); same reason; derived copy packaged as _derived/panel-verdicts/ensaio-20260921-SENSIB-deepseek.no-reason.jsonl"
+  },
+  {
+   "cited": "memory/entities/lessons/*.md",
+   "why": "files of the live agent workspace on the production host (the 19 designated items); their ids and hashes are in the designation artifacts"
+  },
+  {
+   "cited": "memory/lessons.md",
+   "why": "a file of the live agent workspace on the production host, not of this repository"
+  },
+  {
+   "cited": "run.json",
+   "why": "suffix of the figure provenance files `*.run.json` (packaged under figures/), not a file name"
+  },
+  {
+   "cited": "scripts/adversary-run.sh",
+   "why": "the voice runner of the author's tooling repository (not this one); the fact the text uses (local-time stamp, no -u) is checked by parity-rc25.py S25/R1, which is packaged"
+  },
+  {
+   "cited": "src/api/brief.ts",
+   "why": "serving source of the nox-mem service on the production host; the manuscript cites the hash it matched, recorded in the sham INSTRUMENTO.sha256 files (packaged)"
+  }
+ ],
+ "census": {
+  "scope": "every path-like token the manuscript cites (code spans, bare file names, link targets)",
+  "cited": 291,
+  "in_package": 272,
+  "only_public_repo": 2,
+  "only_v1_12": 0,
+  "declared": 17,
+  "gaps": 0,
+  "rows": [
+   {
+    "cited": "AMENDMENT-DRAFT-band-collapse-2026-08-26.md",
+    "lines": [
+     228,
+     3678,
+     3716
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "AMENDMENT-v1.12.md",
+    "lines": [
+     218,
+     221,
+     648,
+     3645,
+     3697
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "APPLY-B-rc14.md",
+    "lines": [
+     3563
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "APPLY-B-rc17.md",
+    "lines": [
+     3636
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "APPLY-B-rc18.md",
+    "lines": [
+     2965
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "APPLY-B-rc19.md",
+    "lines": [
+     2967
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "APPLY-B-rc20.md",
+    "lines": [
+     2969
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "APPLY-B-rc21.md",
+    "lines": [
+     2971
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "APPLY-B-rc22.md",
+    "lines": [
+     2975
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "APPLY-B-rc23.md",
+    "lines": [
+     2978
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "APPLY-B-rc24.md",
+    "lines": [
+     2982
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "APPLY-B-rc25.md",
+    "lines": [
+     2984
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "APPLY-B-rc6.md",
+    "lines": [
+     3301
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "ASSIGN-SEED-2026-08-30.md",
+    "lines": [
+     147,
+     234,
+     247,
+     2517,
+     2586,
+     2589
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "ASSIGNMENT-SERVING.json",
+    "lines": [
+     253,
+     685,
+     1655,
+     1910,
+     2628,
+     2719
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "ASSIGNMENT.json",
+    "lines": [
+     253,
+     264,
+     2592,
+     2628
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-censo/raw/gate1-calls.jsonl",
+    "lines": [
+     2708
+    ],
+    "covered_by": [
+     "declared: episode excerpts and panelist reasons (Appendix B states it is not in the ballast either)"
+    ]
+   },
+   {
+    "cited": "B-rc10/checks-rc10.json",
+    "lines": [
+     2891
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-rc15/checks-rc15.json",
+    "lines": [
+     2898,
+     3580
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-rc18/zenodo-22110203-{record,files}.json",
+    "lines": [
+     2903
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-rc19/zenodo-21978476-{record,files}.json",
+    "lines": [
+     2904
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-rc25/parity-rc25.py",
+    "lines": [
+     2989
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-rc26/parity-rc26.py",
+    "lines": [
+     2989
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-rc27/parity-rc27.py",
+    "lines": [
+     2990
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-rc8/checks-rc8.json",
+    "lines": [
+     2884
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-rc9/checks-rc9.json",
+    "lines": [
+     2887
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-registered/RESULTADO-v2.md",
+    "lines": [
+     2887
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-registered/RESULTADO-v3.md",
+    "lines": [
+     2890,
+     3548,
+     3594
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-registered/RESULTADO-v4.md",
+    "lines": [
+     2896,
+     3577,
+     3656
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-registered/RESULTADO.md",
+    "lines": [
+     2884
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-registered/estimador_itt_registrado-v3-0aa9202b.py",
+    "lines": [
+     2892
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-registered/estimador_itt_registrado-v4-b3095740.py",
+    "lines": [
+     2896
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-registered/teste_aceleracao_v4.py",
+    "lines": [
+     2897,
+     2899,
+     3621
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-related-work.bib",
+    "lines": [
+     2802,
+     3077
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-replay-fidelity.md",
+    "lines": [
+     2700
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-sham-v2/JANELA-LANCAMENTO.md",
+    "lines": [
+     2718,
+     3214
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-sham-v2/REPORT.md",
+    "lines": [
+     1132,
+     1139,
+     2717
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-sham-v2/RESUMO.txt",
+    "lines": [
+     2717,
+     2831
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-sham-v2/job-janela2-runs.tgz",
+    "lines": [
+     1277,
+     2648
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-sham-v2/job-janela2/DETERMINISMO.json",
+    "lines": [
+     1278,
+     2648,
+     2718,
+     3827
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-sham-v2/job-janela2/RESUMO.json",
+    "lines": [
+     1276,
+     2648,
+     3807
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-sham-v2/job-janela2/RUNS.sha256",
+    "lines": [
+     1277,
+     2648
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-sham-v2/job-v2b-runs.tgz",
+    "lines": [
+     1271,
+     2647
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-sham-v2/job-v2b/RESUMO.json",
+    "lines": [
+     1270,
+     2647,
+     3150
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-sham-v2/job-v2b/RUNS.sha256",
+    "lines": [
+     1271,
+     2647
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "B-v3.md",
+    "lines": [
+     3014
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "BANCOS.sha256",
+    "lines": [
+     2648
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "COBERTURA-M10-2026-09-21.json",
+    "lines": [
+     2634,
+     2693
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "CONTROLES-JANELA-COMPLETA-2026-09-21.json",
+    "lines": [
+     1049,
+     2636,
+     3124
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "DECISION-designacao-2026-08-25.md",
+    "lines": [
+     222,
+     648,
+     2667,
+     2713,
+     3668,
+     3700
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "DEPLOY-C2-C3-2026-08-21.md",
+    "lines": [
+     507,
+     2687
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "DESIGN-REVISION-2026-08-30.md",
+    "lines": [
+     60,
+     282,
+     1729,
+     1805,
+     2525,
+     3317
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "DESIGNATION-2026-08-26.json",
+    "lines": [
+     231,
+     232,
+     2629,
+     2660,
+     2686,
+     2712
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "DESIGNATION-SEED-2026-08-26.md",
+    "lines": [
+     227,
+     2713
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "DETERMINISMO.json",
+    "lines": [
+     3807
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "DEVIATIONS-FOR-PAPER.md",
+    "lines": [
+     323,
+     520,
+     680,
+     1884,
+     2510,
+     2614
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "GATE-RULES-PREDECLARED.md",
+    "lines": [
+     2707
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "GATES.md",
+    "lines": [
+     847,
+     850,
+     2666,
+     2708,
+     3539
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "INCIDENT-2026-09-02-epoch-perdido.md",
+    "lines": [
+     479
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "INSTRUMENTO.sha256",
+    "lines": [
+     2648
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "ITEM7-DOSE-TOPO-2026-09-21.json",
+    "lines": [
+     1877,
+     1885,
+     1908,
+     2627,
+     2696,
+     2697
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "ITT-2026-09-21.json",
+    "lines": [
+     710,
+     1559,
+     2623,
+     2626,
+     2652,
+     2689
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "ITT-PRELIMINAR.json",
+    "lines": [
+     328,
+     338,
+     2649,
+     2711,
+     2733,
+     2880
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "ITT-REGISTRADO-v3-rc10-36f6421a.json",
+    "lines": [
+     2623,
+     2894
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "ITT-SENSIB-PRECOMPROMETIDA.json",
+    "lines": [
+     1557,
+     1686,
+     2642,
+     2690,
+     2761,
+     2828
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "JANELA-LANCAMENTO.md",
+    "lines": [
+     2838,
+     2908,
+     3807
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "LASTRO-B-item10.md",
+    "lines": [
+     3295
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "MANIFESTO-LASTRO-P2.json",
+    "lines": [
+     2641,
+     2829,
+     2882,
+     2902,
+     3064,
+     3110
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "MANUSCRIPT-B.md",
+    "lines": [
+     3012
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "MANUSCRIPT.md",
+    "lines": [
+     27
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "PAPER-SPLIT-2026-08-28.md",
+    "lines": [
+     26
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "PREREG-DRAFT.md",
+    "lines": [
+     2706,
+     3477
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "PROSPECTIVE-ESTIMAND-2026-08-30.md",
+    "lines": [
+     61,
+     136,
+     229,
+     283,
+     532,
+     2525
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "PULL.sha256",
+    "lines": [
+     2648
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "RECIBO-ITEM10-20261005T125933Z.txt",
+    "lines": [
+     2836
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "RECIBO-ITEM10B-20261005T130316Z.txt",
+    "lines": [
+     2837
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "RECIBO-ITEM15-20261007T120404Z.txt",
+    "lines": [
+     2743,
+     2913
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "RECIBO.txt",
+    "lines": [
+     2648,
+     2869,
+     3831
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "RERANDOMIZACAO-2026-09-21.json",
+    "lines": [
+     710,
+     1333,
+     2623,
+     2635
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "RESULTADO-v3.md",
+    "lines": [
+     2623,
+     3840
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "RESULTADO-v4.md",
+    "lines": [
+     2622,
+     3625
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "RESUMO.json",
+    "lines": [
+     2648
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "RESUMO.txt",
+    "lines": [
+     1267,
+     2644
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "REVIEW-B-rc12-2026-10-05.md",
+    "lines": [
+     2955
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "REVIEW-B-rc14-2026-10-05.md",
+    "lines": [
+     2957
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "REVIEW-B-rc15-2026-10-05.md",
+    "lines": [
+     2960
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "REVIEW-B-rc23-codex-2026-10-07.md",
+    "lines": [
+     2981,
+     3822
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "REVISAO-ADVERSARIAL-2026-09-21.md",
+    "lines": [
+     2788
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "SHADOW-ARMED-2026-08-21.md",
+    "lines": [
+     509,
+     2687
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "SPEC-ANALISE-2026-09-10.md",
+    "lines": [
+     2724
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "STABILITY-TEST.md",
+    "lines": [
+     858,
+     2649,
+     2707,
+     2736,
+     2908,
+     3814
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc10.md",
+    "lines": [
+     3451
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc11.md",
+    "lines": [
+     2951,
+     3478
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc12.md",
+    "lines": [
+     3515
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc13.md",
+    "lines": [
+     3530
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc14.md",
+    "lines": [
+     3556
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc15.md",
+    "lines": [
+     3568
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc16.md",
+    "lines": [
+     3606
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc17.md",
+    "lines": [
+     3635
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc18.md",
+    "lines": [
+     3663
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc19.md",
+    "lines": [
+     3694
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc20.md",
+    "lines": [
+     3726
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc21.md",
+    "lines": [
+     3753
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc22.md",
+    "lines": [
+     3783
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc23.md",
+    "lines": [
+     2875,
+     3799
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc24.md",
+    "lines": [
+     3823
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc25.md",
+    "lines": [
+     3848
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc3.md",
+    "lines": [
+     3151
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc4.md",
+    "lines": [
+     3216
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc5.md",
+    "lines": [
+     2877,
+     3266
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc6.md",
+    "lines": [
+     3292
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc7.md",
+    "lines": [
+     2925,
+     3310
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc8.md",
+    "lines": [
+     2921,
+     3372
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/APPLY-B-rc9.md",
+    "lines": [
+     2932,
+     3416
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-censo/GATE-RULES-PREDECLARED.md",
+    "lines": [
+     845,
+     2666,
+     2708,
+     3513
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-censo/GATES.md",
+    "lines": [
+     876,
+     2585,
+     2666,
+     2707,
+     2999,
+     3513
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-censo/census-ids.txt",
+    "lines": [
+     2666
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-censo/gate2-compare.json",
+    "lines": [
+     876,
+     3514
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-censo/gate2-ids.txt",
+    "lines": [
+     2666
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-censo/run_census.sh",
+    "lines": [
+     2666
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-rc10/checks-rc10.json",
+    "lines": [
+     2683,
+     3450,
+     3477
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-rc10/checks-rc10.py",
+    "lines": [
+     2658
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-rc14/parity-rc14.py",
+    "lines": [
+     3558
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-rc15/checks-rc15.json",
+    "lines": [
+     629,
+     814,
+     913,
+     1352,
+     1551,
+     1552
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-rc15/checks-rc15.py",
+    "lines": [
+     2663
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-rc18/zenodo-22110203-files.json",
+    "lines": [
+     2667,
+     2713,
+     2714
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-rc18/zenodo-22110203-record.json",
+    "lines": [
+     2667,
+     2713,
+     3865
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-rc19/zenodo-21978476-files.json",
+    "lines": [
+     2668,
+     2714
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-rc19/zenodo-21978476-record.json",
+    "lines": [
+     2668,
+     2714
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-rc7/checks-rc7.json",
+    "lines": [
+     2704,
+     2705,
+     2709,
+     2710,
+     2711,
+     2881
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-rc7/checks-rc7.py",
+    "lines": [
+     2654
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-rc8/checks-rc8.json",
+    "lines": [
+     251,
+     546,
+     1555,
+     2682,
+     2685,
+     2688
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-rc8/checks-rc8.py",
+    "lines": [
+     2655
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-rc9/checks-rc9.json",
+    "lines": [
+     1554,
+     2684,
+     2692,
+     3415
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-rc9/checks-rc9.py",
+    "lines": [
+     2659
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-registered/RESULTADO-v2.md",
+    "lines": [
+     2624,
+     3414
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-registered/RESULTADO-v3.md",
+    "lines": [
+     2623,
+     3450
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-registered/RESULTADO-v4.md",
+    "lines": [
+     914,
+     2622
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-registered/RESULTADO.md",
+    "lines": [
+     2625,
+     3369
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-registered/estimador_itt_registrado-v1-c28b064f.py",
+    "lines": [
+     2625
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-registered/estimador_itt_registrado-v2-ac9d2f05.py",
+    "lines": [
+     2624
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-registered/estimador_itt_registrado-v3-0aa9202b.py",
+    "lines": [
+     2623
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-registered/estimador_itt_registrado-v4-b3095740.py",
+    "lines": [
+     2622
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-registered/f3-abort-ex-post.json",
+    "lines": [
+     515,
+     2687
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-registered/f3_abort_ex_post.py",
+    "lines": [
+     2661
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-registered/f4-promoviveis-w4.json",
+    "lines": [
+     568,
+     2686
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-registered/f4_promoviveis_w4.py",
+    "lines": [
+     2660
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-registered/teste-aceleracao-v4.json",
+    "lines": [
+     909
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-registered/teste_aceleracao_v4-rc15-bb9c3197.py",
+    "lines": [
+     2622
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-registered/teste_aceleracao_v4.py",
+    "lines": [
+     2622
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-related-work.bib",
+    "lines": [
+     2437
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-related-work.md",
+    "lines": [
+     2351,
+     2801,
+     3068
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-related-work.verification-log.md",
+    "lines": [
+     2350,
+     2441
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-replay-fidelity.md",
+    "lines": [
+     1266,
+     3019
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-replay-fidelity/RESUMO.txt",
+    "lines": [
+     2700
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-sham-v2/JANELA-LANCAMENTO.md",
+    "lines": [
+     1275,
+     2648
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-sham-v2/REPORT.md",
+    "lines": [
+     1269,
+     2647,
+     3150
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-sham-v2/job-janela2/RESUMO.json",
+    "lines": [
+     2718
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-sham-v2/job-v2b/RESUMO.json",
+    "lines": [
+     2717
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-v2-rc2.md",
+    "lines": [
+     3013
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/B-v2.md",
+    "lines": [
+     3012
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/LASTRO-B-item10.md",
+    "lines": [
+     3291
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/REVIEW-B-2026-10-04.md",
+    "lines": [
+     2853,
+     3091
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/REVIEW-B-rc10-2026-10-05.md",
+    "lines": [
+     2951,
+     3475
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/REVIEW-B-rc12-2026-10-05.md",
+    "lines": [
+     3528
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/REVIEW-B-rc14-2026-10-05.md",
+    "lines": [
+     3566
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/REVIEW-B-rc15-2026-10-05.md",
+    "lines": [
+     3604
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/REVIEW-B-rc2-2026-10-04.md",
+    "lines": [
+     2862,
+     3148
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/REVIEW-B-rc2-evidence/checks.py",
+    "lines": [
+     2703,
+     2716
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/REVIEW-B-rc2-evidence/power-*.json",
+    "lines": [
+     1465,
+     2651,
+     2702
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/REVIEW-B-rc23-codex-2026-10-07.md",
+    "lines": [
+     2650
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/REVIEW-B-rc6-2026-10-05.md",
+    "lines": [
+     3306
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/REVIEW-B-rc8-2026-10-05.md",
+    "lines": [
+     2931,
+     3413
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/figures/figB1-h1a-inversao-registrado-v2.run.json",
+    "lines": [
+     2722
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/figures/figB1-h1a-inversao-registrado-v3.run.json",
+    "lines": [
+     2721
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/figures/figB1-h1a-inversao-registrado-v4.run.json",
+    "lines": [
+     2721
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/figures/figB1-h1a-inversao.run.json",
+    "lines": [
+     2699
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/figures/figB2-item7-crosscheck-20000.json",
+    "lines": [
+     1887,
+     2646,
+     2698
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/figures/figB2-sementes-dose-topo.run.json",
+    "lines": [
+     2697
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-07T093115-73165.txt",
+    "lines": [
+     2650
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "adversary-receipt-codex-2026-10-05T221948-70096.txt",
+    "lines": [
+     3632
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "adversary-receipt-codex-2026-10-06T095645-63516.txt",
+    "lines": [
+     3723
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "adversary-receipt-codex-2026-10-06T133927-60502.txt",
+    "lines": [
+     2974,
+     3781
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "adversary-receipt-codex-2026-10-07T093115-73165.txt",
+    "lines": [
+     10,
+     2980,
+     3821,
+     3867
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "assign_arms.py",
+    "lines": [
+     149,
+     241,
+     245,
+     361,
+     1900,
+     1910
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "census-ids.txt",
+    "lines": [
+     2707
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "census-pins.sha256",
+    "lines": [
+     2666,
+     3553
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "census_tools.py",
+    "lines": [
+     2666
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "checks-rc10.json",
+    "lines": [
+     2623,
+     2658,
+     2662,
+     2663
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "checks-rc15.json",
+    "lines": [
+     1658,
+     2663,
+     2664,
+     3624
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "checks-rc7.json",
+    "lines": [
+     2654
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "checks-rc8.json",
+    "lines": [
+     2655,
+     2657,
+     2660,
+     2663,
+     3389,
+     3400
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "checks-rc8.py",
+    "lines": [
+     2656
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "checks-rc9.json",
+    "lines": [
+     2659,
+     2663,
+     2665
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "checks.py",
+    "lines": [
+     2651
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "cobertura_e_m10.py",
+    "lines": [
+     1814,
+     2634,
+     2676
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "compare_gate2.py",
+    "lines": [
+     2666
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "controles_instrumento.py",
+    "lines": [
+     2636
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "corpus-SERVING-REAL-e20260903-recuperado.db",
+    "lines": [
+     1046,
+     1124
+    ],
+    "covered_by": [
+     "declared"
+    ],
+    "declared_why": "production corpus database (kept off-machine, sha256 in BANCOS.sha256)"
+   },
+   {
+    "cited": "corpus-preservado-20260908.db",
+    "lines": [
+     1030,
+     1036,
+     1041,
+     1078,
+     3029
+    ],
+    "covered_by": [
+     "declared"
+    ],
+    "declared_why": "production corpus database (kept off-machine, sha256 in BANCOS.sha256)"
+   },
+   {
+    "cited": "cost-gate1.json",
+    "lines": [
+     2707
+    ],
+    "covered_by": [
+     "declared: episode excerpts and panelist reasons (Appendix B states it is not in the ballast either)"
+    ]
+   },
+   {
+    "cited": "cost-gate2.json",
+    "lines": [
+     2707
+    ],
+    "covered_by": [
+     "declared: episode excerpts and panelist reasons (Appendix B states it is not in the ballast either)"
+    ]
+   },
+   {
+    "cited": "current.db",
+    "lines": [
+     660
+    ],
+    "covered_by": [
+     "declared"
+    ],
+    "declared_why": "the live production database pointer (epochs/current.db); a database, see NEVER"
+   },
+   {
+    "cited": "deposit/PLAN-v1.13.md",
+    "lines": [
+     288,
+     2533,
+     3677,
+     3717
+    ],
+    "covered_by": [
+     "public repo (origin/main, unchanged)"
+    ]
+   },
+   {
+    "cited": "desliga-dose-p2.sh",
+    "lines": [
+     522
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "desliga-dose.ndjson",
+    "lines": [
+     3096
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "docs/HANDOFF.md",
+    "lines": [
+     1057
+    ],
+    "covered_by": [
+     "public repo (origin/main, unchanged)"
+    ]
+   },
+   {
+    "cited": "e20260826T060003Z.db",
+    "lines": [
+     1035
+    ],
+    "covered_by": [
+     "declared"
+    ],
+    "declared_why": "a pruned epoch database; the manuscript states it no longer exists"
+   },
+   {
+    "cited": "ensaio-20260921-*.jsonl",
+    "lines": [
+     2719,
+     2725
+    ],
+    "covered_by": [
+     "declared"
+    ],
+    "declared_why": "the two panel-verdict files above"
+   },
+   {
+    "cited": "ensaio-20260921-PRIMARIO-3fam.jsonl",
+    "lines": [
+     2632
+    ],
+    "covered_by": [
+     "declared"
+    ],
+    "declared_why": "panel verdicts of the trial (three families); each row carries the panelist's free-text reason about the episode, so it is episode-derived text; kept in the ballast (sha256 in MANIFESTO-LASTRO-P2.json, packaged), both copies verified; a derived copy without the free-text fields is packaged as _derived/panel-verdicts/ensaio-20260921-PRIMARIO-3fam.no-reason.jsonl"
+   },
+   {
+    "cited": "ensaio-20260921-SENSIB-deepseek.jsonl",
+    "lines": [
+     2633
+    ],
+    "covered_by": [
+     "declared"
+    ],
+    "declared_why": "panel verdicts of the fourth family (sensitivity); same reason; derived copy packaged as _derived/panel-verdicts/ensaio-20260921-SENSIB-deepseek.no-reason.jsonl"
+   },
+   {
+    "cited": "episodios-ensaio-20260921.jsonl",
+    "lines": [
+     1654,
+     2631,
+     2685,
+     2692,
+     2699,
+     2706
+    ],
+    "covered_by": [
+     "declared: episode text of the trial"
+    ]
+   },
+   {
+    "cited": "estimador_itt.py",
+    "lines": [
+     700,
+     733,
+     835,
+     886,
+     2551,
+     2630
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "estimador_itt_registrado-v3-rc10-b5135f04.py",
+    "lines": [
+     2623,
+     2893
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "estrato-b-ids-20260921.txt",
+    "lines": [
+     2706
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "f3-abort-ex-post.json",
+    "lines": [
+     2661
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "f4-promoviveis-w4.json",
+    "lines": [
+     2660
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "figB1-h1a-inversao-registrado.run.json",
+    "lines": [
+     2722
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "figB1-h1a-inversao-registrado.svg",
+    "lines": [
+     2844
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "figures/*.svg",
+    "lines": [
+     3047
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "figures/figB1-h1a-inversao-registrado-v2.run.json",
+    "lines": [
+     2692
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "figures/figB1-h1a-inversao-registrado-v2.svg",
+    "lines": [
+     1664
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "figures/figB1-h1a-inversao-registrado-v3.svg",
+    "lines": [
+     1662
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "figures/figB1-h1a-inversao-registrado-v4.svg",
+    "lines": [
+     1628
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "figures/figB1-h1a-inversao-registrado.svg",
+    "lines": [
+     1665
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "figures/figB1-h1a-inversao.svg",
+    "lines": [
+     1666
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "figures/figB2-sementes-dose-topo.svg",
+    "lines": [
+     1896
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "gate1-calls.jsonl",
+    "lines": [
+     2707
+    ],
+    "covered_by": [
+     "declared: episode excerpts and panelist reasons (Appendix B states it is not in the ballast either)"
+    ]
+   },
+   {
+    "cited": "gate2-compare.json",
+    "lines": [
+     2666,
+     2707
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "gate_harness.py",
+    "lines": [
+     2666
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "gera-shams.py",
+    "lines": [
+     1014,
+     1020,
+     1022,
+     1112,
+     2819,
+     3037
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "measurement/estimador_itt_registrado.py",
+    "lines": [
+     704,
+     2622,
+     2883,
+     2943,
+     3507,
+     3571
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "measurement/potencia-h1c.py",
+    "lines": [
+     1405,
+     1444,
+     1451,
+     2702,
+     2705
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "measurement/roda-sham.sh",
+    "lines": [
+     994,
+     1054
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "measurement/sprint-c12-empates-por-braco.py",
+    "lines": [
+     2652
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "measurement/sprint-determinismo-janela2.py",
+    "lines": [
+     1278,
+     2648
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "measurement/sprint-figB-h1a-inversao-registrado-v2.py",
+    "lines": [
+     2665
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "measurement/sprint-figB-h1a-inversao-registrado-v3.py",
+    "lines": [
+     2662
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "measurement/sprint-figB-h1a-inversao-registrado-v4.py",
+    "lines": [
+     1661,
+     2664,
+     3585
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "measurement/sprint-figB-h1a-inversao-registrado.py",
+    "lines": [
+     2657,
+     3406
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "measurement/sprint-figB-h1a-inversao.py",
+    "lines": [
+     1666,
+     2645
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "measurement/sprint-figB-item7-crosscheck.py",
+    "lines": [
+     2646
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "measurement/sprint-figB-sementes-dose-topo.py",
+    "lines": [
+     1911,
+     2645
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "measurement/sprint-gera-shams-v2.py",
+    "lines": [
+     1273
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "measurement/sprint-replay-estratos.mjs",
+    "lines": [
+     1268,
+     2644
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "measurement/sprint-replay-fidelidade-resumo.py",
+    "lines": [
+     1268,
+     2644
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "measurement/sprint-roda-sham-v2.sh",
+    "lines": [
+     1153
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "memory/entities/lessons/*.md",
+    "lines": [
+     590
+    ],
+    "covered_by": [
+     "declared"
+    ],
+    "declared_why": "files of the live agent workspace on the production host (the 19 designated items); their ids and hashes are in the designation artifacts"
+   },
+   {
+    "cited": "memory/lessons.md",
+    "lines": [
+     1042,
+     1078,
+     3031
+    ],
+    "covered_by": [
+     "declared"
+    ],
+    "declared_why": "a file of the live agent workspace on the production host, not of this repository"
+   },
+   {
+    "cited": "out/C12-EMPATES-COMO-FAILURE-2026-10-05.json",
+    "lines": [
+     835,
+     2093,
+     2653,
+     2723,
+     3255
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "out/C12-EMPATES-POR-BRACO-2026-10-05.json",
+    "lines": [
+     810,
+     2019,
+     2652,
+     2719,
+     3215,
+     3248
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "out/C12-EMPATES-REGISTRADO-2026-10-05.json",
+    "lines": [
+     817,
+     833,
+     2092,
+     2656,
+     2720,
+     2735
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "out/CONCENTRATION-2026-08-30.json",
+    "lines": [
+     537,
+     1813,
+     2685,
+     2686,
+     2710
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "out/CONTROLES-2026-09-10.json",
+    "lines": [
+     2637
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "out/H1C-POWER-FRACIONARIA-2026-09-10.json",
+    "lines": [
+     1440,
+     2639,
+     2724
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "out/H1C-POWER-REALIZADO-2026-09-10.json",
+    "lines": [
+     1396,
+     1453,
+     2638,
+     2701,
+     2703,
+     3099
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "out/H1C-POWER-SEM-0903-2026-09-10.json",
+    "lines": [
+     2639
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "out/ITT-REGISTRADO-2026-10-05.json",
+    "lines": [
+     715,
+     1555,
+     2625,
+     2655,
+     2682,
+     2883
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "out/ITT-REGISTRADO-v2-2026-10-05.json",
+    "lines": [
+     714,
+     1554,
+     2624,
+     2659,
+     2681,
+     2715
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "out/ITT-REGISTRADO-v3-2026-10-05.json",
+    "lines": [
+     717,
+     2622,
+     2623,
+     2658,
+     2681,
+     2715
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "out/ITT-REGISTRADO-v4-2026-10-05.json",
+    "lines": [
+     311,
+     623,
+     705,
+     766,
+     915,
+     1329
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "out/NOGO-replay-sonda{2,3}-2026-09-23.json",
+    "lines": [
+     1063,
+     1265,
+     2643
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "out/NOGO-replay-ts-com-alteracao-2026-09-23.txt",
+    "lines": [
+     2643
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "out/dose-350-v3.json",
+    "lines": [
+     561,
+     2660,
+     2686
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "out/expiracao-designados-2026-09-09.json",
+    "lines": [
+     360,
+     2640
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "p2-serving.ndjson",
+    "lines": [
+     1654,
+     2631,
+     2704,
+     2716,
+     2726
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "phase2-inputs/B-figures.json",
+    "lines": [
+     3044
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "pilot_replay.py",
+    "lines": [
+     800,
+     887,
+     1634,
+     2630,
+     3102,
+     3278
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "recibos/backup-20260922T014836Z.txt",
+    "lines": [
+     3111
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "recibos/backup-20261007T120120Z.txt",
+    "lines": [
+     2914
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "replay-oportunidade.mjs",
+    "lines": [
+     995,
+     1093
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "rerandomizacao.py",
+    "lines": [
+     706,
+     936,
+     2635
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "roda-sham.sh",
+    "lines": [
+     1077,
+     1185,
+     2820
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "run.json",
+    "lines": [
+     2645
+    ],
+    "covered_by": [
+     "declared"
+    ],
+    "declared_why": "suffix of the figure provenance files `*.run.json` (packaged under figures/), not a file name"
+   },
+   {
+    "cited": "run_census.sh",
+    "lines": [
+     2666
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "scripts/adversary-run.sh",
+    "lines": [
+     3852
+    ],
+    "covered_by": [
+     "declared"
+    ],
+    "declared_why": "the voice runner of the author's tooling repository (not this one); the fact the text uses (local-time stamp, no -u) is checked by parity-rc25.py S25/R1, which is packaged"
+   },
+   {
+    "cited": "scripts/backup-lastro-p2.sh",
+    "lines": [
+     2737
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "scripts/estende-lastro-p2.py",
+    "lines": [
+     2730
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "scripts/manifesto-lastro-p2.py",
+    "lines": [
+     2729
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "serving-brief.ts",
+    "lines": [
+     1833
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "sizing.py",
+    "lines": [
+     54,
+     638,
+     1593,
+     2392
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "sprint-figB-h1a-inversao-registrado-v3.py",
+    "lines": [
+     3470
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "sprint-gera-shams-v2.py",
+    "lines": [
+     1014
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "sprint-resume-sham-v2.py",
+    "lines": [
+     1274,
+     3798
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "sprint-roda-sham-v2.sh",
+    "lines": [
+     1273
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "sprint-testa-roda-sham-v2.sh",
+    "lines": [
+     1274
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "src/api/brief.ts",
+    "lines": [
+     1151
+    ],
+    "covered_by": [
+     "declared"
+    ],
+    "declared_why": "serving source of the nox-mem service on the production host; the manuscript cites the hash it matched, recorded in the sham INSTRUMENTO.sha256 files (packaged)"
+   },
+   {
+    "cited": "task_regret.py",
+    "lines": [
+     1959
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "teste-aceleracao-v4-rc15-ae9e8fe9.json",
+    "lines": [
+     2622
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "teste-aceleracao-v4.json",
+    "lines": [
+     2622,
+     2897,
+     2900
+    ],
+    "covered_by": [
+     "package"
+    ]
+   },
+   {
+    "cited": "…T120248Z.txt",
+    "lines": [
+     2914
+    ],
+    "covered_by": [
+     "package"
+    ]
+   }
+  ]
+ },
+ "privacy_gate": {
+  "checks": [
+   "home path",
+   "host name",
+   "ip",
+   "e-mail",
+   "credential",
+   "episode text (48-char fingerprints)",
+   "excerpt keys in JSON"
+  ],
+  "episode_fingerprint_sources": [
+   "gate2-episodes.jsonl",
+   "gate2-verdicts.jsonl",
+   "gate2-calls.jsonl",
+   "gate1-calls.jsonl",
+   "gate1-results.jsonl",
+   "episodios-ensaio-20260921.jsonl",
+   "episodios-janela-20260921.jsonl",
+   "alvo-painel-20260921.jsonl",
+   "ensaio-20260921-PRIMARIO-3fam.jsonl",
+   "ensaio-20260921-SENSIB-deepseek.jsonl"
+  ],
+  "episode_strings_fingerprinted": 24431,
+  "fingerprints": 607355,
+  "findings": 0,
+  "positive_control": "25/25 episode excerpts (300-char slices) caught; 5/5 synthetic patterns caught",
+  "cleared_public_matches": 11,
+  "cleared_public_matches_by_file": [
+   "DEVIATIONS-FOR-PAPER.md",
+   "measurement/replay-oportunidade.mjs",
+   "measurement/roda-sham.sh",
+   "measurement/sprint-figB-h1a-inversao-registrado-v2.py",
+   "measurement/sprint-figB-h1a-inversao-registrado-v3.py",
+   "measurement/sprint-figB-h1a-inversao-registrado-v4.py",
+   "measurement/sprint-figB-h1a-inversao-registrado.py",
+   "measurement/sprint-figB-h1a-inversao.py",
+   "measurement/sprint-figB-sementes-dose-topo.py"
+  ],
+  "cleared_rule": "an episode fingerprint window that also occurs in text of paper2-interventional/ on origin/main (already public) is cleared: the episode quotes the repository"
+ },
+ "upload": {
+  "registered-horizon-outlived-intervention-v2.0.md": {
+   "bytes": 334847
+  },
+  "registered-horizon-outlived-intervention-v2.0.pdf": {
+   "bytes": 902762
+  },
+  "artifacts-v2.0.zip": {
+   "bytes": 17076754
+  },
+  "scripts-v2.0.zip": {
+   "bytes": 374130
+  },
+  "MANIFEST-v2.0.json": {},
+  "SHA256SUMS": {}
+ },
+ "zip_members": {
+  "artifacts-v2.0.zip": 303,
+  "scripts-v2.0.zip": 66
+ },
+ "items": [
+  {
+   "path": "AMENDMENT-DRAFT-band-collapse-2026-08-26.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 55100,
+   "sha256": "417a1092aa748204be8337f917378d2eecd21f168badf4f631068d003e7340b5"
+  },
+  {
+   "path": "AMENDMENT-v1.12.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 54176,
+   "sha256": "245449c90043ddb29f2b8780adb8746b4d63d86a649032858e089ab7628c0ee6"
+  },
+  {
+   "path": "ASSIGN-SEED-2026-08-30.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 11879,
+   "sha256": "1a6b260dd39beeb5bc1ce60da195a0ce4a5116a9e66c5bff1638371366f71da2"
+  },
+  {
+   "path": "ASSIGNMENT-SERVING.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 21232,
+   "sha256": "8957cc5fe8696204c8a71416c0e1f89374d46f1f75db982c52067adbb43d625c"
+  },
+  {
+   "path": "ASSIGNMENT.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 8026,
+   "sha256": "63906e0c5f7ed4fdb9df7ee68e763fde24c8e73e12207c0e36f9d521b6987ca9"
+  },
+  {
+   "path": "DECISION-designacao-2026-08-25.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 18530,
+   "sha256": "8bd715da39985526dcd00008dc800f47d3af6f3d08977226a056b2409272d726"
+  },
+  {
+   "path": "DEPLOY-C2-C3-2026-08-21.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 4040,
+   "sha256": "55c233c81bdac4484939c01d67c4b312bc031528bff97ad74051fae50b68f71f"
+  },
+  {
+   "path": "DESIGN-REVISION-2026-08-30.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 14606,
+   "sha256": "1c7356dcfb23e04f26f5cab4af9253632a9c636626d28fa17d6e2ba4b005ddd4"
+  },
+  {
+   "path": "DESIGNATION-2026-08-26.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1782,
+   "sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76"
+  },
+  {
+   "path": "DESIGNATION-SEED-2026-08-26.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 14854,
+   "sha256": "ea765365dee92a3e516e683a366de930cfd0110147aebce1195665cf788d2e11"
+  },
+  {
+   "path": "DEVIATIONS-FOR-PAPER.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 204857,
+   "sha256": "895e1f6b1cca75ee61e369056be42d65137b23cde759fa9a55b9e4a81419e980"
+  },
+  {
+   "path": "INCIDENT-2026-09-02-epoch-perdido.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3634,
+   "sha256": "b0aa0395adb79969da63c962c5900015f36e54003f4bedb6eb10bae629a75f94"
+  },
+  {
+   "path": "MANUSCRIPT-B.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 58673,
+   "sha256": "f211d0ac5f8d5a0164458f14be93a5e5ba7d94b1814c45ddf2c8d49551143d54"
+  },
+  {
+   "path": "MANUSCRIPT.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 231132,
+   "sha256": "f8b43d2370aec9469830e35b58e42e2728f940c68a55bda920f6c07af88d2d1e"
+  },
+  {
+   "path": "PAPER-SPLIT-2026-08-28.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 5234,
+   "sha256": "5c08ee4e143eb5b066f135e1b201b916231b48a3da2ed6baf34f544e39505def"
+  },
+  {
+   "path": "PREREG-DRAFT.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 251366,
+   "sha256": "d82028b8f3a883c2dd726286c67f5b91fa3535395575ec276efd497d4220e852"
+  },
+  {
+   "path": "PROSPECTIVE-ESTIMAND-2026-08-30.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 22376,
+   "sha256": "dd01b574923647f8cc8935d8284a5d01962dbb736692eef9e178fee9679d8b55"
+  },
+  {
+   "path": "REVISAO-ADVERSARIAL-2026-09-21.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 7298,
+   "sha256": "99418ebb673f2a97cbdd66cc2b85fac8f102f8c4b46fd72a1207ffda4e533c90"
+  },
+  {
+   "path": "SHADOW-ARMED-2026-08-21.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3634,
+   "sha256": "b7c0a7884002f205ba98c12307f1c0a28b2cf7c77916e3082e9fafe313100a56"
+  },
+  {
+   "path": "SPEC-ANALISE-2026-09-10.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 20600,
+   "sha256": "4098d43058290691a4c77fedf5ed1573727bcef27f367f93f7320c670cf0a2d9"
+  },
+  {
+   "path": "STABILITY-TEST.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 13773,
+   "sha256": "c602bbe8ca82bfd0e4c3ec85209c954b6d9a09bbc89e2b50dc5942a6846925bc"
+  },
+  {
+   "path": "_ballast/COBERTURA-M10-2026-09-21.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 5027,
+   "sha256": "64d42bc70902016b4ae8aee8c3f922c2e084f57de3fd2dc743746c547be7881b"
+  },
+  {
+   "path": "_ballast/CONTROLES-JANELA-COMPLETA-2026-09-21.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3619,
+   "sha256": "44b642b2912f63a5f094e65e0bf82a834fef28752e9e5b5304fa53c05add3c46"
+  },
+  {
+   "path": "_ballast/DESIGNATION-2026-08-26.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1782,
+   "sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76"
+  },
+  {
+   "path": "_ballast/ITEM7-DOSE-TOPO-2026-09-21.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 477,
+   "sha256": "08eb7eabb346f3b6519e58e89179e44812d336e64bbd67c5d22a8ea25aafb244"
+  },
+  {
+   "path": "_ballast/ITT-2026-09-21.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2934,
+   "sha256": "19afa7cc2214bedd7de5e83f79b1d60d116e5e43122f78475cbd54c7c60fc5ee"
+  },
+  {
+   "path": "_ballast/ITT-PRELIMINAR.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1490,
+   "sha256": "15dac8e3f87cd7bf3a5a59c5ceeff5515fd23996fa24885e37ab3d5c20619770"
+  },
+  {
+   "path": "_ballast/ITT-SENSIB-PRECOMPROMETIDA.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2993,
+   "sha256": "0191ee5429916f38e5d58391aefc810282ced6ae6cc6e0747be1dc83bff31685"
+  },
+  {
+   "path": "_ballast/MANIFESTO-LASTRO-P2.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 70302,
+   "sha256": "d06db92d776a0bbb7fdac55587217c533eb209210b741fe5b57a83335391aa0f",
+   "sha256_source": "d310e4e9354206a55434dea2662ec154ec9ea7d352bf1bc9dce9057e1ce973b6",
+   "redaction": [
+    "R2 x183"
+   ]
+  },
+  {
+   "path": "_ballast/RECIBO-ITEM10-20261005T125933Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3248,
+   "sha256": "30dd4c7c70e299b2838375aa4a8e9758e8e5c55e313ca8c176e8ca184577af86"
+  },
+  {
+   "path": "_ballast/RECIBO-ITEM10B-20261005T130316Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2369,
+   "sha256": "986ffe2e0a6ea62a699ba03ac642846f3f176f0126a50c1c396d4c552cabf2fe"
+  },
+  {
+   "path": "_ballast/RECIBO-ITEM15-20261007T120404Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1653,
+   "sha256": "86dde98fab643f8766b2b90cff45832a9b72e21c6b5c3241f569f3931526dbde"
+  },
+  {
+   "path": "_ballast/RERANDOMIZACAO-2026-09-21.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1307,
+   "sha256": "ee1d4e47a980c34ba12811e282b3042204a32145067b53ab44e046bae069ddfe"
+  },
+  {
+   "path": "_ballast/desliga-dose.ndjson",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1316,
+   "sha256": "1b9c78fde0eef941a6ae9da85d1fcc5dcf7215be10ef504dd3b02a66cb2a96e7"
+  },
+  {
+   "path": "_ballast/estrato-b-ids-20260921.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 13600,
+   "sha256": "ab4249f113612012ee135d692b68176f6beb9837e2ff7df02a4f3636201ae065"
+  },
+  {
+   "path": "_ballast/p2-serving.ndjson",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 12889236,
+   "sha256": "a25f9aefff6ecabdcfd3f00692a1b16414670713b01218d01e73bc993c3adca2"
+  },
+  {
+   "path": "_ballast/recibos/backup-20260921T194737Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1504,
+   "sha256": "525c9cfdc76c0dc098089e3bbb830d4a06fb7455ec973a762472d460e9876703",
+   "sha256_source": "04ee0814b8c875a18b8d2e009af9d8fe82668f62e6ab6797af518fe008c9d3cc",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20260921T194853Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1398,
+   "sha256": "f5a5c7bdd0a9508d28fc8129bc5d9164639caaacd5e69e13944cc978618b9212",
+   "sha256_source": "4a31cc9aa63a6c767e6dc5ca040f278e2f6e7fa72cca1ec924a83add34f2c799",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20260921T194909Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1398,
+   "sha256": "657d56ec7204068d2f67238b7ce1e7ddf159116a23e58564089e365f285bafa8",
+   "sha256_source": "7e4f770ece0e4e2678ba8811b1df1a60764cccdd64d13d023b6f0024e9e82753",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20260921T194912Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1398,
+   "sha256": "f12139236129ff92937129f9cdf6dc1a64e68f169cb8b82d282c2036a322ef4f",
+   "sha256_source": "f87d19b758b9e2ac9a0c46cedbfdd6eba00e59f610fae23b3e740aa0b0a3e5eb",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20260921T194942Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1517,
+   "sha256": "439f5f2198d199b73b6341531c08828cd410f10779efe3a79234072c0a47a943",
+   "sha256_source": "d37467c46dc1cf505f6d4e20da085fea8ba42dd969532d98480418c64c27043c",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20260921T194943Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1464,
+   "sha256": "00a862c2033f9f6aad9a294a20cdc0cfb323f088bd399211d76be55e7d744b9e",
+   "sha256_source": "7d524c21d46ead82b29720733642d48cf61fedaecbefd22a5b23f34f66beb640",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20260921T195541Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1656,
+   "sha256": "66565d44691eb3e00da704bbcdd0c19b2a1b1a45b79a5af833b5addef88a3ae0",
+   "sha256_source": "24c3bc532bacaaa7c630ed7b948b30e2f59a158897e283503fae66be962c9051",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20260921T195544Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1518,
+   "sha256": "a94c3be8e9e240f336c6265ef0225c40a73e15b3440079588c2524ca730d09cf",
+   "sha256_source": "56f2295873d4312999b83368edbfd819efc7951a9fe7762ac653ee75b17e250f",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20260921T195546Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1584,
+   "sha256": "e53f1b9f98dec397337f9f626cd1c956d9c4717fa24e957541ab0fc7293ba6ce",
+   "sha256_source": "3427746ae09ed92e7caece8bd085077bb95d95ace9f04e4ad04df1fc2c087f7e",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20260921T235147Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1922,
+   "sha256": "47d5a84fcb43e78281fb1cb622d15418f0596e62507859ae74c016b58a0923db",
+   "sha256_source": "16798f71fbcd9a50318bb07eef946c486854330accc91ff803f6701c73816703",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20260921T235204Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1922,
+   "sha256": "d5f0b4099a151483df6b084cff714d1d57e6d480736315faf762d60ff710f3ae",
+   "sha256_source": "b623dbb140d7239c2b1405605777e3fd46245cb1c8b4c2ca362cfbb42f7deba9",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20260921T235228Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1962,
+   "sha256": "b2f99640505653e2ffef92be7488db26b4f4aa00143ac3f8415c523c87548460",
+   "sha256_source": "b12714120a4d06af059762b4d747fc04478a1f4065db4c5d6dfd7a09b2e32392",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20260921T235229Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1774,
+   "sha256": "baceec3b88000ec9ef3f896675c06bf9f5d089a936f2c6735ae0b8c09a7dd31c",
+   "sha256_source": "b015bea1daecf7abcd210f4d7e5585e27b40cebffe532b08902b6032fb5c2641",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20260922T014727Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1538,
+   "sha256": "745562a378492c935db58418440983146547385d2bc4399244999dd7afbaf66d",
+   "sha256_source": "d9a91b224e9b6f3fc1b5098e322e5da9ca6c89c29d59e06638b77cd229b85242",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20260922T014836Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1635,
+   "sha256": "2b4672db5062b730dc4866c1a883be365ac5c3a193aa032d7d521c51df8f0570",
+   "sha256_source": "65b5b9f8562b1e13f32de656b3f1df209fc9d3c13668d35014f8c5f1ed498129",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20261005T125749Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1635,
+   "sha256": "78b408217e05d4b3a6c6c99c7f48c5b0e6492269d14f726f054cefea96341299",
+   "sha256_source": "f6ff13ccbc5fdcea398cdd099fdccb13caf9e9dce1ac65b1ffb23a723ce34819",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20261005T125933Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 4087,
+   "sha256": "dd522da8bdad916bf2244032704816b99d96b832c3aaa703dd98235b26b8d29d",
+   "sha256_source": "fcce876143588129f710b2468f44d6afe06b71687660bd7b3d16306f81dac7c5",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20261005T130243Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 4087,
+   "sha256": "4acc6989b4c7f50c1202c3c9eddc51700092c69410288df22fa4f4c7cc2df901",
+   "sha256_source": "3cafcccbc90303f08516b1da85ecb9ff4901d2f8266dd3afc6225fc50009e956",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20261005T130316Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 4703,
+   "sha256": "ffe1802ab0298e1bd2a2d26370736556b9e1c802d03d0b288f3517861227d554",
+   "sha256_source": "144a1098247d38814804fc153f9f87c1c4461c840e7bf702f7fc97e620a859dd",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20261007T120120Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 4703,
+   "sha256": "dc6d54c943740dcae3e4257f8ab66bac005d4980d48595c621882ab8c0036e7b",
+   "sha256_source": "2b1458d5a4a03d8bc1e7039c9109007e8f15d8e3e221fe585f2dcdb2a1fb1b65",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_ballast/recibos/backup-20261007T120248Z.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 8333,
+   "sha256": "00913996c14edd0e258e5c355167c645834d96b5f331fb00ae950c4d58b6131c",
+   "sha256_source": "2cb200cbb0fbd425e6f8606fae2c05940fa7a6456251ffae2fd7804e65ef7103",
+   "redaction": [
+    "R2 x2"
+   ]
+  },
+  {
+   "path": "_derived/panel-verdicts/SANITIZED.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1480,
+   "sha256": "6b7868250e811d6d809f039c81d35cb3a2f20765732374043beb709230755f20"
+  },
+  {
+   "path": "_derived/panel-verdicts/ensaio-20260921-PRIMARIO-3fam.no-reason.jsonl",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 800512,
+   "sha256": "78609deb653701779ce3ff670adfd333d964dca4eec5e6b4e7900aab84c15b9a"
+  },
+  {
+   "path": "_derived/panel-verdicts/ensaio-20260921-SENSIB-deepseek.no-reason.jsonl",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 288637,
+   "sha256": "3b23fc915fc88a6f4636c601eb6b6bc12dc12b2ec0b4e414c442ed7477124b3d"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc10.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 6961,
+   "sha256": "df7cb40299d3beb7e7adecb5b7893879bdc915963b25a47168c49c46e2621e36"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc11.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 9137,
+   "sha256": "71e70ed3dc16958d6df75357b69381e146fb490e8f729f902684f982e479a1af"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc12.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 9646,
+   "sha256": "385a698296365f84c340cbd2e45a35a0c7af4fc337b1e5b8038000fe10facaeb",
+   "sha256_source": "7eefc6e4b449bc2cc10ef82d06fd199fc20fc779c0ab03831e2386e963683905",
+   "redaction": [
+    "R2b x1"
+   ]
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc13.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 8898,
+   "sha256": "69033f0e7d5726a5f6403c14595d95ffdf7dcab6d60a98067e0adb7172a43ebc",
+   "sha256_source": "1fd0dfa6a48df10d6ab52f09d60ad8b3ebcdc149903394d7aba2370ff0e8f040",
+   "redaction": [
+    "R2c x1"
+   ]
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc14.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 8895,
+   "sha256": "8e4d7ad6f1b95a18695d079d87d2ca87cda4b5b23d47becb11708536c34998da"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc15.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 10357,
+   "sha256": "0ac87b720ede43eef949369f2d342c2d0934769be46914458c430a2f5b27b4e9"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc16.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 9012,
+   "sha256": "77a0fc0800d65252c4c571015321f784c397d6d62830edd95459d190cf4f68c3"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc17.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 10210,
+   "sha256": "6d688a615168f16d3ee74872932f639c4344debfd12764695e2d09a59b038f09"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc18.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 11859,
+   "sha256": "54f4cc8167b2b657d53d26140b553f19e79724ab418c58e7189425296233c512"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc19.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 8868,
+   "sha256": "d7f81b4c62e2873a3603c5bb856d927babbfff48442afc3b7c149db6dceb587e"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc20.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 7526,
+   "sha256": "3e47313dc8d87b54bda9cb6be4c9ff68d198a672e4f4bd0895dd9ebc28c03447"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc21.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 6272,
+   "sha256": "879cea647de8c89052e418dac3c890e1c13e4786582e22c3f669b0785ecc4113"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc22.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 4383,
+   "sha256": "f1701449c452bf8eee13b3a7371af05bfa5a80b50e8a9e562cfe1105be1ab50e"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc23.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 10099,
+   "sha256": "cd5b0760a913283758d70456cae965d53655eeb194eccfcf414b0f6bf451d892"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc24.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 6558,
+   "sha256": "d21d2f737879c4b35e28af1dd1f81cc121c17cfd7cb4c1526a8a0178b15e3259"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc25.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3283,
+   "sha256": "18026b3c7f9d99b48f97c8ed5e10ab5f84cd5d695c59c3071cae68e772d803c5"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc3.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 12450,
+   "sha256": "b1ea65f6eda3b48975c59de903e334b269f7791552eea2b786c1a11c8af3ce75"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc4.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 10307,
+   "sha256": "3c4ad7401e04bb39ff3014d2f116172342ac64b61ce9bcd6a276f3b69e5d48cd"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc5.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 6190,
+   "sha256": "09e2d28d8c88e55965185b80e562dec5f51acc01ec7682ed79111d0ddf1aaf28"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc6.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 11119,
+   "sha256": "d00405ee0a56d64a2aac2618b197130e064a9374eece685f6b91c72e83e5d21e"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc7.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 11944,
+   "sha256": "fd41b8ff625a3ef3f7b0e1b6ee6ff3ac33f2e018605005271427ff9cb6b6714b"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc8.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 11245,
+   "sha256": "9a500c58490a099c37ce3fa9c4cbca0394743f7bddcfa86b23d7f4f7184dfdff"
+  },
+  {
+   "path": "_sprint-2026-10-04/APPLY-B-rc9.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 8755,
+   "sha256": "07496c6a2aa4ed028c2fcbd656225a1dc3c4385b281e7566d65dff86bdedcd2b"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-censo/GATE-RULES-PREDECLARED.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 5553,
+   "sha256": "44cc629e356fbdd358807eac6a6fa861aaf561c6a887da667ee635237d6ee102"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-censo/GATES.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 10186,
+   "sha256": "628acbf151ed11ccaf1394d82ba46a37a622e3b3c6a79c270f38e30ae5778b3f"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-censo/SHA256SUMS",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1826,
+   "sha256": "414fdda35ba34f4a85870c5392c2977ea62bc21b2575acd9f90e161d0041df3b"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-censo/census-ids.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 80852,
+   "sha256": "46c5ad6030c8bb2553628bcea6ce3a4dc3ac65129e2af3393cedf7b1b72d2f8c"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-censo/census-lotes.sha256",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 4128,
+   "sha256": "61f4eb85e1875149726139211f482d81b6d0fe5877d86008104dfe54440ec083"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-censo/census-pins.sha256",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 695,
+   "sha256": "a190eae2a8dcb153ab65a36ed3696063362b9647a46529624b224cc3ca166ba1"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-censo/gate2-compare.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 4548,
+   "sha256": "48e9fdb6a100c624e545e3748d1da2bb05967751f06c64040886bd7a2c45faf2"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-censo/gate2-ids.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 850,
+   "sha256": "6377c80b4c630b4db2203122821930e47357870595a7aae35ab2675aebb30509"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc10/checks-rc10.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 47267,
+   "sha256": "b774e61c7c3a20f7af921dc7910f4abc9b66bbbb0586795fd9ef17d90040133a"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc15/checks-rc15.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 60858,
+   "sha256": "914d4fa078940e69af157efce7b0bf87bd1091aa0d76cda0fd0efbe9fa46441b"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc18/zenodo-22110203-files.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 41551,
+   "sha256": "5ecf1366452501f5a60c83ad265fc410b844d887fe080b9f9c3e8da9576ea9d9"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc18/zenodo-22110203-record.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 31945,
+   "sha256": "d9e059f9cd90161eee6439a10783c56b5275d6d69099ed06bb988b77b3e60f32"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc19/zenodo-21978476-files.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 29046,
+   "sha256": "9bb619d2378030aec6a6c4854b37e0f1a80b7474cbcf778a9c8cc41b80a7d0be"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc19/zenodo-21978476-record.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 21643,
+   "sha256": "bb2cf30110d8f00a31b55f23fc02ecc15946f6d2cf6c74eb326817128b6f8625"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc7/checks-rc7.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1688,
+   "sha256": "9cb2be5173fb922ae08f13e5bed595fb59493c2b2de57d9b5902d013de07c279"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc8/checks-rc8.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 21549,
+   "sha256": "af67c1ea6945dbce65dc8512ddd2cf9b77e39d942d4f271319f7daa4400d4f57"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc9/checks-rc9.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 31422,
+   "sha256": "23e4a57cb5c7ce09c939dcd86efca324cd43e320638e85d9d4e22559191c4453"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/ITT-REGISTRADO-v3-rc10-36f6421a.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 230738,
+   "sha256": "36f6421ae10a336c13c5e4ff25fc5702b59dd4cde59f9c4cb5bf0fad3b3e40dc"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/RESULTADO-v2.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 16050,
+   "sha256": "ffe470428d4ad553065d4f46907a03b52f74bde016bf89855d2cb269101d8bab"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/RESULTADO-v3.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 11454,
+   "sha256": "c9f4117a95e138cbbf17a1c769bd31f33eccaf584acdf075ef6ca7557d1f1968"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/RESULTADO-v4-rc16-d5b3b8b6.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 9065,
+   "sha256": "d5b3b8b62fea4ba5b64ac6f0f45fdcac8424773f37375f9367143e6911ff9413"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/RESULTADO-v4.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 9777,
+   "sha256": "9151c61fb42db7627b38e42234bfec4d491a6778e7b9c499e402431a6edb5e17"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/RESULTADO.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 13885,
+   "sha256": "c704fa956f0eca17cab75130ec2cede9a4a81576cb925bbfe1e8d1a918c8fdf3"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/f3-abort-ex-post.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 8021,
+   "sha256": "26da74b0d8cb85ba80c27205432538021680fc559eedc36498356dcf7d41f203"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/f4-promoviveis-w4.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 5768,
+   "sha256": "e247f225f10a2f4f9127fddcdc1de96ad9e5dc07ef0d2932a5164f1c00f61da1"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/teste-aceleracao-v4-rc15-ae9e8fe9.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2649,
+   "sha256": "ae9e8fe9e0f19c8186597906e54825006beada96314ba058b540bccbe482419c"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/teste-aceleracao-v4.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 4123,
+   "sha256": "041bd4a997506356a47a7f95f471ab3782e6d40eecebd21612b28384313d119c"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-related-work.bib",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 33338,
+   "sha256": "add36fe5826317992210dd9058dd2269ae219d3acc95c30c3dd5d237169b1290"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-related-work.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 28509,
+   "sha256": "966516b480c58441a8d3362a15a966eba3e6cd01781a17352ebb64a0bc3cf697"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-related-work.verification-log.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 22801,
+   "sha256": "32d18d4ac0fdd6f2bcd8f0469878a4be6b7db13ece95f8b885f4b82f7f7acc10"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-replay-fidelity.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 20009,
+   "sha256": "1f432ec64dbe09452eedb84b29bce6992c5962fc8e404016c23752e095ddd781"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-replay-fidelity/RESUMO.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3473,
+   "sha256": "6ae998e71dd1a43b39dc7bca01b048c4a652e99d9f5d296bea7fda6582bfce5b"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-replay-fidelity/estratos-preservado.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 85771,
+   "sha256": "7a1f7e3d61120bca71fe62c220360c7c5d6c5533212272d4e7e5d6dc5a0d2dbe"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-replay-fidelity/estratos-servido.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 85207,
+   "sha256": "b05f38628dcf568eb1ecf51b9076dd993e879f69c2134d964f112807c499eed9"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-replay-fidelity/out-campo-preservado-inclusivo.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 22267,
+   "sha256": "dab2a5b195e94ea1672321e63c1c9d84c0346d238f233fb0578a0e55b29115d9"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-replay-fidelity/out-campo-preservado-rowid.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 22307,
+   "sha256": "85869d3ee0788b82959ebfedd86934186b59c0803c02d56766c739418f5bf5c1"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-replay-fidelity/out-campo-servido-inclusivo.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 22349,
+   "sha256": "56a819902f2cc4aa4d0470ff64dd56ef05944ddd196ee499da58d868b73a8397"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-replay-fidelity/out-campo-servido-rowid.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 23474,
+   "sha256": "71da081ad12bfd0bf45bd387e7e33237c9e3dc76489fd29e8fa793569239bd5e"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-replay-fidelity/out-dose-preservado-inclusivo.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 21503,
+   "sha256": "dc9e093fc92d4b5c5cb05b348dbe4e80500bcc6b8aa310e5a2d487f88908180e"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-replay-fidelity/out-dose-preservado-rowid.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 21587,
+   "sha256": "527dffc46ce5bf8c33ff4d17654b20f159e24c67496d658aadc153e166a16db4"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-replay-fidelity/out-dose-servido-inclusivo.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 21553,
+   "sha256": "a7a004e9c7bfa17c6869183534bef52e943ef0714a717b61ff3131572024b109"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-replay-fidelity/out-dose-servido-rowid.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 23725,
+   "sha256": "8aeb2168eb42bec237a15876af6bcfde6dfcdaa3f73325ed8d7925e8b6a35dab"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/JANELA-LANCAMENTO.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 17854,
+   "sha256": "63d5fb2cbd411d19f396613b51ac0a8eb4b1558914c108481be9f60a66de4f8b",
+   "sha256_source": "6cff1885c17eff237e3a0b912cff0f91c7e0be8902830890394872cebcf14df3",
+   "redaction": [
+    "R5 x1"
+   ]
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/REPORT.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 14030,
+   "sha256": "9d4fadbd1f4197a8f8cd5aa96cd455b1925236379fe5f819f5116857713190b1"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/RESUMO.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2739,
+   "sha256": "129c9d64980dcd3ddca005677472047f60080707ca5d5f972b8a911124156bae"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/TEST-sprint-testa-roda-sham-v2-modo-completar.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2677,
+   "sha256": "c3e00dea39349b067bfe3e988971e1d915364a93839ff108ff563a8b85a6ccb8"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/TEST-sprint-testa-roda-sham-v2.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2400,
+   "sha256": "eda0847dea555225fd83689de15b7b01af1672063439b7f45e1b39219aa6aa26"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/calibration/REAL-1.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2240,
+   "sha256": "594ab5ccfdd9ebf1c759cf465c6de7a80bfee2820225d62d02cb889ab99922ec"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/calibration/REAL-1.time",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1419,
+   "sha256": "f8800906aa749f192950111ba70c7db2cedb1ae354cdeb5a3c4e2d35f185f940"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/calibration/REAL-amostra200.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 187141,
+   "sha256": "87202dd85b85c21ff97bffc6c145c33a35d90a15409df997570425e460e220f0"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/calibration/REAL-amostra200.time",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1450,
+   "sha256": "8d2ce0c977bbef68d465324d34f25ff1622f8153db2042f14cd0ff32f943749e"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/calibration/REAL-w4.json.gz",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 67914,
+   "sha256": "62f72d9a005876d60440bbc38e88eb56f669e989781183539634158cccde0b0c"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/calibration/REAL-w4.resumo.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 672,
+   "sha256": "82315d3aedf53aaecd5aba0aea7531dd2fbc5843efd5a85f6ad2d48b69ad0c42"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/calibration/REAL-w4.time",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1431,
+   "sha256": "04f550ce6108d84865c316ccd9f4b247224035787df0b8355054e67e9bb292ac"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/calibration/ts-1.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 25,
+   "sha256": "6be8622367719c2d122216345270e8ad9420d31f978050f8c106139e6501e546"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/calibration/ts-janela-amostra200.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 5000,
+   "sha256": "74ec82af5d60626e09017ae2674c59fb7ecb2d9b60c18bf8c37d0ced6d0d5902"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/calibration/ts-janela.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 296625,
+   "sha256": "d8a43b11d4a305a73a210adeb549a59d7b20409dd3cd7e08288c3d9ac6f37ba5"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/calibration/ts-w4.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 66150,
+   "sha256": "1feb2bf0b3b06b06b059eab9916f20fea9e467498c1aa2124983adc765a83bd1"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/diag-v2b/1-REAL.perf",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 284,
+   "sha256": "410060d460338fbe0abe62fe5311eaf07c0eeff041b276c01daeccf09a1e95a0"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/diag-v2b/1-REAL.time",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1495,
+   "sha256": "8655a6b6c86d4bd57f92dcf0523cd9fe6a05d23260ddabe820466a3c610d9a1b"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/diag-v2b/2-SHAM-012.perf",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 284,
+   "sha256": "a0d8a1a8bfbd3e0ba90d354e6b24fe3730a2d148b04d54a3e31a7538d0aa3128"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/diag-v2b/2-SHAM-012.time",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1502,
+   "sha256": "c295f54aef15a0a668307ad40a249ce14fe61e6ee5cb4eefa4a0fabae2d4272a"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/diag-v2b/3-SHAM-000.perf",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 284,
+   "sha256": "7cc45451374948ff17573e4c1b4533af968724ef7383fc60f5c7b49b12be77ec"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/diag-v2b/3-SHAM-000.time",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1502,
+   "sha256": "e32b90d3b35b0b17431640ca492ee84618014edab4dfc491b194c787a34b2c48"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/diag-v2b/RESUMO.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 636,
+   "sha256": "dbf58ace087535491ea0de0cd67e55fb2388d6826cc021deb2fdc69f014723ea"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/diag-v2b/hipotese-a-hashes-e-arquivos.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1785,
+   "sha256": "ce5506efe927261d517e1a390ee75df66452a413e79a29763e868b39c2d4b02e"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/diag-v2b/job-v1-PROGRESSO.ndjson",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 112957,
+   "sha256": "08d70e4cb85551fc01a50d89da2e1a0bf3dd41f4e4ebdeca3128e1e469db092b"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/diag-v2b/sar-u-sa03-sa04-hora-local-UTC-3.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 16142,
+   "sha256": "5ac65098771f77d048d6e461a92f47abf61d2fa39b0fedf4330834ad48166a0c"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/diag-v2b/ts-amostra.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1250,
+   "sha256": "858ac113158a5b7d78f754549c39a607635e52ace027b3fad27f8e9f31001bbf"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/fidelity-110/out-campo-110.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 113445,
+   "sha256": "7736b6fa35c1fb54b8e4625565c2ee30c1d8a7144bd905f340ccbcee095b4a1f"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/fidelity-110/out-campo-22.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 23451,
+   "sha256": "e295b79ce0b02ba82073c10a7458b27814ca9057d0d5432471ec35d823352567"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/fidelity-110/out-dose-110.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 170449,
+   "sha256": "a2dc8e21a7b5b92bc0aeb126284de0d5871cee420ef3d25134ec2f653f31d71d"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/fidelity-110/pool-110.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 159524,
+   "sha256": "3a53f562c4f2b9d2217e9d4c4004239b73653fc98a6b11b3f54134b64a541adf"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/fidelity-110/pool-22.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 33949,
+   "sha256": "3b2205efdd58d44262c8d986300369d111ffa4c24186d82e827d7ed1e5faeea7"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/fidelity-110/ts110.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2750,
+   "sha256": "5a6f37dd51ca7fbbeb08e070004e44404f706afcb236f7ef4152da80cceb371d"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/fidelity-110/ts22.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 550,
+   "sha256": "fc9133ce96185fa265d050cd98849d3ad9a50c171843308639e2a893537634c2"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/CPU-pos-lancamento-1lane.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 658,
+   "sha256": "b1af005a84a4363a8201aba59c9659ffe83c13425d782ec2bfe7d0891ef82734"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/FID-w4-60.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 60116,
+   "sha256": "3a915bfc7ed8c7fbca5c29e6c8e8d53375cc58cdd44599f35dbc948392efee55"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/FID-w4-60.time",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1488,
+   "sha256": "6dd3438ec1f006fa3034849664f9e0f211ae0d10e3d7004640994d5fb1b57b9a"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/REAL-amostra200-janela.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 187169,
+   "sha256": "02455aeeffac1a8938e9c66550ad5eee7292dec8ef3997873677aacfa794829d"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/REAL-amostra200-janela.time",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1505,
+   "sha256": "fbc7859459ad32ed8b9ab9f7f11f426e96548d971e984b368886a8c1f930dd42"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/T0-fid",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 21,
+   "sha256": "bde83f56b5eb64e259f9560543ee03a0694041f7ff0cb8eee99b09e647c0a041"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/TRI-cpu.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1143,
+   "sha256": "b0efba59f7588bae55448f18a27ba84ae008e5358683f617e99aa3a8f63122c0"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/TRI1-amostra200.time",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1497,
+   "sha256": "bec95e49ff7724665e318d2003e51eccc81e6dd25b973c99b38ff7f62dc98cb9"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/TRI2-amostra200.time",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1498,
+   "sha256": "b48880fef99ff1c2066e9aba2ec80be744d6a58f217e50dd090c374169e8933a"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/TRI3-amostra200.time",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1497,
+   "sha256": "960dfec7d3cdfc8f8282c5680f4e3c2ba118a479fc528f4642a78a2f19c6704f"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/job-janela-BANCOS.sha256",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 259,
+   "sha256": "a1161f38e88e66be35c67356aeb9f26f4638de9f2810d03337b2e35f8131690e"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/job-janela-INSTRUMENTO.sha256",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3783,
+   "sha256": "2ba712d74d2d55d327d867e5fec1d9aaa510e102fe457553970e57031196f3d6"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/raiz-package.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 175,
+   "sha256": "c0be3daba867b610d23b3f2dcb785ddceaa66544b397ac12a28ce8dd65fb5539"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/ts-fidelidade-w4-60.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1500,
+   "sha256": "149bb8ec78d9789d58046f9226272c4f3f07118a310149a6126ff3bddb23f099"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/ts-janela-excluidos-53.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1325,
+   "sha256": "fd0bb5cd5e2bb5b6c455f18820d00ce6ee1fa119847978450a15225808fd133c"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-janela2-runs.tgz",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 15557679,
+   "sha256": "aa4fe1e0e30fc3f1152dd381cffa598fec46ba6e164b058ff079b4ab06a5d871"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-janela2/BANCOS.sha256",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 259,
+   "sha256": "a1161f38e88e66be35c67356aeb9f26f4638de9f2810d03337b2e35f8131690e"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-janela2/CONCLUIDO",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1676,
+   "sha256": "02c570de5c5f32c520621636273dd3c4594a68fd3dc342a630cd8417ec9523e0"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-janela2/DETERMINISMO.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3133,
+   "sha256": "f36f1325a6b7da34d3a11b96d9c7b632d0e8b4494b67c1ec155244a168c44c58"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-janela2/HEARTBEAT",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 21,
+   "sha256": "7d8124e282f255ccdb641ff346c9e743ce9930e8d761ec50916a0d1316b3487c"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-janela2/INSTRUMENTO.sha256",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3797,
+   "sha256": "42e8df861bf8bdd6443f9a19d32293e84c4c3fc2a21794293be6bd58cf206ab5"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-janela2/PROGRESSO.ndjson",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 622468,
+   "sha256": "c794f477739fb95b93e7bb54918d382ddd7c58cc4128e3d0435e1084e4d680fe"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-janela2/PULL.sha256",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 4269,
+   "sha256": "ddc1e3febcb1a8bf64bca8433f99a96576b3cce00908122a086103a9a04f82df"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-janela2/RECIBO.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3966,
+   "sha256": "50aa2521eeb7cb953bb09e7f0026b91f9b989bbb8c71125ea4d7e4d2f724d95c"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-janela2/RESUMO.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 8382,
+   "sha256": "ec10bd52cdebf43f35ee748e82787cb6b342be0e1b8637e8d750ad24cb304219"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-janela2/RUNS.sha256",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1676,
+   "sha256": "02c570de5c5f32c520621636273dd3c4594a68fd3dc342a630cd8417ec9523e0"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-janela2/STATUS",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 47,
+   "sha256": "190c50ad33bd366b0dc229a590211d59b5138478fc64589da23ff22e9665e7b0"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v1.sha256",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2985,
+   "sha256": "d63c0df9683f8e38b97e5bb0214d7a6e33827c598ec2dac0d26473e21a840601"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v1/BANCOS.sha256",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 245,
+   "sha256": "3489ad0f622b8172ecb39ce7f70e358d3ea5d8039815c273d44d3ce09d70bfa9"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v1/HEARTBEAT",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 21,
+   "sha256": "bb4e088396c137242666f1d93ebf6c32f425e9c330f5856df6b85fe458fdd5df"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v1/INSTRUMENTO.sha256",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3576,
+   "sha256": "e8034af60059ebf59fc239bbf8e0048c733cce798ce03cfa4ec7edd1c1f18702"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v1/PROGRESSO.ndjson",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 112957,
+   "sha256": "08d70e4cb85551fc01a50d89da2e1a0bf3dd41f4e4ebdeca3128e1e469db092b"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v1/RECIBO.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3050,
+   "sha256": "4c291df5d77d4f1d51d9dacb5c3767ddd0d74fb495fb6f51b172cfd1f357d87d"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v1/STATUS",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 76,
+   "sha256": "6c8b2a32d6fd3ebfec1a6fc5b3aab43ee0b197bd79e41a56dd5d7de29fc9cd62"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v2b-runs.tgz",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2437551,
+   "sha256": "3cfaf393e7842de9095749b99d8ac7b8b69362ecc9f3d3e70d3f01cb9165fc74"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v2b/BANCOS.sha256",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 245,
+   "sha256": "3489ad0f622b8172ecb39ce7f70e358d3ea5d8039815c273d44d3ce09d70bfa9"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v2b/CONCLUIDO",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1676,
+   "sha256": "e1b1364767944b88a34616f0e25b5312e81a2b091c5fff8018ff5056ab10f237"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v2b/HEARTBEAT",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 21,
+   "sha256": "c99603f478df37a97ff9f11a359f5bc8c536f5aae2b4d667a71120377e4f5b49"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v2b/INSTRUMENTO.sha256",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3576,
+   "sha256": "e8034af60059ebf59fc239bbf8e0048c733cce798ce03cfa4ec7edd1c1f18702"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v2b/PROGRESSO.ndjson",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 207746,
+   "sha256": "a67adabb01df6fca5f9e2c7d3ef25b611dcaaf5d66348cf87807a3aae77fcee7"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v2b/RECIBO.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3160,
+   "sha256": "84cd8e24aa8f3b5eeb743f7f6e6096c284a8ca52a6411b436c9e67f17558e00d"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v2b/RESUMO.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 7227,
+   "sha256": "792fc98cd70f6b738b854c6326201ca815739f87cf19d995f2a0ebe65f29523e"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v2b/RUNS.sha256",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1676,
+   "sha256": "e1b1364767944b88a34616f0e25b5312e81a2b091c5fff8018ff5056ab10f237"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/job-v2b/STATUS",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 47,
+   "sha256": "4db8517b04fb8b25883a601d4f8a61e5f7fb4125b178caed198eeb746831a2bc"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/MANIFESTO-SHAMS-v2.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 14960,
+   "sha256": "f6dde1ee13660286e3ed0cd714de49503ea4e28ce53f9df729b9ee3bc4ff0e8a"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-000.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1809,
+   "sha256": "7d245e04f07ddc4eb1ea46abb963465c6995e54e02c78b41b91d476b709aa9b2"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-001.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1809,
+   "sha256": "2c9e95bcb3f283fc7e87e787b29a71a3d5014f57d0c2c66473e99718c1b9be41"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-002.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1809,
+   "sha256": "2f76672a2d42b3a92fad53c77f3a0964f552c89579eed6c4aa4059e229344535"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-003.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1809,
+   "sha256": "81af0c1269a05bc4dce609b08b9c0ebdb01b1268c9c9ef1ef72f5336be573219"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-004.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1809,
+   "sha256": "27d70ba436d63994c6dd92f7297f7644011f9801d5df06a1bad4a2e67c0e409c"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-005.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1809,
+   "sha256": "784d9d96716479c7c983f9d2af1f2ac1de0e2fca8a21d63d7b2ec48917b32163"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-006.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1809,
+   "sha256": "5b6a48975d1bade4003e55bba784e3d16bbeafff3d6511e7fe3085166e550f4d"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-007.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1809,
+   "sha256": "95109fb0caca29209f8e6e5b1911b2a61e808cdbd94d74096abcf45f5f770f1b"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-008.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1809,
+   "sha256": "38dfdcf6e8e88f9c2eb26a28f7340aeaad227b217a8713a16a0f13242daa0049"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-009.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1809,
+   "sha256": "cced583bb375d65e727ce24915a7faa6c9e973b3ea19fa1bb84034115492e612"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-010.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1810,
+   "sha256": "0bb2aed831192424d0f99edf82f6e2d08f5ccdb1c235bcb7ea4393d297350118"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-011.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1810,
+   "sha256": "53bde2049cdc704acdbfaf82d9049413506a2826732bacc6454aab0f419fafeb"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-012.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1810,
+   "sha256": "c2512f19ad9a540322c34ae016aaf355d46c43ba4674a27e0ffd2bf00ae24e8b"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-013.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1810,
+   "sha256": "e4ddac67cbc0cf837421f1003ba76a1874f670e06817fd06972a475ad7883418"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-014.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1810,
+   "sha256": "2216555e486e4bcd2729e5b47ad9cc252adad255e44dbbc2f066805d77fdc921"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-015.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1810,
+   "sha256": "3ef5500f512553a20d9e5582ba3b7776fe3c09f4edc959bb6865f622ce324d97"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-016.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1810,
+   "sha256": "4c132b667118952bd0212febaf189018ca7c9c0a0326187b67a86235ef86399a"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-017.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1810,
+   "sha256": "1ce280e816fc9c5c2a7120e1e86e03db4980169b327bc8933fbe18b4c5a5b6b5"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-018.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1810,
+   "sha256": "fedcc592147475aa0cd60312a4c54f58e7b189ea0b2a87c905d9a6ead5416e5f"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-impulsionavel/SHAM-019.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1810,
+   "sha256": "ded61acc8da5ab0a83178378ab4110dae3356545c89ab778f381e16dbcfc2d69"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/shams-todos/MANIFESTO-SHAMS-v2.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 15537,
+   "sha256": "c03185de25829aff18cec24bf2cace4a13145e6ad1a0e9ce3c9ec7541a2d222d"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-v2-rc2.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 120823,
+   "sha256": "e4f21b2d0c1572acaa5de4cd4186bb3f32191877754d4c5ed0a88af409510f29"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-v2.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 113334,
+   "sha256": "dc8769c7f62f1f6c09354531ce84da61ff01580f26e7297a646d9c7a0f66a1e9"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-v3.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 112847,
+   "sha256": "ae0b98b7023177d908b4912e9fc9c40196506c5af1da8baba5025d7042b39e15"
+  },
+  {
+   "path": "_sprint-2026-10-04/LASTRO-B-item10.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 11727,
+   "sha256": "a7a6167073ef79dad8376330eec07fdc3880e0bc7bf921ce4d9835afd87052f4"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-B-2026-10-04.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 14697,
+   "sha256": "01fca34d0596f3ac0fc295b5c8361945851be2ad2a15be05a4130e2f9e1cfcce"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-B-rc10-2026-10-05.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 6280,
+   "sha256": "f6c040828432a262c682b09ff08937e086d39f79b1269a3d9110b96106fd3c50"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-B-rc12-2026-10-05.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 4503,
+   "sha256": "32db6916397e4c1afa898582250cb0c35465bad59957520cfaa714f03207cc5f"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-B-rc14-2026-10-05.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 6675,
+   "sha256": "a5e36a439595cb55e31a895a23858030ac1fc010669f433cc65d90b971c86ef5"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-B-rc15-2026-10-05.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3529,
+   "sha256": "e45768b54cab2d8a245a7244513338611613f610ab6edb310fe70c0d2728798a"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-B-rc16-to-rc21-2026-10-06.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1942,
+   "sha256": "77082d04a08c97e69ecd22c03eda3b131724af262395876e56d4a689de944d64"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-B-rc2-2026-10-04.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 22135,
+   "sha256": "e8be39ebb8d74420be0582b1c21d5876a3be759e0bdaf153bee759911dff1879"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-B-rc2-evidence/README.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 552,
+   "sha256": "cf5eca50ea249c87363d82a6b3dea2338a4128965a4b32e1c9c3316d389fbff6"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-B-rc2-evidence/power-10.9375T-8.23375C-fractional-plus-0902.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2642,
+   "sha256": "34e18c97aa06f06921897abc23726442ed49d4af7819c6353b315f40f745a4e7"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-B-rc2-evidence/power-11T-8C-reproduces-artifact.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2634,
+   "sha256": "b0b177d637c55d3d0a6651b6f7ec738dc4d823bec819bd6e2e7327a6df23f860"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-B-rc2-evidence/power-11T-9C-whole-epochs.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2641,
+   "sha256": "ac9a83460166d727381cb196e6a253805ddb0d4783b08527662fe1375f6d3486"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-B-rc23-codex-2026-10-07.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1737,
+   "sha256": "356aad1f47fc44be87d58753e1796dea44420e3b093a6f2dce344e96e6bc9f7a",
+   "sha256_source": "3ad0545d57accc74b6de775e24ab01f99a1fd8819bce983696cf23ec5594d59d",
+   "redaction": [
+    "R2 x5"
+   ]
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-B-rc6-2026-10-05.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 11114,
+   "sha256": "a195661a57d0e479f037cb3bc5d1ad08be27f1cdca8fe821e50fb2d7e414fc46"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-B-rc8-2026-10-05.md",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 10198,
+   "sha256": "ed039332d4f2461f6d5992be9734e96a7d34bfb99aed0fa7c2acf7e27be930a7"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB1-h1a-inversao-registrado-v2.png",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 251651,
+   "sha256": "ac99176ff15c0a9dff9cf365b80ddc7f85500bb46de180f1866b4e260b90922e"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB1-h1a-inversao-registrado-v2.run.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1931,
+   "sha256": "667017fc859b7fe75ece2582e0773c1005ae70f6af2e8750638b68cc08933b04"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB1-h1a-inversao-registrado-v2.svg",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 14270,
+   "sha256": "7b564ad2a677b0626641909dfbdd410aea7339782e7230f98a7b14cfef734bae"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB1-h1a-inversao-registrado-v3.png",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 287896,
+   "sha256": "bc6d5343c3557e7f5e6d769a089685c7a3f97f6b6bc6a10e1a0b31ac2d304edc"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB1-h1a-inversao-registrado-v3.run.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2433,
+   "sha256": "81ea5f1bdaf4c535b67367f36b4c0f33ec6407ec1b990d775966f390ab79f530"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB1-h1a-inversao-registrado-v3.svg",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 14986,
+   "sha256": "d1068b3fe10f289613226be4c6dde76081da4269ed7529927d6ee25519780079"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB1-h1a-inversao-registrado-v4.png",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 286336,
+   "sha256": "8e7aeebb9cd69c603ee0bd39337bed5342b95a4ad135b158a4a52bd4a324a0ba"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB1-h1a-inversao-registrado-v4.run.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2432,
+   "sha256": "3d9495118562ca2be2d527561b02ceac997dfb0859d67e523091de83fa19e144"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB1-h1a-inversao-registrado-v4.svg",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 14986,
+   "sha256": "ddacff5862280bd1a361d125eb05588e4882d5946e830ecdf72dff27601793e6"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB1-h1a-inversao-registrado.png",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 225179,
+   "sha256": "57cf8a55bb867d6632d4cff81fc65d4d909b7892b8be71be3fe4b75e61559378"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB1-h1a-inversao-registrado.run.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1713,
+   "sha256": "30e0872f721992b4855266cc7f4be067511a79190686662566bacdce16e7a5e2"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB1-h1a-inversao-registrado.svg",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 13183,
+   "sha256": "cb16dd0267115148b055d2ad32c70bd14a0649403ca9671d8da13fd39a5244a6"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB1-h1a-inversao.png",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 177947,
+   "sha256": "b01d850f1acd7958899589931333cc77c13248118e4395ba8dd96b19405f26dd"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB1-h1a-inversao.run.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 1541,
+   "sha256": "c6a54661e38eb2185e7d9837efe2607dca05ca91e71e6142bb6c34707717005c"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB1-h1a-inversao.svg",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 12265,
+   "sha256": "c9fa4c0a2fe0a0c08f697b21894121ad8305a3e09eac8de6af4f1b2ee0a1a40a"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB2-item7-crosscheck-20000.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 765,
+   "sha256": "352360d9c04ac400728b0fc65ae80cc8570f8a7b470a16cbb277a9451f11215d"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB2-sementes-dose-topo.png",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 115112,
+   "sha256": "e4c252472c65c2c0b2c54ef39a4dfa2f49bdd9749e95895187d5ce628f62ff17"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB2-sementes-dose-topo.run.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 563,
+   "sha256": "b8ab8c3b3b78e9862be3346d45e64a5dc891e3accc7c3c96e9505dc8654a608b"
+  },
+  {
+   "path": "_sprint-2026-10-04/figures/figB2-sementes-dose-topo.svg",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 5028,
+   "sha256": "c54a5f57501e849fcbfb6d268ca3a3e19a51029b8c9de512c18d965d47331a89"
+  },
+  {
+   "path": "_sprint-2026-10-04/phase2-inputs/B-figures.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 13673,
+   "sha256": "e1e836de0bc25f86b684963b2fb019670be2799971361dbb8c4ed8e182ff5c49",
+   "sha256_source": "c9b066c7e97d3f0c0ab2919e2ff717a10236a69a26e0bff7a7666f571424d139",
+   "redaction": [
+    "R2 x10"
+   ]
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T073210-97443.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 606,
+   "sha256": "d5a44c36740846954371b33509a13f13e84b688a810c7258fd19b907997b7bcf"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T073216-97736.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 608,
+   "sha256": "467599f352f1a2892b69246b6520a46f7939a15e2e54433a20b090958e56daa2"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T074945-16991.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 606,
+   "sha256": "a3d367cb499642790ce443fa3c5b16c924939d3f75863b2abe6a309943eb1a04"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T095025-69718.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 608,
+   "sha256": "e57ff502a1776bbac1a4541a0766cd6a5abc60456242037d720236aaf7122af7"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T100118-80790.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 606,
+   "sha256": "786b88f571fe397a53d46817ddcb184fed8ba14108af0b10f532606b266a653c"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T112600-30336.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 609,
+   "sha256": "303d328ee102503e486291bc7fcd8ba043c9668ad5af08b6ea0b554e1ad1319c"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T113833-45865.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 609,
+   "sha256": "6450f7528c0b4927b63fc4a332f2313f1b80c5fc6ac99bc7e187697c4d389af9"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T125855-34251.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 609,
+   "sha256": "24995277760a35380974e30c124ed6ad70f141dd1163af850df29c8e91450f42"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T132453-63584.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 606,
+   "sha256": "cfaa0d72f5d19147dc617cd1010447915b2437ab437959de715ce2c6b2cdbc83"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T133850-71673.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 606,
+   "sha256": "c77bcd3748c6553ac4bb1f684ed5a7e1a7e8df34a58fc798b2b7b3a1acbc5276"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T135649-98273.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 607,
+   "sha256": "3aa648f737b222b3c41db94c53af99c495bbead74958e845c85ce42a897ed941"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T142159-29079.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 606,
+   "sha256": "5e9bd4b20c349cb43e421fb4de488a0f4f95fc458c13fa6eb19f7f38a2f89dff"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T144531-47157.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 599,
+   "sha256": "c676354fa51603404de913024ded51d4af8136d0fd6aae6a41005195415e146d"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T144610-47994.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 605,
+   "sha256": "e51e66a0c049dfd6001bdca25e53bffbcd54605287b17683587b6a998ebb3071"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T174556-94058.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 608,
+   "sha256": "a52221205a26ec3786de0c086332125074465091c950fe24b5f947c4f163b91b"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T185405-56348.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 608,
+   "sha256": "c431248fe8c137d7e60737b145a1e019638248f433c44d143240bc7dce503970"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T194445-87931.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 608,
+   "sha256": "9de5d8a59088bceefe96455e375935128d82ed744c9e0d27c68de4fbf1c7c222"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T210026-81571.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 606,
+   "sha256": "a8b1424c8506b60af42db40a2f69dc223dabece77bd122e9a648f094fde85ee8"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T215945-49728.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 608,
+   "sha256": "4df04c724da30297ab91da6381d24e50c14f012d56411025261224393a8ff3da"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-05T221948-70096.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 608,
+   "sha256": "672f3211b1a1a16ae252e7bae3fca4ccd6270a1ec990da9281364bb480bad7e3"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-06T095645-63516.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 606,
+   "sha256": "8351419abb0eb68d0f5cffede207f3033d02813a2129b33d28f54fc6979cac0f"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-06T133927-60502.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 608,
+   "sha256": "e9145a44c6a79db962b0d11b4d11e28a1f0a14350084b61dbffd9da15644d683"
+  },
+  {
+   "path": "_sprint-2026-10-04/receipts/adversary-receipt-codex-2026-10-07T093115-73165.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 605,
+   "sha256": "51b91cbcbed62c912a0a2c8a9bf250a1ff3a0ea4f70611655a1c455a5dd97e34"
+  },
+  {
+   "path": "out/C12-EMPATES-COMO-FAILURE-2026-10-05.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 4580,
+   "sha256": "1307de2bc8d6a7568e0272c57fb7d510028cf382bbd53d20ed78839d66c1337d"
+  },
+  {
+   "path": "out/C12-EMPATES-POR-BRACO-2026-10-05.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3660,
+   "sha256": "8e5a1a9179c34d8295ff81e96e90d51d0e8f287e3131cfbb9574c622c73a3262"
+  },
+  {
+   "path": "out/C12-EMPATES-REGISTRADO-2026-10-05.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3347,
+   "sha256": "5a593405f7b11a9b06df0cd9a63919eb7189fef490f36f5d75fc02367963d3d2"
+  },
+  {
+   "path": "out/CONCENTRATION-2026-08-30.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 4297,
+   "sha256": "5c276ada0828dd1e634296331e2f45f20c4496f949a146107b82c86f72026949"
+  },
+  {
+   "path": "out/CONTROLES-2026-09-10.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3794,
+   "sha256": "19d850d83716b318301e1763ad99229ca08188d6d36bf2cb258d3275f413bba6"
+  },
+  {
+   "path": "out/H1C-POWER-FRACIONARIA-2026-09-10.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2642,
+   "sha256": "1586bfbc76f606a2a64f6d20d623a9da1c6b027505bab835c98ddb8abd2f5f60"
+  },
+  {
+   "path": "out/H1C-POWER-REALIZADO-2026-09-10.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2630,
+   "sha256": "9cd27b52f77406e51020da0b6e1e82356d7cbf692f9d74030407e75d0c840621"
+  },
+  {
+   "path": "out/H1C-POWER-SEM-0903-2026-09-10.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2632,
+   "sha256": "f804a733959378927f1a6cff8cd3c246b27f185d8fdb7da152f6b9eab7eade2b"
+  },
+  {
+   "path": "out/ITT-REGISTRADO-2026-10-05.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 82268,
+   "sha256": "72642ad9ca3e6160cedb7b2151835fc6e0794f8466e014b8a4e4186b683b41b7"
+  },
+  {
+   "path": "out/ITT-REGISTRADO-v2-2026-10-05.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 167283,
+   "sha256": "7ebb61adaa03fc2b78b354f8c3c32b91c741d790028dca2dc7fc9da107de124c"
+  },
+  {
+   "path": "out/ITT-REGISTRADO-v3-2026-10-05.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 230738,
+   "sha256": "41a0a0ee1f0e60716e8bda1c2280d3396a652bbaaa0009cbf71bb020efdd50f9"
+  },
+  {
+   "path": "out/ITT-REGISTRADO-v4-2026-10-05.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 279168,
+   "sha256": "3ed7637e526e61255bafbfbdf17f1e48f3e9dedeb4d7d625187bf4ee78e6b442"
+  },
+  {
+   "path": "out/NOGO-replay-sonda2-2026-09-23.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 2218,
+   "sha256": "76a6a43b12cec311d1d91c3c22e87e913db577a94a70ff71b25c7730bf16b538"
+  },
+  {
+   "path": "out/NOGO-replay-sonda3-2026-09-23.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 122329,
+   "sha256": "6b47146463b7c2a892172873dcb1855eff291d468fc6c61e8479cd71cd3a4e98"
+  },
+  {
+   "path": "out/NOGO-replay-ts-com-alteracao-2026-09-23.txt",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 3300,
+   "sha256": "658e9fad69e0a54e9714ef7c2e9feaaad1615f0580182823d911a5f7ab31289b"
+  },
+  {
+   "path": "out/dose-350-v3.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 753307,
+   "sha256": "895c16d84fe620a30560e96da53959c56fe3c6250f8e6dd788402dab67431f8d"
+  },
+  {
+   "path": "out/expiracao-designados-2026-09-09.json",
+   "in": "artifacts-v2.0.zip",
+   "bytes": 8143,
+   "sha256": "173ebeef8faeab3898f4b0e9862a7ed348bec867af553b222d7d14ae8c955135"
+  },
+  {
+   "path": "_repo/scripts/backup-lastro-p2.sh",
+   "in": "scripts-v2.0.zip",
+   "bytes": 7871,
+   "sha256": "fae7d36103c5cc9e774a190c36b5fe2bec87e346ea39046b7a8ffeee3752045a"
+  },
+  {
+   "path": "_repo/scripts/estende-lastro-p2.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 8017,
+   "sha256": "12c10158f8032d891ee34b862e5de230886fe6e233a1a889a9b4bdb61457c8a2"
+  },
+  {
+   "path": "_repo/scripts/manifesto-lastro-p2.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 6516,
+   "sha256": "29ccf78eefb64e39a755c46f10025be45a8e948ce51616d9354e21de810c5e4a"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-censo/census_tools.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 7035,
+   "sha256": "5f6496b5fc8cee7ee7c25577e255c2402cc40093c8784027dd76be4b2b44c9aa"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-censo/compare_gate2.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 4356,
+   "sha256": "2c03b3dab7c91e9088d4c308696d7f1c61e213d5eb7654f66080d8178f77b4d7"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-censo/gate_harness.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 7852,
+   "sha256": "5e81769d3093574834007854f6c871759a5b0cc4e4009cfa61419ca120709e84"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-censo/run_census.sh",
+   "in": "scripts-v2.0.zip",
+   "bytes": 6604,
+   "sha256": "3e5748fcb8af267095b08c491b6784169992ed433fbf1dbef3b7779131e95ddb"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc10/checks-rc10.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 16453,
+   "sha256": "1cd8d62697557acc9356e1df9d8a48833510ea82c479357426ee1083521096bd"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc14/parity-rc14.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 20733,
+   "sha256": "04e2dc01e536681298ea99bbceee0482d68cbea8bac89b3805a3fbe734ce43cd"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc15/checks-rc15.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 20784,
+   "sha256": "603695e08221de5225463fdbbc896b3af2ff8a3c88cbb71ba890cda9cfc524d8"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc25/parity-rc25.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 28732,
+   "sha256": "9564a6cb50fb12822b1e6dc2f7f6d14b5fe049805afe1010f81eb319272d3069"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc26/parity-rc26.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 18532,
+   "sha256": "6c353d955ed4e785973837ec2e4baf2422ff52d620173c14b1f981184f64d48e"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc27/parity-rc27.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 20609,
+   "sha256": "8a58f0511548ab39857b034e66c547ff560b37697126d4476cd7e2c391e9252b"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc7/checks-rc7.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 8988,
+   "sha256": "916930e34cf479982b661f636aa3681de1db45689da6e416c0a411483860d924"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc8/checks-rc8.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 28911,
+   "sha256": "2b7748be197cddd157d9bbecf0f41f2558f90ec6d9778842819bb353170eb567"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-rc9/checks-rc9.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 12643,
+   "sha256": "be71387a9aa5b5e96dbe0372f14f36a94deb32b8f5278ff97a0dcdd3b3669f8e"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/estimador_itt_registrado-v1-c28b064f.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 41291,
+   "sha256": "c28b064f7fcd2f8304bfa9ef56b81554832a8e5c92eec9cd1b2d21a6d861f06c"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/estimador_itt_registrado-v2-ac9d2f05.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 49891,
+   "sha256": "ac9d2f05b4e80961d6913090c675ac08cf78b1137e28b361908a11b505f83094"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/estimador_itt_registrado-v3-0aa9202b.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 54377,
+   "sha256": "0aa9202b1659db7b97e19edc47955b53f6fde82f06043b83717fa5368b6bde0e"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/estimador_itt_registrado-v3-rc10-b5135f04.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 54190,
+   "sha256": "b5135f044abe29120f52d797ca46667bb9271117ff5c70b74aad94d70b44e488"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/estimador_itt_registrado-v4-b3095740.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 62896,
+   "sha256": "b309574016f04d6be95ac31d4c3dddc64bf7712ff54905caf922b7dfca9256c2"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/f3_abort_ex_post.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 4764,
+   "sha256": "f09b9ed0e6754fe1c56c5575c341c3028aad7677e23faa6ca220078fbb02acc8"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/f4_promoviveis_w4.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 7603,
+   "sha256": "df0a2e69b8ef015f077f7594304289e10bfc59a7d88b7af55ebc1630482fc79a"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/teste_aceleracao_v4-rc15-bb9c3197.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 8401,
+   "sha256": "bb9c31977ddfa7c65c6c056f703be47040cca774af28e4a15f13cda3c4cc6d58"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-registered/teste_aceleracao_v4.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 10317,
+   "sha256": "d4d960dbab88ac97a9c08250fd18e4cd033017dfc3e5f40ea82d15140c750ce7"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/calibration/run-cal.sh",
+   "in": "scripts-v2.0.zip",
+   "bytes": 735,
+   "sha256": "43d0171cee85328b15d474ea1b13e641d77d6688e532e76cb0c49ad8dcf9febd"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/lanca-job-janela.sh",
+   "in": "scripts-v2.0.zip",
+   "bytes": 1987,
+   "sha256": "b54a11b7bc07ce19d9355a2ccce3ffbadb9d3fc6dacec16d9d12cb7420048da2"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/lanca-job-janela2.sh",
+   "in": "scripts-v2.0.zip",
+   "bytes": 1261,
+   "sha256": "76c8b4192ce6c2b40b073bb59a7318be315ecb83680a0e00bfdfd2b639bed1db"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/mede-cpu.sh",
+   "in": "scripts-v2.0.zip",
+   "bytes": 1183,
+   "sha256": "4222156438af97e157f9c97cfea6bd749a598954051f1cf3e0f15ae5fee000c4"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/janela-lancamento/run-cal-janela.sh",
+   "in": "scripts-v2.0.zip",
+   "bytes": 825,
+   "sha256": "c1f62a655cd9957592c85346bbff062a0b0e29c22e41a6b8aa448234595b7f2e"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/lanca-job-v2b.sh",
+   "in": "scripts-v2.0.zip",
+   "bytes": 1985,
+   "sha256": "adf56a948b120e04bacc66acf8e8a9783d6110102d842a60e2ddd0f652377799"
+  },
+  {
+   "path": "_sprint-2026-10-04/B-sham-v2/lanca-job.sh",
+   "in": "scripts-v2.0.zip",
+   "bytes": 727,
+   "sha256": "870cf5a05790074ee4b3d3005965063e6f4909966f101afc39601fd29eb6359d"
+  },
+  {
+   "path": "_sprint-2026-10-04/REVIEW-B-rc2-evidence/checks.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 1621,
+   "sha256": "0df0eca4d0294ea69161d927d6be81d52150744e166c24a7a129f6c4a1fe0b8f"
+  },
+  {
+   "path": "assign_arms.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 21761,
+   "sha256": "a44d7b86eee95d26ce5701c3061420b36eb3a51e26378ca5e6db91efbcf03acb"
+  },
+  {
+   "path": "cobertura_e_m10.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 6193,
+   "sha256": "ca73db2802489d60cb4fb0e6cbe407b24083322c0cdc1a40789142b3ebc21ce2"
+  },
+  {
+   "path": "controles_instrumento.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 8083,
+   "sha256": "cb941a2b46a8d7490f34f3ed3f37803fe01cd31477529484c5eaf6f003167b00"
+  },
+  {
+   "path": "deposit-paperB/sanitize-verdicts.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 3978,
+   "sha256": "65557cbeb8761fedbd9659c87f9bc77c08ed8676b76baf9ad7756aa8c29d22c4"
+  },
+  {
+   "path": "estimador_itt.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 8547,
+   "sha256": "f07395a941ff29930de1560ae0b1215d3e90e8bcc7548763ef0659be6ce668a8"
+  },
+  {
+   "path": "measurement/estimador_itt_registrado.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 62896,
+   "sha256": "b309574016f04d6be95ac31d4c3dddc64bf7712ff54905caf922b7dfca9256c2"
+  },
+  {
+   "path": "measurement/gera-shams.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 3458,
+   "sha256": "27cd93606e4137c86a3b475d65baab2029574fd37da3d22a9cb98ca58db1eac2"
+  },
+  {
+   "path": "measurement/implantacao/desliga-dose-p2.sh",
+   "in": "scripts-v2.0.zip",
+   "bytes": 9908,
+   "sha256": "5179ea30c605b36e3e299a6c7e69fe2b026f37e2fd11278c0f740cda03a3e97f"
+  },
+  {
+   "path": "measurement/potencia-h1c.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 11322,
+   "sha256": "d5bfcfd63149632935b99f91c47c3099a00d2ffa52542ad398890c3fa871f834"
+  },
+  {
+   "path": "measurement/replay-oportunidade.mjs",
+   "in": "scripts-v2.0.zip",
+   "bytes": 49809,
+   "sha256": "4f44e2b9d905d9da4b417bff1576457634e2f87963fd7b41811e8ed59de2ac26"
+  },
+  {
+   "path": "measurement/roda-sham.sh",
+   "in": "scripts-v2.0.zip",
+   "bytes": 6757,
+   "sha256": "14789a0ad48f7e07dad5e86ec4c985ff71c707c2055ff9de1c286f02863e4d36"
+  },
+  {
+   "path": "measurement/sprint-c12-empates-por-braco.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 18172,
+   "sha256": "322162f193fdbf1c8b1e7cc69b2b26b2c42ac22b5b3c806108b38417cd3c3a8c"
+  },
+  {
+   "path": "measurement/sprint-determinismo-janela2.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 3509,
+   "sha256": "317a844bead72e8c7dd2a0989b9d19ed69047f993d1512d1703da54697cd3717"
+  },
+  {
+   "path": "measurement/sprint-figB-h1a-inversao-registrado-v2.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 17014,
+   "sha256": "3d168d7f0ff739977a7b34e7bf52a77f2936ab40ef00fb1021d2c40963172afb"
+  },
+  {
+   "path": "measurement/sprint-figB-h1a-inversao-registrado-v3.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 18231,
+   "sha256": "ddc3f5524a2be00ffa0e15e496f5262d51819634af06c24ca55476912884a065"
+  },
+  {
+   "path": "measurement/sprint-figB-h1a-inversao-registrado-v4.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 19409,
+   "sha256": "6adc7f1e6e2843c4b405b787b26d07b4ee1423f94a469e9072cc9060fbd7a39f"
+  },
+  {
+   "path": "measurement/sprint-figB-h1a-inversao-registrado.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 15663,
+   "sha256": "6c5832294bfa436ceaad16a2c29798aa0367cd60c136d392a2db482d87c98f73"
+  },
+  {
+   "path": "measurement/sprint-figB-h1a-inversao.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 14508,
+   "sha256": "7355a47998f5492f8f289e1e4680691bda3fd2819922d9d3c328f1632d4a1561"
+  },
+  {
+   "path": "measurement/sprint-figB-item7-crosscheck.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 2638,
+   "sha256": "256218993bd03b04d4eb49f10254f838eccd610fccdb3a2062f03efbade07370"
+  },
+  {
+   "path": "measurement/sprint-figB-sementes-dose-topo.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 10877,
+   "sha256": "c5f40baf5e118b4503ecc6f4fd1902a731ccd881db0802f03718d0fa3da3625a"
+  },
+  {
+   "path": "measurement/sprint-gera-shams-v2.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 11191,
+   "sha256": "b4cab22fa47ec07b355fc5ca48d7434833978bfbdfc559c09e8de98ed123c032"
+  },
+  {
+   "path": "measurement/sprint-replay-estratos.mjs",
+   "in": "scripts-v2.0.zip",
+   "bytes": 9978,
+   "sha256": "66770549487af57fbdf8d7c8443f62424c2eb8e016832ecef99a4c591158380b"
+  },
+  {
+   "path": "measurement/sprint-replay-fidelidade-resumo.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 5897,
+   "sha256": "aa7ab26033472fb08d610ceb1014152532b795a1f9a5b77642612367b3c997ee"
+  },
+  {
+   "path": "measurement/sprint-resume-sham-v2.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 5920,
+   "sha256": "22abd1b4a5ffde3206ae75dae8986571c7d16901068411d04ab8a6bdb99e9cb1"
+  },
+  {
+   "path": "measurement/sprint-roda-sham-v2.sh",
+   "in": "scripts-v2.0.zip",
+   "bytes": 13999,
+   "sha256": "3e2cb9d9a6a8d85e99329034baaf35585f4416f8aa7c5c104f17c01423d21662"
+  },
+  {
+   "path": "measurement/sprint-testa-roda-sham-v2.sh",
+   "in": "scripts-v2.0.zip",
+   "bytes": 13416,
+   "sha256": "972986aea674f60e7ed919636caa8aa2bc87bde190f2018c349ac88f4e8657f4"
+  },
+  {
+   "path": "pdf-build/build-pdf.sh",
+   "in": "scripts-v2.0.zip",
+   "bytes": 5152,
+   "sha256": "e1f795f8edeacbb06658c0e7967c2c9f9376209e56af81710ebecca27961eaa0"
+  },
+  {
+   "path": "pdf-build/preamble-paperB-v2.0.tex",
+   "in": "scripts-v2.0.zip",
+   "bytes": 6796,
+   "sha256": "e67a15f087d803ec439c8f87bde54b26bec92a96f2732c9c9288c996b4f4f1ea"
+  },
+  {
+   "path": "pilot_replay.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 28946,
+   "sha256": "5af42ed327a8e96ff4dff751619223f11da6dd9c33d86932b2ef5673bea63ce2"
+  },
+  {
+   "path": "rerandomizacao.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 8177,
+   "sha256": "7515d72d920fa8e6d0000db5a7d47b8066f9087ba0cfef7c300ceb60d1eb9ece"
+  },
+  {
+   "path": "serving-brief.ts",
+   "in": "scripts-v2.0.zip",
+   "bytes": 44748,
+   "sha256": "27dbe9962a2903aaa3a5ead432a4f40e31e8f8f0ac5e42796dd4ec914f0e2e95"
+  },
+  {
+   "path": "sizing.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 11054,
+   "sha256": "d4493da2396de74dc0c7ced0cf403a473388fb9eceb969440fb46c639ac492a8"
+  },
+  {
+   "path": "task_regret.py",
+   "in": "scripts-v2.0.zip",
+   "bytes": 8432,
+   "sha256": "4d278d837760b484ac5c412cfcd9a227b195a539eece15f42a643acc3a55f9ca"
+  },
+  {
+   "path": "registered-horizon-outlived-intervention-v2.0.md",
+   "in": "loose",
+   "bytes": 334847,
+   "sha256": "cb38c5cf0319bbea3ce997a47be6182909145086dbd37f5611a41475d3880b96"
+  },
+  {
+   "path": "registered-horizon-outlived-intervention-v2.0.pdf",
+   "in": "loose",
+   "bytes": 902762,
+   "sha256": "f28debb33e2da54b6d560d282e3039cdd74b89cdaf5c5d32027eb6ad591572aa"
+  }
+ ]
+}

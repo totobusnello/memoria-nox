@@ -38,6 +38,11 @@ Falsos positivos confirmados 2026-10-04 (gitleaks local, 7 leaks, generic-api-ke
   da API pública do Zenodo para os próprios depósitos do projeto. O campo `key` de cada
   arquivo é o NOME DO ARQUIVO depositado (ex.: "AMENDMENT-v1.12.md",
   "fig1-capacidade.svg"), não credencial.
+
+Falsos positivos confirmados 2026-10-07 (gitleaks local, 20 leaks, Paper B):
+- _sprint-2026-10-04/B-rc18|B-rc19/zenodo-*.json — mesmo caso acima (campo `key` = nome de arquivo).
+- deposit/paperB/build-package.py — valor sintético de controle positivo do gate de privacidade.
+- _sprint-2026-10-04/B-rc23/parity-rc23.py — pin sha256 lido como sumologic token.
 """
 # NOTE 2026-06-30: os diretórios staged-*/ foram renomeados para staged/ no reorg de
 # release público. Scans full-history ainda enxergam os paths ANTIGOS com hífen
@@ -51,4 +56,11 @@ paths = [
   '''staged[-/]A3/edits/src/providers/__tests__/gemini\.test\.ts''',
   '''staged[-/]privacy/edits/privacy/__tests__/filter\.test\.ts''',
   '''paper2-interventional/_sprint-2026-10-04/A-recon-evidence/zenodo-[a-z]+-[0-9]+\.json''',
+  '''paper2-interventional/_sprint-2026-10-04/B-rc1[89]/zenodo-[0-9]+-(files|record)\.json''',
+]
+# 2026-10-07 (Paper B): valor SINTÉTICO do controle positivo do gate de privacidade
+# (deposit/paperB/build-package.py) e um pin sha256 (B-rc23/parity-rc23.py). Ancorados no valor exato.
+regexes = [
+  '''xoxb\-1234567890\-a''',
+  '''ec10bd52cdebf43f35ee748e82787cb6b342be0e1b8637e8d750ad24cb304219''',
 ]

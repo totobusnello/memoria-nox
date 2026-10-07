@@ -1,0 +1,121 @@
+{
+ "svg": "figB1-h1a-inversao-registrado-v4.svg",
+ "fonte": {
+  "ITT-REGISTRADO": "3ed7637e526e61255bafbfbdf17f1e48f3e9dedeb4d7d625187bf4ee78e6b442",
+  "checks-rc15.json": "914d4fa078940e69af157efce7b0bf87bd1091aa0d76cda0fd0efbe9fa46441b"
+ },
+ "horas_por_braco": {
+  "treatment": 324.9485,
+  "control": 57.0608
+ },
+ "pico": "2026-09-08",
+ "pico_h": 240.7548,
+ "pico_share": 0.7409,
+ "outros_n": 18,
+ "outros_min_max": [
+  0.2288,
+  81.3672
+ ],
+ "sessao_esparsa": {
+  "id_prefix": "d37a5964",
+  "episodios": 60,
+  "span_h": 240.4161
+ },
+ "sessoes_ocupadas": [
+  {
+   "id_prefix": "d37a5964",
+   "episodios": 60,
+   "span_min": 14424.96
+  },
+  {
+   "id_prefix": "dc64e22f",
+   "episodios": 53,
+   "span_min": 9.36
+  },
+  {
+   "id_prefix": "c97024af",
+   "episodios": 40,
+   "span_min": 3.96
+  }
+ ],
+ "epochs_longos": [
+  {
+   "epoch": "2026-09-11",
+   "horas": 54.3149,
+   "sessao_span_h": 54.0023,
+   "episodios": 2
+  },
+  {
+   "epoch": "2026-09-12",
+   "horas": 81.3672,
+   "sessao_span_h": 81.0087,
+   "episodios": 67
+  }
+ ],
+ "outros_curtos_min_max": [
+  0.2288,
+  0.6192
+ ],
+ "legs": [
+  {
+   "leg": "registered · locked",
+   "removidos": "19 epochs (09-02 excluded), BCa",
+   "dif_pontual": -15.220538,
+   "ic95": [
+    -373.699037,
+    310.823666
+   ]
+  },
+  {
+   "leg": "registered · pre-committed sensitivity (spec §9.1)",
+   "removidos": "partials 09-01, 09-03, 09-20 removed, BCa",
+   "dif_pontual": -10.514681,
+   "ic95": [
+    -362.545606,
+    315.49511
+   ]
+  },
+  {
+   "leg": "registered · post-hoc sensitivity",
+   "removidos": "09-14 removed, chosen after seeing the data, BCa",
+   "dif_pontual": -15.75991,
+   "ic95": [
+    -375.882337,
+    295.32583
+   ]
+  },
+  {
+   "leg": "registered · without boundary-straddling sessions",
+   "removidos": "PREREG §2 'without' sensitivity, BCa",
+   "dif_pontual": -51.120159,
+   "ic95": [
+    -115.530816,
+    22.229888
+   ]
+  },
+  {
+   "leg": "rc9 analysis (sessions split by epoch) · locked",
+   "removidos": "washout out, each episode in its own epoch, BCa",
+   "dif_pontual": -233.204434,
+   "ic95": [
+    -351.70316,
+    -79.807247
+   ]
+  },
+  {
+   "leg": "rc7 analysis (sensitivity) · locked",
+   "removidos": "20 epochs, percentile, no window cut",
+   "dif_pontual": -143.922996,
+   "ic95": [
+    -209.79805,
+    -15.338629
+   ]
+  }
+ ],
+ "H1a_p_bruto": 0.2599,
+ "H1a_holm_ajustado": {
+  "m5": 1.0,
+  "m4": 1.0
+ },
+ "png": "figB1-h1a-inversao-registrado-v4.png"
+}

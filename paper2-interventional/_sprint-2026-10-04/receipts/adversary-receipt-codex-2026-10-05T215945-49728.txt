@@ -1,0 +1,17 @@
+voice: codex
+model: assinatura(OpenAI/gpt-6-astra)
+transport: harness/nativo
+wall_timeout_s: 3600
+option_sources: model=default wall_timeout=argumento
+timestamp: 2026-10-05T215945
+started_at: 2026-10-05T215945
+finished_at: 2026-10-05T220738
+host: (redacted)
+cwd: ~/claude/projetos/memoria-nox
+prompt_sha256: 4fca3f480ac177e75f6893b06bfedb409c10676ba7d6e59df981213adde00c4a
+prompt_bytes: 1161
+exit: 0
+duration_s: 473
+output_sha256: d7c2c7f480bf053beef899b723eee02e8cc4062935bd0e4a3ffed9af9bb7eee8
+output_bytes: 637928
+command: codex exec --sandbox read-only --skip-git-repo-check --model gpt-6-astra <prompt>

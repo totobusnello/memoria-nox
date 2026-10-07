@@ -1,0 +1,816 @@
+{
+  "objeto": "Paper B rc8 checks (registered analysis, sensitivity legs, C12 under the registered window, stopping rule, assignment rule)",
+  "gerado_por": "_sprint-2026-10-04/B-rc8/checks-rc8.py",
+  "sha256_script": "2b7748be197cddd157d9bbecf0f41f2558f90ec6d9778842819bb353170eb567",
+  "sha256_ITT_REGISTRADO": "72642ad9ca3e6160cedb7b2151835fc6e0794f8466e014b8a4e4186b683b41b7",
+  "G_guardas": {
+    "atual": "reproduced: points, percentile and BCa intervals, per-arm totals",
+    "registrado": "reproduced: points, percentile and BCa intervals, per-arm totals",
+    "atual_pre-committed": "reproduced: points and per-arm hours of the locked leg",
+    "atual_post-hoc": "reproduced: points and per-arm hours of the locked leg"
+  },
+  "A_pernas_registradas": {
+    "registrado": {
+      "removidos": [
+        "2026-09-02"
+      ],
+      "n_epochs": {
+        "control": 8,
+        "treatment": 11
+      },
+      "por_braco": {
+        "control": {
+          "n_epochs": 8,
+          "oportunidades": 1101.75,
+          "repeats": 87.72,
+          "horas_sessao": 4.33,
+          "H1_densidade": 20.23648,
+          "H1a_taxa_oport": 254.152656,
+          "H1c_prop": 0.079623,
+          "unknown_no_denominador": 3
+        },
+        "treatment": {
+          "n_epochs": 11,
+          "oportunidades": 1138.47,
+          "repeats": 76.84,
+          "horas_sessao": 12.56,
+          "H1_densidade": 6.116682,
+          "H1a_taxa_oport": 90.631733,
+          "H1c_prop": 0.067489,
+          "unknown_no_denominador": 2
+        }
+      },
+      "H1": {
+        "ponto": -14.119798,
+        "ic95": [
+          -22.148776,
+          -7.037223
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -19.992592,
+          -4.015497
+        ],
+        "bca": {
+          "n_jackknife": 19,
+          "z0": -0.251018,
+          "acel": -0.077735,
+          "alfa_ajustado": [
+            0.001745,
+            0.895718
+          ],
+          "fallback": null
+        },
+        "exclui_zero": true
+      },
+      "H1a": {
+        "ponto": -163.520923,
+        "ic95": [
+          -282.291958,
+          -61.120086
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -243.010885,
+          -21.784937
+        ],
+        "bca": {
+          "n_jackknife": 19,
+          "z0": -0.2363,
+          "acel": -0.110031,
+          "alfa_ajustado": [
+            0.000867,
+            0.887354
+          ],
+          "fallback": null
+        },
+        "exclui_zero": true
+      },
+      "H1c": {
+        "ponto": -0.012134,
+        "ic95": [
+          -0.044485,
+          0.012532
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -0.043136,
+          0.013465
+        ],
+        "bca": {
+          "n_jackknife": 19,
+          "z0": -0.002757,
+          "acel": -0.014513,
+          "alfa_ajustado": [
+            0.021535,
+            0.971309
+          ],
+          "fallback": null
+        },
+        "exclui_zero": false
+      }
+    },
+    "registrado_precomprometida": {
+      "removidos": [
+        "2026-09-01",
+        "2026-09-02",
+        "2026-09-03",
+        "2026-09-20"
+      ],
+      "n_epochs": {
+        "control": 6,
+        "treatment": 10
+      },
+      "por_braco": {
+        "control": {
+          "n_epochs": 6,
+          "oportunidades": 811.95,
+          "repeats": 71.78,
+          "horas_sessao": 3.57,
+          "H1_densidade": 20.083211,
+          "H1a_taxa_oport": 227.174183,
+          "H1c_prop": 0.088404,
+          "unknown_no_denominador": 2
+        },
+        "treatment": {
+          "n_epochs": 10,
+          "oportunidades": 1072.97,
+          "repeats": 74.84,
+          "horas_sessao": 12.16,
+          "H1_densidade": 6.156228,
+          "H1a_taxa_oport": 88.266829,
+          "H1c_prop": 0.069746,
+          "unknown_no_denominador": 2
+        }
+      },
+      "H1": {
+        "ponto": -13.926983,
+        "ic95": [
+          -22.97674,
+          -5.700644
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -20.644281,
+          -2.328212
+        ],
+        "bca": {
+          "n_jackknife": 16,
+          "z0": -0.235527,
+          "acel": -0.063443,
+          "alfa_ajustado": [
+            0.002666,
+            0.906391
+          ],
+          "fallback": null
+        },
+        "exclui_zero": true
+      },
+      "H1a": {
+        "ponto": -138.907354,
+        "ic95": [
+          -254.181203,
+          -28.820445
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -216.486811,
+          13.719725
+        ],
+        "bca": {
+          "n_jackknife": 16,
+          "z0": -0.263714,
+          "acel": -0.105882,
+          "alfa_ajustado": [
+            0.000756,
+            0.879857
+          ],
+          "fallback": null
+        },
+        "exclui_zero": true
+      },
+      "H1c": {
+        "ponto": -0.018658,
+        "ic95": [
+          -0.059611,
+          0.00941
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -0.057741,
+          0.010559
+        ],
+        "bca": {
+          "n_jackknife": 16,
+          "z0": 0.008773,
+          "acel": -0.022402,
+          "alfa_ajustado": [
+            0.021097,
+            0.970911
+          ],
+          "fallback": null
+        },
+        "exclui_zero": false
+      }
+    },
+    "registrado_pos_hoc_sem_0914": {
+      "removidos": [
+        "2026-09-02",
+        "2026-09-14"
+      ],
+      "n_epochs": {
+        "control": 8,
+        "treatment": 10
+      },
+      "por_braco": {
+        "control": {
+          "n_epochs": 8,
+          "oportunidades": 1101.75,
+          "repeats": 87.72,
+          "horas_sessao": 4.33,
+          "H1_densidade": 20.23648,
+          "H1a_taxa_oport": 254.152656,
+          "H1c_prop": 0.079623,
+          "unknown_no_denominador": 3
+        },
+        "treatment": {
+          "n_epochs": 10,
+          "oportunidades": 954.79,
+          "repeats": 60.84,
+          "horas_sessao": 5.43,
+          "H1_densidade": 11.206291,
+          "H1a_taxa_oport": 175.880834,
+          "H1c_prop": 0.063715,
+          "unknown_no_denominador": 1
+        }
+      },
+      "H1": {
+        "ponto": -9.030189,
+        "ic95": [
+          -14.677528,
+          -1.885565
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -15.097772,
+          -2.321059
+        ],
+        "bca": {
+          "n_jackknife": 18,
+          "z0": 0.017297,
+          "acel": 0.02438,
+          "alfa_ajustado": [
+            0.033066,
+            0.981901
+          ],
+          "fallback": null
+        },
+        "exclui_zero": true
+      },
+      "H1a": {
+        "ponto": -78.271822,
+        "ic95": [
+          -146.223022,
+          1.951246
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -147.884602,
+          -0.024542
+        ],
+        "bca": {
+          "n_jackknife": 18,
+          "z0": 0.001755,
+          "acel": 0.014337,
+          "alfa_ajustado": [
+            0.028521,
+            0.978321
+          ],
+          "fallback": null
+        },
+        "exclui_zero": false
+      },
+      "H1c": {
+        "ponto": -0.015908,
+        "ic95": [
+          -0.048455,
+          0.009765
+        ],
+        "construcao": "BCa",
+        "ic95_percentil": [
+          -0.047174,
+          0.010697
+        ],
+        "bca": {
+          "n_jackknife": 18,
+          "z0": -0.017547,
+          "acel": -0.008596,
+          "alfa_ajustado": [
+            0.021216,
+            0.970819
+          ],
+          "fallback": null
+        },
+        "exclui_zero": false
+      }
+    },
+    "horas_por_epoch_registrado": {
+      "por_epoch": {
+        "2026-09-01": 0.4056,
+        "2026-09-03": 0.2455,
+        "2026-09-04": 0.4325,
+        "2026-09-05": 0.3433,
+        "2026-09-06": 0.4519,
+        "2026-09-07": 0.7533,
+        "2026-09-08": 0.8501,
+        "2026-09-09": 0.4827,
+        "2026-09-10": 0.5439,
+        "2026-09-11": 0.5357,
+        "2026-09-12": 0.9726,
+        "2026-09-13": 0.6859,
+        "2026-09-14": 7.1329,
+        "2026-09-15": 0.449,
+        "2026-09-16": 0.7207,
+        "2026-09-17": 0.5191,
+        "2026-09-18": 0.5362,
+        "2026-09-19": 0.3203,
+        "2026-09-20": 0.5154
+      },
+      "pico": "2026-09-14",
+      "pico_h": 7.1329,
+      "pico_share_tratamento": 0.5678,
+      "outros_n": 18,
+      "outros_min": 0.2455,
+      "outros_max": 0.9726,
+      "outros_min_epoch": "2026-09-03"
+    },
+    "H1_reducoes_e_razoes": {
+      "registrado": {
+        "H1_t": 6.116682,
+        "H1_c": 20.23648,
+        "reducao": 0.6977,
+        "razoes": {
+          "calibracao_11_de_350": 22.2,
+          "realizada_335_de_7350": 15.31,
+          "maior_por_epoch_6.85pct": 10.19
+        }
+      },
+      "registrado_pos_hoc_sem_0914": {
+        "H1_t": 11.206291,
+        "H1_c": 20.23648,
+        "reducao": 0.4462,
+        "razoes": {
+          "calibracao_11_de_350": 14.2,
+          "realizada_335_de_7350": 9.79,
+          "maior_por_epoch_6.85pct": 6.51
+        }
+      },
+      "registrado_precomprometida": {
+        "H1_t": 6.156228,
+        "H1_c": 20.083211,
+        "reducao": 0.6935,
+        "razoes": {
+          "calibracao_11_de_350": 22.06,
+          "realizada_335_de_7350": 15.21,
+          "maior_por_epoch_6.85pct": 10.12
+        }
+      }
+    },
+    "volumes_por_epoch": {
+      "registrado": {
+        "treatment": {
+          "oport_por_epoch": 103.5,
+          "repeats_por_epoch": 6.99,
+          "horas_por_epoch": 1.142
+        },
+        "control": {
+          "oport_por_epoch": 137.7,
+          "repeats_por_epoch": 10.96,
+          "horas_por_epoch": 0.541
+        }
+      },
+      "registrado_pos_hoc_sem_0914": {
+        "treatment": {
+          "oport_por_epoch": 95.5,
+          "repeats_por_epoch": 6.08,
+          "horas_por_epoch": 0.543
+        },
+        "control": {
+          "oport_por_epoch": 137.7,
+          "repeats_por_epoch": 10.96,
+          "horas_por_epoch": 0.541
+        }
+      }
+    },
+    "identidade_H1_igual_H1c_vezes_H1a": {
+      "celulas": 6,
+      "erro_relativo_max": 6.04e-06
+    },
+    "H1c_registrado": {
+      "controle": 0.079623,
+      "reducao_relativa": 0.1524,
+      "eliminacao_total": -0.079623,
+      "ic95": [
+        -0.044485,
+        0.012532
+      ],
+      "distancia_ic_inferior_a_eliminacao_total": 0.0351
+    }
+  },
+  "C_empates_registrado": {
+    "arquivo": "out/C12-EMPATES-REGISTRADO-2026-10-05.json",
+    "empates_total": 28,
+    "empates_no_painel_registrado": 0,
+    "censo_registrado": {
+      "por_braco": {
+        "treatment": {
+          "empates": 10,
+          "empates_oportunidade": 4,
+          "empates_oportunidade_peso": 27.78
+        },
+        "control": {
+          "empates": 10,
+          "empates_oportunidade": 7,
+          "empates_oportunidade_peso": 36.725
+        }
+      },
+      "fora": {
+        "fora_da_janela_de_datas": 7,
+        "fora_da_exposicao_2026-09-03": 1
+      }
+    },
+    "h1c_ponto_4votos_registrado": {
+      "regra_do_paper": {
+        "por_braco": {
+          "control": {
+            "oportunidades": 1101.75,
+            "repeats": 87.72,
+            "H1c_prop": 0.079623
+          },
+          "treatment": {
+            "oportunidades": 1138.47,
+            "repeats": 76.84,
+            "H1c_prop": 0.067489
+          }
+        },
+        "diferenca": -0.012134
+      },
+      "empate_como_failure": {
+        "por_braco": {
+          "control": {
+            "oportunidades": 1101.75,
+            "repeats": 124.45,
+            "H1c_prop": 0.112957
+          },
+          "treatment": {
+            "oportunidades": 1138.47,
+            "repeats": 104.62,
+            "H1c_prop": 0.09189
+          }
+        },
+        "diferenca": -0.021067
+      },
+      "nota": "point only; no interval; not a result of the paper"
+    }
+  },
+  "D_regra_de_parada": {
+    "regra": "PROSPECTIVE-ESTIMAND-2026-08-30.md §3-bis: if coverage measured in Epoch 1 falls below 36.7%, the interventional arm ends with a null 'por impossibilidade de desenho'",
+    "limiar": 0.367,
+    "definicao_de_cobertura": "out/CONCENTRATION-2026-08-30.json (measurement/concentracao-de-oportunidades.py): opportunities whose signature the dose can promote / all opportunities; 40.0% = 611/1,526 in the planning corpus",
+    "assinaturas_promovidas": [
+      "Bash|fs:mutacao",
+      "Bash|shell:outro",
+      "mcp__openclaw__memory_get|arquivo:doc",
+      "mcp__openclaw__memory_search|consulta",
+      "mcp__openclaw__terminal|shell:outro",
+      "mcp__openclaw__web_fetch|rede",
+      "mcp__plugin_context_mode_context_mode__ctx_batch_execute|sem-alvo"
+    ],
+    "epoch_1": "2026-09-01",
+    "epoch_1_arm": [
+      "treatment",
+      4.0
+    ],
+    "a_regra_do_artefato_de_planejamento": {
+      "epoch_1_inteiro": {
+        "oportunidades": 139,
+        "cobertas": 45,
+        "cobertura": 0.3237,
+        "wilson95": [
+          0.2516,
+          0.4054
+        ]
+      },
+      "epoch_1_pos_washout": {
+        "oportunidades": 75,
+        "cobertas": 30,
+        "cobertura": 0.4,
+        "wilson95": [
+          0.2966,
+          0.5131
+        ]
+      },
+      "epoch_1_fase_active": {
+        "oportunidades": 101,
+        "cobertas": 34,
+        "cobertura": 0.3366,
+        "wilson95": [
+          0.252,
+          0.4333
+        ]
+      },
+      "epoch_1_inteiro_19_grupos_designados": {
+        "oportunidades": 139,
+        "cobertas": 128,
+        "cobertura": 0.9209,
+        "wilson95": [
+          0.8639,
+          0.9552
+        ]
+      }
+    },
+    "b_regra_de_oportunidade_do_ensaio": {
+      "assinaturas_promovidas_7": {
+        "oportunidades_ponderadas": 65.505,
+        "cobertas_ponderadas": 35.725,
+        "cobertura": 0.5454
+      },
+      "grupos_designados_19": {
+        "oportunidades_ponderadas": 65.505,
+        "cobertas_ponderadas": 58.56,
+        "cobertura": 0.894
+      }
+    },
+    "cobertura_primaria": 0.3237,
+    "abaixo_do_limiar": true,
+    "todas_as_leituras_abaixo_do_limiar": false
+  },
+  "E_regra_de_atribuicao": {
+    "seed": "e86436153592e2655e095c58a96400ed4292b69ace6f53f65c0e41b87b290087",
+    "randomness": "b32cf63d65fd6ca8dbd9d9b08a0bb77efe7144f18bad3dbbfce6816d498d55fd",
+    "regra_declarada": "ASSIGN-SEED-2026-08-30.md: global sort by SHA256(seed|epoch_index), first 117 control, then 39 x tratamento_1/2/3 (no dose named)",
+    "regra_registrada": "assign_arms.py (committed 2026-08-16, last changed 2026-08-17; in Zenodo v1.12): stratified block randomization",
+    "sha_declarada_reproduzida": "2426d13de4cd90e6391573e9edc54786c9fb4ca4304f0ea51e09ca916e5c5bd9",
+    "assign_arms_reproduz_ASSIGNMENT_json": true,
+    "ASSIGNMENT_SERVING_coerente": true,
+    "contagens_declarada": {
+      "controle": 117,
+      "tratamento_1": 39,
+      "tratamento_2": 39,
+      "tratamento_3": 39
+    },
+    "contagens_registrada": {
+      "control": 117,
+      "w2": 39,
+      "w4": 39,
+      "w7.5": 39
+    },
+    "epochs_234_braco_binario_diferente": 130,
+    "epochs_234_grupo_diferente_mapa_natural": 168,
+    "janela_realizada": {
+      "epochs": 20,
+      "braco_binario_diferente": [
+        {
+          "epoch": "2026-09-01",
+          "declarada": "control",
+          "registrada": "w4"
+        },
+        {
+          "epoch": "2026-09-05",
+          "declarada": "control",
+          "registrada": "w2"
+        },
+        {
+          "epoch": "2026-09-06",
+          "declarada": "control",
+          "registrada": "w7.5"
+        },
+        {
+          "epoch": "2026-09-07",
+          "declarada": "w4",
+          "registrada": "control"
+        },
+        {
+          "epoch": "2026-09-08",
+          "declarada": "control",
+          "registrada": "w2"
+        },
+        {
+          "epoch": "2026-09-09",
+          "declarada": "control",
+          "registrada": "w2"
+        },
+        {
+          "epoch": "2026-09-11",
+          "declarada": "w4",
+          "registrada": "control"
+        },
+        {
+          "epoch": "2026-09-13",
+          "declarada": "w7.5",
+          "registrada": "control"
+        },
+        {
+          "epoch": "2026-09-17",
+          "declarada": "w2",
+          "registrada": "control"
+        },
+        {
+          "epoch": "2026-09-19",
+          "declarada": "control",
+          "registrada": "w2"
+        },
+        {
+          "epoch": "2026-09-20",
+          "declarada": "w7.5",
+          "registrada": "control"
+        }
+      ],
+      "grupo_diferente_mapa_natural": 14,
+      "declarada": {
+        "2026-09-01": "control",
+        "2026-09-02": "control",
+        "2026-09-03": "control",
+        "2026-09-04": "w7.5",
+        "2026-09-05": "control",
+        "2026-09-06": "control",
+        "2026-09-07": "w4",
+        "2026-09-08": "control",
+        "2026-09-09": "control",
+        "2026-09-10": "control",
+        "2026-09-11": "w4",
+        "2026-09-12": "w2",
+        "2026-09-13": "w7.5",
+        "2026-09-14": "w2",
+        "2026-09-15": "w4",
+        "2026-09-16": "w2",
+        "2026-09-17": "w2",
+        "2026-09-18": "control",
+        "2026-09-19": "control",
+        "2026-09-20": "w7.5"
+      },
+      "registrada": {
+        "2026-09-01": "w4",
+        "2026-09-02": "control",
+        "2026-09-03": "control",
+        "2026-09-04": "w2",
+        "2026-09-05": "w2",
+        "2026-09-06": "w7.5",
+        "2026-09-07": "control",
+        "2026-09-08": "w2",
+        "2026-09-09": "w2",
+        "2026-09-10": "control",
+        "2026-09-11": "control",
+        "2026-09-12": "w4",
+        "2026-09-13": "control",
+        "2026-09-14": "w4",
+        "2026-09-15": "w4",
+        "2026-09-16": "w2",
+        "2026-09-17": "control",
+        "2026-09-18": "control",
+        "2026-09-19": "w2",
+        "2026-09-20": "control"
+      },
+      "contagem_declarada": {
+        "control": 10,
+        "treatment": 10
+      },
+      "contagem_registrada": {
+        "treatment": 11,
+        "control": 9
+      }
+    },
+    "nota": "both rules run offline on the randomness published in ASSIGN-SEED-2026-08-30.md; no network"
+  },
+  "F_do_artefato_registrado": {
+    "multiplicidade": {
+      "atual": {
+        "H1_isolada_a_005": {
+          "p": 0.0127,
+          "rejeita": true
+        },
+        "H1c_primaria_PROSPECTIVE_ESTIMAND": {
+          "p": 0.1603,
+          "rejeita": false
+        },
+        "holm_H1a_H1b_H1c_H2x2": {
+          "p_brutos": {
+            "H1a": 0.0855,
+            "H1b": null,
+            "H1c": 0.1603,
+            "H2_tempo": 0.892,
+            "H2_tokens": 0.95
+          },
+          "A_familia_registada_inavaliaveis_como_p1": {
+            "m": 5,
+            "p_ajustado": {
+              "H1a": 0.4275,
+              "H1c": 0.6412,
+              "H2_tempo": 1.0,
+              "H2_tokens": 1.0,
+              "H1b": 1.0
+            },
+            "rejeita": {
+              "H1a": false,
+              "H1c": false,
+              "H2_tempo": false,
+              "H2_tokens": false,
+              "H1b": false
+            }
+          },
+          "B_so_membros_avaliaveis": {
+            "m": 4,
+            "p_ajustado": {
+              "H1a": 0.342,
+              "H1c": 0.4809,
+              "H2_tempo": 1.0,
+              "H2_tokens": 1.0
+            },
+            "rejeita": {
+              "H1a": false,
+              "H1c": false,
+              "H2_tempo": false,
+              "H2_tokens": false
+            }
+          }
+        }
+      },
+      "registrado": {
+        "H1_isolada_a_005": {
+          "p": 0.0133,
+          "rejeita": true
+        },
+        "H1c_primaria_PROSPECTIVE_ESTIMAND": {
+          "p": 0.434,
+          "rejeita": false
+        },
+        "holm_H1a_H1b_H1c_H2x2": {
+          "p_brutos": {
+            "H1a": 0.0241,
+            "H1b": null,
+            "H1c": 0.434,
+            "H2_tempo": 0.8305,
+            "H2_tokens": 0.6844
+          },
+          "A_familia_registada_inavaliaveis_como_p1": {
+            "m": 5,
+            "p_ajustado": {
+              "H1a": 0.1205,
+              "H1c": 1.0,
+              "H2_tokens": 1.0,
+              "H2_tempo": 1.0,
+              "H1b": 1.0
+            },
+            "rejeita": {
+              "H1a": false,
+              "H1c": false,
+              "H2_tokens": false,
+              "H2_tempo": false,
+              "H1b": false
+            }
+          },
+          "B_so_membros_avaliaveis": {
+            "m": 4,
+            "p_ajustado": {
+              "H1a": 0.0964,
+              "H1c": 1.0,
+              "H2_tokens": 1.0,
+              "H2_tempo": 1.0
+            },
+            "rejeita": {
+              "H1a": false,
+              "H1c": false,
+              "H2_tokens": false,
+              "H2_tempo": false
+            }
+          }
+        }
+      }
+    },
+    "painel": {
+      "episodios_adjudicados": 1195,
+      "resolvidos_3fam": 1159,
+      "unknown_3fam": 36,
+      "resolvidos_substituicao": 1179,
+      "unknown_substituicao": 16,
+      "resgatados": 20,
+      "resgatados_failure": 13,
+      "linhas_deepseek_acrescentadas": 36,
+      "vereditos_alterados_em_resolvidos_3fam": 0,
+      "sha256_uniao": "5408d33d6ddc5180795cbdd2af2657295cf0af56a2027fcfcdc78bae3f052c1a",
+      "regra": "DEVIATIONS §10.31: deepseek only where the 3 families leave < 3 substantive verdicts"
+    },
+    "corte_pos_expiracao": {
+      "episodios_pos_expiracao": 33,
+      "oportunidades_removidas": 22.835,
+      "repeats_removidos": 2.0,
+      "horas_sessao_antes": 0.6235,
+      "horas_sessao_depois": 0.5154
+    },
+    "rerand_observado": {
+      "H1": -9.4757,
+      "H1a": -100.587948,
+      "H1c": -0.016237
+    }
+  }
+}
