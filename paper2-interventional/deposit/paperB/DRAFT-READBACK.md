@@ -1,12 +1,18 @@
-# Paper B v2.0 — procedimento do rascunho no Zenodo (NADA criado ainda)
+# Paper B v2.0 — rascunho no Zenodo: CRIADO, PREENCHIDO (rc28), readback OK; publicar = manual
 
 | campo | valor |
 |---|---|
-| base | record **22110203** (v1.12, publicado 2026-08-26T12:01Z) — `POST /api/records/22110203/versions` |
-| concept DOI | `10.5281/zenodo.21964093` (não muda) |
-| versão proposta | `2.0` (ver READY.md, decisão 1) |
-| DOI | reservado só quando o rascunho for criado; não existe ainda |
+| rascunho | **23223385** (`.draft-id-v2.0`), nova versão de 22110203 (v1.12); `is_draft` True, `is_published` False |
+| DOI reservado | `10.5281/zenodo.23223385` (no .md 2×, no PDF 3×) |
+| concept DOI | `10.5281/zenodo.21964093` (não muda); `versions.index` 4 = as 3 publicadas (1.9, 1.11, 1.12) + 1 |
+| texto | `_sprint-2026-10-04/B-v2-rc28.md` (`449d4dec…`), título novo (linha 1) |
+| preenchido | `deposit-v2.0.py --fill --publication-date 2026-10-07`, 2026-10-07; metadata + 6 arquivos (18.859.392 bytes) |
+| readback | `--readback` 2026-10-07T23:59:25Z: **19 campos ok, 6 arquivos ok (md5), membros dos zips ok, 0 falhas** |
+| publicar | **pendente, manual**, no navegador, pelo autor (o script não tem essa chamada); antes: leitura de confirmação do rc28 (item 24) |
 | scripts | `build/build-pdf.sh` (PDF), `build-package.py` (zips, manifesto, censo, gate), `deposit-v2.0.py` (rascunho, metadata, upload, readback; **sem** chamada de publish) |
+
+Se o texto mudar de novo (rc29): `build-package.py --doi 10.5281/zenodo.23223385` → `--fill` → `--readback`
+no **mesmo** rascunho. Nunca `--create-draft` de novo.
 
 ## Ordem, cada passo com a sua flag
 

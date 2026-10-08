@@ -3,7 +3,7 @@
 > **Status: version 2.0 of the pre-registration record.** This text is version 2.0 of the
 > Zenodo record that holds the pre-registration of this trial (concept DOI
 > `10.5281/zenodo.21964093`, as recorded in the snapshot of v1.12, `10.5281/zenodo.22110203`);
-> the DOI of this version is `10.5281/zenodo.23223385`. Before this one the record has three published
+> the DOI of this version is `[VERSION-DOI]`. Before this one the record has three published
 > versions: 1.9 (record 21964094, 2026-08-17), the registration; 1.11 (record 21978476,
 > 2026-08-17), a correction of it (1.10 was written and not deposited); and 1.12 (record
 > 22110203, 2026-08-26), an amendment. This version reports the trial. The text was reviewed in
@@ -2833,7 +2833,7 @@ separately and carries a dated receipt.
    artifacts and the Zenodo snapshots in `B-rc18/` and `B-rc19/`.)*
    *(rc23: 15 and 17 are done, so none of the items named here blocks the deposit any longer;
    the deposit itself is not done.)* → **Done (rc27)**: deposited as version 2.0
-   of the registration record, version DOI `10.5281/zenodo.23223385`. *(rc28: the note no longer dates
+   of the registration record, version DOI `[VERSION-DOI]`. *(rc28: the note no longer dates
    the deposit; publication is done by hand, after this text is frozen.)*
 9. ~~**Valid sham**: needs the trial `brief_log` 2026-09-08..09-20 from the production host
    (authorization pending). Everything else for it is in hand: served corpus, `rowid`

@@ -1,0 +1,38 @@
+{
+ "fetched_at": "2026-10-07T23:40:47+00:00",
+ "request": "GET https://zenodo.org/api/records/22110203/versions?size=25&sort=version (public, unauthenticated)",
+ "hits_total": 3,
+ "versions": [
+  {
+   "id": 22110203,
+   "doi": "10.5281/zenodo.22110203",
+   "conceptdoi": "10.5281/zenodo.21964093",
+   "version": "1.12",
+   "publication_date": "2026-08-26",
+   "created": "2026-08-26T12:01:06.500672+00:00",
+   "status": "published",
+   "title": "Interventional Memory: A Pre-Registered Randomised Crossover Measuring Whether Agent Memory Changes Agent Behaviour"
+  },
+  {
+   "id": 21978476,
+   "doi": "10.5281/zenodo.21978476",
+   "conceptdoi": "10.5281/zenodo.21964093",
+   "version": "1.11",
+   "publication_date": "2026-08-17",
+   "created": "2026-08-17T18:32:45.559703+00:00",
+   "status": "published",
+   "title": "Interventional Memory: A Pre-Registered Randomised Crossover Measuring Whether Agent Memory Changes Agent Behaviour"
+  },
+  {
+   "id": 21964094,
+   "doi": "10.5281/zenodo.21964094",
+   "conceptdoi": "10.5281/zenodo.21964093",
+   "version": "1.9",
+   "publication_date": "2026-08-17",
+   "created": "2026-08-17T07:16:31.651855+00:00",
+   "status": "published",
+   "title": "Interventional Memory: A Pre-Registered Randomised Crossover Measuring Whether Agent Memory Changes Agent Behaviour"
+  }
+ ],
+ "note": "published versions of concept 21964093 before v2.0; the v2.0 draft (23223385) reads versions.index 4 = these 3 + 1"
+}

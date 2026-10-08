@@ -10,7 +10,7 @@ Output (this folder):
   SCRUBBED.txt                             every packaged copy that differs from its source, and why
 
 Version DOI: the release candidate carries the placeholder token PLACEHOLDER exactly PLACEHOLDER_COUNT times
-  (rc27: twice, in the status header and in working-list item 8); the build substitutes EVERY occurrence.
+  (rc27 and rc28: twice, in the status header and in working-list item 8); the build substitutes EVERY occurrence.
   python3 build-package.py --doi 10.5281/zenodo.NNNN    (or PAPERB_DOI=… in the environment)
       writes the loose .md as FONTE with the placeholder replaced by that DOI, builds the PDF with it
       (build/build-pdf.sh, PAPERB_DOI), and FAILS if the placeholder survives in any packaged byte;
@@ -52,10 +52,10 @@ VERSION = "2.0"
 SLUG = "registered-horizon-outlived-intervention"
 MD = f"{SLUG}-v{VERSION}.md"
 PDF = f"{SLUG}-v{VERSION}.pdf"
-FONTE = f"{SPRINT}/B-v2-rc27.md"
-FONTE_SHA = "cb38c5cf0319bbea3ce997a47be6182909145086dbd37f5611a41475d3880b96"
+FONTE = f"{SPRINT}/B-v2-rc28.md"
+FONTE_SHA = "449d4dec5abada6ae69135d86be2a8bc39fa127f1429580ce253ac7adda5a71f"
 PLACEHOLDER = "[VERSION-DOI]"
-PLACEHOLDER_COUNT = 2                         # rc27: status header + working-list item 8; exact, read by B-rc27/parity-rc27.py
+PLACEHOLDER_COUNT = 2                         # rc27/rc28: status header + working-list item 8; exact, read by B-rc27/parity-rc27.py and B-rc28/parity-rc28.py
 DOI_RE = r"10\.5281/zenodo\.\d{6,10}"
 # Derived files (written by sanitize-verdicts.py, from sources that are never packaged), under _derived/.
 DERIVED_DIR = HERE / "build" / "derived"
@@ -87,6 +87,8 @@ EXTRA = [
     f"{SPRINT}/B-rc25/parity-rc25.py",
     f"{SPRINT}/B-rc26/parity-rc26.py",
     f"{SPRINT}/B-rc27/parity-rc27.py",
+    f"{SPRINT}/B-rc28/parity-rc28.py",
+    f"{SPRINT}/B-rc28/zenodo-21964093-versions.json",
 ]
 # Ballast files (outside the repository) that the claims rest on; packaged under _ballast/.
 BALLAST_IN = [
@@ -412,7 +414,7 @@ def main():
     doi, no_doi = args()
     fonte = (P2 / FONTE).read_bytes()
     if sha(fonte) != FONTE_SHA:
-        print(f"ERROR: {FONTE} is not the pinned rc27 bytes ({sha(fonte)[:12]}…)")
+        print(f"ERROR: {FONTE} is not the pinned rc28 bytes ({sha(fonte)[:12]}…)")
         return 1
     ft = fonte.decode("utf-8")
     if ft.count(PLACEHOLDER) != PLACEHOLDER_COUNT:
