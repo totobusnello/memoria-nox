@@ -49,7 +49,7 @@ BALLAST = pathlib.Path.home() / "Backups" / "paper2-ensaio-2026-09-21"
 SPRINT = "_sprint-2026-10-04"
 
 VERSION = "2.0"
-SLUG = "registered-horizon-outlived-intervention"
+SLUG = "registered-horizon-outlived-the-intervention-the-trial-ran"
 MD = f"{SLUG}-v{VERSION}.md"
 PDF = f"{SLUG}-v{VERSION}.pdf"
 FONTE = f"{SPRINT}/B-v2-rc28.md"
