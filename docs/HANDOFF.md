@@ -1,5 +1,12 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-10-07 — Paper B v2.0 PUBLICADO: `10.5281/zenodo.23223385`
+
+- **Publicado ~21:22 BRT** pelo Toto. Versão 2.0 do concept `10.5281/zenodo.21964093` (versões: 1.9, 1.11, 1.12, 2.0). Título: *A registered horizon that outlived the intervention the trial ran: a pre-registered randomized trial of memory dosing in a production agent fleet*. Conferido pela API pública (`published`, 6/6 md5 = disco) e doi.org 200.
+- **Texto = rc28** (`paper2-interventional/_sprint-2026-10-04/B-v2-rc28.md`); arquivos `registered-horizon-outlived-the-intervention-the-trial-ran-v2.0.{md,pdf}` (77 p.). Análise registrada v4: nada rejeita. Sham da janela: 132 vs 81–122 nas épocas w=4 (790 vs 449–583 é contrafactual). Vale também como emenda agrupada do registro Zenodo (OSF yf7d2 inalterado). Tag `paper2-v2.0` → `73b3f262`.
+- **Leituras finais:** Codex e Fable GO no rc28 (só-falso); Grok e Fable NO-GO no rc27, achados aplicados. Lição gravada: revisão precisa de regra de parada (rc6→rc28 foi laço).
+- **Fila:** (1) paper de metodologia — espera Q1–Q7 do Toto; (2) data note do dataset de telemetria `10.5281/zenodo.23130191`.
+
 ## 2026-10-05 — Paper A v1.1 PUBLICADO: `10.5281/zenodo.23163119`
 
 - **Publicado 16:18 BRT** pelo Toto. Versão 2 do concept `10.5281/zenodo.22181414` (v1.0 = 22181415). Título novo: *Spare capacity, narrow surface: the exposure record of a production agent-memory system*. PDF `spare-capacity-narrow-surface-v1.1.pdf`, 53 p. Conferido pela API pública (`published`, 18 arquivos, md5 dos 5 novos = disco) e doi.org.
