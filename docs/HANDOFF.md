@@ -1,11 +1,23 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-10-07 (noite) — fechamento: Paper 0 publicado, metodologia fechada, próximos passos
+
+**Próxima sessão (decisão do Toto):**
+1. **Paper de metodologia → mudar para o `7_problems` e continuar lá.** Texto final `METHODOLOGY-v4.md` (*Certify, don't vote: machine-checkable certificates as the arbiter of multi-model critique*, 8.572 palavras). Leitura completa Codex+Fable (NO-GO) → v4 numa passada → confirmação do diff: Fable GO; 2 frases do Codex corrigidas in place. Hoje **não versionado**: `paper2-interventional/_sprint-2026-10-04/metodologia/` (v1–v4, `V2/V3/V4-NOTES.md`, `REVIEW-v3-2026-10-07.md`, `PAPER2-IDEA-panel-accuracy.md`, `reverify-31/`). Mover por clone em scratchpad com `--unshallow` (clone raso quebra os gates de data do `numbers.sh`) + PR no 7_problems; **não tocar no checkout do 7_problems** (a sessão `7-problems-63` tem mudanças não commitadas). Pendentes: `[NIGHTLY-32]` (3 marcadores; depende do ok do Toto **na sessão do 7_problems** para pôr os 31 certificados no job noturno; sem isso, trocar por "1 nightly plus 31 re-verified on 2026-10-05") e venue (Toto: depois).
+2. **Data note do dataset de telemetria** (`10.5281/zenodo.23130191`): conversar escopo; fica no memoria-nox. Ideia: custo por fase (construção/consulta/manutenção) de manter memória de agente em produção, 4–6 p.
+
+**Feito hoje (além do Paper B abaixo):**
+- **Paper 0 (7_problems) PUBLICADO pelo Toto:** *The Unit Gap Is Base-Dependent: A Mechanically Verified Refutation and a Cross-Base Census*, preprint v1.0, DOI `10.5281/zenodo.23226734` (concept `10.5281/zenodo.23226733`), isSupplementedBy artefatos `10.5281/zenodo.21630762`. Conferido pela API (`published`, md5 = disco) e doi.org 200. Texto = `main.tex` corrigido (Theorem 7 refutado pela nota `0x03de`, fórmula de 9 portas negada, Tarui/3n−3, 4 campos de bib). `arxiv-submission/` congelado (arXiv `submit/7912234` em moderação desde 08-05; o corrigido vira v2). 7_problems PR #113 (`8ce9c38`). A nota do Theorem 7 (`theorem7/`) não está em nenhuma versão Zenodo dos artefatos (todas de 27/07): cortar v1.0.3 dos artefatos se quiser citá-la por DOI.
+- **labf.bio:** todos os papers linkam para o Zenodo (concept DOI), nenhum PDF hospedado, sem menção a arXiv (site-labf #3 e #9).
+- **Regra nova gravada** (`feedback_review_loop_needs_a_stopping_rule`): após GO duplo, só diff e só FALSO barra; LOW nunca gera versão. Aplicada hoje: metodologia e Paper 0 fecharam em 1 leitura + 1 confirmação.
+- **Codex** agora logado em `lab@generantis.com.br` (o workspace da Nuvini ficou sem créditos).
+
 ## 2026-10-07 — Paper B v2.0 PUBLICADO: `10.5281/zenodo.23223385`
 
 - **Publicado ~21:22 BRT** pelo Toto. Versão 2.0 do concept `10.5281/zenodo.21964093` (versões: 1.9, 1.11, 1.12, 2.0). Título: *A registered horizon that outlived the intervention the trial ran: a pre-registered randomized trial of memory dosing in a production agent fleet*. Conferido pela API pública (`published`, 6/6 md5 = disco) e doi.org 200.
 - **Texto = rc28** (`paper2-interventional/_sprint-2026-10-04/B-v2-rc28.md`); arquivos `registered-horizon-outlived-the-intervention-the-trial-ran-v2.0.{md,pdf}` (77 p.). Análise registrada v4: nada rejeita. Sham da janela: 132 vs 81–122 nas épocas w=4 (790 vs 449–583 é contrafactual). Vale também como emenda agrupada do registro Zenodo (OSF yf7d2 inalterado). Tag `paper2-v2.0` → `73b3f262`.
 - **Leituras finais:** Codex e Fable GO no rc28 (só-falso); Grok e Fable NO-GO no rc27, achados aplicados. Lição gravada: revisão precisa de regra de parada (rc6→rc28 foi laço).
-- **Fila:** (1) paper de metodologia — espera Q1–Q7 do Toto; (2) data note do dataset de telemetria `10.5281/zenodo.23130191`.
+- **Fila:** ver o bloco de fechamento acima.
 
 ## 2026-10-05 — Paper A v1.1 PUBLICADO: `10.5281/zenodo.23163119`
 
