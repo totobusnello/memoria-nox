@@ -1,13 +1,12 @@
-# Paper B v2.0 — pacote de depósito: ENSAIO SECO (`--no-doi`), nada enviado
+# Paper B v2.0 — pacote de depósito: rc28, no rascunho 23223385 (DOI reservado), readback OK; publicar = manual
 
-Atualizado 2026-10-07 (rc27). Nenhuma chamada à API do Zenodo, nenhum rascunho, nenhuma escrita git, nenhuma voz,
-nenhuma VPS. Tudo o que foi escrito está em `deposit/paperB/` e em `_sprint-2026-10-04/` (rc27, `B-rc27/`).
+Atualizado 2026-10-07 (rc28). Rascunho Zenodo **23223385** criado (DOI reservado `10.5281/zenodo.23223385`), preenchido
+com o pacote do rc28 (`--fill --publication-date 2026-10-07`) e conferido (`--readback`: 19 campos, 6 arquivos, 0 falhas,
+2026-10-07T23:59:25Z). **Não publicado**: publicar é manual, no navegador, pelo autor. Nenhuma escrita git, nenhuma voz,
+nenhuma VPS nesta rodada; no Zenodo só `--fill`/`--readback` no rascunho existente e GETs públicos.
 
-⚠️ O pacote atual é **ensaio seco**: o texto e o PDF ainda levam o placeholder `[VERSION-DOI]` (2×: cabeçalho e item 8 da lista de trabalho), e o manifesto diz
-`dry_run: true`. **Não é para depositar.** Depois de `--create-draft`: `python3 build-package.py --doi 10.5281/zenodo.<id>`
-(troca o placeholder, refaz .md, PDF, zips, manifesto e SHA256SUMS; troca **toda** ocorrência; sai 1 se o placeholder sobrar no .md ou no PDF, ou se o DOI não
-aparecer exatamente 2× no .md e 3× no texto do PDF).
-`deposit-v2.0.py --fill`/`--readback` recusam pacote seco ou feito com DOI diferente do reservado.
+O pacote atual é **final** (não seco): placeholder trocado nas 2 ocorrências, DOI 2× no .md e 3× no PDF, manifesto
+`dry_run: false`.
 
 ## Decisões do autor (tomadas pela sessão principal em nome do autor, 2026-10-07)
 
@@ -34,51 +33,50 @@ aparecer exatamente 2× no .md e 3× no texto do PDF).
    verdict, level, status, stop_reason, attempts. **As linhas de origem não têm timestamp**, então não há timestamp a
    manter. Só no MANIFEST e na descrição; o manuscrito não mudou por isso.
 6. `p2-serving.ndjson` fica; `~/` fica como está.
+7. **rc28 = achados das leituras finais do pacote rc27** (Grok NO-GO, recibo `adversary-receipt-grok-2026-10-07T181540-7884.txt`;
+   Fable NO-GO, agente sem recibo; Codex não rodou, exit 1, sem créditos). Todos verificados contra texto, artefatos e API
+   pública do Zenodo; aplicados no rc28 e na descrição (`APPLY-B-rc28.md`). Título novo (decisão do autor): *"A registered
+   horizon that outlived the intervention the trial ran: …"*. Versões publicadas do concept (API): **1.9** (21964094,
+   2026-08-17), **1.11** (21978476, 2026-08-17; a 1.10 nunca foi depositada), **1.12** (22110203, 2026-08-26); snapshot em
+   `B-rc28/zenodo-21964093-versions.json`.
+
 
 ## Texto
 
 | | |
 |---|---|
-| fonte | `_sprint-2026-10-04/B-v2-rc27.md`, sha256 `cb38c5cf…` (fixado no `build-package.py`, com `PLACEHOLDER_COUNT = 2`) |
-| depositado | `registered-horizon-outlived-intervention-v2.0.md` = rc27 byte a byte no modo `--no-doi`; com `--doi`, rc27 com as 2 ocorrências do placeholder trocadas (única diferença, registrada no manifesto) |
-| parity rc26→rc27 | `B-rc27/parity-rc27.py` **PASS**; self-test **20/20** mutações pegas, cada uma pela própria perna; rc27 sem mutação passa; `parity-rc26.py` e `parity-rc25.py` ainda passam |
-| o que a parity rc27 prova | (A) rc27 sem a lista de trabalho e sem o bloco rc27 é **byte a byte** o rc26 (cabeçalho e corpo intocados); (H) na lista, rc26→rc27 é **só inserção** (tirando os `~~`), e toda inserção é nota datada rc27; (B) o check inteiro do rc26 (sha fixado) rodado rc24/rc25→rc27 dá **exatamente** as 20 falhas declaradas; (C) placeholder 2× = `PLACEHOLDER_COUNT` do build (1 no cabeçalho, 1 no item 8, 0 no changelog), item 8 com a versão do build, item 24 com as frases exigidas e **sem** afirmar a leitura final como feita, todo título riscado, nenhuma linha lendo como aberta sem fechamento, e controle positivo: o detector acha no rc26 exatamente os itens 6, 7, 8, 11, 13, 14, 16, 19, 21, 24; (D) changelog 149..210 |
-| o que a parity rc26 prova | (A) rc26 sem o cabeçalho e sem o bloco rc26 é **byte a byte** o rc25; (B) o check inteiro do rc25 (sha fixado) rodado rc24→rc26 dá **exatamente** as 54 falhas declaradas, todas do cabeçalho reescrito ou do item 207, nenhuma a mais nem a menos; (C) cabeçalho: placeholder 1×, sem DRAFT/not done/not been reviewed, DOIs = snapshot da v1.12, recibo Codex `exit: 0`, veredito GO, versão = `VERSION` do build, fatos herdados (9.991, 11.812 estados, `job-janela2`, 21/21); (D) changelog 149..207 |
-| PDF | **74 páginas**, 0 glifos ausentes, 90 trechos riscados, figuras B1 e B2 embutidas |
+| fonte | `_sprint-2026-10-04/B-v2-rc28.md`, sha256 `449d4dec…` (fixado no `build-package.py`, `PLACEHOLDER_COUNT = 2`) |
+| depositado | `registered-horizon-outlived-intervention-v2.0.md` = rc28 com as 2 ocorrências do placeholder trocadas por `10.5281/zenodo.23223385` (única diferença, registrada no manifesto) |
+| parity rc27→rc28 | `B-rc28/parity-rc28.py` **PASS**; self-test **21/21** mutações pegas, cada uma pela própria perna; rc28 sem mutação passa |
+| o que a parity rc28 prova | (A) rc28 com os 16 hunks declarados revertidos e sem o bloco rc28 é **byte a byte** o rc27; (N) todo número novo declarado e achado na fonte; (B) o check inteiro do rc27 (sha fixado) dá **exatamente** as 82 falhas declaradas; (C) título, versões do cabeçalho = snapshot da API, sham da janela como contrafactual `w = 4`, nenhuma redação rc27 que punha a janela em "what was served", item 8 sem data, item 24 sem leitura Codex alegada, recibos presentes e limpos, placeholder 2× = build, build aponta o rc28; (E) a descrição; (D) changelog 149..222 |
+| efeito colateral | `parity-rc24/25/26/27.py`, rodados sozinhos, agora falham **só** no lock ambiental S24/X5 (`receipts/` tem 25, não 23: os 2 recibos desta rodada) |
+| PDF | **77 páginas**, 0 glifos ausentes, 91 trechos riscados, figuras B1 e B2 |
 
-## O que vai para o Zenodo (6 arquivos, 18.820.556 bytes ≈ 17,9 MiB)
+## O que está no rascunho (6 arquivos, 18.859.392 bytes)
 
-| arquivo | bytes | conteúdo |
-|---|---:|---|
-| `…-v2.0.md` | 334.847 | o manuscrito (= rc27) |
-| `…-v2.0.pdf` | 902.762 | o mesmo texto em PDF |
-| `artifacts-v2.0.zip` | 17.076.754 | 303 membros: os 300 de antes + `_derived/panel-verdicts/` (2 JSONL sem texto livre, 3.592 + 1.195 linhas, e `SANITIZED.json` com sha256 de origem e derivado e contagem de rótulos) |
-| `scripts-v2.0.zip` | 374.130 | 66 membros: os 63 de antes + `B-rc26/parity-rc26.py` + `B-rc27/parity-rc27.py` + `deposit-paperB/sanitize-verdicts.py` |
-| `MANIFEST-v2.0.json` | 131.579 | como antes, mais `record.doi`/`dry_run`, `manuscript.placeholder`/`placeholder_count`, `derived` |
-| `SHA256SUMS` | 484 | sha256 dos outros 5 |
+| arquivo | bytes |
+|---|---:|
+| `…-v2.0.md` | 342.244 |
+| `…-v2.0.pdf` | 912.759 |
+| `artifacts-v2.0.zip` | 17.082.846 (307 membros: + `APPLY-B-rc28.md`, os 2 recibos novos, `B-rc28/zenodo-21964093-versions.json`) |
+| `scripts-v2.0.zip` | 387.600 (67 membros: + `B-rc28/parity-rc28.py`) |
+| `MANIFEST-v2.0.json` | 133.459 |
+| `SHA256SUMS` | 484 |
 
-## Gates (rodados de novo no rc27)
+## Gates (rodados no rc28, com `--doi 10.5281/zenodo.23223385`)
 
-- **Censo: 291 citados, 0 lacunas** (272 no pacote — os 3 novos são as parity rc25/26/27 que o item 24 cita —, 2 só no repositório público, 17 declarados com motivo).
-- **Privacidade: 0 achados** em todo byte empacotado, incluindo os 3 arquivos derivados. Controle positivo 25/25 e 5/5;
-  11 coincidências liberadas por já estarem em `origin/main`.
-- **Redação:** 27 cópias, como antes (`SCRUBBED.txt`).
-- **Placeholder:** no modo seco, 2× no .md e 2× no texto do PDF (o build exige exatamente `PLACEHOLDER_COUNT`); no teste
-  com DOI falso `10.5281/zenodo.99999999` o build trocou as 2 no .md, 0 sobraram, o PDF trouxe o DOI 3× (cabeçalho, item 8
-  e linha de data), gates verdes, `dry_run: false`; depois o pacote foi refeito em `--no-doi`.
+- **Censo: 296 citados, 0 lacunas** (277 no pacote, 2 só no repositório público, 17 declarados).
+- **Privacidade: 0 achados** em todo byte empacotado; 11 coincidências liberadas por já estarem em `origin/main`.
+- **Redação:** 27 cópias (`SCRUBBED.txt`); os recibos novos já entram limpos (host e caminho de home redigidos).
+- **Placeholder:** 0 sobrando; DOI 2× no .md, 3× no texto do PDF.
+- **Readback:** 19 campos ok (título de 145 caracteres = linha 1), 6 arquivos md5 ok, membros dos zips ok.
 
 ## Ainda abertas (suas)
 
-1. **Leitura final do pacote depositado por Grok, Codex e Fable** — o item 24 a declara como planejada, antes da
-   publicação; ainda não rodou. rc25, rc26 e rc27 seguem sem leitura própria (só parity).
-2. **Cabeçalho não foi tocado no rc27** (pedido: só lista + changelog): ele ainda diz "rc3 to rc26" e "rc26 changes only
-   this header", e não menciona o rc27. Verdadeiro, mas incompleto; se você quiser "rc3 to rc27", é um rc28 só de cabeçalho.
-3. **Tag `paper2-v2.0`** do link GitHub ainda não existe: PR + tag no commit depositado (escrita git, sua). Tudo do B
-   depois do rc22 segue *untracked*.
-4. **Lastro:** rc24–rc27, `parity-rc25/26/27.py`, os derivados e o pacote não estão no manifesto do lastro.
+1. **Leitura de confirmação do rc28** — o item 24 e o cabeçalho a declaram planejada antes da publicação; não rodou.
+   Codex não leu nenhuma versão do pacote (sem créditos).
+2. **Publicar** à mão (`https://zenodo.org/uploads/23223385`). Se o texto mudar: rc29 → `build-package.py --doi
+   10.5281/zenodo.23223385` → `--fill` → `--readback` no mesmo rascunho.
+3. **Tag `paper2-v2.0`** do link GitHub ainda não existe: PR + tag no commit depositado (escrita git, sua).
+4. **Lastro:** rc24–rc28, `parity-rc25..28.py`, os derivados e o pacote não estão no manifesto do lastro.
 5. Cosmético conhecido: overfull boxes em tabelas largas; legendas "Figure 1: Figure B1".
-
-## Ordem do depósito
-
-`build-package.py --no-doi` (feito) → `deposit-v2.0.py --plan` → `--create-draft` → `build-package.py --doi <reservado>`
-→ `--fill --publication-date AAAA-MM-DD` → `--readback` → publicar à mão. Detalhe em `DRAFT-READBACK.md`.

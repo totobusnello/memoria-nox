@@ -1,0 +1,27 @@
+voice: grok
+model: grok-4.7
+transport: http-direto
+model_returned: grok-4.7
+usage: prompt=98963 completion=1527 reasoning=43083 total=143573
+attempts: 1
+format: prose
+effort: high
+max_tokens: 64000
+max_tokens_sent: 64000
+attach_budget: 400000
+attach_bytes: 338670
+http_timeout_s: 1740
+wall_timeout_s: 1800
+option_sources: model=default wall_timeout=default http_timeout=derivado format=default effort=default attach_budget=auto max_tokens=default
+timestamp: 2026-10-07T181540
+started_at: 2026-10-07T181540
+finished_at: 2026-10-07T182426
+host: (redacted)
+cwd: ~/Claude/Projetos/memoria-nox
+prompt_sha256: 407070303348f79c0f72fb7fa89e8d4cdb7ec5127d4ca47c2737d1de778123c7
+prompt_bytes: 587
+exit: 0
+duration_s: 526
+output_sha256: b11eba26ec2f566c2781b95a7ccfc8c5df14ab07ff6f336881cd8f15e6eeaa19
+output_bytes: 6252
+command: env GROK_MODEL=grok-4.7 ~/Claude/scripts/grok <prompt>
