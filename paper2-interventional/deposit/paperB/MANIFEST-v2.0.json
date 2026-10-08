@@ -3204,17 +3204,17 @@
   "cleared_rule": "an episode fingerprint window that also occurs in text of paper2-interventional/ on origin/main (already public) is cleared: the episode quotes the repository"
  },
  "upload": {
-  "registered-horizon-outlived-intervention-v2.0.md": {
+  "registered-horizon-outlived-the-intervention-the-trial-ran-v2.0.md": {
    "bytes": 342244
   },
-  "registered-horizon-outlived-intervention-v2.0.pdf": {
-   "bytes": 912759
+  "registered-horizon-outlived-the-intervention-the-trial-ran-v2.0.pdf": {
+   "bytes": 912761
   },
   "artifacts-v2.0.zip": {
    "bytes": 17082846
   },
   "scripts-v2.0.zip": {
-   "bytes": 387600
+   "bytes": 387614
   },
   "MANIFEST-v2.0.json": {},
   "SHA256SUMS": {}
@@ -5537,8 +5537,8 @@
   {
    "path": "pdf-build/build-pdf.sh",
    "in": "scripts-v2.0.zip",
-   "bytes": 5152,
-   "sha256": "e1f795f8edeacbb06658c0e7967c2c9f9376209e56af81710ebecca27961eaa0"
+   "bytes": 5206,
+   "sha256": "3cd8cfa3065ad01405085a34135d984ca744b88def432a0b8c35fc10fcc13db7"
   },
   {
    "path": "pdf-build/preamble-paperB-v2.0.tex",
@@ -5577,16 +5577,16 @@
    "sha256": "4d278d837760b484ac5c412cfcd9a227b195a539eece15f42a643acc3a55f9ca"
   },
   {
-   "path": "registered-horizon-outlived-intervention-v2.0.md",
+   "path": "registered-horizon-outlived-the-intervention-the-trial-ran-v2.0.md",
    "in": "loose",
    "bytes": 342244,
    "sha256": "56698c20f8c12ab4ed08116bf4d7c999c8cdfbd0a62905d236728f8631869809"
   },
   {
-   "path": "registered-horizon-outlived-intervention-v2.0.pdf",
+   "path": "registered-horizon-outlived-the-intervention-the-trial-ran-v2.0.pdf",
    "in": "loose",
-   "bytes": 912759,
-   "sha256": "2a59e78256ab34c0795f52ba0884b1d4dbdc73b52c8d23fde152ae9567817850"
+   "bytes": 912761,
+   "sha256": "ff102218dc4580b14c1a42e92846c2358b793350075c31ffda45c43e596fe1f7"
   }
  ]
 }
