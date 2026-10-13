@@ -69,3 +69,14 @@ venv/
 paper2-interventional/deposit/.draft-id
 paper2-interventional/deposit/.draft-readback.json
 paper2-interventional/deposit/.published.json
+
+# Sprint 2026-10-04: private or third-party material kept out of the public repo
+paper2-interventional/_sprint-2026-10-04/B-censo/raw/
+paper2-interventional/_sprint-2026-10-04/noxmem-audit/s13src/
+paper2-interventional/_sprint-2026-10-04/apelacao-formulario-*.jpg
+paper2-interventional/_sprint-2026-10-04/noxmem-apelacao-*.md
+# Deposit payloads and archives: the published copy lives on Zenodo (md5-checked 2026-10-13)
+paper2-interventional/_sprint-2026-10-04/noxmem-evidence/payload/
+paper2-interventional/_sprint-2026-10-04/noxmem-evidence/*.zip
+paper2-interventional/_sprint-2026-10-04/noxmem-v106/legacy-input/*.zip
+paper2-interventional/_sprint-2026-10-04/stanford-deposit/payload/

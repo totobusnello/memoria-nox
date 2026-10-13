@@ -1,0 +1,184 @@
+{
+  "eval/q4-comparison/output-2026-09-10/evermind.json": {
+    "system": "evermind",
+    "n_queries": 2482,
+    "top10_repeat_any_id": 0,
+    "top10_repeat_gold_id": 0,
+    "gold_examples": []
+  },
+  "eval/q4-comparison/output-2026-09-10/zep.json": {
+    "system": "zep",
+    "n_queries": 2482,
+    "top10_repeat_any_id": 0,
+    "top10_repeat_gold_id": 0,
+    "gold_examples": []
+  },
+  "eval/q4-comparison/output/agentmemory.json": {
+    "system": "agentmemory",
+    "n_queries": 20,
+    "top10_repeat_any_id": 0,
+    "top10_repeat_gold_id": 0,
+    "gold_examples": []
+  },
+  "eval/q4-comparison/output/agentmemory_full.json": {
+    "system": "agentmemory",
+    "n_queries": 20,
+    "top10_repeat_any_id": 2,
+    "top10_repeat_gold_id": 1,
+    "gold_examples": [
+      {
+        "question_id": "conv-26::q83",
+        "dataset": "locomo",
+        "repeated_gold": [
+          "conv-26::D2:3"
+        ],
+        "ndcg_legacy": 0.6895,
+        "ndcg_fixed": 0.3562,
+        "recall_legacy": 2.0,
+        "recall_fixed": 1.0
+      }
+    ]
+  },
+  "eval/q4-comparison/output/evermind.json": {
+    "system": "evermind",
+    "n_queries": 5,
+    "top10_repeat_any_id": 0,
+    "top10_repeat_gold_id": 0,
+    "gold_examples": []
+  },
+  "eval/q4-comparison/output/hipporag2.json": {
+    "system": "hipporag2",
+    "n_queries": 20,
+    "top10_repeat_any_id": 0,
+    "top10_repeat_gold_id": 0,
+    "gold_examples": []
+  },
+  "eval/q4-comparison/output/lightrag.json": {
+    "system": "lightrag",
+    "n_queries": 20,
+    "top10_repeat_any_id": 0,
+    "top10_repeat_gold_id": 0,
+    "gold_examples": []
+  },
+  "eval/q4-comparison/output/mem0.json": {
+    "system": "mem0",
+    "n_queries": 20,
+    "top10_repeat_any_id": 0,
+    "top10_repeat_gold_id": 0,
+    "gold_examples": []
+  },
+  "eval/q4-comparison/output/nox_mem.json": {
+    "system": "nox-mem",
+    "n_queries": 20,
+    "top10_repeat_any_id": 0,
+    "top10_repeat_gold_id": 0,
+    "gold_examples": []
+  },
+  "eval/q4-comparison/output/rc4-ablation/mem0.json": {
+    "system": "mem0",
+    "n_queries": 2482,
+    "top10_repeat_any_id": 20,
+    "top10_repeat_gold_id": 3,
+    "gold_examples": [
+      {
+        "question_id": "07741c44",
+        "dataset": "longmemeval",
+        "repeated_gold": [
+          "answer_7e9ad7b4_1",
+          "answer_7e9ad7b4_2"
+        ],
+        "ndcg_legacy": 1.5706,
+        "ndcg_fixed": 0.9197,
+        "recall_legacy": 2.0,
+        "recall_fixed": 1.0
+      },
+      {
+        "question_id": "07741c45",
+        "dataset": "longmemeval",
+        "repeated_gold": [
+          "answer_7e9ad7b4_1",
+          "answer_7e9ad7b4_2"
+        ],
+        "ndcg_legacy": 1.5706,
+        "ndcg_fixed": 0.9197,
+        "recall_legacy": 2.0,
+        "recall_fixed": 1.0
+      },
+      {
+        "question_id": "2ebe6c90",
+        "dataset": "longmemeval",
+        "repeated_gold": [
+          "answer_c9d35c00_2"
+        ],
+        "ndcg_legacy": 0.7479,
+        "ndcg_fixed": 0.4838,
+        "recall_legacy": 1.5,
+        "recall_fixed": 1.0
+      }
+    ]
+  },
+  "eval/q4-comparison/output/rc4-ablation/nox_mem.json": {
+    "system": "nox-mem",
+    "n_queries": 2482,
+    "top10_repeat_any_id": 0,
+    "top10_repeat_gold_id": 0,
+    "gold_examples": []
+  },
+  "eval/q4-comparison/output/rc4/mem0.json": {
+    "system": "mem0",
+    "n_queries": 2482,
+    "top10_repeat_any_id": 20,
+    "top10_repeat_gold_id": 3,
+    "gold_examples": [
+      {
+        "question_id": "07741c44",
+        "dataset": "longmemeval",
+        "repeated_gold": [
+          "answer_7e9ad7b4_1",
+          "answer_7e9ad7b4_2"
+        ],
+        "ndcg_legacy": 1.5706,
+        "ndcg_fixed": 0.9197,
+        "recall_legacy": 2.0,
+        "recall_fixed": 1.0
+      },
+      {
+        "question_id": "07741c45",
+        "dataset": "longmemeval",
+        "repeated_gold": [
+          "answer_7e9ad7b4_1",
+          "answer_7e9ad7b4_2"
+        ],
+        "ndcg_legacy": 1.5706,
+        "ndcg_fixed": 0.9197,
+        "recall_legacy": 2.0,
+        "recall_fixed": 1.0
+      },
+      {
+        "question_id": "2ebe6c90",
+        "dataset": "longmemeval",
+        "repeated_gold": [
+          "answer_c9d35c00_2"
+        ],
+        "ndcg_legacy": 0.7479,
+        "ndcg_fixed": 0.4838,
+        "recall_legacy": 1.5,
+        "recall_fixed": 1.0
+      }
+    ]
+  },
+  "eval/q4-comparison/output/rc4/nox_mem.json": {
+    "system": "nox-mem",
+    "n_queries": 2482,
+    "top10_repeat_any_id": 0,
+    "top10_repeat_gold_id": 0,
+    "gold_examples": []
+  },
+  "eval/q4-comparison/output/zep.json": {
+    "system": "zep",
+    "n_queries": 20,
+    "top10_repeat_any_id": 0,
+    "top10_repeat_gold_id": 0,
+    "gold_examples": []
+  }
+}

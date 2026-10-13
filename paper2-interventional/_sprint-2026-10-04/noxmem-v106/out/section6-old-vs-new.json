@@ -1,0 +1,1799 @@
+{
+  "what": "Section 6 values: legacy scorer (report v1.0.5) vs fixed scorer (v1.0.6, each id credited once)",
+  "k": 10,
+  "legacy_record": "paper2-interventional/_sprint-2026-10-04/noxmem-v106/legacy-input/nox-mem-section6-evidence-1.0.0.v105-scorer.zip",
+  "legacy_record_sha256": "5c96f8895f30842d3ea80ac1314c88bafb5559088c325164dc47fccf7ce3669a",
+  "input_pins": {
+    "eval/q4-comparison/output/rc4-ablation/mem0.json": {
+      "pinned_by": "MANIFESTO-LASTRO.json",
+      "ok": true,
+      "ok_provenance": true
+    },
+    "eval/q4-comparison/output/rc4-ablation/nox_mem.json": {
+      "pinned_by": "MANIFESTO-LASTRO.json",
+      "ok": true,
+      "ok_provenance": true
+    },
+    "eval/q4-comparison/output/rc4/mem0.json": {
+      "pinned_by": "MANIFESTO-LASTRO.json",
+      "ok": true,
+      "ok_provenance": true
+    },
+    "eval/q4-comparison/output/rc4/nox_mem.json": {
+      "pinned_by": "MANIFESTO-LASTRO.json",
+      "ok": true,
+      "ok_provenance": true
+    },
+    "eval/q4-comparison/output/nox_mem.json": {
+      "pinned_by": "payload PROVENANCE.json",
+      "ok_provenance": true
+    },
+    "eval/q4-comparison/output/mem0.json": {
+      "pinned_by": "payload PROVENANCE.json",
+      "ok_provenance": true
+    },
+    "eval/q4-comparison/output/zep.json": {
+      "pinned_by": "payload PROVENANCE.json",
+      "ok_provenance": true
+    },
+    "eval/q4-comparison/output/rc4/_aggregate.json": {
+      "pinned_by": "payload PROVENANCE.json",
+      "ok_provenance": true
+    },
+    "eval/q4-comparison/output/rc4/_aggregate.md": {
+      "pinned_by": "payload PROVENANCE.json",
+      "ok_provenance": true
+    },
+    "eval/q4-comparison/output/rc4-ablation/_aggregate.json": {
+      "pinned_by": "payload PROVENANCE.json",
+      "ok_provenance": true
+    },
+    "eval/q4-comparison/output/rc4-ablation/_aggregate.md": {
+      "pinned_by": "payload PROVENANCE.json",
+      "ok_provenance": true
+    },
+    "eval/q4-comparison/output-2026-09-10/evermind.json": {
+      "pinned_by": "payload PROVENANCE.json",
+      "ok_provenance": true
+    },
+    "eval/q4-comparison/output-2026-09-10/zep.json": {
+      "pinned_by": "payload PROVENANCE.json",
+      "ok_provenance": true
+    },
+    "eval/q4-comparison/output-2026-09-10/_aggregate.json": {
+      "pinned_by": "payload PROVENANCE.json",
+      "ok_provenance": true
+    },
+    "eval/q4-comparison/output-2026-09-10/_aggregate.md": {
+      "pinned_by": "payload PROVENANCE.json",
+      "ok_provenance": true
+    },
+    "payload/runs/2026-09-10/_aggregate.json": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    },
+    "payload/runs/2026-09-10/_aggregate.md": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    },
+    "payload/runs/2026-09-10/evermind.json": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    },
+    "payload/runs/2026-09-10/zep.json": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    },
+    "payload/runs/rc4-2026-06-29/_aggregate.json": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    },
+    "payload/runs/rc4-2026-06-29/_aggregate.md": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    },
+    "payload/runs/rc4-2026-06-29/mem0.json": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    },
+    "payload/runs/rc4-2026-06-29/nox_mem.json": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    },
+    "payload/runs/rc4-ablation-2026-06-29/_aggregate.json": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    },
+    "payload/runs/rc4-ablation-2026-06-29/_aggregate.md": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    },
+    "payload/runs/rc4-ablation-2026-06-29/mem0.json": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    },
+    "payload/runs/rc4-ablation-2026-06-29/nox_mem.json": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    },
+    "payload/runs/smoke-2026-05/mem0.json": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    },
+    "payload/runs/smoke-2026-05/nox_mem.json": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    },
+    "payload/runs/smoke-2026-05/zep.json": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    },
+    "payload/scripts/aggregate.py": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    },
+    "payload/verify_dataset.py": {
+      "pinned_by": "payload SHA256SUMS",
+      "ok": true
+    }
+  },
+  "stored_metrics_checked": {
+    "v105_record": 14952,
+    "v106_payload": 14952
+  },
+  "legacy_reproduces_v105": true,
+  "fixed_reproduces_v106": true,
+  "n_checks": 135,
+  "expected_changed": [
+    "A05",
+    "C13",
+    "C14",
+    "C18",
+    "C19",
+    "E10",
+    "R07",
+    "R08",
+    "R11",
+    "R17"
+  ],
+  "n_changed_at_printed_precision": 10,
+  "changed": [
+    {
+      "id": "R07",
+      "section": "6.3.2",
+      "quantity": "rc4 Mem0 LongMemEval nDCG@10",
+      "paper_v105": "0.4061",
+      "paper_v106": "0.4030",
+      "legacy_scorer": "0.4061",
+      "fixed_scorer": "0.4030",
+      "old_raw": 0.40613622295738705,
+      "new_raw": 0.4030044029930133
+    },
+    {
+      "id": "R08",
+      "section": "6.3.2",
+      "quantity": "rc4 Mem0 LongMemEval 95% CI half-width (1.96*SD/sqrt(n))",
+      "paper_v105": "0.036",
+      "paper_v106": "0.035",
+      "legacy_scorer": "0.036",
+      "fixed_scorer": "0.035",
+      "old_raw": 0.03584656371578525,
+      "new_raw": 0.03534909417106806
+    },
+    {
+      "id": "R11",
+      "section": "6.3.2",
+      "quantity": "rc4 Mem0 overall nDCG@10",
+      "paper_v105": "0.4337",
+      "paper_v106": "0.4331",
+      "legacy_scorer": "0.4337",
+      "fixed_scorer": "0.4331",
+      "old_raw": 0.43373294580297583,
+      "new_raw": 0.4331020392831584
+    },
+    {
+      "id": "R17",
+      "section": "6.3.2",
+      "quantity": "Delta LongMemEval nox-mem - Mem0 (printed 4-dp values)",
+      "paper_v105": "+0.119",
+      "paper_v106": "+0.123",
+      "legacy_scorer": "0.119",
+      "fixed_scorer": "0.123",
+      "old_raw": "0.1194",
+      "new_raw": "0.1225"
+    },
+    {
+      "id": "A05",
+      "section": "6.3.2",
+      "quantity": "ablation Mem0 baseline overall",
+      "paper_v105": "0.4337",
+      "paper_v106": "0.4331",
+      "legacy_scorer": "0.4337",
+      "fixed_scorer": "0.4331",
+      "old_raw": 0.43373294580297583,
+      "new_raw": 0.4331020392831584
+    },
+    {
+      "id": "E10",
+      "section": "6.3.3, 6.3.4",
+      "quantity": "Mem0 rc4 R@10",
+      "paper_v105": "0.5852",
+      "paper_v106": "0.5842",
+      "legacy_scorer": "0.5852",
+      "fixed_scorer": "0.5842",
+      "old_raw": 0.5852251408565539,
+      "new_raw": 0.584217888640599
+    },
+    {
+      "id": "C13",
+      "section": "6.4",
+      "quantity": "temporal Mem0 nDCG@10",
+      "paper_v105": "0.4570",
+      "paper_v106": "0.4565",
+      "legacy_scorer": "0.4570",
+      "fixed_scorer": "0.4565",
+      "old_raw": 0.4570376182964517,
+      "new_raw": 0.45645597044937547
+    },
+    {
+      "id": "C14",
+      "section": "6.4",
+      "quantity": "temporal Delta (unrounded means)",
+      "paper_v105": "+0.093",
+      "paper_v106": "+0.094",
+      "legacy_scorer": "0.093",
+      "fixed_scorer": "0.094",
+      "old_raw": 0.09314188871712764,
+      "new_raw": 0.09372353656420385
+    },
+    {
+      "id": "C18",
+      "section": "6.4",
+      "quantity": "adversarial Mem0 nDCG@10",
+      "paper_v105": "0.2955",
+      "paper_v106": "0.2930",
+      "legacy_scorer": "0.2955",
+      "fixed_scorer": "0.2930",
+      "old_raw": 0.2954693508704797,
+      "new_raw": 0.2929849198406815
+    },
+    {
+      "id": "C19",
+      "section": "6.4",
+      "quantity": "adversarial Delta (unrounded means)",
+      "paper_v105": "+0.142",
+      "paper_v106": "+0.144",
+      "legacy_scorer": "0.142",
+      "fixed_scorer": "0.144",
+      "old_raw": 0.14156956843477958,
+      "new_raw": 0.1440539994645778
+    }
+  ],
+  "fixed_over_one": [],
+  "legacy_over_one": [
+    [
+      "RC",
+      "mem0",
+      "07741c44"
+    ],
+    [
+      "RC",
+      "mem0",
+      "07741c45"
+    ],
+    [
+      "RC",
+      "mem0",
+      "2ebe6c90"
+    ],
+    [
+      "AB",
+      "mem0",
+      "07741c44"
+    ],
+    [
+      "AB",
+      "mem0",
+      "07741c45"
+    ],
+    [
+      "AB",
+      "mem0",
+      "2ebe6c90"
+    ]
+  ],
+  "checks": {
+    "S01": {
+      "section": "6.3, 6.7",
+      "quantity": "nox-mem smoke nDCG@10 (n=20)",
+      "paper_v105": "0.4509",
+      "legacy_scorer": "0.4509",
+      "paper_v106": "0.4509",
+      "fixed_scorer": "0.4509"
+    },
+    "S02": {
+      "section": "6.3, 6.7",
+      "quantity": "nox-mem smoke gold-hit (queries with a gold id in top-10)",
+      "paper_v105": "13",
+      "legacy_scorer": "13",
+      "paper_v106": "13",
+      "fixed_scorer": "13"
+    },
+    "S03": {
+      "section": "6.3, 6.7",
+      "quantity": "nox-mem smoke queries",
+      "paper_v105": "20",
+      "legacy_scorer": "20",
+      "paper_v106": "20",
+      "fixed_scorer": "20"
+    },
+    "S04": {
+      "section": "6.7",
+      "quantity": "Mem0 smoke nDCG@10 (500-chunk cap)",
+      "paper_v105": "0.1315",
+      "legacy_scorer": "0.1315",
+      "paper_v106": "0.1315",
+      "fixed_scorer": "0.1315"
+    },
+    "S05": {
+      "section": "6.7",
+      "quantity": "Mem0 smoke p50 latency (ms)",
+      "paper_v105": "263",
+      "legacy_scorer": "263",
+      "paper_v106": "263",
+      "fixed_scorer": "263"
+    },
+    "S06": {
+      "section": "6.7",
+      "quantity": "Mem0 smoke gold-hit",
+      "paper_v105": "3",
+      "legacy_scorer": "3",
+      "paper_v106": "3",
+      "fixed_scorer": "3"
+    },
+    "S07": {
+      "section": "6.6",
+      "quantity": "mem0@500 nDCG@10",
+      "paper_v105": "0.1315",
+      "legacy_scorer": "0.1315",
+      "paper_v106": "0.1315",
+      "fixed_scorer": "0.1315"
+    },
+    "S08": {
+      "section": "6.6",
+      "quantity": "mem0@500 LoCoMo-only nDCG@10",
+      "paper_v105": "0.2631",
+      "legacy_scorer": "0.2631",
+      "paper_v106": "0.2631",
+      "fixed_scorer": "0.2631"
+    },
+    "S09": {
+      "section": "6.6",
+      "quantity": "mem0@500 LongMemEval queries scoring 0 (of 10)",
+      "paper_v105": "10",
+      "legacy_scorer": "10",
+      "paper_v106": "10",
+      "fixed_scorer": "10"
+    },
+    "S10": {
+      "section": "6.3.1",
+      "quantity": "Zep smoke queries",
+      "paper_v105": "20",
+      "legacy_scorer": "20",
+      "paper_v106": "20",
+      "fixed_scorer": "20"
+    },
+    "S11": {
+      "section": "6.3.1",
+      "quantity": "Zep smoke queries with results",
+      "paper_v105": "20",
+      "legacy_scorer": "20",
+      "paper_v106": "20",
+      "fixed_scorer": "20"
+    },
+    "S12": {
+      "section": "6.3.1",
+      "quantity": "Zep smoke queries with an error",
+      "paper_v105": "0",
+      "legacy_scorer": "0",
+      "paper_v106": "0",
+      "fixed_scorer": "0"
+    },
+    "S13": {
+      "section": "6.3.1",
+      "quantity": "Zep smoke meta.version names zep-python 1.5.0 and zep 0.27.2",
+      "paper_v105": "yes",
+      "legacy_scorer": "yes",
+      "paper_v106": "yes",
+      "fixed_scorer": "yes"
+    },
+    "R01": {
+      "section": "6.3.2",
+      "quantity": "rc4 nox-mem LongMemEval nDCG@10",
+      "paper_v105": "0.5255",
+      "legacy_scorer": "0.5255",
+      "paper_v106": "0.5255",
+      "fixed_scorer": "0.5255"
+    },
+    "R02": {
+      "section": "6.3.2",
+      "quantity": "rc4 nox-mem LongMemEval 95% CI half-width (1.96*SD/sqrt(n))",
+      "paper_v105": "0.033",
+      "legacy_scorer": "0.033",
+      "paper_v106": "0.033",
+      "fixed_scorer": "0.033"
+    },
+    "R03": {
+      "section": "6.3.2",
+      "quantity": "rc4 nox-mem LoCoMo nDCG@10",
+      "paper_v105": "0.4952",
+      "legacy_scorer": "0.4952",
+      "paper_v106": "0.4952",
+      "fixed_scorer": "0.4952"
+    },
+    "R04": {
+      "section": "6.3.2",
+      "quantity": "rc4 nox-mem LoCoMo 95% CI half-width (1.96*SD/sqrt(n))",
+      "paper_v105": "0.017",
+      "legacy_scorer": "0.017",
+      "paper_v106": "0.017",
+      "fixed_scorer": "0.017"
+    },
+    "R05": {
+      "section": "6.3.2",
+      "quantity": "rc4 nox-mem overall nDCG@10",
+      "paper_v105": "0.5013",
+      "legacy_scorer": "0.5013",
+      "paper_v106": "0.5013",
+      "fixed_scorer": "0.5013"
+    },
+    "R06": {
+      "section": "6.3.2",
+      "quantity": "rc4 nox-mem overall 95% CI half-width (1.96*SD/sqrt(n))",
+      "paper_v105": "0.015",
+      "legacy_scorer": "0.015",
+      "paper_v106": "0.015",
+      "fixed_scorer": "0.015"
+    },
+    "R07": {
+      "section": "6.3.2",
+      "quantity": "rc4 Mem0 LongMemEval nDCG@10",
+      "paper_v105": "0.4061",
+      "legacy_scorer": "0.4061",
+      "paper_v106": "0.4030",
+      "fixed_scorer": "0.4030"
+    },
+    "R08": {
+      "section": "6.3.2",
+      "quantity": "rc4 Mem0 LongMemEval 95% CI half-width (1.96*SD/sqrt(n))",
+      "paper_v105": "0.036",
+      "legacy_scorer": "0.036",
+      "paper_v106": "0.035",
+      "fixed_scorer": "0.035"
+    },
+    "R09": {
+      "section": "6.3.2",
+      "quantity": "rc4 Mem0 LoCoMo nDCG@10",
+      "paper_v105": "0.4407",
+      "legacy_scorer": "0.4407",
+      "paper_v106": "0.4407",
+      "fixed_scorer": "0.4407"
+    },
+    "R10": {
+      "section": "6.3.2",
+      "quantity": "rc4 Mem0 LoCoMo 95% CI half-width (1.96*SD/sqrt(n))",
+      "paper_v105": "0.017",
+      "legacy_scorer": "0.017",
+      "paper_v106": "0.017",
+      "fixed_scorer": "0.017"
+    },
+    "R11": {
+      "section": "6.3.2",
+      "quantity": "rc4 Mem0 overall nDCG@10",
+      "paper_v105": "0.4337",
+      "legacy_scorer": "0.4337",
+      "paper_v106": "0.4331",
+      "fixed_scorer": "0.4331"
+    },
+    "R12": {
+      "section": "6.3.2",
+      "quantity": "rc4 Mem0 overall 95% CI half-width (1.96*SD/sqrt(n))",
+      "paper_v105": "0.016",
+      "legacy_scorer": "0.016",
+      "paper_v106": "0.016",
+      "fixed_scorer": "0.016"
+    },
+    "R13": {
+      "section": "6.3.2",
+      "quantity": "rc4 LoCoMo queries",
+      "paper_v105": "1,982",
+      "legacy_scorer": "1982",
+      "paper_v106": "1,982",
+      "fixed_scorer": "1982"
+    },
+    "R14": {
+      "section": "6.3.2",
+      "quantity": "rc4 LongMemEval queries",
+      "paper_v105": "500",
+      "legacy_scorer": "500",
+      "paper_v106": "500",
+      "fixed_scorer": "500"
+    },
+    "R15": {
+      "section": "6.3.2",
+      "quantity": "rc4 queries, both arms",
+      "paper_v105": "2,482",
+      "legacy_scorer": "2482",
+      "paper_v106": "2,482",
+      "fixed_scorer": "2482"
+    },
+    "R16": {
+      "section": "6.3.2",
+      "quantity": "nox-mem / Mem0 95% CIs disjoint on both datasets and overall",
+      "paper_v105": "yes",
+      "legacy_scorer": "yes",
+      "paper_v106": "yes",
+      "fixed_scorer": "yes"
+    },
+    "R17": {
+      "section": "6.3.2",
+      "quantity": "Delta LongMemEval nox-mem - Mem0 (printed 4-dp values)",
+      "paper_v105": "+0.119",
+      "legacy_scorer": "0.119",
+      "paper_v106": "+0.123",
+      "fixed_scorer": "0.123"
+    },
+    "R18": {
+      "section": "6.3.2",
+      "quantity": "Delta LoCoMo nox-mem - Mem0 (printed 4-dp values; unrounded gives 0.054)",
+      "paper_v105": "+0.055",
+      "legacy_scorer": "0.055",
+      "paper_v106": "+0.055",
+      "fixed_scorer": "0.055"
+    },
+    "R19": {
+      "section": "6.3.2 (a)",
+      "quantity": "rc4 Mem0 queries carrying an error",
+      "paper_v105": "0",
+      "legacy_scorer": "0",
+      "paper_v106": "0",
+      "fixed_scorer": "0"
+    },
+    "R20": {
+      "section": "6.3.2 (a)",
+      "quantity": "rc4 Mem0 meta.n_errors",
+      "paper_v105": "0",
+      "legacy_scorer": "0",
+      "paper_v106": "0",
+      "fixed_scorer": "0"
+    },
+    "R21": {
+      "section": "6.3.2 (a)",
+      "quantity": "rc4 Mem0 meta.version",
+      "paper_v105": "mem0ai==0.1.114",
+      "legacy_scorer": "mem0ai==0.1.114",
+      "paper_v106": "mem0ai==0.1.114",
+      "fixed_scorer": "mem0ai==0.1.114"
+    },
+    "R22": {
+      "section": "6.3.2",
+      "quantity": "rc4 gold ids absent from the offered corpus",
+      "paper_v105": "0",
+      "legacy_scorer": "0",
+      "paper_v106": "0",
+      "fixed_scorer": "0"
+    },
+    "R23": {
+      "section": "6.3.2",
+      "quantity": "rc4 gold ids absent from the nox-mem store",
+      "paper_v105": "0",
+      "legacy_scorer": "0",
+      "paper_v106": "0",
+      "fixed_scorer": "0"
+    },
+    "R24": {
+      "section": "6.3.2 (e), 6.9",
+      "quantity": "offered corpus documents",
+      "paper_v105": "6,830",
+      "legacy_scorer": "6830",
+      "paper_v106": "6,830",
+      "fixed_scorer": "6830"
+    },
+    "R25": {
+      "section": "6.3.2 (e), 6.9",
+      "quantity": "offered corpus distinct ids",
+      "paper_v105": "6,822",
+      "legacy_scorer": "6822",
+      "paper_v106": "6,822",
+      "fixed_scorer": "6822"
+    },
+    "R26": {
+      "section": "6.3.2 (e)",
+      "quantity": "ids naming two documents",
+      "paper_v105": "8",
+      "legacy_scorer": "8",
+      "paper_v106": "8",
+      "fixed_scorer": "8"
+    },
+    "R27": {
+      "section": "6.3.2 (e), 6.9",
+      "quantity": "nox-mem rc4 store rows (eval_chunks)",
+      "paper_v105": "6,822",
+      "legacy_scorer": "6822",
+      "paper_v106": "6,822",
+      "fixed_scorer": "6822"
+    },
+    "R28": {
+      "section": "6.3.2 (e)",
+      "quantity": "Mem0 store rows at query time (created_at <= run finish)",
+      "paper_v105": "6,826",
+      "legacy_scorer": "6826",
+      "paper_v106": "6,826",
+      "fixed_scorer": "6826"
+    },
+    "R29": {
+      "section": "6.3.2 (e)",
+      "quantity": "Mem0 store distinct ids at query time",
+      "paper_v105": "6,818",
+      "legacy_scorer": "6818",
+      "paper_v106": "6,818",
+      "fixed_scorer": "6818"
+    },
+    "R30": {
+      "section": "6.3.2 (e)",
+      "quantity": "Mem0 rows written after the run finished (back-fill)",
+      "paper_v105": "4",
+      "legacy_scorer": "4",
+      "paper_v106": "4",
+      "fixed_scorer": "4"
+    },
+    "R31": {
+      "section": "6.3.2",
+      "quantity": "Mem0 ingest 503 errors in the run log",
+      "paper_v105": "4",
+      "legacy_scorer": "4",
+      "paper_v106": "4",
+      "fixed_scorer": "4"
+    },
+    "R32": {
+      "section": "6.3.2 (e)",
+      "quantity": "back-filled ids == the 4 ids of the logged 503s, all at 15:02 UTC",
+      "paper_v105": "yes",
+      "legacy_scorer": "yes",
+      "paper_v106": "yes",
+      "fixed_scorer": "yes"
+    },
+    "R33": {
+      "section": "6.3.2 (e)",
+      "quantity": "rc4 Mem0 run finished_at",
+      "paper_v105": "2026-06-29T14:57:04Z",
+      "legacy_scorer": "2026-06-29T14:57:04Z",
+      "paper_v106": "2026-06-29T14:57:04Z",
+      "fixed_scorer": "2026-06-29T14:57:04Z"
+    },
+    "R34": {
+      "section": "6.3.2 (e)",
+      "quantity": "Mem0 preserved store rows",
+      "paper_v105": "6,830",
+      "legacy_scorer": "6830",
+      "paper_v106": "6,830",
+      "fixed_scorer": "6830"
+    },
+    "R35": {
+      "section": "6.3.2 (e)",
+      "quantity": "Mem0 preserved store distinct chunk_id",
+      "paper_v105": "6,822",
+      "legacy_scorer": "6822",
+      "paper_v106": "6,822",
+      "fixed_scorer": "6822"
+    },
+    "R36": {
+      "section": "6.3.2 (a)",
+      "quantity": "Mem0 store rows carrying a text_lemmatized key",
+      "paper_v105": "6,830",
+      "legacy_scorer": "6830",
+      "paper_v106": "6,830",
+      "fixed_scorer": "6830"
+    },
+    "R37": {
+      "section": "6.3.2 (a)",
+      "quantity": "run log carries mem0's 2.x chroma keyword-search warning",
+      "paper_v105": "yes",
+      "legacy_scorer": "yes",
+      "paper_v106": "yes",
+      "fixed_scorer": "yes"
+    },
+    "R38": {
+      "section": "6.3.2 (e)",
+      "quantity": "rc4 queries with a gold id in a colliding pair",
+      "paper_v105": "10",
+      "legacy_scorer": "10",
+      "paper_v106": "10",
+      "fixed_scorer": "10"
+    },
+    "R39": {
+      "section": "6.3.2 (e)",
+      "quantity": "same, percent of 2,482",
+      "paper_v105": "0.40",
+      "legacy_scorer": "0.40",
+      "paper_v106": "0.40",
+      "fixed_scorer": "0.40"
+    },
+    "R40": {
+      "section": "6.3.2 (c)",
+      "quantity": "rc4 queries whose gold includes a back-filled chunk",
+      "paper_v105": "1",
+      "legacy_scorer": "1",
+      "paper_v106": "1",
+      "fixed_scorer": "1"
+    },
+    "A01": {
+      "section": "6.3.2",
+      "quantity": "ablation nox-mem overall nDCG@10 (generic task type)",
+      "paper_v105": "0.4979",
+      "legacy_scorer": "0.4979",
+      "paper_v106": "0.4979",
+      "fixed_scorer": "0.4979"
+    },
+    "A02": {
+      "section": "6.3.2",
+      "quantity": "ablation drop, pp (printed 4-dp values)",
+      "paper_v105": "0.34",
+      "legacy_scorer": "0.34",
+      "paper_v106": "0.34",
+      "fixed_scorer": "0.34"
+    },
+    "A03": {
+      "section": "6.3.2",
+      "quantity": "ablation nox-mem LoCoMo",
+      "paper_v105": "0.4920",
+      "legacy_scorer": "0.4920",
+      "paper_v106": "0.4920",
+      "fixed_scorer": "0.4920"
+    },
+    "A04": {
+      "section": "6.3.2",
+      "quantity": "ablation nox-mem LongMemEval",
+      "paper_v105": "0.5215",
+      "legacy_scorer": "0.5215",
+      "paper_v106": "0.5215",
+      "fixed_scorer": "0.5215"
+    },
+    "A05": {
+      "section": "6.3.2",
+      "quantity": "ablation Mem0 baseline overall",
+      "paper_v105": "0.4337",
+      "legacy_scorer": "0.4337",
+      "paper_v106": "0.4331",
+      "fixed_scorer": "0.4331"
+    },
+    "A06": {
+      "section": "6.3.2",
+      "quantity": "ablation Mem0 baseline is the rc4 Mem0 output (same original sha256)",
+      "paper_v105": "yes",
+      "legacy_scorer": "yes",
+      "paper_v106": "yes",
+      "fixed_scorer": "yes"
+    },
+    "A07": {
+      "section": "6.3.2, 6.4",
+      "quantity": "ablation nox-mem leads Mem0 in all five categories",
+      "paper_v105": "yes",
+      "legacy_scorer": "yes",
+      "paper_v106": "yes",
+      "fixed_scorer": "yes"
+    },
+    "A08": {
+      "section": "6.3.2",
+      "quantity": "ablation store gold coverage, percent",
+      "paper_v105": "99.03",
+      "legacy_scorer": "99.03",
+      "paper_v106": "99.03",
+      "fixed_scorer": "99.03"
+    },
+    "A09": {
+      "section": "6.3.2",
+      "quantity": "ablation distinct gold ids absent from the store",
+      "paper_v105": "23",
+      "legacy_scorer": "23",
+      "paper_v106": "23",
+      "fixed_scorer": "23"
+    },
+    "A10": {
+      "section": "6.3.2",
+      "quantity": "distinct gold ids",
+      "paper_v105": "2,370",
+      "legacy_scorer": "2370",
+      "paper_v106": "2,370",
+      "fixed_scorer": "2370"
+    },
+    "A11": {
+      "section": "6.5",
+      "quantity": "ablation margin >= +0.05 nDCG@10 on both datasets",
+      "paper_v105": "yes",
+      "legacy_scorer": "yes",
+      "paper_v106": "yes",
+      "fixed_scorer": "yes"
+    },
+    "E01": {
+      "section": "6.3.3",
+      "quantity": "EverOS overall nDCG@10",
+      "paper_v105": "0.6455",
+      "legacy_scorer": "0.6455",
+      "paper_v106": "0.6455",
+      "fixed_scorer": "0.6455"
+    },
+    "E02": {
+      "section": "6.3.3",
+      "quantity": "EverOS LoCoMo nDCG@10",
+      "paper_v105": "0.6585",
+      "legacy_scorer": "0.6585",
+      "paper_v106": "0.6585",
+      "fixed_scorer": "0.6585"
+    },
+    "E03": {
+      "section": "6.3.3",
+      "quantity": "EverOS LongMemEval nDCG@10",
+      "paper_v105": "0.5942",
+      "legacy_scorer": "0.5942",
+      "paper_v106": "0.5942",
+      "fixed_scorer": "0.5942"
+    },
+    "E04": {
+      "section": "6.3.3",
+      "quantity": "EverOS R@10",
+      "paper_v105": "0.7629",
+      "legacy_scorer": "0.7629",
+      "paper_v106": "0.7629",
+      "fixed_scorer": "0.7629"
+    },
+    "E05": {
+      "section": "6.3.3",
+      "quantity": "EverOS MRR",
+      "paper_v105": "0.6403",
+      "legacy_scorer": "0.6403",
+      "paper_v106": "0.6403",
+      "fixed_scorer": "0.6403"
+    },
+    "E06": {
+      "section": "6.3.3",
+      "quantity": "EverOS p50 latency (ms)",
+      "paper_v105": "1,592",
+      "legacy_scorer": "1592",
+      "paper_v106": "1,592",
+      "fixed_scorer": "1592"
+    },
+    "E07": {
+      "section": "6.3.3, 6.3.4",
+      "quantity": "nox-mem rc4 R@10",
+      "paper_v105": "0.6656",
+      "legacy_scorer": "0.6656",
+      "paper_v106": "0.6656",
+      "fixed_scorer": "0.6656"
+    },
+    "E08": {
+      "section": "6.3.3, 6.3.4",
+      "quantity": "nox-mem rc4 MRR",
+      "paper_v105": "0.4749",
+      "legacy_scorer": "0.4749",
+      "paper_v106": "0.4749",
+      "fixed_scorer": "0.4749"
+    },
+    "E09": {
+      "section": "6.3.3, 6.3.4",
+      "quantity": "nox-mem rc4 p50 latency (ms)",
+      "paper_v105": "515.6",
+      "legacy_scorer": "515.6",
+      "paper_v106": "515.6",
+      "fixed_scorer": "515.6"
+    },
+    "E10": {
+      "section": "6.3.3, 6.3.4",
+      "quantity": "Mem0 rc4 R@10",
+      "paper_v105": "0.5852",
+      "legacy_scorer": "0.5852",
+      "paper_v106": "0.5842",
+      "fixed_scorer": "0.5842"
+    },
+    "E11": {
+      "section": "6.3.3, 6.3.4",
+      "quantity": "Mem0 rc4 MRR",
+      "paper_v105": "0.4092",
+      "legacy_scorer": "0.4092",
+      "paper_v106": "0.4092",
+      "fixed_scorer": "0.4092"
+    },
+    "E12": {
+      "section": "6.3.3, 6.3.4",
+      "quantity": "Mem0 rc4 p50 latency (ms)",
+      "paper_v105": "349.8",
+      "legacy_scorer": "349.8",
+      "paper_v106": "349.8",
+      "fixed_scorer": "349.8"
+    },
+    "E13": {
+      "section": "6.3.3",
+      "quantity": "Delta EverOS - nox-mem LoCoMo",
+      "paper_v105": "+0.163",
+      "legacy_scorer": "0.163",
+      "paper_v106": "+0.163",
+      "fixed_scorer": "0.163"
+    },
+    "E14": {
+      "section": "6.3.3",
+      "quantity": "Delta EverOS - nox-mem LongMemEval",
+      "paper_v105": "+0.069",
+      "legacy_scorer": "0.069",
+      "paper_v106": "+0.069",
+      "fixed_scorer": "0.069"
+    },
+    "E15": {
+      "section": "6.3.3",
+      "quantity": "Delta EverOS - nox-mem overall",
+      "paper_v105": "+0.144",
+      "legacy_scorer": "0.144",
+      "paper_v106": "+0.144",
+      "fixed_scorer": "0.144"
+    },
+    "E16": {
+      "section": "6.3.3",
+      "quantity": "EverOS queries / errors",
+      "paper_v105": "2,482",
+      "legacy_scorer": "2482",
+      "paper_v106": "2,482",
+      "fixed_scorer": "2482"
+    },
+    "E17": {
+      "section": "6.3.3",
+      "quantity": "EverOS meta.version",
+      "paper_v105": "everos==1.3.1",
+      "legacy_scorer": "everos==1.3.1",
+      "paper_v106": "everos==1.3.1",
+      "fixed_scorer": "everos==1.3.1"
+    },
+    "E18": {
+      "section": "6.3.1",
+      "quantity": "EverOS hits returned by the service = 50 on every query (topics_seen)",
+      "paper_v105": "yes",
+      "legacy_scorer": "yes",
+      "paper_v106": "yes",
+      "fixed_scorer": "yes"
+    },
+    "E19": {
+      "section": "6.3.1",
+      "quantity": "EverOS retrieval method = hybrid on every hit",
+      "paper_v105": "yes",
+      "legacy_scorer": "yes",
+      "paper_v106": "yes",
+      "fixed_scorer": "yes"
+    },
+    "Z01": {
+      "section": "6.3.4",
+      "quantity": "Zep overall nDCG@10",
+      "paper_v105": "0.4546",
+      "legacy_scorer": "0.4546",
+      "paper_v106": "0.4546",
+      "fixed_scorer": "0.4546"
+    },
+    "Z02": {
+      "section": "6.3.4",
+      "quantity": "Zep LoCoMo nDCG@10",
+      "paper_v105": "0.4793",
+      "legacy_scorer": "0.4793",
+      "paper_v106": "0.4793",
+      "fixed_scorer": "0.4793"
+    },
+    "Z03": {
+      "section": "6.3.4",
+      "quantity": "Zep LongMemEval nDCG@10",
+      "paper_v105": "0.3567",
+      "legacy_scorer": "0.3567",
+      "paper_v106": "0.3567",
+      "fixed_scorer": "0.3567"
+    },
+    "Z04": {
+      "section": "6.3.4",
+      "quantity": "Zep R@10",
+      "paper_v105": "0.6108",
+      "legacy_scorer": "0.6108",
+      "paper_v106": "0.6108",
+      "fixed_scorer": "0.6108"
+    },
+    "Z05": {
+      "section": "6.3.4",
+      "quantity": "Zep MRR",
+      "paper_v105": "0.4279",
+      "legacy_scorer": "0.4279",
+      "paper_v106": "0.4279",
+      "fixed_scorer": "0.4279"
+    },
+    "Z06": {
+      "section": "6.3.4",
+      "quantity": "Zep p50 latency (ms)",
+      "paper_v105": "6,002",
+      "legacy_scorer": "6002",
+      "paper_v106": "6,002",
+      "fixed_scorer": "6002"
+    },
+    "Z07": {
+      "section": "6.3.4",
+      "quantity": "Zep p99 latency (ms)",
+      "paper_v105": "11,846",
+      "legacy_scorer": "11846",
+      "paper_v106": "11,846",
+      "fixed_scorer": "11846"
+    },
+    "Z08": {
+      "section": "6.3.4",
+      "quantity": "Zep LoCoMo - LongMemEval spread",
+      "paper_v105": "0.123",
+      "legacy_scorer": "0.123",
+      "paper_v106": "0.123",
+      "fixed_scorer": "0.123"
+    },
+    "Z09": {
+      "section": "6.3.4",
+      "quantity": "Zep LongMemEval is the lowest dataset cell of the four-system table",
+      "paper_v105": "yes",
+      "legacy_scorer": "yes",
+      "paper_v106": "yes",
+      "fixed_scorer": "yes"
+    },
+    "Z10": {
+      "section": "6.3.4",
+      "quantity": "Zep rank on overall nDCG@10 among EverOS, nox-mem, Zep, Mem0",
+      "paper_v105": "3",
+      "legacy_scorer": "3",
+      "paper_v106": "3",
+      "fixed_scorer": "3"
+    },
+    "Z11": {
+      "section": "6.3.4",
+      "quantity": "Zep p50 / EverOS p50",
+      "paper_v105": "3.8",
+      "legacy_scorer": "3.8",
+      "paper_v106": "3.8",
+      "fixed_scorer": "3.8"
+    },
+    "Z12": {
+      "section": "6.3.4",
+      "quantity": "Zep queries (n_errors 0, no per-query error)",
+      "paper_v105": "2,482",
+      "legacy_scorer": "2482",
+      "paper_v106": "2,482",
+      "fixed_scorer": "2482"
+    },
+    "Z13": {
+      "section": "6.3.4",
+      "quantity": "Zep run wall time (meta started_at -> finished_at)",
+      "paper_v105": "4 h 13 min",
+      "legacy_scorer": "4 h 13 min (252.60 min)",
+      "paper_v106": "4 h 13 min",
+      "fixed_scorer": "4 h 13 min (252.60 min)"
+    },
+    "Z14": {
+      "section": "6.3.4",
+      "quantity": "Zep sessions swept per query (all queries)",
+      "paper_v105": "510",
+      "legacy_scorer": "510",
+      "paper_v106": "510",
+      "fixed_scorer": "510"
+    },
+    "Z15": {
+      "section": "6.3.4",
+      "quantity": "Zep session sweeps (queries x sessions)",
+      "paper_v105": "1,265,820",
+      "legacy_scorer": "1265820",
+      "paper_v106": "1,265,820",
+      "fixed_scorer": "1265820"
+    },
+    "Z16": {
+      "section": "6.3.4",
+      "quantity": "Zep failed session sweeps",
+      "paper_v105": "47",
+      "legacy_scorer": "47",
+      "paper_v106": "47",
+      "fixed_scorer": "47"
+    },
+    "Z17": {
+      "section": "6.3.4",
+      "quantity": "failed sweeps, percent of all sweeps",
+      "paper_v105": "0.0037",
+      "legacy_scorer": "0.0037",
+      "paper_v106": "0.0037",
+      "fixed_scorer": "0.0037"
+    },
+    "Z18": {
+      "section": "6.3.4",
+      "quantity": "Zep meta.version names zep-python 1.5.0 and zep 0.27.2",
+      "paper_v105": "yes",
+      "legacy_scorer": "yes",
+      "paper_v106": "yes",
+      "fixed_scorer": "yes"
+    },
+    "C01": {
+      "section": "6.4",
+      "quantity": "single-hop n",
+      "paper_v105": "997",
+      "legacy_scorer": "997",
+      "paper_v106": "997",
+      "fixed_scorer": "997"
+    },
+    "C02": {
+      "section": "6.4",
+      "quantity": "single-hop nox-mem nDCG@10",
+      "paper_v105": "0.5922",
+      "legacy_scorer": "0.5922",
+      "paper_v106": "0.5922",
+      "fixed_scorer": "0.5922"
+    },
+    "C03": {
+      "section": "6.4",
+      "quantity": "single-hop Mem0 nDCG@10",
+      "paper_v105": "0.5607",
+      "legacy_scorer": "0.5607",
+      "paper_v106": "0.5607",
+      "fixed_scorer": "0.5607"
+    },
+    "C04": {
+      "section": "6.4",
+      "quantity": "single-hop Delta (unrounded means)",
+      "paper_v105": "+0.031",
+      "legacy_scorer": "0.031",
+      "paper_v106": "+0.031",
+      "fixed_scorer": "0.031"
+    },
+    "C05": {
+      "section": "6.4",
+      "quantity": "single-hop ablation nox-mem nDCG@10",
+      "paper_v105": "0.5773",
+      "legacy_scorer": "0.5773",
+      "paper_v106": "0.5773",
+      "fixed_scorer": "0.5773"
+    },
+    "C06": {
+      "section": "6.4",
+      "quantity": "multi-hop n",
+      "paper_v105": "415",
+      "legacy_scorer": "415",
+      "paper_v106": "415",
+      "fixed_scorer": "415"
+    },
+    "C07": {
+      "section": "6.4",
+      "quantity": "multi-hop nox-mem nDCG@10",
+      "paper_v105": "0.3641",
+      "legacy_scorer": "0.3641",
+      "paper_v106": "0.3641",
+      "fixed_scorer": "0.3641"
+    },
+    "C08": {
+      "section": "6.4",
+      "quantity": "multi-hop Mem0 nDCG@10",
+      "paper_v105": "0.3218",
+      "legacy_scorer": "0.3218",
+      "paper_v106": "0.3218",
+      "fixed_scorer": "0.3218"
+    },
+    "C09": {
+      "section": "6.4",
+      "quantity": "multi-hop Delta (unrounded means)",
+      "paper_v105": "+0.042",
+      "legacy_scorer": "0.042",
+      "paper_v106": "+0.042",
+      "fixed_scorer": "0.042"
+    },
+    "C10": {
+      "section": "6.4",
+      "quantity": "multi-hop ablation nox-mem nDCG@10",
+      "paper_v105": "0.3515",
+      "legacy_scorer": "0.3515",
+      "paper_v106": "0.3515",
+      "fixed_scorer": "0.3515"
+    },
+    "C11": {
+      "section": "6.4",
+      "quantity": "temporal n",
+      "paper_v105": "454",
+      "legacy_scorer": "454",
+      "paper_v106": "454",
+      "fixed_scorer": "454"
+    },
+    "C12": {
+      "section": "6.4",
+      "quantity": "temporal nox-mem nDCG@10",
+      "paper_v105": "0.5502",
+      "legacy_scorer": "0.5502",
+      "paper_v106": "0.5502",
+      "fixed_scorer": "0.5502"
+    },
+    "C13": {
+      "section": "6.4",
+      "quantity": "temporal Mem0 nDCG@10",
+      "paper_v105": "0.4570",
+      "legacy_scorer": "0.4570",
+      "paper_v106": "0.4565",
+      "fixed_scorer": "0.4565"
+    },
+    "C14": {
+      "section": "6.4",
+      "quantity": "temporal Delta (unrounded means)",
+      "paper_v105": "+0.093",
+      "legacy_scorer": "0.093",
+      "paper_v106": "+0.094",
+      "fixed_scorer": "0.094"
+    },
+    "C15": {
+      "section": "6.4",
+      "quantity": "temporal ablation nox-mem nDCG@10",
+      "paper_v105": "0.5571",
+      "legacy_scorer": "0.5571",
+      "paper_v106": "0.5571",
+      "fixed_scorer": "0.5571"
+    },
+    "C16": {
+      "section": "6.4",
+      "quantity": "adversarial n",
+      "paper_v105": "524",
+      "legacy_scorer": "524",
+      "paper_v106": "524",
+      "fixed_scorer": "524"
+    },
+    "C17": {
+      "section": "6.4",
+      "quantity": "adversarial nox-mem nDCG@10",
+      "paper_v105": "0.4370",
+      "legacy_scorer": "0.4370",
+      "paper_v106": "0.4370",
+      "fixed_scorer": "0.4370"
+    },
+    "C18": {
+      "section": "6.4",
+      "quantity": "adversarial Mem0 nDCG@10",
+      "paper_v105": "0.2955",
+      "legacy_scorer": "0.2955",
+      "paper_v106": "0.2930",
+      "fixed_scorer": "0.2930"
+    },
+    "C19": {
+      "section": "6.4",
+      "quantity": "adversarial Delta (unrounded means)",
+      "paper_v105": "+0.142",
+      "legacy_scorer": "0.142",
+      "paper_v106": "+0.144",
+      "fixed_scorer": "0.144"
+    },
+    "C20": {
+      "section": "6.4",
+      "quantity": "adversarial ablation nox-mem nDCG@10",
+      "paper_v105": "0.4573",
+      "legacy_scorer": "0.4573",
+      "paper_v106": "0.4573",
+      "fixed_scorer": "0.4573"
+    },
+    "C21": {
+      "section": "6.4",
+      "quantity": "open-domain n",
+      "paper_v105": "92",
+      "legacy_scorer": "92",
+      "paper_v106": "92",
+      "fixed_scorer": "92"
+    },
+    "C22": {
+      "section": "6.4",
+      "quantity": "open-domain nox-mem nDCG@10",
+      "paper_v105": "0.2592",
+      "legacy_scorer": "0.2592",
+      "paper_v106": "0.2592",
+      "fixed_scorer": "0.2592"
+    },
+    "C23": {
+      "section": "6.4",
+      "quantity": "open-domain Mem0 nDCG@10",
+      "paper_v105": "0.2351",
+      "legacy_scorer": "0.2351",
+      "paper_v106": "0.2351",
+      "fixed_scorer": "0.2351"
+    },
+    "C24": {
+      "section": "6.4",
+      "quantity": "open-domain Delta (unrounded means)",
+      "paper_v105": "+0.024",
+      "legacy_scorer": "0.024",
+      "paper_v106": "+0.024",
+      "fixed_scorer": "0.024"
+    },
+    "C25": {
+      "section": "6.4",
+      "quantity": "open-domain ablation nox-mem nDCG@10",
+      "paper_v105": "0.2365",
+      "legacy_scorer": "0.2365",
+      "paper_v106": "0.2365",
+      "fixed_scorer": "0.2365"
+    },
+    "C26": {
+      "section": "6.4",
+      "quantity": "nox-mem leads Mem0 in every represented category (rc4)",
+      "paper_v105": "yes",
+      "legacy_scorer": "yes",
+      "paper_v106": "yes",
+      "fixed_scorer": "yes"
+    },
+    "C27": {
+      "section": "6.4",
+      "quantity": "adversarial bucket: LoCoMo native adversarial (category 5)",
+      "paper_v105": "446",
+      "legacy_scorer": "446",
+      "paper_v106": "446",
+      "fixed_scorer": "446"
+    },
+    "C28": {
+      "section": "6.4",
+      "quantity": "adversarial bucket: LongMemEval knowledge-update",
+      "paper_v105": "78",
+      "legacy_scorer": "78",
+      "paper_v106": "78",
+      "fixed_scorer": "78"
+    },
+    "C29": {
+      "section": "6.4",
+      "quantity": "numeric-typed queries in either dataset (< 10 => n/a)",
+      "paper_v105": "0",
+      "legacy_scorer": "0",
+      "paper_v106": "0",
+      "fixed_scorer": "0"
+    },
+    "C30": {
+      "section": "6.4",
+      "quantity": "open-domain queries from LongMemEval (LoCoMo-only bucket)",
+      "paper_v105": "0",
+      "legacy_scorer": "0",
+      "paper_v106": "0",
+      "fixed_scorer": "0"
+    },
+    "C31": {
+      "section": "6.4",
+      "quantity": "stored run-time LoCoMo label == old map of the native category, all arms",
+      "paper_v105": "yes",
+      "legacy_scorer": "yes",
+      "paper_v106": "yes",
+      "fixed_scorer": "yes"
+    },
+    "X01": {
+      "section": "6.3",
+      "quantity": "canonical LME nDCG Delta, from the printed table (0.5234-0.4764)",
+      "paper_v105": "+0.047",
+      "legacy_scorer": "0.047",
+      "paper_v106": "+0.047",
+      "fixed_scorer": "0.047"
+    },
+    "X02": {
+      "section": "6.3",
+      "quantity": "canonical LME MRR Delta, from the printed table (0.5494-0.5107)",
+      "paper_v105": "+0.039",
+      "legacy_scorer": "0.039",
+      "paper_v106": "+0.039",
+      "fixed_scorer": "0.039"
+    },
+    "X03": {
+      "section": "6.3",
+      "quantity": "canonical LoCoMo nDCG Delta, from the printed table (0.4686-0.4263)",
+      "paper_v105": "+0.042",
+      "legacy_scorer": "0.042",
+      "paper_v106": "+0.042",
+      "fixed_scorer": "0.042"
+    }
+  },
+  "aggregates": {
+    "rc4": {
+      "source_dir": "eval/q4-comparison/output/rc4",
+      "legacy_rebuild_byte_identical_to_pinned_runtime": {
+        "json": true,
+        "md": true
+      },
+      "fixed_rebuild_byte_identical_to_payload": {
+        "json": true,
+        "md": true
+      },
+      "fixed_identical_to_pinned_runtime": {
+        "json": false,
+        "md": false
+      },
+      "pinned_sha256": {
+        "json": "b8bd6e60abf7881de02cc59ed501f6ac1bb57907ac9cd4b012042f2243d3178e",
+        "md": "d93129acc15b381613b7305d93976dffd0fdca6da81419a10f9550f8b70ae5da"
+      },
+      "fixed_sha256": {
+        "json": "2eaaad397e8a96f54b9e2373d8b8c1dac688e1dda36e18305d2dda7411e05486",
+        "md": "33aa1501ab8523070e2141786cae4b145507a0981edf6da8fa3433ff41a41ec0"
+      }
+    },
+    "rc4-ablation": {
+      "source_dir": "eval/q4-comparison/output/rc4-ablation",
+      "legacy_rebuild_byte_identical_to_pinned_runtime": {
+        "json": true,
+        "md": true
+      },
+      "fixed_rebuild_byte_identical_to_payload": {
+        "json": true,
+        "md": true
+      },
+      "fixed_identical_to_pinned_runtime": {
+        "json": false,
+        "md": false
+      },
+      "pinned_sha256": {
+        "json": "ff4cfcbed521664b87955e21a8d28098a6906821ce9d37cca800907d54e62b85",
+        "md": "3b3b56390c17dfa65c8310f568f299d10b7cc6805adad19dd0b11a4beb335ddc"
+      },
+      "fixed_sha256": {
+        "json": "533f625fec119c0a23d9caf0f641edc312afa251ee8594b7f639058f9ec92289",
+        "md": "faa7338fb1cf052cf947b25d5341a35ba84707da39364df5a921578055776f07"
+      }
+    },
+    "2026-09-10": {
+      "source_dir": "eval/q4-comparison/output-2026-09-10",
+      "legacy_rebuild_byte_identical_to_pinned_runtime": {
+        "json": true,
+        "md": true
+      },
+      "fixed_rebuild_byte_identical_to_payload": {
+        "json": true,
+        "md": true
+      },
+      "fixed_identical_to_pinned_runtime": {
+        "json": true,
+        "md": true
+      },
+      "pinned_sha256": {
+        "json": "4d220ec404481fbf901d40634d2c6d7033fac0ca9cb1ec7f82d520109e6e79a2",
+        "md": "354c2ef0ded16f3c70d658dea7e921bfad76fb46843f238173e49c7a2b9506a8"
+      },
+      "fixed_sha256": {
+        "json": "4d220ec404481fbf901d40634d2c6d7033fac0ca9cb1ec7f82d520109e6e79a2",
+        "md": "354c2ef0ded16f3c70d658dea7e921bfad76fb46843f238173e49c7a2b9506a8"
+      }
+    }
+  },
+  "headline_fixed": {
+    "rc4n": {
+      "overall": {
+        "ndcg@k": 0.5012764115234993,
+        "recall@k": 0.6655892250282386,
+        "mrr": 0.47493268997096555
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.49515773268060176,
+          "recall@k": 0.6621976739926445,
+          "mrr": 0.463716504092387,
+          "n": 1982
+        },
+        "longmemeval": {
+          "ndcg@k": 0.5255308544567454,
+          "recall@k": 0.6790333333333333,
+          "mrr": 0.5193936507936507,
+          "n": 500
+        }
+      }
+    },
+    "rc4m": {
+      "overall": {
+        "ndcg@k": 0.4331020392831584,
+        "recall@k": 0.584217888640599,
+        "mrr": 0.40917079160431297
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.44069478304959253,
+          "recall@k": 0.6031679110020014,
+          "mrr": 0.41130171543895055,
+          "n": 1982
+        },
+        "longmemeval": {
+          "ndcg@k": 0.4030044029930133,
+          "recall@k": 0.5091,
+          "mrr": 0.4007238095238095,
+          "n": 500
+        }
+      }
+    },
+    "abn": {
+      "overall": {
+        "ndcg@k": 0.4979110778899305,
+        "recall@k": 0.6553641615698955,
+        "mrr": 0.47285791028740265
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.49195643930400684,
+          "recall@k": 0.6510076601159506,
+          "mrr": 0.4615565886630468,
+          "n": 1982
+        },
+        "longmemeval": {
+          "ndcg@k": 0.5215152652445321,
+          "recall@k": 0.6726333333333333,
+          "mrr": 0.5176563492063492,
+          "n": 500
+        }
+      }
+    },
+    "abm": {
+      "overall": {
+        "ndcg@k": 0.4331020392831584,
+        "recall@k": 0.584217888640599,
+        "mrr": 0.40917079160431297
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.44069478304959253,
+          "recall@k": 0.6031679110020014,
+          "mrr": 0.41130171543895055,
+          "n": 1982
+        },
+        "longmemeval": {
+          "ndcg@k": 0.4030044029930133,
+          "recall@k": 0.5091,
+          "mrr": 0.4007238095238095,
+          "n": 500
+        }
+      }
+    },
+    "ev": {
+      "overall": {
+        "ndcg@k": 0.64553667642804,
+        "recall@k": 0.7629334574750236,
+        "mrr": 0.6402515572439021
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.6584776581246196,
+          "recall@k": 0.7792049317791836,
+          "mrr": 0.6464337770089537,
+          "n": 1982
+        },
+        "longmemeval": {
+          "ndcg@k": 0.5942386249827987,
+          "recall@k": 0.6984333333333332,
+          "mrr": 0.6157452380952381,
+          "n": 500
+        }
+      }
+    },
+    "zp": {
+      "overall": {
+        "ndcg@k": 0.4546332111329803,
+        "recall@k": 0.6108425663638989,
+        "mrr": 0.42789720911195533
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.47933757140263783,
+          "recall@k": 0.6492656826682798,
+          "mrr": 0.4451101580894719,
+          "n": 1982
+        },
+        "longmemeval": {
+          "ndcg@k": 0.3567051270240579,
+          "recall@k": 0.45853333333333335,
+          "mrr": 0.35966507936507935,
+          "n": 500
+        }
+      }
+    },
+    "smn": {
+      "overall": {
+        "ndcg@k": 0.4509349894969869,
+        "recall@k": 0.5958333333333333,
+        "mrr": 0.425
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.4535437445490194,
+          "recall@k": 0.6416666666666667,
+          "mrr": 0.4166666666666667,
+          "n": 10
+        },
+        "longmemeval": {
+          "ndcg@k": 0.44832623444495445,
+          "recall@k": 0.55,
+          "mrr": 0.4333333333333333,
+          "n": 10
+        }
+      }
+    },
+    "smm": {
+      "overall": {
+        "ndcg@k": 0.13154648767857288,
+        "recall@k": 0.15,
+        "mrr": 0.125
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.26309297535714576,
+          "recall@k": 0.3,
+          "mrr": 0.25,
+          "n": 10
+        },
+        "longmemeval": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 10
+        }
+      }
+    }
+  },
+  "headline_legacy": {
+    "rc4n": {
+      "overall": {
+        "ndcg@k": 0.5012764115234993,
+        "recall@k": 0.6655892250282386,
+        "mrr": 0.47493268997096555
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.49515773268060176,
+          "recall@k": 0.6621976739926445,
+          "mrr": 0.463716504092387,
+          "n": 1982
+        },
+        "longmemeval": {
+          "ndcg@k": 0.5255308544567454,
+          "recall@k": 0.6790333333333333,
+          "mrr": 0.5193936507936507,
+          "n": 500
+        }
+      }
+    },
+    "rc4m": {
+      "overall": {
+        "ndcg@k": 0.43373294580297583,
+        "recall@k": 0.5852251408565539,
+        "mrr": 0.40917079160431297
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.44069478304959253,
+          "recall@k": 0.6031679110020014,
+          "mrr": 0.41130171543895055,
+          "n": 1982
+        },
+        "longmemeval": {
+          "ndcg@k": 0.40613622295738705,
+          "recall@k": 0.5141,
+          "mrr": 0.4007238095238095,
+          "n": 500
+        }
+      }
+    },
+    "abn": {
+      "overall": {
+        "ndcg@k": 0.4979110778899305,
+        "recall@k": 0.6553641615698955,
+        "mrr": 0.47285791028740265
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.49195643930400684,
+          "recall@k": 0.6510076601159506,
+          "mrr": 0.4615565886630468,
+          "n": 1982
+        },
+        "longmemeval": {
+          "ndcg@k": 0.5215152652445321,
+          "recall@k": 0.6726333333333333,
+          "mrr": 0.5176563492063492,
+          "n": 500
+        }
+      }
+    },
+    "abm": {
+      "overall": {
+        "ndcg@k": 0.43373294580297583,
+        "recall@k": 0.5852251408565539,
+        "mrr": 0.40917079160431297
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.44069478304959253,
+          "recall@k": 0.6031679110020014,
+          "mrr": 0.41130171543895055,
+          "n": 1982
+        },
+        "longmemeval": {
+          "ndcg@k": 0.40613622295738705,
+          "recall@k": 0.5141,
+          "mrr": 0.4007238095238095,
+          "n": 500
+        }
+      }
+    },
+    "ev": {
+      "overall": {
+        "ndcg@k": 0.64553667642804,
+        "recall@k": 0.7629334574750236,
+        "mrr": 0.6402515572439021
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.6584776581246196,
+          "recall@k": 0.7792049317791836,
+          "mrr": 0.6464337770089537,
+          "n": 1982
+        },
+        "longmemeval": {
+          "ndcg@k": 0.5942386249827987,
+          "recall@k": 0.6984333333333332,
+          "mrr": 0.6157452380952381,
+          "n": 500
+        }
+      }
+    },
+    "zp": {
+      "overall": {
+        "ndcg@k": 0.4546332111329803,
+        "recall@k": 0.6108425663638989,
+        "mrr": 0.42789720911195533
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.47933757140263783,
+          "recall@k": 0.6492656826682798,
+          "mrr": 0.4451101580894719,
+          "n": 1982
+        },
+        "longmemeval": {
+          "ndcg@k": 0.3567051270240579,
+          "recall@k": 0.45853333333333335,
+          "mrr": 0.35966507936507935,
+          "n": 500
+        }
+      }
+    },
+    "smn": {
+      "overall": {
+        "ndcg@k": 0.4509349894969869,
+        "recall@k": 0.5958333333333333,
+        "mrr": 0.425
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.4535437445490194,
+          "recall@k": 0.6416666666666667,
+          "mrr": 0.4166666666666667,
+          "n": 10
+        },
+        "longmemeval": {
+          "ndcg@k": 0.44832623444495445,
+          "recall@k": 0.55,
+          "mrr": 0.4333333333333333,
+          "n": 10
+        }
+      }
+    },
+    "smm": {
+      "overall": {
+        "ndcg@k": 0.13154648767857288,
+        "recall@k": 0.15,
+        "mrr": 0.125
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.26309297535714576,
+          "recall@k": 0.3,
+          "mrr": 0.25,
+          "n": 10
+        },
+        "longmemeval": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 10
+        }
+      }
+    }
+  },
+  "fails": []
+}

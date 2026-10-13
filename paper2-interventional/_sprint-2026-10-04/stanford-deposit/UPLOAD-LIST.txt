@@ -1,0 +1,8 @@
+README.md
+LICENSE.txt
+SHA256SUMS
+verify_dataset.py
+provider_telemetry_2026-08-07_2026-09-08.csv
+row_annotations.csv
+phase_summary.csv
+daily_phase_summary.csv

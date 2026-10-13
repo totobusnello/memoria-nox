@@ -1,0 +1,49 @@
+v1.0.5 sha256 23ddc0e98fe0d334b079043533dde582e67e6b5517e8f94cd81138f985be5292
+v1.0.6 sha256 f1ba6aae6cabc79f7aac7a8b6195cbea0572ade71b86f8ab39be09bafc931584
+version line found: v1.0.5 1, v1.0.6 1; wording lines set aside: 11
+
+Leg A — token substitutions outside the wording lines (old -> new : count):
+   '(+0.093).' -> '(+0.094).'  : 1
+    '(+0.142)' -> '(+0.144)'   : 1
+      '+0.093' -> '+0.094'     : 1
+      '+0.142' -> '+0.144'     : 1
+     '+0.142)' -> '+0.144)'    : 1
+       '0.036' -> '0.035'      : 1
+      '0.2955' -> '0.2930'     : 1
+     '0.2955;' -> '0.2930;'    : 1
+      '0.4061' -> '0.4030'     : 3
+      '0.406;' -> '0.403;'     : 1
+      '0.4337' -> '0.4331'     : 3
+      '0.4570' -> '0.4565'     : 1
+     '0.4570;' -> '0.4565;'    : 1
+      '0.5852' -> '0.5842'     : 2
+  total: 19 (expected 19; the other 3 of 22 are in leg D)
+
+Leg B — v1.0.5 (masked) + EXPECTED_A reproduces v1.0.6 (masked) byte for byte: True
+
+Leg C — line count v1.0.5 1441, v1.0.6 1441; changed lines (20): [7, 15, 1011, 1016, 1018, 1020, 1022, 1024, 1035, 1045, 1069, 1115, 1116, 1120, 1122, 1132, 1156, 1214, 1218, 1270]
+
+Leg D — wording lines: numbers added / removed (multisets)
+  l.1011: added {}; removed {}
+  l.1018: added {}; removed {}
+  l.1020: added {'+0.123': 1}; removed {'+0.119': 1}
+  l.1022: added {'2,482': 1, '10': 1, '6,822': 1, '3': 1, '§6.3.2–§6.4': 1, '0.004': 1, '20': 1, '17': 1, '10.5281': 2, '132': 1, '6': 2}; removed {}
+  l.1024: added {'0.4331': 1, '0.4030': 1, '33': 1, '504': 1}; removed {'0.4337': 1, '0.4061': 1, '§6.3': 1, '§6.3.2': 1}
+  l.1035: added {}; removed {}
+  l.1132: added {}; removed {}
+  l.1156: added {}; removed {}
+  l.1214: added {}; removed {}
+  l.1218: added {}; removed {}
+  l.1270: added {}; removed {}
+  scorer substitution '0.4061),' -> '0.4030),' on wording line(s) [1024]
+  scorer substitution '(0.4337)' -> '(0.4331)' on wording line(s) [1024]
+  scorer substitution '+0.119,' -> '+0.123,' on wording line(s) [1020]
+
+Leg E — S1 new ×1, S2 new ×1 in v1.0.6; S1 old ×0, S2 old ×0 in v1.0.6; S1 old ×1, S2 old ×1 in v1.0.5
+  retired phrases still in v1.0.6: none
+
+  S1: Scoring is by id, and each retrieved id counts once, at the rank of its first occurrence. Before v1.0.6 the scorer counted a repeated id at each occurrence: in 3 LongMemEval queries Mem0 returned both documents that share a gold id, which overstated Mem0 and moved nine printed values of §6.3.2–§6.4 (Mem0 scores, one interval, and the margins against nox-mem) by at most 0.004; no order or sign changed.
+  S2: The stripped per-query outputs are in the evidence dataset [10.5281/zenodo.23146656](https://doi.org/10.5281/zenodo.23146656), with a verifier that checks 132 Section 6 values and statements against the supplied outputs, metadata, logs and store extracts, plus three arithmetic differences of printed figures; twelve groups of Section 6 figures cannot be recomputed from it and are listed there with the reason;
+Front matter (v1.0.6): **Version** v1.0.6 (2026-10-04) · DOI [10.5281/zenodo.23147633](https://doi.org/10.5281/zenodo.23147633) (this version) · all versions: [10.5281/zenodo.22649268](https://doi.org/10.5281/zenodo.22649268) · changelog in `paper/CHANGELOG.md`
+
+PARITY OK

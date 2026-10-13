@@ -1,0 +1,393 @@
+{
+  "input": "payload/provider_telemetry_2026-08-07_2026-09-08.csv",
+  "input_sha256": "2c8634ee8431bf263d042cd65a578c22952ed3e480e34367d57f1d785ad82aa0",
+  "schema_window_errors": [],
+  "recomputed_all_rows": {
+    "n_rows": 3544,
+    "total_usd": 0.1352359,
+    "phases": {
+      "construction": {
+        "ops": 112,
+        "pct_ops": 3.160270880361174,
+        "usd": 0.0753446,
+        "pct_usd": 55.713460700893776,
+        "usd_per_op": 0.0006727196428571429,
+        "tokens_in": 616048,
+        "tokens_out": 8924,
+        "mean_tokens_in_per_call": 5500.428571428572,
+        "usd_per_1k_input_tokens": 0.00012230313222346312,
+        "days_with_activity": 19
+      },
+      "maintenance": {
+        "ops": 81,
+        "pct_ops": 2.285553047404063,
+        "usd": 0.0186651,
+        "pct_usd": 13.801882488303773,
+        "usd_per_op": 0.00023043333333333334,
+        "tokens_in": 118543,
+        "tokens_out": 17027,
+        "mean_tokens_in_per_call": 1463.4938271604938,
+        "usd_per_1k_input_tokens": 0.00015745425710501673,
+        "days_with_activity": 11
+      },
+      "query": {
+        "ops": 3351,
+        "pct_ops": 94.55417607223477,
+        "usd": 0.0412262,
+        "pct_usd": 30.484656810802456,
+        "usd_per_op": 1.2302655923604894e-05,
+        "tokens_in": 274331,
+        "tokens_out": 451,
+        "mean_tokens_in_per_call": 81.86541330945987,
+        "usd_per_1k_input_tokens": 0.00015027904247059208,
+        "days_with_activity": 32
+      }
+    },
+    "days_with_data": 32,
+    "top3": [
+      {
+        "id": 973,
+        "caller": "digest.gemini",
+        "tokens_in": 142339,
+        "usd": 0.0145587
+      },
+      {
+        "id": 2588,
+        "caller": "digest.gemini",
+        "tokens_in": 125042,
+        "usd": 0.0127862
+      },
+      {
+        "id": 1688,
+        "caller": "digest.gemini",
+        "tokens_in": 125111,
+        "usd": 0.0127607
+      }
+    ],
+    "top3_pct_ops": 0.08465011286681716,
+    "top3_pct_usd": 29.65603068416005,
+    "construction_pct_usd_without_top3": 37.04287698031016,
+    "calls_for_half_spend": 31,
+    "calls_for_half_spend_pct_ops": 0.8747178329571106,
+    "queries_per_day": 104.71875,
+    "weekly_amortised_fixed_cost_per_query_1e-5usd": {
+      "2026-W32": {
+        "queries": 290,
+        "value": 2.41
+      },
+      "2026-W33": {
+        "queries": 1229,
+        "value": 3.02
+      },
+      "2026-W34": {
+        "queries": 828,
+        "value": 3.71
+      },
+      "2026-W35": {
+        "queries": 376,
+        "value": 3.44
+      },
+      "2026-W36": {
+        "queries": 359,
+        "value": 0.0
+      },
+      "2026-W37": {
+        "queries": 269,
+        "value": 2.33
+      }
+    },
+    "tokens_src_counts": {
+      "estimated": 3425,
+      "api": 119
+    },
+    "failed_calls": 32,
+    "failed_calls_usd": 8.159999999999999e-05
+  },
+  "recomputed_excluding_smoke_test_ids_1_4": {
+    "n_rows": 3540,
+    "total_usd": 0.13496875,
+    "phases": {
+      "construction": {
+        "ops": 110,
+        "pct_ops": 3.1073446327683616,
+        "usd": 0.0751081,
+        "pct_usd": 55.64851122945126
+      },
+      "maintenance": {
+        "ops": 81,
+        "pct_ops": 2.288135593220339,
+        "usd": 0.0186651,
+        "pct_usd": 13.829201203982404
+      },
+      "query": {
+        "ops": 3349,
+        "pct_ops": 94.6045197740113,
+        "usd": 0.04119555,
+        "pct_usd": 30.522287566566337
+      }
+    }
+  },
+  "email_claims": [
+    {
+      "claim": "calls",
+      "asserted_in_email": 3544,
+      "recomputed": 3544,
+      "compared_at_digits": 0,
+      "match": true
+    },
+    {
+      "claim": "total USD",
+      "asserted_in_email": 0.1352,
+      "recomputed": 0.1352359,
+      "compared_at_digits": 4,
+      "match": true
+    },
+    {
+      "claim": "construction % ops",
+      "asserted_in_email": 3.16,
+      "recomputed": 3.160270880361174,
+      "compared_at_digits": 2,
+      "match": true
+    },
+    {
+      "claim": "construction % cost",
+      "asserted_in_email": 55.7,
+      "recomputed": 55.713460700893776,
+      "compared_at_digits": 1,
+      "match": true
+    },
+    {
+      "claim": "query % ops",
+      "asserted_in_email": 94.6,
+      "recomputed": 94.55417607223477,
+      "compared_at_digits": 1,
+      "match": true
+    },
+    {
+      "claim": "query % cost",
+      "asserted_in_email": 30.5,
+      "recomputed": 30.484656810802456,
+      "compared_at_digits": 1,
+      "match": true
+    },
+    {
+      "claim": "maintenance % ops",
+      "asserted_in_email": 2.3,
+      "recomputed": 2.285553047404063,
+      "compared_at_digits": 1,
+      "match": true
+    },
+    {
+      "claim": "maintenance % cost",
+      "asserted_in_email": 13.8,
+      "recomputed": 13.801882488303773,
+      "compared_at_digits": 1,
+      "match": true
+    },
+    {
+      "claim": "construction USD/1k input tok",
+      "asserted_in_email": 0.000122,
+      "recomputed": 0.00012230313222346312,
+      "compared_at_digits": 6,
+      "match": true
+    },
+    {
+      "claim": "query USD/1k input tok",
+      "asserted_in_email": 0.00015,
+      "recomputed": 0.00015027904247059208,
+      "compared_at_digits": 6,
+      "match": true
+    },
+    {
+      "claim": "maintenance USD/1k input tok",
+      "asserted_in_email": 0.000157,
+      "recomputed": 0.00015745425710501673,
+      "compared_at_digits": 6,
+      "match": true
+    },
+    {
+      "claim": "mean input tokens per construction call",
+      "asserted_in_email": 5500,
+      "recomputed": 5500.428571428572,
+      "compared_at_digits": -2,
+      "match": true
+    },
+    {
+      "claim": "mean input tokens per query call",
+      "asserted_in_email": 82,
+      "recomputed": 81.86541330945987,
+      "compared_at_digits": 0,
+      "match": true
+    },
+    {
+      "claim": "top-3 calls % ops",
+      "asserted_in_email": 0.08,
+      "recomputed": 0.08465011286681716,
+      "compared_at_digits": 2,
+      "match": true
+    },
+    {
+      "claim": "top-3 calls % cost",
+      "asserted_in_email": 29.7,
+      "recomputed": 29.65603068416005,
+      "compared_at_digits": 1,
+      "match": true
+    },
+    {
+      "claim": "construction % cost without top 3",
+      "asserted_in_email": 37.0,
+      "recomputed": 37.04287698031016,
+      "compared_at_digits": 1,
+      "match": true
+    },
+    {
+      "claim": "calls holding half the spend",
+      "asserted_in_email": 31,
+      "recomputed": 31,
+      "compared_at_digits": 0,
+      "match": true
+    },
+    {
+      "claim": "calls holding half the spend, % ops",
+      "asserted_in_email": 0.87,
+      "recomputed": 0.8747178329571106,
+      "compared_at_digits": 2,
+      "match": true
+    },
+    {
+      "claim": "days with data",
+      "asserted_in_email": 32,
+      "recomputed": 32,
+      "compared_at_digits": 0,
+      "match": true
+    },
+    {
+      "claim": "days with construction",
+      "asserted_in_email": 19,
+      "recomputed": 19,
+      "compared_at_digits": 0,
+      "match": true
+    },
+    {
+      "claim": "days with maintenance",
+      "asserted_in_email": 11,
+      "recomputed": 11,
+      "compared_at_digits": 0,
+      "match": true
+    }
+  ],
+  "annotation_counts": {
+    "smoke_test": 4,
+    "canary_signature": 1515,
+    "aug10_burst_window": 588
+  },
+  "canary_signature_by_period": {
+    "before_2026-09-01_minutes_22_52": 1174,
+    "from_2026-09-01_minutes_22_52": 27,
+    "from_2026-09-01_minutes_16_46": 314
+  },
+  "query_rows_hour02utc_unannotated_by_day": {
+    "2026-08-08": 35,
+    "2026-08-12": 33,
+    "2026-08-14": 77,
+    "2026-08-16": 86,
+    "2026-08-18": 74,
+    "2026-08-20": 97,
+    "2026-08-22": 83
+  },
+  "largest_gaps_between_consecutive_rows": [
+    {
+      "minutes": 222.5,
+      "from": "2026-08-23T11:37:20.836000+00:00",
+      "to": "2026-08-23T15:19:48.931000+00:00"
+    },
+    {
+      "minutes": 45.8,
+      "from": "2026-08-07T10:41:22.191000+00:00",
+      "to": "2026-08-07T11:27:11.774000+00:00"
+    },
+    {
+      "minutes": 32.0,
+      "from": "2026-08-23T15:20:04.953000+00:00",
+      "to": "2026-08-23T15:52:03.407000+00:00"
+    },
+    {
+      "minutes": 30.8,
+      "from": "2026-08-22T14:52:04.357000+00:00",
+      "to": "2026-08-22T15:22:54.831000+00:00"
+    },
+    {
+      "minutes": 30.3,
+      "from": "2026-08-23T10:52:10.635000+00:00",
+      "to": "2026-08-23T11:22:28.731000+00:00"
+    }
+  ],
+  "recomputed_excluding_all_annotated_rows": {
+    "n_rows": 1437,
+    "total_usd": 0.12787645,
+    "days_with_data": 22,
+    "queries_per_day": 56.63636363636363,
+    "phases": {
+      "construction": {
+        "ops": 110,
+        "pct_ops": 7.6548364648573415,
+        "usd": 0.0751081,
+        "pct_usd": 58.734896065694656
+      },
+      "maintenance": {
+        "ops": 81,
+        "pct_ops": 5.6367432150313155,
+        "usd": 0.0186651,
+        "pct_usd": 14.596198127176661
+      },
+      "query": {
+        "ops": 1246,
+        "pct_ops": 86.70842032011134,
+        "usd": 0.03410325,
+        "pct_usd": 26.66890580712868
+      }
+    }
+  },
+  "privacy_scan": {
+    "files_scanned": [
+      "payload/LICENSE.txt",
+      "payload/README.md",
+      "payload/SHA256SUMS",
+      "payload/daily_phase_summary.csv",
+      "payload/phase_summary.csv",
+      "payload/provider_telemetry_2026-08-07_2026-09-08.csv",
+      "payload/row_annotations.csv",
+      "payload/verify_dataset.py",
+      "zenodo-metadata.json"
+    ],
+    "patterns": [
+      "bearer",
+      "discord_webhook",
+      "email",
+      "github_token",
+      "google_api_key",
+      "groq_key",
+      "ipv4",
+      "key_param",
+      "openai_like_key",
+      "phone_br",
+      "private_path",
+      "tailscale_100x",
+      "vps_hostname"
+    ],
+    "deny_words": [
+      "nuvini",
+      "galapagos",
+      "galápagos",
+      "treviso",
+      "lombardia",
+      "granix",
+      "generantis",
+      "whatsapp",
+      "slack",
+      "toto",
+      "busnello_private"
+    ],
+    "findings": []
+  }
+}

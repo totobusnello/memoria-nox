@@ -1,0 +1,118 @@
+{
+  "metadata": {
+    "resource_type": {
+      "id": "dataset"
+    },
+    "title": "Phase-attributed provider-call telemetry from a production agent-memory system (32-day window, 2026-08-07 to 2026-09-08)",
+    "publication_date": "<<DATA DE PUBLICAÇÃO>>",
+    "version": "1.0.0",
+    "creators": [
+      {
+        "person_or_org": {
+          "type": "personal",
+          "name": "Busnello, Luiz Antonio",
+          "given_name": "Luiz Antonio",
+          "family_name": "Busnello",
+          "identifiers": [
+            {
+              "scheme": "orcid",
+              "identifier": "0009-0007-5911-8141"
+            }
+          ]
+        },
+        "affiliations": [
+          {
+            "name": "Independent Researcher"
+          }
+        ]
+      }
+    ],
+    "rights": [
+      {
+        "id": "cc-by-4.0"
+      }
+    ],
+    "subjects": [
+      {
+        "subject": "agent memory"
+      },
+      {
+        "subject": "memory construction cost"
+      },
+      {
+        "subject": "phase-attributed telemetry"
+      },
+      {
+        "subject": "production measurement"
+      },
+      {
+        "subject": "retrieval-augmented systems"
+      },
+      {
+        "subject": "LLM provider cost"
+      },
+      {
+        "subject": "forgetting and maintenance"
+      },
+      {
+        "subject": "instrument defects"
+      }
+    ],
+    "related_identifiers": [
+      {
+        "identifier": "arXiv:2606.06448",
+        "scheme": "arxiv",
+        "relation_type": {
+          "id": "references"
+        },
+        "resource_type": {
+          "id": "publication-preprint"
+        }
+      },
+      {
+        "identifier": "10.5281/zenodo.23041503",
+        "scheme": "doi",
+        "relation_type": {
+          "id": "references"
+        },
+        "resource_type": {
+          "id": "publication-preprint"
+        }
+      },
+      {
+        "identifier": "https://github.com/totobusnello/memoria-nox",
+        "scheme": "url",
+        "relation_type": {
+          "id": "issupplementedby"
+        },
+        "resource_type": {
+          "id": "software"
+        }
+      }
+    ],
+    "description": "<p>External model-provider calls recorded by the telemetry table of the shared store of a self-hosted agent-memory system (nox-mem) during a 32-day calendar window, <code>[2026-08-07T00:00Z, 2026-09-08T00:00Z)</code> UTC: 3,544 rows, 13 columns. Recording started at 2026-08-07T10:40:06Z, so the first day covers about 13.3 hours. The rows include a post-deploy smoke test and traffic matching monitoring and probe signatures; calls that failed before their record was written, or whose record was dropped, are absent. The table is the instrument's log, not a verified census of every provider call.</p><p>Each call carries a phase label (<code>construction</code>, <code>query</code>, <code>maintenance</code>) adapted from the construction / retrieval / generation decomposition of arXiv:2606.06448: <code>query</code> corresponds to retrieval, generation is omitted because the agents' own LLM turns are not observed, and maintenance (compaction and consolidation) is added.</p><p>The dataset contains no free-text content: no prompts, no responses, no query text, no query hashes and no document content. Its text columns hold closed-vocabulary categorical values (provider, model, operation type, calling code path, phase, token source). Each row records the calling code path, the model, token counts, an estimated cost, the latency and a success flag.</p><p>As stored, construction is 3.16% of calls and 55.7% of estimated cost, query is 94.6% and 30.5%, and maintenance is 2.3% and 13.8%. Three calls account for 29.7% of all estimated cost.</p><p><strong>Read the README's sixteen known defects before using any aggregate.</strong> Among them: most query-phase rows match a monitoring-canary or probe signature or time window (a signature match, not verified provenance); embedding token counts are estimated; prices are unverified list prices; LLM knowledge-graph extraction is absent from the window; there is a 13-day stretch with no construction; and the series spans a host migration. Rule-based row annotations are provided separately, and the raw table is left untouched. A verification script that recomputes the README's row-derived numbers from the CSV is included.</p><p>The telemetry covers the shared store only, not the per-agent stores.</p>",
+    "publisher": "Zenodo",
+    "languages": [
+      {
+        "id": "eng"
+      }
+    ],
+    "dates": [
+      {
+        "date": "2026-08-07/2026-09-07",
+        "type": {
+          "id": "collected"
+        },
+        "description": "UTC calendar days with rows; window is half-open [2026-08-07T00:00Z, 2026-09-08T00:00Z)"
+      }
+    ]
+  },
+  "access": {
+    "record": "public",
+    "files": "public"
+  },
+  "files": {
+    "enabled": true,
+    "default_preview": "README.md"
+  }
+}
