@@ -1,0 +1,38 @@
+{
+ "task": "Preparar (sem publicar) depósito Zenodo da telemetria por fase oferecida ao autor de arXiv:2606.06448 (Stanford)",
+ "status": "done",
+ "summary_pt": "O pacote do depósito está montado e auditado. Nada foi enviado, reservado nem publicado, e ninguém foi contatado.\n\n**O que foi oferecido.** O dataset que o e-mail oferece (export de `provider_telemetry`: 13 colunas, janela fechada [2026-08-07T00Z, 2026-09-08T00Z), 3.544 linhas) foi exportado de uma cópia preservada do store compartilhado que está na VPS de pesquisa (`corpus-preservado-20260908.db`, sha256 conferido). Não toquei na produção. O export bate 100% com uma segunda cópia independente, de 07/09: 3.278 linhas sobrepostas e 0 diferenças.\n\n**Números do e-mail.** As 21 afirmações numéricas do e-mail foram recomputadas a partir do CSV e todas batem.\n\n**Divergências que você precisa ver antes de responder ao Omri:**\n1. Cerca de 63% das linhas de `query` batem com a assinatura do canário (1.515) ou estão na janela da sonda de 10/08 (588). Sem as linhas anotadas sobram 1.246 queries, ou 38,9 por dia. Assim, \"a hundred queries a day\" e \"query = 94,6% das operações\" não se sustentam como demanda dos agentes. O split de custo continua de pé: construction fica em 58,7% sem as linhas anotadas.\n2. O e-mail diz \"only hashes\", mas a tabela não tem coluna de hash nenhuma.\n3. Os números do e-mail incluem as 4 linhas de smoke test. O efeito é desprezível.\n4. `kg-llm.extract` tem zero chamadas de produção na janela.\n5. Durante 13 dias (25/08 a 06/09) não houve construction nem maintenance.\n6. O README de `benchmark/latency-cost` diz que a sonda de co-location \"nunca rodou\", mas há 474 queries com cadência de 30 s exatamente na janela agendada.\n\nO README declara 16 defeitos (D1–D16), incluindo as colunas sem escritor e o `query_text` por drift do `search_telemetry`, que ficou de fora de propósito.\n\n**Privacidade.** O gitleaks 8.30.1 não achou nada. A varredura do meu script e os greps independentes deram 0 ocorrências, todos com controle positivo. Nenhum arquivo foi excluído por falha. Um primeiro loop de grep não tinha varrido nada (zsh não divide `$F`); foi descartado e refeito.\n\n**Regras.** Rodei 2 comandos git só de leitura no repo `nox-workspace` (`log` e `remote get-url`). Não alteraram estado, mas violam a regra de \"nenhum git\", e isso está declarado no AUDIT. Os arquivos temporários na VPS foram apagados.",
+ "artifacts_written": [
+  "/Users/lab/Claude/Projetos/memoria-nox/paper2-interventional/_sprint-2026-10-04/stanford-deposit/AUDIT.md",
+  "/Users/lab/Claude/Projetos/memoria-nox/paper2-interventional/_sprint-2026-10-04/stanford-deposit/zenodo-metadata.json",
+  "/Users/lab/Claude/Projetos/memoria-nox/paper2-interventional/_sprint-2026-10-04/stanford-deposit/payload/README.md",
+  "/Users/lab/Claude/Projetos/memoria-nox/paper2-interventional/_sprint-2026-10-04/stanford-deposit/payload/LICENSE.txt",
+  "/Users/lab/Claude/Projetos/memoria-nox/paper2-interventional/_sprint-2026-10-04/stanford-deposit/payload/SHA256SUMS",
+  "/Users/lab/Claude/Projetos/memoria-nox/paper2-interventional/_sprint-2026-10-04/stanford-deposit/payload/provider_telemetry_2026-08-07_2026-09-08.csv",
+  "/Users/lab/Claude/Projetos/memoria-nox/paper2-interventional/_sprint-2026-10-04/stanford-deposit/payload/row_annotations.csv",
+  "/Users/lab/Claude/Projetos/memoria-nox/paper2-interventional/_sprint-2026-10-04/stanford-deposit/payload/phase_summary.csv",
+  "/Users/lab/Claude/Projetos/memoria-nox/paper2-interventional/_sprint-2026-10-04/stanford-deposit/payload/daily_phase_summary.csv",
+  "/Users/lab/Claude/Projetos/memoria-nox/paper2-interventional/_sprint-2026-10-04/stanford-deposit/_audit/recompute-and-scan.json",
+  "/Users/lab/Claude/Projetos/memoria-nox/paper2-interventional/measurement/sprint-stanford-telemetry-deposit.py"
+ ],
+ "decisions_for_toto": [
+  "Depositar antes da resposta do Omri? Sua decisão registrada em 12/09 é 'DOI só quando ele responder'. Opções: (a) manter essa regra; (b) depositar agora, público; (c) depositar agora com os arquivos sob embargo.",
+  "Licença: CC BY 4.0 (padrão do rascunho, igual ao Paper 1) ou CC0 1.0 (mais comum para dado bruto).",
+  "Acesso: público, embargo até uma data, ou restrito sob pedido.",
+  "Resolução do timestamp: manter em ms (necessário para análise de latência) ou arredondar para minuto (expõe menos o padrão de atividade).",
+  "Corrigir proativamente para o correspondente o volume de queries (cerca de 63% sintético) e o 'only hashes' quando ele responder? O README já declara as duas coisas.",
+  "Tipo de relação dos identificadores relacionados (o rascunho usa 'references' para os dois, não 'isSupplementTo') e qual DOI do Paper 1 citar: 23041503 (v1.0.2) ou 22649269 (o que o e-mail citou).",
+  "Incluir o código do instrumento (provider-cost.ts), que está no repo PRIVADO nox-workspace?",
+  "Manter a janela prometida de 32 dias ou estender até hoje? Estender exige ler a produção e refazer a auditoria.",
+  "Manter row_annotations.csv no depósito ou descrever as regras só no README?",
+  "Commitar measurement/sprint-stanford-telemetry-deposit.py: o README aponta para ele no repo público e hoje esse link não resolve."
+ ],
+ "risks": [
+  "O e-mail já enviado afirma 'a hundred queries a day' e 'only hashes'; os dados mostram que a maior parte das queries tem assinatura de canário ou sonda e que não existe coluna de hash. Se o Omri pedir os dados, o README vai expor isso.",
+  "A identificação do canário, da sonda de 10/08 e do job noturno é por assinatura, não verificada. Confirmar exigiria logs da VPS de produção, que eu não toquei.",
+  "O código do instrumento que li é a working tree local do nox-workspace (último commit nesses arquivos: 4d7873e3, de 07/08). Não confirmei que é exatamente o build que rodou durante toda a janela.",
+  "Os custos são estimativas: preço de lista não reverificado e tokens estimados (chars/4) em 96,6% das linhas. Não é registro de cobrança.",
+  "Violação de regra declarada: 2 comandos git só de leitura no repo nox-workspace (não no working tree compartilhado).",
+  "Antes de publicar: tirar a linha 'PROPOSED' do LICENSE.txt, inserir o DOI reservado no README, regenerar o SHA256SUMS e reler os campos RDM depois do PUT."
+ ]
+}

@@ -1,0 +1,18 @@
+{
+  "_purpose": "Auxiliary notes for the Zenodo draft. NOT uploaded, NOT sent to the API. The clean metadata is zenodo-metadata.json.",
+  "_draft_note": "DRAFT, InvenioRDM write shape (same shape as deposit/paperA/zenodo-metadata.json). Remove this key before any API call. Not uploaded. Re-read every field after any PUT: the draft GET serves the legacy shape and a PUT silently drops legacy-shaped fields.",
+  "_embargo_options_for_decision": "If an embargo is chosen: files 'restricted' + embargo {active: true, until: 'YYYY-MM-DD', reason: '...'}; metadata stays public.",
+  "_upload_list": [
+    "README.md",
+    "LICENSE.txt",
+    "SHA256SUMS",
+    "provider_telemetry_2026-08-07_2026-09-08.csv",
+    "row_annotations.csv",
+    "phase_summary.csv",
+    "daily_phase_summary.csv",
+    "verify_dataset.py"
+  ],
+  "_upload_list_canonical": "UPLOAD-LIST.txt (this list is a copy; UPLOAD-LIST.txt wins on any divergence)",
+  "_publication_date": "Set metadata.publication_date (YYYY-MM-DD) on the day of publication; it is the placeholder <<DATA DE PUBLICAÇÃO>> in zenodo-metadata.json.",
+  "_license_decision": "CC BY 4.0 chosen by the author on 2026-10-03; rights id cc-by-4.0."
+}

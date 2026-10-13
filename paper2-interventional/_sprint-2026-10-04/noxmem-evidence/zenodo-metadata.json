@@ -1,0 +1,135 @@
+{
+  "metadata": {
+    "resource_type": {
+      "id": "dataset"
+    },
+    "title": "nox-mem Section 6 evidence: per-query outputs for the cross-system comparison",
+    "publication_date": "<<DATA DE PUBLICAÇÃO>>",
+    "version": "1.0.0",
+    "creators": [
+      {
+        "person_or_org": {
+          "type": "personal",
+          "name": "Busnello, Luiz Antonio",
+          "given_name": "Luiz Antonio",
+          "family_name": "Busnello",
+          "identifiers": [
+            {
+              "scheme": "orcid",
+              "identifier": "0009-0007-5911-8141"
+            }
+          ]
+        },
+        "affiliations": [
+          {
+            "name": "Independent Researcher"
+          }
+        ]
+      }
+    ],
+    "rights": [
+      {
+        "id": "cc-by-4.0"
+      }
+    ],
+    "subjects": [
+      {
+        "subject": "agent memory"
+      },
+      {
+        "subject": "retrieval evaluation"
+      },
+      {
+        "subject": "nDCG@10"
+      },
+      {
+        "subject": "LoCoMo"
+      },
+      {
+        "subject": "LongMemEval"
+      },
+      {
+        "subject": "reproducibility"
+      },
+      {
+        "subject": "cross-system comparison"
+      }
+    ],
+    "related_identifiers": [
+      {
+        "identifier": "10.5281/zenodo.23147633",
+        "scheme": "doi",
+        "relation_type": {
+          "id": "issupplementto"
+        },
+        "resource_type": {
+          "id": "publication-preprint"
+        }
+      },
+      {
+        "identifier": "10.5281/zenodo.22649268",
+        "scheme": "doi",
+        "relation_type": {
+          "id": "issupplementto"
+        },
+        "resource_type": {
+          "id": "publication-preprint"
+        }
+      },
+      {
+        "identifier": "https://github.com/totobusnello/memoria-nox",
+        "scheme": "url",
+        "relation_type": {
+          "id": "issupplementto"
+        },
+        "resource_type": {
+          "id": "software"
+        }
+      },
+      {
+        "identifier": "arXiv:2402.17753",
+        "scheme": "arxiv",
+        "relation_type": {
+          "id": "references"
+        },
+        "resource_type": {
+          "id": "publication-preprint"
+        }
+      },
+      {
+        "identifier": "arXiv:2410.10813",
+        "scheme": "arxiv",
+        "relation_type": {
+          "id": "references"
+        },
+        "resource_type": {
+          "id": "publication-preprint"
+        }
+      }
+    ],
+    "description": "<p>Per-query retrieval outputs behind Section 6 (cross-system comparison) of the technical report <em>nox-mem: Pain-Weighted Hybrid Memory for LLM Agents</em>, version 1.0.6 (DOI 10.5281/zenodo.23147633), with the scripts that score them. The report is a preprint and has not been peer reviewed.</p><p>Four runs are included: the superseded smoke runs of May 2026 (nox-mem, Mem0 at a 500-chunk cap, Zep; 20 queries each); rc4, in which nox-mem and Mem0 use the same embedder (gemini-embedding-001, 3072 dimensions) over 2,482 queries (1,982 LoCoMo, 500 LongMemEval); the task-type ablation of rc4; and the 2026-09-10 runs of EverOS 1.3.1 and Zep 0.27.2 on the same corpus and query set. Each output gives, per query, the question id, dataset, category labels, gold chunk ids, the retrieved chunk ids in rank order with their scores, latency, error and per-query nDCG@10, recall@10 and reciprocal rank. Id-only extracts of the three evaluation stores, the run logs with local paths redacted, and a provenance file with the sha256 of every original are also included.</p><p>The included verify_dataset.py (Python standard library only) runs 135 checks of values printed in Section 6 and compares each with version 1.0.6 of the paper; all 135 match. Of the 135, 132 are recomputed from these files (116 numbers, 13 yes/no statements, 3 strings) and 3 are differences recomputed from figures the paper prints for a run whose outputs were not retained. It also checks every file against SHA256SUMS and reproduces the shipped aggregates: for the 2026-09-10 runs, the files the harness wrote at run time; for rc4 and its ablation, files regenerated with the corrected scorer. The numbers it cannot recompute are listed in the README with the reason for each. The main one is the canonical run of 2026-06-15, whose per-query outputs were not retained. The README also documents the scorer correction made in version 1.0.6: each retrieved id is now credited once, at its first rank in the top 10. Versions up to 1.0.5 credited a relevant id at every occurrence, which in 3 of the 2,482 rc4 Mem0 queries scored above 1; the correction moved nine printed Mem0 values and margins by at most 0.004 (for example LongMemEval nDCG@10 0.4061 to 0.4030) and changed no ordering or sign.</p><p>No benchmark text is included. Question and passage text from LoCoMo (CC BY-NC 4.0) and LongMemEval (MIT) were removed; identifiers and category labels, which scoring needs, are kept. The sha256 of the dataset files used is listed so that holders of the originals can match them, and the stripping script is included so that holders of an original output can reproduce the stripped file byte for byte.</p><p>The data and scripts are distributed as one zip archive; the README is also uploaded on its own for preview. The code repository is https://github.com/totobusnello/memoria-nox.</p>",
+    "publisher": "Zenodo",
+    "languages": [
+      {
+        "id": "eng"
+      }
+    ],
+    "dates": [
+      {
+        "date": "2026-05-23/2026-09-11",
+        "type": {
+          "id": "collected"
+        },
+        "description": "UTC dates of the runs included: smoke runs 2026-05-23 to 2026-05-25; rc4 and its ablation 2026-06-29 to 2026-06-30; EverOS and Zep 2026-09-10 to 2026-09-11"
+      }
+    ]
+  },
+  "access": {
+    "record": "public",
+    "files": "public"
+  },
+  "files": {
+    "enabled": true,
+    "default_preview": "README.md"
+  }
+}
