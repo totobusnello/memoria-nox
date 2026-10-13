@@ -229,10 +229,6 @@ The dataset is at https://doi.org/10.5281/zenodo.23130191 under CC BY 4.0. `anal
 downloads it, checks its checksums and recomputes every number in this note:
 `python3 analysis.py --fetch <dir>`.
 
-## CRediT
-
-Luiz Antonio Busnello: conceptualization, software, data curation, formal analysis, writing.
-
 ## Declaration of competing interest
 
 The author develops nox-mem.
