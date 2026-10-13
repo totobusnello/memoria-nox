@@ -57,6 +57,7 @@ def census(text, m):
     text = re.sub(r"\b(Aug|Sep) \d+(–(Aug |Sep )?\d+)?", " ", text)
     text = re.sub(r"zenodo\.\d+|arXiv:\S+|D\d+|Table \d|Section \d|\[\d\]|Paradigms? [IV]+", " ", text)
     text = re.sub(r"`[^`]*`", " ", text)
+    text = re.sub(r"\{width=[^}]*\}", " ", text)  # pandoc layout attributes
     bad = []
     for tok in NUM.findall(text):
         if tok in STRUCTURAL or matches(tok, m):

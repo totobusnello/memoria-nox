@@ -1,4 +1,4 @@
-# Writing costs more than reading, and most reads are the monitor: a data note on 32 days of phase-attributed provider calls from a production agent-memory system
+# Expensive writes, noisy reads: provider-call telemetry from a production agent-memory system
 
 > **Status (2026-10-13).** Draft rc2 of a data note, not peer reviewed and not yet deposited.
 > It describes the dataset Busnello, L. A. (2026), *Phase-attributed provider-call telemetry
