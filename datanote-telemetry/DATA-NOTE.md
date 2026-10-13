@@ -1,15 +1,10 @@
 # Writing costs more than reading, and most reads are the monitor: a data note on 32 days of phase-attributed provider calls from a production agent-memory system
 
-Luiz Antonio Busnello
-
-Draft rc1, 2026-10-13. Not peer reviewed.
-
-Dataset: Busnello, L. A. (2026). *Phase-attributed provider-call telemetry from a production
-agent-memory system (32-day window, 2026-08-07 to 2026-09-08)* (Version 1.0.0). Zenodo.
-https://doi.org/10.5281/zenodo.23130191
-
-Every number in this note is recomputed from the dataset by `analysis.py`, and `parity.py`
-checks the text against that output.
+> **Status (2026-10-13).** Draft rc2 of a data note, not peer reviewed and not yet deposited.
+> It describes the dataset Busnello, L. A. (2026), *Phase-attributed provider-call telemetry
+> from a production agent-memory system (32-day window, 2026-08-07 to 2026-09-08)*, version
+> 1.0.0, Zenodo, `10.5281/zenodo.23130191`. Rule of this file: every number is recomputed from
+> that dataset by `analysis.py`, and `parity.py` checks the text against its output.
 
 ## Abstract
 
@@ -133,7 +128,7 @@ separated by days with almost none.
 ![Estimated cost per UTC day, by phase, in milli-USD; each panel has its own scale. Shaded:
 2026-08-25 to 2026-09-06, the 13 days with no construction or maintenance rows (D11). Dashed
 line: host migration on 2026-08-23 (D10). Drawn by `figure.py` from `daily_phase_summary.csv`;
-days with no row for a phase are drawn as zero.](figure1.pdf){width=100%}
+days with no row for a phase are drawn as zero.](figure1.pdf){width=85%}
 
 *Maintenance.* The benchmark decomposition in [1] has no maintenance phase, and that paper
 reports that none of the systems it evaluates "prune or forget by default". Here maintenance
