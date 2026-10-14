@@ -225,36 +225,9 @@ NOX_SALIENCE_MODE=active    # only after eval gate passes
 
 ---
 
-### `NOX_LANG_AWARE_RRF`
+### Removed: `NOX_LANG_AWARE_RRF`, `NOX_SEARCH_LOG_TEXT`
 
-| | |
-|---|---|
-| **Default** | `1` (enabled) |
-| **Type** | boolean (`1` / `0`) |
-| **Controls** | Language-aware RRF fusion weights — tilts dense up on PT queries (1.15×), FTS down (0.85×), balanced on EN/mixed |
-| **When to change** | Only to disable for an A/B experiment — this feature was validated at +1.92pp on PT/EN mixed corpus (Wave E14) |
-
-```bash
-NOX_LANG_AWARE_RRF=1
-```
-
----
-
-### `NOX_SEARCH_LOG_TEXT`
-
-| | |
-|---|---|
-| **Default** | `0` (off) |
-| **Type** | boolean (`1` / `0`) |
-| **Controls** | Whether query text is persisted in the `search_telemetry` table alongside scores |
-| **When to change** | Enable when running eval harness or building a golden set — adds 4 telemetry columns including `query_text`, `golden_id`, `top_chunk_ids`, `top_scores` |
-
-Query text is never logged by default — privacy protection. Enable only in controlled eval environments.
-
-```bash
-NOX_SEARCH_LOG_TEXT=0    # default — queries not stored
-NOX_SEARCH_LOG_TEXT=1    # eval mode — queries stored in search_telemetry
-```
+Both were documented here but are read by no code in the npm package or the reference deployment (2026-10-14 audit). Language-aware RRF exists only as a research result; query text is never stored in `search_telemetry` (privacy decision in `db.ts`).
 
 ---
 
@@ -526,8 +499,6 @@ NOX_ALLOW_NO_SNAPSHOT=1    # emergency only — document the reason before enabl
 | `NOX_LLM_MODEL` | `gemini/gemini-2.5-flash-lite` | Providers |
 | `NOX_PROVIDER_HEALTH_FAIL_FAST` | `1` | Providers |
 | `NOX_SALIENCE_MODE` | `shadow` | Search |
-| `NOX_LANG_AWARE_RRF` | `1` | Search |
-| `NOX_SEARCH_LOG_TEXT` | `0` | Search |
 | `NOX_RANKING_CONFIDENCE` | `disabled` | L3 — Confidence |
 | `NOX_CONFIDENCE_OBSERVED` | `0.95` | L3 — Confidence |
 | `NOX_CONFIDENCE_INFERRED` | `0.65` | L3 — Confidence |
@@ -571,8 +542,6 @@ NOX_PROVIDER_HEALTH_FAIL_FAST=1
 
 # ── Search / ranking ──────────────────────────────────────────────────────
 NOX_SALIENCE_MODE=shadow         # flip to 'active' only after 7d shadow + eval gate
-NOX_LANG_AWARE_RRF=1
-NOX_SEARCH_LOG_TEXT=0            # set to 1 for eval harness runs only
 
 # ── Confidence (L3) — defaults are safe ───────────────────────────────────
 NOX_RANKING_CONFIDENCE=disabled

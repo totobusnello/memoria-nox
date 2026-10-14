@@ -61,12 +61,12 @@
 
 | Dimension | nox-mem | Note | Paper |
 |---|---:|---|---|
-| KG path latency p50 | **2.5 ms** | SQL + regex over `kg_relations`, no LLM call; n=120, 2026-05-29 | §5.7.1 |
-| KG path cost per query | **$0.00** | local SQL only | §5.7.2 |
+| KG path latency p50 (research harness) | **2.5 ms** | SQL + regex over `kg_relations`, no LLM call; n=120, 2026-05-29. The KG-path retrieval knob runs in `eval/evermembench/`, **not in the npm package** | §5.7.1 |
+| KG path cost per query (research harness) | **$0.00** | local SQL only; same caveat | §5.7.2 |
 | Hybrid path cost per query | $0.0000015 | Gemini embedding list price. The "~667× cheaper than Mem0 Cloud" ratio rests on an *estimated* Mem0 rate | §5.7.2 |
 | API process memory | **399 MB RSS**, single process | one SQLite file; no separate database, vector store or queue service | §5.7.3 |
 
-<sub>**Methodology.** EverMemBench rows are 5-batch with a 95% CI (t-distribution); single-batch runs overstated gains and were retired as a gate. MuSiQue and HotPotQA are single full-dev-set runs. Backbones matter: only the same-backbone rows are like-for-like. MemOS: arXiv:2602.01313, Table 4. MuSiQue: Trivedi et al. 2022. HotPotQA: Yang et al. 2018. An opt-in ReAct loop (`NOX_ITERB_GEMINI=1`) lifts EverMemBench F_MH from 6.02% to 8.03% at a −3.53 pp cost on the MA composite (§5.4).</sub>
+<sub>**Methodology.** EverMemBench rows are 5-batch with a 95% CI (t-distribution); single-batch runs overstated gains and were retired as a gate. MuSiQue and HotPotQA are single full-dev-set runs. Backbones matter: only the same-backbone rows are like-for-like. MemOS: arXiv:2602.01313, Table 4. MuSiQue: Trivedi et al. 2022. HotPotQA: Yang et al. 2018. A ReAct loop tested in the research harness (not in the npm package) lifts EverMemBench F_MH from 6.02% to 8.03% at a −3.53 pp cost on the MA composite (§5.4).</sub>
 
 <p align="center">
   <a href="#quick-start">Quick start</a> &middot;
@@ -164,8 +164,8 @@ Five layers, one SQLite file:
 
 1. **Ingest** &mdash; router auto-detects entity files (`compiled` / `frontmatter` / `timeline` sections with `section_boost`), markdown, or graphify input. Privacy filter applies thirteen redaction patterns pre-storage (A1, `<private>` tag, 1.7% false-positive rate, 68 tests).
 2. **Store** &mdash; chunks land in SQLite with FTS5 index plus 3072-d Gemini vector via sqlite-vec. Retention is typed: `feedback` and `person` never decay, `lesson` 180d, `decision` and `project` 365d, default 90d. Schema v19 is additive and idempotent.
-3. **Retrieve** &mdash; query runs in parallel through FTS5 BM25 and Gemini semantic. RRF fusion (k=60) merges. Language-aware weights (D, Wave 1 E14) tilt dense up on PT queries (1.15) and FTS down (0.85), balanced on EN/mixed.
-4. **Rank** &mdash; salience (`recency × pain × importance`) composes additively with section_boost (`compiled 2.0 / frontmatter 1.5 / timeline 0.8`) and temporal boost (E13). Shadow mode is the default; flipping to active requires `NOX_SALIENCE_MODE=active` and seven days of baseline.
+3. **Retrieve** &mdash; query runs in parallel through FTS5 BM25 and Gemini semantic. RRF fusion (k=60) merges.
+4. **Rank** &mdash; salience (`recency × pain × importance`) composes additively with section_boost (`compiled 2.0 / frontmatter 1.5 / timeline 0.8`). Shadow mode is the default; flipping to active requires `NOX_SALIENCE_MODE=active` and seven days of baseline.
 5. **Answer** &mdash; CLI, MCP, and HTTP surfaces with citation footers, anti-hallucination guard, telemetry persistence, and a phase-broken-down latency budget.
 
 Mermaid source: [`assets/readme/mermaid/architecture-source.mmd`](assets/readme/mermaid/architecture-source.mmd). Deeper architecture write-up: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Paper: [`paper/paper-tecnico-nox-mem.md`](paper/paper-tecnico-nox-mem.md).
@@ -187,14 +187,14 @@ memoria-nox is organized into three product pillars plus a research lab and a no
 <h3>A &mdash; Autonomy</h3>
 <sub>Data yours, provider your choice</sub><br><br>
 <strong>Zero vendor lock-in</strong><br>
-<sub>SQLite file, A1 privacy filter, A2 AES-256-GCM export</sub><br><br>
-A1 · A2 · A3 · A4
+<sub>SQLite file you can <code>cp</code>, A1 privacy filter, BYO key, swappable embedding provider</sub><br><br>
+A1 · A3 · A4
 </td>
 <td align="center" width="33%">
 <h3>P &mdash; Product</h3>
 <sub>Self-hosted operational profile</sub><br><br>
-<strong>KG path 2.5 ms p50 · $0/query · 399 MB RSS</strong><br>
-<sub>$0 marginal cost on the KG path · one process, one SQLite file</sub><br><br>
+<strong>One process · one SQLite file</strong><br>
+<sub>keyword search works with no key · hybrid with your own embedding key</sub><br><br>
 P1 · P3 · P5 · P5a
 </td>
 </tr>
@@ -218,11 +218,11 @@ Each number carries its comparator and its caveat. The headline table at the top
 - **Retrieval@10 strict 74.52%**, multi-hop retrieval@10 82.21% strict / 92.91% adj-2. Mem0's published 66.88% is end-to-end **answer F1** &mdash; a different metric, not a head-to-head (§5.3.1).
 - Our own answer-F1 push: 51.85% (rank-5), above Zep 50.40% / LangMem 50.21%.
 
-**EverMemBench F_MH.** The 3–7% F_MH scores on EverMemBench are a corpus-structural difficulty (very long conversation chains, strict scoring), not a multi-hop reasoning failure: the same pipeline composes multi-hop answers competently on MuSiQue and HotPotQA (§5.4). An opt-in ReAct loop (PR #419, `NOX_ITERB_GEMINI=1`) lifts F_MH from 6.02% to 8.03% on Gemini-3-flash, at a −3.53 pp cost on the MA composite.
+**EverMemBench F_MH.** The 3–7% F_MH scores on EverMemBench are a corpus-structural difficulty (very long conversation chains, strict scoring), not a multi-hop reasoning failure: the same pipeline composes multi-hop answers competently on MuSiQue and HotPotQA (§5.4). A ReAct loop tested in the research harness (PR #419; not in the npm package) lifts F_MH from 6.02% to 8.03% on Gemini-3-flash, at a −3.53 pp cost on the MA composite.
 
 **LongMemEval (PR #378):** task accuracy 68.16% (n=201 judged, Wilson 95% CI 0.614–0.742).
 
-**Lab Q1 standalone knobs (Wave A):** KG path retrieval $0/query (PR #379), MQ canonical multi-hop (PR #385), MAP rerank protection (PR #386), adaptive classifier (PR #381). Q3 IterC Self-Ask opt-in for F_HL synthesis (PR #406).
+**Research-harness knobs (Wave A; results in the paper, not shipped in the npm package):** KG path retrieval $0/query (PR #379), MQ canonical multi-hop (PR #385), MAP rerank protection (PR #386), adaptive classifier (PR #381). Q3 IterC Self-Ask for F_HL synthesis (PR #406).
 
 **Methodology:** 5-batch + 95% CI (t-distribution, ~620 questions per batch) is the gate for EverMemBench; single-batch runs overstated gains by up to 1.7σ and were retired. MemOS: arXiv:2602.01313, Table 4. MuSiQue: Trivedi et al. 2022. HotPotQA: Yang et al. 2018.
 
@@ -449,17 +449,13 @@ Top environment variables. Full reference: [`docs/CONFIGURATION.md`](docs/CONFIG
 |---|---|---|
 | `NOX_API_PORT` | `18802` | HTTP API port. Never hardcode &mdash; Chrome squats on 18800. |
 | `NOX_SALIENCE_MODE` | `shadow` | Salience ranking mode: `shadow` (default) or `active`. Active requires 7d baseline. |
-| `NOX_EMBED_PROVIDER` | `gemini` | Embedding provider: `gemini`, `openai`, or `local`. |
+| `NOX_EMBEDDING_PROVIDER` | `gemini` | Embedding provider: `gemini` or `openai` (`NOX_EMBED_PROVIDER` is accepted as an alias). |
 | `GEMINI_API_KEY` | _optional_ | Default embedding provider key. BYO &mdash; never proxied. Without any embedding key, search is keyword-only (FTS5) and `answer` / `vectorize` are unavailable. |
 | `NOX_FTS_OR_FALLBACK` | `auto` | When a keyword (AND) query finds nothing, retry with OR of the content terms. `auto` = only when no embedding key is set; `on` / `off` force it. |
 | `NOX_DB_PATH` | `~/.nox-mem/nox.db` | SQLite store location (an existing `<package>/nox-mem.db` from ≤3.3 keeps being used). `cp` is your backup. |
-| `NOX_LANG_AWARE_RRF` | `1` | Language-aware RRF fusion weights (D, +1.92pp on PT/EN mix). |
-| `NOX_SEARCH_LOG_TEXT` | `0` | Persist query text in `search_telemetry` for eval harness. |
 | `NOX_L4_REGEX_ENABLED` | `0` | Enable regex-first typed-link extraction (Lab sprint L4). |
-| `NOX_KG_EXTRACT_MODE` | `hybrid_shadow` | KG extraction mode: `regex_only`, `gemini_only`, `hybrid_shadow` (default), `hybrid_active`. Watch L4 first-fire on Sunday cron. |
-| `NOX_MUTEX_QUERY_ENTITY_THRESHOLD` | `2` | G10d Conditional Hard Mutex threshold (D51). Mutex applied when `query_entities ≤ N`; bypass on multi-entity queries to preserve chain signal. |
+| `NOX_MUTEX_QUERY_ENTITY_THRESHOLD` | `1` | G10d Conditional Hard Mutex threshold (D51; the reference deployment sets `2`). Mutex applied when `query_entities ≤ N`; bypass on multi-entity queries to preserve chain signal. |
 | `NOX_DISABLE_CONDITIONAL_MUTEX` | `0` | Rollback to G10 always-on Hard Mutex (skip the conditional layer). |
-| `NOX_ITERB_GEMINI` | `0` | Q3 IterB ReAct multi-round orchestration on Gemini-3-flash backbone (PR #419). +2.01pp clean F_MH lift on best backbone (breaks Wave A/B/C single-stage ceiling 7.25% by +0.78pp); MA composite -3.53pp trade-off. Opt-in for offline/analytics workloads where F_MH ceiling break matters more than MA composite. Cost $0.00295/q. |
 | `NOX_ALLOW_NO_SNAPSHOT` | `0` | Emergency override for destructive ops without pre-op snapshot. |
 
 ## Contributing
