@@ -1,6 +1,6 @@
 # 7b — Brief action probe: does the injected brief change what agents do?
 
-Status: **v3 for review** (2026-10-14). ROADMAP v6 item 7(b).
+Status: **v3.1 for review** (2026-10-14). ROADMAP v6 item 7(b).
 v1 challenged by Kimi (`adversary-receipt-kimi-2026-10-14T194124-93966.txt`) and Grok
 (`adversary-receipt-grok-2026-10-14T194125-94087.txt`); v2 reviewed by Kimi
 (`…kimi-2026-10-14T195904-11351.txt`, NO-GO, 5 MÉDIO) and Grok (`…grok-2026-10-14T195909-11431.txt`,
@@ -78,11 +78,13 @@ the noise floor):
 
 1. The manifest freezes, per unit and before filtering, an **ordered candidate list**: other agents in
    a seeded order; for each, its `brief_id`s with `served_at` within ±3 days of t, nearest first.
-2. Walk the list item by item, skipping chunks with `created_at > t`, chunk ids present in B1, and items
-   whose distinctive-token overlap with any B1 item exceeds 0.3 (7a token definition), until the item
-   count equals B1's.
-3. Render with the production formatter; accept iff the rendered block is within ±10% of B1's rendered
-   length in characters, else continue the walk. A unit with no acceptable BS is dropped.
+2. Flatten the list into one item sequence: candidate briefs in list order, items within a brief in
+   the order the production formatter emits them. Remove items with `created_at > t`, chunk ids present
+   in B1, and items whose distinctive-token overlap with any B1 item exceeds 0.3 (7a token definition).
+3. Slide a window of |B1| consecutive items over that filtered sequence, starting at position 0. Render
+   the window with the production formatter; accept the first window whose rendered block is within
+   ±10% of B1's rendered length in characters; otherwise advance the window by one item. If the
+   sequence is exhausted, the unit is dropped.
 4. Drop rate is reported per stratum; if it exceeds 20% of a stratum, that stratum's Δc is flagged as
    estimated on a selected subset.
 
@@ -110,9 +112,10 @@ never evidence that B1 helps.
   recorded and no trace exists. No unit runs before it passes.
 - **Block scheduling:** the six runs of a unit execute back-to-back in random order (same date line, no
   drift within a unit); units are shuffled.
-- **Failures:** a failed run is retried once. Per stratum, failures after retry are compared across arms
-  by Fisher's exact test; if p < 0.05, every contrast involving the differing arm is **inconclusive** for
-  that stratum and its Δ is not read.
+- **Failures:** a failed run is retried once. Per stratum and per arm, failures after retry are compared
+  with the other two arms pooled by a 2×2 Fisher exact test; every contrast that involves an arm with
+  p < 0.05 is **inconclusive** for that stratum (its p is set to 1 in §6.1 and its Δ is not read);
+  contrasts not involving such an arm are read normally.
 - **Data handling:** inputs and outputs contain session content and stay on the VPS
   (`/root/medicoes/`). The memoria-nox repo is public: only scripts, frozen non-content parameters and
   aggregates are committed.
@@ -142,10 +145,14 @@ never evidence that B1 helps.
    (edit distance ÷ length of the longer), in [0, 1]. Order-aware; one comparator for every pair.
 3. **Validity ceiling:** if a stratum's pilot A/A mean divergence (pairs of distinct replicas) exceeds
    **0.5**, the mechanical primary for that stratum is **invalid** (not null).
-4. **MDE:** simulate the exact §6.1 estimator: two replicas per arm resampled from the pilot's four,
-   the main set's cluster structure, and an alternative in which, with probability q, the comparison
-   arm's sequence is replaced by a sequence from another unit of the same stratum. The MDE is the
-   smallest resulting Δ detected with 80% power at the §6.1 decision rule. Frozen per stratum.
+4. **MDE:** simulate the §6.1 estimator per stratum. Each simulated unit takes a pilot unit as its
+   base; the replicas of every arm are drawn without replacement from that unit's four pilot replicas
+   (so A/A is real run-to-run noise). Under the alternative with parameter q, for each simulated unit
+   with probability q, the comparison arm's replicas are drawn instead from a different pilot unit of
+   the same stratum. Clusters follow the main set's structure. For each q on a grid, compute the
+   power of the one-sided bootstrap test at α = 0.0125 (the strictest Holm step, 0.05/4, which makes the
+   MDE conservative without simulating the other three tests) and E[Δ | q]. MDE = the smallest E[Δ | q]
+   with power ≥ 80%. Frozen per stratum.
 
 Frozen parameters are committed (no content) before the main run.
 
@@ -164,12 +171,15 @@ Stratum estimate = mean over clusters of the cluster mean (each cluster of §2 w
 
 - **Test:** one-sided bootstrap p = (1 + #draws with Δ ≤ 0) / (1 + 10,000).
 - **Multiplicity:** Holm over the four p values (Δp, Δc × C, H); an effect is declared iff its
-  Holm-adjusted p < 0.05. If a stratum is invalid (§5.3) or inconclusive (§4), its p values are set to 1
-  and the family stays at four.
+  Holm-adjusted p < 0.05. If a stratum is invalid (§5.3), its two p values are set to 1; if a contrast is
+  inconclusive (§4), its p value is set to 1; the family stays at four.
 - **Reporting:** unadjusted 95% percentile CIs alongside.
-- **Null reading:** effects outside the CI are excluded. If the CI contains 0 and its upper bound is
-  below the stratum's frozen MDE, effects ≥ MDE are excluded; otherwise the stratum is reported as
-  underpowered for effects of that size.
+- **Null reading** (only when no effect is declared): effects outside the CI are excluded. If the CI
+  contains 0 and its upper bound is below the stratum's frozen MDE, effects ≥ MDE are excluded; if the
+  CI contains 0 and its upper bound is ≥ MDE, the stratum is reported as underpowered for effects of
+  that size.
+- **Invalid stratum** (§5.3): no Δ, no CI, no null reading for its mechanical primaries; only §6.2 is
+  read for it, and if §6.2 also fails a gate the stratum is inconclusive.
 - Stratum R (13 units) is descriptive only.
 
 ### 6.2 Secondary (judged): is the change for the better? Strata C and H (R judged, descriptive)
@@ -291,3 +301,13 @@ validity ceiling per stratum · MDE per stratum · config dir hash (hook + MCP s
 | "each cron prompt weighs once" wrong for H/R (Grok BAIXO) | "each cluster of §2 weighs once" (§6.1) |
 | Scaffold on a tmpfs glob (Grok BAIXO) | persisted copy + sha256, abort on mismatch (§4) |
 | C ≈ 75 not derivable (Kimi B1) | C = Σ min(turns, 8) = 71 (§2) |
+
+### v3 → v3.1 (Grok diff-only pass, `…grok-2026-10-14T201848-45207.txt`: 16 RESOLVED, 3 FALSE, 2 new)
+
+| finding | disposition |
+|---|---|
+| Null reading: "otherwise" also fires when the CI excludes 0 (FALSE) | null reading only when no effect is declared; underpowered branch requires CI ∋ 0 (§6.1) |
+| MDE: base sequence undefined; Holm not simulated (FALSE) | base pilot unit per simulated unit; power at α = 0.0125, the strictest Holm step (§5.4) |
+| BS walk not a function: item order, "continue the walk" (FALSE) | flattened ordered sequence, sliding window of |B1| items (§3) |
+| Invalid stratum could still get CI and null reading (new) | invalid stratum has no Δ, CI or null reading (§6.1) |
+| Fisher across three arms names no arm (new) | 2×2 per arm vs the other two pooled; p = 1 only for contrasts touching it (§4, §6.1) |
