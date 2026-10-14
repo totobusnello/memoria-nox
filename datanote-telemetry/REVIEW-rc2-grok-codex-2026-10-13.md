@@ -36,3 +36,23 @@ Neither voice found a number that disagrees with `numbers.json` or the README.
 One number written during the fixes was wrong before it was computed: the canary share inside the
 13-day stretch was first written as 92.0% and is 96.3%. It was corrected from `analysis.py`
 before the census ran.
+
+## Second round: Grok on the diff, Kimi on the full note (2026-10-13)
+
+| voice | receipt | exit | verdict |
+|---|---|---|---|
+| Grok (`grok-4.7`), diff of the fixes only, false-only rule | `adversary-receipt-grok-2026-10-13T211701-2905.txt` (attach 110,459 B) | 0 | GO, no false statement in the diff |
+| Kimi, full read of the current note | `adversary-receipt-kimi-2026-10-13T211703-2978.txt` | 0 | no HIGH; 1 MEDIUM; 5 LOW |
+
+The Kimi shell captured only the last 60 KB of the voice's output; the review text above the
+findings (its own reading notes) was lost and not re-run. The findings section is complete.
+
+| # | finding | status | action |
+|---|---|---|---|
+| K-M1 | the 55x per-call ratio uses the raw rows; unflagged it is about 25x | confirmed (24.9) | abstract, Per call and the closing paragraph of Section 4 give both; analysis.py computes the unflagged per-call costs |
+| K-L1 | the per-day denominator was bound to `days_with_rows`, the code divides by 32 | confirmed (latent) | bound to the README's 32-day convention |
+| K-L2 | spelled numbers "three rules", "five-hour", "seven-day" not censused | confirmed | bound; selftest now 12/12 |
+| K-L3 | KG schedule and the per-agent stores stated more flatly than README D8 and D13 | confirmed | "Project records schedule..."; "when the operator checked on 2026-09-07; not re-measured" |
+| K-L4 | "is deposited" in a pre-deposit draft | confirmed | "will be deposited" |
+| K-L5 | banker's rounding in `same()` | latent, no metric on a half | not changed |
+| K-3 | statements about [1] unverifiable from the files | checked against arXiv:2606.06448 v2 (see round 1, item 16) | none |

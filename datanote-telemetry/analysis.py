@@ -103,6 +103,12 @@ def measure(rows):
     m["usd_per_construction_call"] = raw["construction_cost"] / len(cons)
     m["usd_per_query_call"] = raw["query_cost"] / len(qry)
     m["construction_to_query_cost_ratio"] = m["usd_per_construction_call"] / m["usd_per_query_call"]
+    m["clean_usd_per_construction_call"] = clean["construction_cost"] / clean["construction_calls"]
+    m["clean_usd_per_query_call"] = clean["query_cost"] / clean["query_calls"]
+    m["clean_construction_to_query_cost_ratio"] = (m["clean_usd_per_construction_call"]
+                                                   / m["clean_usd_per_query_call"])
+    m["flagged_usd_per_query_call"] = ((raw["query_cost"] - clean["query_cost"])
+                                       / (raw["query_calls"] - clean["query_calls"]))
     m["mean_tin_construction"] = statistics.mean(r["tin"] for r in cons)
     m["mean_tin_query"] = statistics.mean(r["tin"] for r in qry)
 

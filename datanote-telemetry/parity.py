@@ -33,7 +33,7 @@ import math
 import re
 import sys
 
-WORDS = {"zero": 0, "one": 1, "two": 2, "three": 3, "six": 6, "thirteen": 13}
+WORDS = {"zero": 0, "one": 1, "two": 2, "three": 3, "five": 5, "six": 6, "seven": 7, "thirteen": 13}
 N = r"(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)"
 D = r"(20\d\d-\d\d-\d\d)"
 S = r"\s+"  # line breaks inside a passage
@@ -71,7 +71,8 @@ BINDINGS = [
     (r"recorded over " + N + r" days", [k("days_with_rows")]),
     (r"Construction is " + N + r"% of calls and " + N + r"% of estimated cost",
      [k("raw_construction_pct_calls"), k("raw_construction_pct_cost")]),
-    (r"costs about " + N + r" times as much", [k("construction_to_query_cost_ratio")]),
+    (r"costs about " + N + r" times as much as one query call, or about " + N + r" times once",
+     [k("construction_to_query_cost_ratio"), k("clean_construction_to_query_cost_ratio")]),
     (r"stays" + S + r"between " + N + r"% and " + N + r"% whether",
      [k("raw_construction_pct_cost"), k("clean_construction_pct_cost")]),
     (r"instrument\. " + N + r"% of query calls", [k("query_annotated_pct")]),
@@ -115,6 +116,10 @@ BINDINGS = [
      [k("usd_per_construction_call"), k("usd_per_query_call"), k("construction_to_query_cost_ratio")]),
     (r"reads " + N + r" input tokens on average and a query call" + S + N + r", a ratio of about " + N,
      [k("mean_tin_construction"), k("mean_tin_query"), k("input_token_ratio")]),
+    (r"flagged query calls cost USD " + N + r" on average and the unflagged ones USD " + N +
+     r"; without the flagged rows, a construction call costs USD " + N + r" and the ratio is about " + N,
+     [k("flagged_usd_per_query_call"), k("clean_usd_per_query_call"), k("clean_usd_per_construction_call"),
+      k("clean_construction_to_query_cost_ratio")]),
     (r"prices: " + N + r" of the " + N + r" query calls are embeddings",
      [k("query_embed_calls"), k("raw_query_calls")]),
     (r"The (three) most expensive" + S + r"calls, all digest builds, account for " + N + r"%",
@@ -147,7 +152,7 @@ BINDINGS = [
         "amort_clean_block5_queries", "amort_clean_block5", scales=AMORT),
     (r"USD " + N + r" in total, for one shared store serving (six)" + S + r"agents: USD " + N +
      r" per day over the " + N + r" days, of which the first covers only " + N + r" hours",
-     [k("raw_cost"), rd(6), k("usd_per_day"), k("days_with_rows"), k("first_day_hours_covered")]),
+     [k("raw_cost"), rd(6), k("usd_per_day"), rd(32), k("first_day_hours_covered")]),
     # 4. Second reading
     (r"breaks down the " + N + r" query rows\." + S + N + r" of them, or " + N +
      r"%, carry a flag; the canary signature alone accounts for " + N + r", or " + N + r"%\." + S +
@@ -172,9 +177,15 @@ BINDINGS = [
     (r"it fires every " + N + r" minutes, and no gap between consecutive rows exceeds " + N +
      r" minutes" + S + r"except (two)", [rd(30), lit(32), k("gaps_over_32min")]),
     (N + r" calls failed, all query embeddings, on (two) dates", [k("failed_calls"), k("failed_dates")]),
-    (r"only from " + N + r"% to " + N + r"%, and cuts the query" + S + r"call count from " + N + r" to " + N,
+    (r"only from " + N + r"% to " + N + r"%, but cuts the query" + S + r"call count from " + N + r" to " + N,
      [k("raw_construction_pct_cost"), k("clean_construction_pct_cost"), k("raw_query_calls"),
       k("clean_query_calls")]),
+    (r"per-call cost ratio from about " + N + r" to about " + N,
+     [k("construction_to_query_cost_ratio"), k("clean_construction_to_query_cost_ratio")]),
+    (r"checked on " + D, [rd("2026-09-07")]),
+    (r"\*Annotations\.\* (Three) rules flag", [rd(3)]),
+    (r"a (five)-hour night window", [rd(5)]),
+    (r"Table 2 does this for (seven)-day blocks", [lit(7)]),
     # 5 and back matter
     (r"one provider and " + N + r" days", [k("days_with_rows")]),
     (r"full list of " + N + r" defects", [rd(16)]),
@@ -267,6 +278,8 @@ MUTATIONS = [  # (old, new): each must make the census fail
     ("| smoke test | 2 | 0.060 |", "| smoke test | 2 | 0.1 |"),
     ("maintenance on 11.", "maintenance on 13."),
     ("ratio of about 67", "ratio of about 55"),
+    ("or about 25 times once", "or about 55 times once"),
+    ("a (five)-hour".replace("(five)", "five"), "a six-hour"),
 ]
 
 

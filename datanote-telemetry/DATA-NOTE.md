@@ -15,7 +15,8 @@ external model-provider calls recorded over 32 days by the shared store of nox-m
 self-hosted memory service consulted by six agents. Each call is labelled with a phase:
 construction, query or maintenance. We read the same table twice.
 The first reading is about cost. Construction is 3.16% of calls and 55.7% of estimated cost, and one
-construction call costs about 55 times as much as one query call. Construction's share stays
+construction call costs about 55 times as much as one query call, or about 25 times once the
+rows that match a monitoring signature are removed. Construction's share of cost stays
 between 55.7% and 58.7% whether or not the rows that match a monitoring signature are removed. The second is about the
 instrument. 62.8% of query calls match a monitoring or probe signature, so the call counts
 cannot be read as agent demand. The log also has a 13-day stretch
@@ -75,7 +76,8 @@ tokens times public list prices captured at deployment, not an invoice (D5).
 *System.* nox-mem stores agent memory in SQLite with full-text and vector indexes and a typed
 knowledge graph, and answers queries with hybrid lexical and dense retrieval [2]. During the
 window, six agents consulted its shared store. Each agent also has its own store, and those
-stores have no telemetry table (D13).
+stores had no telemetry table when the operator checked on 2026-09-07; this was not
+re-measured for the deposit (D13).
 
 *Instrument.* One recording module is called from every code path that reaches a provider.
 It writes one row per call and swallows its own errors, so telemetry cannot break ingestion or
@@ -122,7 +124,10 @@ are 2,107 calls and 5.4% of estimated cost.
 a ratio of about 55. A construction call reads 5,500 input tokens on average and a query call
 82, a ratio of about 67. The two ratios differ because the phases use different models and
 prices: 3,341 of the 3,351 query calls are embeddings, while construction also includes LLM
-completions, which are billed for output tokens.
+completions, which are billed for output tokens. The query average also depends on which rows
+are counted. The flagged query calls cost USD 0.0000034 on average and the unflagged ones USD
+0.0000274; without the flagged rows, a construction call costs USD 0.000683 and the ratio is
+about 25.
 
 *Concentration.* Cost is concentrated in a few large writes. The three most expensive
 calls, all digest builds, account for 29.7% of all estimated cost. Without them,
@@ -201,7 +206,7 @@ rows (D9), so the table shows that no construction or maintenance call was recor
 none was made. A reader averaging construction over the window is averaging over that stretch. Construction
 occurs on 19 of the 32 days and maintenance on 11.
 
-*A construction path that is scheduled but absent.* LLM knowledge-graph extraction is scheduled weekly,
+*A construction path that is scheduled but absent.* Project records schedule LLM knowledge-graph extraction weekly,
 yet the table holds exactly one `kg-llm.extract` row, and it is the smoke test (D8). The
 dataset therefore contains no production cost for one of the system's construction paths. The
 extraction call site also records only successful calls, so a failure would not leave a row
@@ -219,8 +224,9 @@ model, but every row names the same provider (D14). The data are consistent with
 being triggered. That was not verified independently.
 
 The two readings meet at one fact: the flagged rows are almost all cheap query embeddings.
-Removing them moves construction's cost share only from 55.7% to 58.7%, and cuts the query
-call count from 3,351 to 1,246.
+Removing them moves construction's cost share only from 55.7% to 58.7%, but cuts the query
+call count from 3,351 to 1,246 and the per-call cost ratio from about 55 to about 25. Shares of
+total cost are stable under the filter; anything divided by a call count is not.
 
 ## 5. Limitations
 
@@ -240,7 +246,7 @@ the dataset's verification script checks.
 ## Data availability
 
 The dataset is at https://doi.org/10.5281/zenodo.23130191 under CC BY 4.0. The code for this
-note (`analysis.py`, `parity.py`, `figure.py` and the PDF build) is deposited with this note and is
+note (`analysis.py`, `parity.py`, `figure.py` and the PDF build) will be deposited with this note and is
 also in the public repository https://github.com/totobusnello/memoria-nox, in
 `datanote-telemetry/`. `python3 analysis.py --fetch <dir>` downloads the dataset, checks its
 checksums and recomputes the numbers the note reports.
