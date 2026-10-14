@@ -6,6 +6,8 @@
 
 **Architecture:** A stdlib-only Python package (`eval/brief-action-probe/probe/`) holds the pure logic (serialization, divergence, statistics, sham construction, scaffold assembly, transcript parsing, stream-json parsing, judging helpers), each unit-tested on the Mac and on the VPS. Thin scripts drive the VPS-side steps: a Node bridge renders briefs with the **production** formatter from `tools/nox-mem/dist/api/brief.js`; `claude -p` runs in an isolated `CLAUDE_CONFIG_DIR` whose `PreToolUse` hook records and denies every tool call; all session content stays under `/root/medicoes/7b/` on the VPS, and only code, frozen non-content parameters and aggregates are committed to this public repo.
 
+**Host:** every VPS command reads the host from `$NOX_VPS` (export it in the shell; this repository is public and never names the host).
+
 **Tech Stack:** Python 3.12 (VPS) / 3.14 (Mac), stdlib only (`unittest`, `sqlite3`, `urllib`, `shlex`); Node 24 + `better-sqlite3` from the production nox-mem install; Claude Code CLI 2.1.293 on the VPS; OpenAI and Gemini REST APIs (keys in `/root/.openclaw/.env`).
 
 **Spec:** `specs/2026-10-14-7b-brief-action-probe-design.md` (v3.1, approved by Toto 2026-10-14). Executors read the spec and this plan together; the spec's §-numbers are cited below.
@@ -1001,8 +1003,8 @@ if __name__ == "__main__":
 - [ ] **Step 7: Sync and run the gate on the VPS**
 
 ```bash
-NOX_VPS=root@100.92.12.18 eval/brief-action-probe/scripts/sync_to_vps.sh
-ssh root@100.92.12.18 'cd /root/medicoes/7b/code && python3 -m unittest discover -s tests && python3 scripts/fidelity_gate.py'
+eval/brief-action-probe/scripts/sync_to_vps.sh
+ssh "$NOX_VPS" 'cd /root/medicoes/7b/code && python3 -m unittest discover -s tests && python3 scripts/fidelity_gate.py'
 ```
 Expected: tests OK on Python 3.12; gate prints `"pass": true` with `rate ≥ 0.95` and exits 0. If it exits 1: inspect `/root/medicoes/7b/fidelity.json` mismatches (first differing line index), fix the mirror in `render_brief.mjs` only if the cause is the mirror; if the cause is data (missing chunks, changed text), report the rate to Toto — the spec says the probe stops below the gate. Never edit archived files.
 
@@ -1376,8 +1378,8 @@ def read_bootstrap(agent):
 - [ ] **Step 7: Check the scaffold against the real capture on the VPS**
 
 ```bash
-NOX_VPS=root@100.92.12.18 eval/brief-action-probe/scripts/sync_to_vps.sh
-ssh root@100.92.12.18 'cd /root/medicoes/7b/code && python3 - <<EOF
+eval/brief-action-probe/scripts/sync_to_vps.sh
+ssh "$NOX_VPS" 'cd /root/medicoes/7b/code && python3 - <<EOF
 import hashlib, sys
 sys.path.insert(0, ".")
 from probe.scaffold import parse_template, build_prompt
@@ -1831,15 +1833,15 @@ PY
 The probe needs its own Claude login on the VPS, on an account other than the agents' (`claude-nuvini-team`). Ask Toto which account to use, then ask him to run in his terminal:
 
 ```
-! ssh -t root@100.92.12.18 'mkdir -p /root/.claude-7b-probe && chmod 700 /root/.claude-7b-probe && CLAUDE_CONFIG_DIR=/root/.claude-7b-probe claude'
+! ssh -t "$NOX_VPS" 'mkdir -p /root/.claude-7b-probe && chmod 700 /root/.claude-7b-probe && CLAUDE_CONFIG_DIR=/root/.claude-7b-probe claude'
 ```
 and complete `/login` there, then `/exit`.
 
 - [ ] **Step 10: Build the config dir and run the smoke test**
 
 ```bash
-NOX_VPS=root@100.92.12.18 eval/brief-action-probe/scripts/sync_to_vps.sh
-ssh root@100.92.12.18 'bash /root/medicoes/7b/code/scripts/setup_config_dir.sh && bash /root/medicoes/7b/code/scripts/smoke.sh'
+eval/brief-action-probe/scripts/sync_to_vps.sh
+ssh "$NOX_VPS" 'bash /root/medicoes/7b/code/scripts/setup_config_dir.sh && bash /root/medicoes/7b/code/scripts/smoke.sh'
 ```
 Expected: `probe account differs from agents' account: True`, then `{"ok": true, ... "hook_calls": ["Bash"], "trace_exists": false}`. If `trace_exists` is true, a tool executed: stop everything, delete the trace, and report to Toto.
 
@@ -2038,8 +2040,8 @@ if __name__ == "__main__":
 - [ ] **Step 6: Run on the VPS**
 
 ```bash
-NOX_VPS=root@100.92.12.18 eval/brief-action-probe/scripts/sync_to_vps.sh
-ssh root@100.92.12.18 'set -a; . /root/.openclaw/.env; set +a; cd /root/medicoes/7b/code && python3 scripts/author_h.py'
+eval/brief-action-probe/scripts/sync_to_vps.sh
+ssh "$NOX_VPS" 'set -a; . /root/.openclaw/.env; set +a; cd /root/medicoes/7b/code && python3 scripts/author_h.py'
 ```
 Expected: one JSON line with `served.openai` starting `gpt-5.6-sol`, `served.gemini` starting `gemini-2.5-pro`, `n: 50`, and a sha256. If the preflight assertion fails, report the served model to Toto before choosing another (spec names the families, not exact ids). Record both sha256 values for Task 9.
 
@@ -2210,8 +2212,8 @@ if __name__ == "__main__":
 - [ ] **Step 2: Run on the VPS and check the counts**
 
 ```bash
-NOX_VPS=root@100.92.12.18 eval/brief-action-probe/scripts/sync_to_vps.sh
-ssh root@100.92.12.18 'cd /root/medicoes/7b/code && python3 scripts/build_manifest.py'
+eval/brief-action-probe/scripts/sync_to_vps.sh
+ssh "$NOX_VPS" 'cd /root/medicoes/7b/code && python3 scripts/build_manifest.py'
 ```
 Expected: `units` ≈ `{"C": 71, "R": 13, "pilot_C": 20, "H": 40, "pilot_H": 10}` minus drops; every drop appears under `drops` or `bs_drops`; `bs_drop_rate` printed per stratum (a value above 0.20 is flagged in the report, not a stop). If C differs from 71 by more than drops, the corpus census changed: report it to Toto before going on.
 
@@ -2276,8 +2278,8 @@ if __name__ == "__main__":
 - [ ] **Step 4: Run on the VPS**
 
 ```bash
-NOX_VPS=root@100.92.12.18 eval/brief-action-probe/scripts/sync_to_vps.sh
-ssh root@100.92.12.18 'set -a; . /root/.openclaw/.env; set +a; cd /root/medicoes/7b/code && python3 scripts/author_rubrics.py && wc -l /root/medicoes/7b/rubrics.jsonl /root/medicoes/7b/relevance.jsonl'
+eval/brief-action-probe/scripts/sync_to_vps.sh
+ssh "$NOX_VPS" 'set -a; . /root/.openclaw/.env; set +a; cd /root/medicoes/7b/code && python3 scripts/author_rubrics.py && wc -l /root/medicoes/7b/rubrics.jsonl /root/medicoes/7b/relevance.jsonl'
 ```
 Expected: one rubric per manifest unit; 40 relevance lines (main H only).
 
@@ -2394,7 +2396,7 @@ def false_hit(b1_msgs, planted):
 Pick 20 C units from the **surplus** of the large prompts that are in neither the main nor the pilot set (read their inputs on the VPS). For each, write one JSON line into `/root/medicoes/7b/control/scenarios.jsonl`: 10 `decisive` (a specific, salient change to an argument the first action uses — directory, script name, channel, flag) and 10 `typical` (the same kind of change written in the vague register of real items, e.g. "lessons — digest pipeline: saída migrou (ver v2)" with the planted value still literal). Each line also carries `unit_id`, the B1 `index` to replace, and the `superseded` value present in the input. Add the control units to the manifest-side files with:
 
 ```bash
-ssh root@100.92.12.18 'cd /root/medicoes/7b/code && python3 - <<EOF
+ssh "$NOX_VPS" 'cd /root/medicoes/7b/code && python3 - <<EOF
 import json, sys
 sys.path.insert(0, ".")
 from probe.briefs import Bridge, brief_at, brief_block, brief_items, connect, db_agent, db_to_ms
@@ -2523,10 +2525,10 @@ if __name__ == "__main__":
 - [ ] **Step 2: Run the pilot in tmux on the VPS**
 
 ```bash
-NOX_VPS=root@100.92.12.18 eval/brief-action-probe/scripts/sync_to_vps.sh
-ssh root@100.92.12.18 'tmux new -d -s 7b-pilot "cd /root/medicoes/7b/code && python3 scripts/run_phase.py pilot 2>&1 | tee -a /root/medicoes/7b/pilot.log"'
+eval/brief-action-probe/scripts/sync_to_vps.sh
+ssh "$NOX_VPS" 'tmux new -d -s 7b-pilot "cd /root/medicoes/7b/code && python3 scripts/run_phase.py pilot 2>&1 | tee -a /root/medicoes/7b/pilot.log"'
 ```
-Expected: about 30 units × 4 runs; the log prints `<unit> 4 / 4` per unit. Check progress with `ssh root@100.92.12.18 'tail -3 /root/medicoes/7b/pilot.log; wc -l /root/medicoes/7b/results-pilot.jsonl'`. Wait for 120 lines (use a background wait on line count, not on `pgrep -f` of a pattern that appears in the waiting command itself).
+Expected: about 30 units × 4 runs; the log prints `<unit> 4 / 4` per unit. Check progress with `ssh "$NOX_VPS" 'tail -3 /root/medicoes/7b/pilot.log; wc -l /root/medicoes/7b/results-pilot.jsonl'`. Wait for 120 lines (use a background wait on line count, not on `pgrep -f` of a pattern that appears in the waiting command itself).
 
 - [ ] **Step 3: Implement `scripts/freeze_params.py`**
 
@@ -2604,8 +2606,8 @@ if __name__ == "__main__":
 - [ ] **Step 4: Freeze and commit the parameters**
 
 ```bash
-ssh root@100.92.12.18 'cd /root/medicoes/7b/code && python3 scripts/freeze_params.py'
-scp root@100.92.12.18:/root/medicoes/7b/params.json eval/brief-action-probe/frozen/params.json
+ssh "$NOX_VPS" 'cd /root/medicoes/7b/code && python3 scripts/freeze_params.py'
+scp "$NOX_VPS":/root/medicoes/7b/params.json eval/brief-action-probe/frozen/params.json
 git add eval/brief-action-probe/scripts/run_phase.py eval/brief-action-probe/scripts/freeze_params.py eval/brief-action-probe/frozen/params.json
 COMMIT_TO_NON_MAIN_OK=1 git commit -m "feat(7b): phase runner and pilot-frozen parameters (A/A, ceiling, MDE)"
 git push -u origin feat/7b-action-probe
@@ -2621,7 +2623,7 @@ Expected: `params.json` holds only numbers, hashes and versions (check with `gre
 - [ ] **Step 1: Verify the freeze still holds, then start the main run**
 
 ```bash
-ssh root@100.92.12.18 'cd /root/medicoes/7b/code && python3 - <<EOF
+ssh "$NOX_VPS" 'cd /root/medicoes/7b/code && python3 - <<EOF
 import hashlib, json
 p = json.load(open("/root/medicoes/7b/params.json"))
 assert hashlib.sha256(open("probe/canon.py","rb").read()).hexdigest() == p["canon_sha256"]
@@ -2636,7 +2638,7 @@ Expected: `freeze intact`, then ≈ 124 units × 6 runs over one to two days. Mo
 - [ ] **Step 2: Run the control after the main run finishes**
 
 ```bash
-ssh root@100.92.12.18 'tmux new -d -s 7b-control "cd /root/medicoes/7b/code && python3 scripts/run_phase.py control 2>&1 | tee -a /root/medicoes/7b/control.log"'
+ssh "$NOX_VPS" 'tmux new -d -s 7b-control "cd /root/medicoes/7b/code && python3 scripts/run_phase.py control 2>&1 | tee -a /root/medicoes/7b/control.log"'
 ```
 Expected: 20 scenarios × 4 runs = 80 lines in `results-control.jsonl`.
 
@@ -2862,8 +2864,8 @@ if __name__ == "__main__":
 - [ ] **Step 6: Run on the VPS after the main run**
 
 ```bash
-NOX_VPS=root@100.92.12.18 eval/brief-action-probe/scripts/sync_to_vps.sh
-ssh root@100.92.12.18 'set -a; . /root/.openclaw/.env; set +a; cd /root/medicoes/7b/code && python3 scripts/run_judge.py && wc -l /root/medicoes/7b/judgments.jsonl'
+eval/brief-action-probe/scripts/sync_to_vps.sh
+ssh "$NOX_VPS" 'set -a; . /root/.openclaw/.env; set +a; cd /root/medicoes/7b/code && python3 scripts/run_judge.py && wc -l /root/medicoes/7b/judgments.jsonl'
 ```
 Expected: ≈ 4 × 124 + 20 ≈ 516 lines (fewer only where a run failed after retry).
 
@@ -3129,9 +3131,9 @@ if __name__ == "__main__":
 - [ ] **Step 5: Run the analysis on the VPS and bring back the aggregates**
 
 ```bash
-NOX_VPS=root@100.92.12.18 eval/brief-action-probe/scripts/sync_to_vps.sh
-ssh root@100.92.12.18 'cd /root/medicoes/7b/code && python3 scripts/analyze.py'
-scp root@100.92.12.18:/root/medicoes/7b/aggregates.json eval/brief-action-probe/out/aggregates.json
+eval/brief-action-probe/scripts/sync_to_vps.sh
+ssh "$NOX_VPS" 'cd /root/medicoes/7b/code && python3 scripts/analyze.py'
+scp "$NOX_VPS":/root/medicoes/7b/aggregates.json eval/brief-action-probe/out/aggregates.json
 grep -c '"text"\|chk ' eval/brief-action-probe/out/aggregates.json
 ```
 Expected: the last command prints `0` (no content in the committed file).
