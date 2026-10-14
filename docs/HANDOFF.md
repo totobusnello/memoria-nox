@@ -50,10 +50,15 @@
     (exemplo do forge: incidentes e relatórios de abril, pain 1,0).
   - **Uso: nenhum sinal explícito.** O brief diz "detalhe de qualquer item: `nox_mem_search` por
     id/título": 0 chamadas desde 01/09; 0 menções a `(chk N)` nos 191 transcripts de outubro.
-  - **Próximo passo proposto:** medir uso implícito com controle: sobreposição entre itens do brief e
-    o texto do assistente, contra itens de mesma idade e tipo que NÃO estavam no brief (sem controle, um
-    nulo não distingue "não usa" de "medida cega"). E decidir com o Toto se o brief deve priorizar
-    recência/relevância por agente em vez de pain global de abril.
+  - **Uso implícito medido (`audits/2026-10-14-brief-usage.md`):** 1.120 respostas de 4 agentes,
+    21/09–14/10. **0 de 9.398 pares** (item no brief do prompt × resposta) com traço estrito ou fuzzy.
+    Controle positivo: 22 acertos no braço "futuro", que são chunks derivados das próprias conversas
+    (session-distill, EOD) entrando no brief depois ⇒ o detector enxerga sobreposição quando existe.
+    A v1 deu 8 acertos falsos (`EVOLUTION` casou "Marginal Revolution" por substring); corrigido na v2.
+    Não mede influência sem traço textual (isso é o 7b, sonda de ação).
+  - **Leitura:** o brief é entregue e não é usado de forma visível; seleciona pain global de abril
+    enquanto o trabalho dos agentes é recente e próprio. Mudar a seleção é ranking (regra 5: `feat` +
+    shadow); esta medição é a linha de base. Decisão de rumo é do Toto.
 - **Falta:** conferir `kg-confirm` hoje 23:00 UTC; reindex dos agentes 15/10 23:00 UTC.
 
 ## 2026-10-14 (tarde) — item 3 (escrita sem perda) em produção
