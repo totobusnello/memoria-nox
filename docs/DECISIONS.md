@@ -46,6 +46,7 @@
 | 30 | **Memória paramétrica/latente e memory controller treinado por RL** (§9.3 do survey TMLR 2602.06052v4 — MEM1, Mem-α) | Três razões, em ordem de peso: **(i)** exige treino, quebrando o "roda local, custo zero" que é o pilar A; **(ii)** torna a memória **não-inspecionável pelo usuário**, contradizendo o próprio §9.4 do survey (inspeção, edição e revogação user-controllable como objetivo de primeira classe) — que hoje satisfazemos e vendemos; **(iii)** custo de pesquisa não cabe nos 40% de capacity. Registrado **porque o survey tornou a omissão visível no mapa canônico da área**: sem esta linha, a ausência lê-se como descuido em vez de escolha. | GPU dedicada disponível **e** gap de qualidade atribuível à memória externa **e** demanda real por footprint constante — os três juntos, não qualquer um | S-series — 2026-08-13 |
 | 31 | **Adotar TypeSafe Jev (System One) no caminho de retrieval — como reranker ou como terceira perna do RRF** | Avaliado 2026-09-21 contra dois benchmarks independentes com resposta crua publicada. **(i) O ganho de ranking não existe:** `jev-rerank-bench` (8 datasets EN, 1.617 questões) dá Jev rubric **0,692** contra Cohere Rerank 4 Pro **0,691** — Δ +0,001, IC95 [−0,009, +0,012], que não estabelece vencedor **nem** equivalência; com peso igual por query Cohere passa na frente (0,756 × 0,738). Quatro rerankers de arquiteturas distintas empatados entre 0,682 e 0,692 dizem que o teto está no pipeline, não no modelo. **(ii) Sozinho perde de embedding denso:** `jev-search-rerank-eval` (9.831 pares graduados) mede `jev-score(bge-m3@30) − bge-m3` = +0,012 [−0,013, +0,037], e sob juiz independente **−0,028** [−0,052, −0,004] — intervalo que não cruza zero, na direção errada. **(iii) O sinal multilíngue aponta contra nós:** Cohere lidera o Choice do Jev por **6,4 pontos** em MIRACL francês, o proxy mais próximo de um corpus PT-BR. **(iv) Pilar A:** um reranker hospedado vê a **query** junto com o chunk — divulgação estritamente maior que a dos embeddings que já saem pro Gemini, e isso barra o caminho default. **(v) Custo de oportunidade:** as duas frentes boas (MA-protection, `kg-confirm` semântico) competem com o TMLR, que é o que está na mesa. | Os três juntos, não qualquer um: (a) Lab Q1 #2 (MA-protection) sair do parking lot como trabalho priorizado; (b) PT-BR medido **não-inferior** num golden set nosso; (c) o uso entrar como **opt-in explícito**, nunca no default | D-2026-09-21c |
 | 32 | **`nox-mem compact` destrutivo** (troca os chunks de um arquivo por 1 resumo de LLM e apaga os originais) | Rodou todo domingo de 04 a 10/2026 sem decisão registrada: 10.204 chunks viraram 210 resumos, o conteúdo de arquivos ainda vivos em disco saiu da busca e 610 relações do KG perderam a evidência. Esquecer é rebaixar no ranking, nunca apagar sem métrica; os papers lidos em 13/10 (EnSIMem, JAM) guardam o bruto e indexam por cima. | Resumo **ao lado** do original (chunk novo, sem apagar) com eval mostrando ganho, ou política de retenção medida (S1/item 7 do ROADMAP v6) | D-2026-10-14 |
+| 33 | **Rerank temporal implícito** (D49/D50: `NOX_TEMPORAL_PATH`, proximidade de data inferida da pergunta) | Cinco meses em shadow sem decisão; nenhuma evidência de demanda (a métrica `was_temporal_query` nem tinha escritor); o modo `active` não muda ranking; ativar exige 7 d de shadow + 5 batches + A/A. O produto temporal são os filtros explícitos `--as-of` / `--changed-since` (npm 3.4.0+). | Os dois juntos: (a) fração relevante de buscas reais com expressão temporal, medida pelo `was_temporal_query`; (b) gold temporal em que o rerank implícito vence o filtro explícito | D-2026-10-14b |
 
 ## 2. Q5 Cross-encoder reranker — DEFERRED (5 razões)
 
@@ -1993,3 +1994,16 @@ compactado em 27/04) não tem backup anterior e ficou como resumo. Cópias de tr
   fixas de nomes não produzem par novo desde setembro. O KG cobre ~7% do corpus atual (cursor
   da extração LLM parado em 2026-05-16). Próximo passo do KG: S1 (precisão amostrada) antes de
   qualquer extração nova.
+
+### D-2026-10-14b — D49/D50 fechado: rerank temporal implícito no NÃO FAZEMOS (#33)
+
+**Decidido pelo Toto (2026-10-14, 00:05 BRT).** O D49 propôs um rerank por proximidade de data,
+inferida da pergunta, em shadow por 7 dias, com decisão (D50) prevista para 2026-05-27. Ela nunca
+foi tomada. Medido em 2026-10-13/14: o modo `active` não altera o ranking (`search.ts:722` guarda
+só o relatório), a métrica de demanda (`search_telemetry.was_temporal_query`) não tem escritor, e o
+LoCoMo mostrou que 87,5% das perguntas "temporais" não trazem data. O produto temporal são os
+filtros explícitos (`--as-of`, `--changed-since`), que existem nas três superfícies desde o npm 3.4.0.
+
+**Execução (2026-10-15, aprovada):** tirar o drop-in `NOX_TEMPORAL_PATH=shadow` do `nox-mem-api`
+(cada busca deixa de pagar um cálculo que ninguém lê) e dar escritor ao `was_temporal_query`, que é
+o gatilho (a) de reabertura.
