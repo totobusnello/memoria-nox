@@ -2008,6 +2008,14 @@ filtros explícitos (`--as-of`, `--changed-since`), que existem nas três superf
 (cada busca deixa de pagar um cálculo que ninguém lê) e dar escritor ao `was_temporal_query`, que é
 o gatilho (a) de reabertura.
 
+**Executado em 2026-10-14 17:19 UTC.** Drop-in movido para `/root/medicoes/2026-10-14-d49-dropin/`
+(reverter = `mv` de volta + `daemon-reload` + restart); o processo novo não tem `NOX_TEMPORAL_PATH`
+no ambiente e o `journalctl` parou de emitir `temporal_path`. Escritor: nox-workspace#57 (`36d347c8`)
+e, no npm, nox-mem#43 (`ba2cd6f2`, schema v20, junto com o `requesting_agent`). Valores:
+**0** sem expressão temporal, **1** palavra temporal sem data (sem âncora para o rerank), **2** data
+na pergunta. Medir o gatilho a partir de **2026-10-14 17:19 UTC**: as linhas anteriores leem 0 pelo
+`DEFAULT` sem terem sido medidas (regra 8). Smoke: ids 15405–15407 = 0/1/2.
+
 ### D-2026-10-14c — Escrita sem perda: diff por conteúdo, tombstone, adoção só de arquivo inteiro
 
 **Em produção desde 2026-10-14 14:34 UTC** (nox-mem#42 `95ccf0ea`, nox-workspace#56 `9a509eab`).

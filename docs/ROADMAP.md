@@ -86,8 +86,9 @@ README, `CONFIGURATION.md`, `COMPARISON.md` e `COMPETITIVE-POSITIONING.md` corri
 2. ✅ **Item 3 (escrita sem perda)**, inteiro: em produção desde 2026-10-14 14:34 UTC
    (nox-mem#42 `95ccf0ea`, nox-workspace#56 `9a509eab`; D-2026-10-14c).
 3. **Item 2, fecho:** agentes mandam `X-Agent-Name` (HTTP) / `NOX_AGENT_NAME` (MCP).
-4. **D49/D50, execução:** tirar o drop-in `NOX_TEMPORAL_PATH=shadow`; dar escritor ao
-   `was_temporal_query` (gatilho de reabertura do #33). Portar o `requesting_agent` para o npm.
+4. ✅ **D49/D50, execução** (2026-10-14 17:19 UTC): drop-in `NOX_TEMPORAL_PATH=shadow` fora do
+   `nox-mem-api`; `was_temporal_query` com escritor (nox-workspace#57); `requesting_agent` e
+   `was_temporal_query` no npm, schema v20 (nox-mem#43). Ver D-2026-10-14b.
 
 ### Fila, em ordem
 

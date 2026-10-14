@@ -1,5 +1,18 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-10-14 (fim de tarde) — D49/D50 executado; telemetria de quem busca no npm
+
+- **Produção (17:19 UTC):** drop-in `d49-temporal-shadow.conf` fora do `nox-mem-api` (guardado em
+  `/root/medicoes/2026-10-14-d49-dropin/`); `search_telemetry.was_temporal_query` gravado em toda
+  busca, 0/1/2 (nox-workspace#57 `36d347c8`). Smoke: ids 15405–15407 = 0/1/2, `probe:smoke-d49`.
+  Seções 239/239 antes e depois. Medir o gatilho do #33 só a partir de 17:19 UTC (antes é `DEFAULT 0`).
+- **npm:** nox-mem#43 (`ba2cd6f2`) porta `requesting_agent` + `was_temporal_query` (schema **v20**),
+  `NOX_AGENT_NAME` no README. 733 testes, 729 passam, 0 falham, 4 skipped preexistentes; mutações
+  na INSERT e na migração pegas. **Não publicado**: entra no 3.6.0 junto com a escrita sem perda,
+  pendente do stage approve do Toto.
+- **Falta do plano:** item 3 (agentes mandarem `X-Agent-Name` / `NOX_AGENT_NAME`, config do OpenClaw
+  em `openclaw-vps/infra/`); conferir `kg-confirm` hoje 23:00 UTC; reindex dos agentes 15/10 23:00 UTC.
+
 ## 2026-10-14 (tarde) — item 3 (escrita sem perda) em produção
 
 - **No ar desde 14:34 UTC**: nox-mem#42 (`95ccf0ea`) e nox-workspace#56 (`9a509eab`). Desenho e
