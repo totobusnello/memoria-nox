@@ -1,5 +1,30 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-10-14 (madrugada) — fechamento: itens 1, 2 e 9 em produção, 27 arquivos de volta, npm 3.5.2 aguardando login
+
+- **Embeddings (item 2) — fechado.** Fix em produção (nox-workspace#54) e no npm (nox-mem#40). O scan dos
+  49.511 vetores achou **919** que não eram `RETRIEVAL_DOCUMENT` (907 na faixa 0,90–0,97 = vetor de pergunta;
+  7 abaixo de 0,90 = vetor velho para texto atual); trocados (`ops_audit` 356). Prova: 40 reembedados batem a
+  cosseno 1,000000. Scripts: `/root/nox-reembed-query-vectors-2026-10-14.mjs`.
+- **Quem busca (item 9 do pedido = item 2 do v6) — em produção** (nox-workspace#55): `requesting_agent` grava
+  `<superfície>:<agente>` (`http`, `mcp`, `cli`, `answer`, `reflect`, `eval`) e `probe:<agente>` quando vem
+  `track=false`. Conferido: `probe:smoke-1014` e `http:unknown`. ⚠️ Os agentes ainda não se identificam: falta
+  mandar `X-Agent-Name` (HTTP) ou `NOX_AGENT_NAME` (MCP) — sem isso tudo cai em `*:unknown`. Próximo passo do item.
+- **Discurso = produto (item 1) — docs feitos** (memoria-nox#577): README, CONFIGURATION, COMPARISON e
+  POSITIONING sem knobs de eval apresentados como produto; 4 variáveis fantasma removidas. `.env` de produção
+  sem `NOX_TEMPORAL_BOOST_MODE` (backup `.env.bak-pre-flag-cleanup-20261014`). **Decisão em aberto:** D49/D50
+  (temporal path: implementar com gate ou NÃO FAZEMOS).
+- **28 arquivos compactados sem disco:** 27 restaurados do `nox-mem-pre-vacuum-20260428-1204.db` (Pesquisa),
+  3.443 chunks, filtro de privacidade aplicado (5 redações), `ops_audit` 357. O 28º (waiver de debênture da
+  Nuvini, compactado em 27/04, antes do backup) fica como resumo; o `.docx` original está no Mac.
+- **Banco agora:** 52.928 chunks, 52.928 vetores, `compiled == frontmatter == 239`, 1 resumo de compact restante.
+- **npm 3.5.2:** release mergeada (nox-mem#41), tag `v3.5.2`. `npm stage publish` deu **E401** (token
+  expirado): o Toto roda `npm login` num terminal comum; depois `npm stage publish` aqui e `npm stage approve`
+  dele.
+- **Próximo (decisão do Toto): item 10 = item 3 do v6, escrita sem perda** (NOOP por hash, ids estáveis,
+  tombstone soft, fix do handle do `ingestFile`). Também: portar o `requesting_agent` para o npm.
+- **Conferir hoje às 23:00 UTC:** `kg-confirm` com `evidence_gone` ~85 (era 753). Domingo 18/10: `compact SKIPPED`.
+
 ## 2026-10-14 — `compact` pausado, 182 arquivos restaurados, 681 relações do KG com evidência de volta
 
 - **O que aconteceu:** a sessão de ideias (13/10) virou auditoria de ROADMAP contra produto. O

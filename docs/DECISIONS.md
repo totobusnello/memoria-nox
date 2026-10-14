@@ -1979,7 +1979,13 @@ política; a regra 6 só exigia snapshot antes de rodar.
 - Scripts: `/root/nox-restore-compacted-2026-10-14.mjs`, `/root/nox-kg-remap-2026-10-14.mjs`;
   medições em `/root/medicoes/2026-10-13-tasktype/`.
 
-**Fica em aberto:**
+**Complemento (mesma madrugada, aprovado pelo Toto: «recuperar»):** 27 dos 28 arquivos sem disco
+(`memory/mac-docs/PESSOAL/VERRE`) voltaram do `nox-mem-pre-vacuum-20260428-1204.db` da VPS de Pesquisa:
+3.443 chunks reinseridos com id novo e metadados originais, texto passado pelo filtro de privacidade atual
+(5 redações; os originais são de antes do A1), resumos removidos. `ops_audit` 357. O 28º (waiver da Nuvini,
+compactado em 27/04) não tem backup anterior e ficou como resumo. Cópias de trânsito apagadas com `shred`.
+
+**Fica em aberto (histórico):**
 - 28 arquivos compactados de `memory/` já não existem em disco (3.448 chunks originais); o
   conteúdo só existe em backups antigos (Pesquisa: `nox-mem.db.2026-06-17-*`, snapshots de
   agosto/setembro). Recuperar ou não é decisão de conteúdo.
