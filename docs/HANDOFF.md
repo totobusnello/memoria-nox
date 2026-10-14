@@ -1,13 +1,13 @@
 # nox-mem HANDOFF — estado vivo
 
-## 2026-10-13 — data note da telemetria PRONTA para publicar: rascunho Zenodo `10.5281/zenodo.23354363`
+## 2026-10-13 — data note da telemetria PUBLICADA: `10.5281/zenodo.23354363` (concept `23354362`)
 
-- **Falta só o Publish do Toto:** https://zenodo.org/uploads/23354363 (rascunho, não publicado). Readback ok: 15 campos, 4 arquivos (PDF 6 p., `.md`, `code-v1.0.zip`, `SHA256SUMS`), PDF com a linha do DOI. Relações: `describes` o dataset `10.5281/zenodo.23130191`; `references` arXiv:2606.06448 e o relatório nox-mem v1.0.6; `issupplementedby` a tag `datanote-v1.0` (GitHub 200).
+- **Publicada pelo Toto em 2026-10-13.** Conferido pela API pública (`published`, 4/4 md5 = disco) e doi.org 200. Card no labf.bio (site-labf #15, `abcc9bf`), EN e PT conferidos no ar. Infra das vozes: Claude#127 mergeado (`1000885`). Readback ok: 15 campos, 4 arquivos (PDF 6 p., `.md`, `code-v1.0.zip`, `SHA256SUMS`), PDF com a linha do DOI. Relações: `describes` o dataset `10.5281/zenodo.23130191`; `references` arXiv:2606.06448 e o relatório nox-mem v1.0.6; `issupplementedby` a tag `datanote-v1.0` (GitHub 200).
 - **Título:** *Expensive writes, noisy reads: provider-call telemetry from a production agent-memory system* (escolha do Toto). Layout = preamble do Paper B.
 - **Código:** `datanote-telemetry/` (PR #574, merge `6fdcd42`): `analysis.py` (recalcula do Zenodo), `parity.py` (79 amarrações número→métrica, selftest 12/12 mutações), `figure.py`, `pdf-build/`, `deposit/deposit.py` (sem chamada de publish).
 - **Revisão:** Grok + Codex (leitura completa) → correções → Grok GO no diff + Kimi leitura completa (0 HIGH, 1 MEDIUM aplicado: razão por chamada 55× bruta, ~25× sem as linhas com flag). Registro em `REVIEW-rc2-grok-codex-2026-10-13.md` e `reviews/`.
-- **Depois do Publish:** conferir pela API pública (`published`, md5 = disco) e doi.org 200. Opcional: nova versão do dataset com `isdescribedby` apontando para a nota.
-- **Infra (repo Claude):** PR totobusnello/Claude#127 aberto, sem merge: as 6 cascas passam a usar `--keep-output` (a opção já existia; as cascas não a usavam) e ficam proibidas de canalizar o stdout. Motivo: Kimi e Codex cortaram a saída com `tail -c 60000` (os achados sobreviveram; recuperados dos logs dos CLIs).
+- **Opcional:** nova versão do dataset com `isdescribedby` apontando para a nota.
+- **Infra (repo Claude):** PR totobusnello/Claude#127 (mergeado): as 6 cascas passam a usar `--keep-output` (a opção já existia; as cascas não a usavam) e ficam proibidas de canalizar o stdout. Motivo: Kimi e Codex cortaram a saída com `tail -c 60000` (os achados sobreviveram; recuperados dos logs dos CLIs).
 
 ## 2026-10-07 (noite) — fechamento: Paper 0 publicado, metodologia fechada, próximos passos
 
