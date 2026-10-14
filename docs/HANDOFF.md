@@ -26,6 +26,12 @@
   - Os 1–2 últimos slots do servido já variam entre chamadas: duas do nox com 1 s de diferença, ambas
     em shadow, terminaram diferente. Não comparar o arquivo do brief antes/depois do deploy para provar
     que o shadow não muda nada; quem prova isso é o teste (shadow on × off).
+- **`kg-confirm` 23:00 UTC conferido:** `evidence_gone` **85** (era 753), `confirmed` 17.666, ops_audit
+  359 `success` em 84 s (snapshot pré-op em `/var/backups/nox-mem/pre-op/`). As relações re-apontadas
+  no dia 13 (ops_audit 355) seguraram.
+- **7b (sonda de ação):** spec v3 em `specs/2026-10-14-7b-brief-action-probe-design.md` (`2afd47b`),
+  depois de 2 rodadas Kimi + Grok (v1 challenge, v2 review NO-GO dos dois, todos os achados tratados,
+  §11). Template do prompt persistido em `/root/medicoes/7b-scaffold/` (sha256 na spec).
 - **Próximo (21/10, 7 dias de shadow):** medir a relevância do R1 com o detector da auditoria 7a (itens R1
   × respostas posteriores), descontando a continuidade de assunto, que favorece o R1 por construção.
   Depois, ativação comparada (metade dos agentes ou blocos de tempo) e a auditoria de novo. Ativar é
