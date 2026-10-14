@@ -9,18 +9,22 @@
 - **npm:** nox-mem#43 (`ba2cd6f2`) porta `requesting_agent` + `was_temporal_query` (schema **v20**),
   `NOX_AGENT_NAME` no README. 733 testes, 729 passam, 0 falham, 4 skipped preexistentes; mutações
   na INSERT e na migração pegas.
-- **3.6.0 pronta, não publicada:** release nox-mem#44 (`5bb40ac5`, tag `v3.6.0`), com #42, #43 e
-  **#45** (`2b093c62`). O #45 saiu do smoke do tarball em HOME limpo: o CLI do tombstone guardava
-  argumento relativo como digitado e recusava chave fora do workspace, então numa instalação
-  standalone (chaves `../`) `tombstone`/`tombstone-keep`/`tombstone-purge` erravam ou recusavam todo
-  arquivo. Agora aceita a chave como `tombstones` lista **ou** caminho a partir do cwd; se as duas
-  leituras existirem e diferirem, recusa. Tarball final: shasum `fee3e011`, smoke verde (NOOP,
-  tombstone, adoção, schema 20, `cli:smoke|1`). `npm stage publish` deu **E401**: falta o Toto rodar
-  `npm login` num terminal comum; depois `cd ~/Claude/Projetos/nox-supermem/nox-mem && npm stage
-  publish` e `npm stage approve <id>`.
-- **Pendente menor:** a linhagem de produção tem o mesmo `tombstonePath` (sem efeito hoje: o watcher
-  manda caminho absoluto e colar a chave listada funciona); portar o #45 por paridade. Standalone
-  guarda chaves `../../..` porque o workspace default é `/root/.openclaw/workspace`.
+- **3.6.0 pronta, não publicada** (tag `v3.6.0` em `1064bd0c`, movida do `5bb40ac` antes de qualquer
+  publish). Leva #42, #43, #45 e **#46**, os dois últimos achados no smoke do tarball em HOME limpo:
+  - **#45** (`2b093c62`): o CLI do tombstone guardava argumento relativo como digitado e recusava chave
+    fora do workspace. Agora aceita a chave como `tombstones` lista **ou** caminho a partir do cwd; se as
+    duas leituras existirem e diferirem, recusa. Portado para produção: nox-workspace#58 (`67ab237a`),
+    deployado (`pull` + `tsc`; só CLI).
+  - **#46** (`1064bd0c`): standalone (sem `$OPENCLAW_WORKSPACE` e sem `/root/.openclaw/workspace`) passa
+    a chavear a partir de `~/.nox-mem` (`lib/workspace.ts`). Antes: chaves `../../../home/u/…`, arquivo
+    de entity nunca roteado, `watch` vigiando 0 diretórios, `reindex` sempre recusando. A v20 reescreve
+    uma vez as chaves de quem vem da 3.5.x (marcador em `meta`, backup `<db>.pre-v20-keys.bak`); sem
+    isso o primeiro reingest duplicaria tudo. Módulos só da origem (session-distill, cross-search,
+    project-context-gen, api-impact) mantêm o default antigo. Produção não muda (tem a pasta da origem).
+  - Suíte 740: 736 passam, 0 falham, 4 skipped preexistentes. Tarball final shasum `32af0ae9`: smoke
+    verde (chaves `memory/…`, entity com 3 seções, adoção no rename, chave colada com cwd `/`, schema 20).
+  - **Falta só publicar:** `npm login` num terminal comum (o token deu E401), depois
+    `cd ~/Claude/Projetos/nox-supermem/nox-mem && npm stage publish` e `npm stage approve <id>`.
 - **Falta do plano:** item 3 (agentes mandarem `X-Agent-Name` / `NOX_AGENT_NAME`, config do OpenClaw
   em `openclaw-vps/infra/`); conferir `kg-confirm` hoje 23:00 UTC; reindex dos agentes 15/10 23:00 UTC.
 
