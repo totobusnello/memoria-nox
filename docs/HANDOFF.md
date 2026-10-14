@@ -34,6 +34,8 @@
   versionado; backup `semantic-canary.sh.bak-pre-agent-name-20261014`). **Consequência para a fila:**
   latência de busca (item 6) não tem tráfego de agente para melhorar; o item 7 (o brief é lido e
   usado?) vira a pergunta central, e "servido" no `brief_log` mede geração do cron, não leitura.
+- **Fila:** o Toto subiu o **item 7 (o brief serve?)** para próximo; primeiro passo é rastrear o brief
+  do cron até o prompt do agente (onde é gravado, quem carrega, se aparece nos transcripts).
 - **Falta:** conferir `kg-confirm` hoje 23:00 UTC; reindex dos agentes 15/10 23:00 UTC.
 
 ## 2026-10-14 (tarde) — item 3 (escrita sem perda) em produção
