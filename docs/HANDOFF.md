@@ -34,8 +34,26 @@
   versionado; backup `semantic-canary.sh.bak-pre-agent-name-20261014`). **Consequência para a fila:**
   latência de busca (item 6) não tem tráfego de agente para melhorar; o item 7 (o brief é lido e
   usado?) vira a pergunta central, e "servido" no `brief_log` mede geração do cron, não leitura.
-- **Fila:** o Toto subiu o **item 7 (o brief serve?)** para próximo; primeiro passo é rastrear o brief
-  do cron até o prompt do agente (onde é gravado, quem carrega, se aparece nos transcripts).
+- **Item 7 (o brief serve?) — subido pelo Toto e começado (14/10, só leitura):**
+  - **Chega ao prompt: sim.** Cron `nox-mem-brief-refresh.sh` (:07/:22/:37/:52) grava
+    `agents/<p>/brief/MEMORY.md` (main → `workspace/brief/`); o hook `bootstrap-extra-files`
+    (`hooks.internal.entries`, `paths: ["brief/MEMORY.md"]`) entra no contexto de bootstrap, e o backend
+    Claude CLI do OpenClaw 2026.7.2-beta.7 o anexa ao prompt de sistema **em toda execução**
+    (`--append-system-prompt-file`, `systemPromptWhen: "always"`). Prova: um prompt de sistema que sobrou
+    em `/tmp/openclaw/openclaw-cli-system-prompt-iAlfiE/system-prompt.md` (forge, 30/09 22:31) contém o
+    brief gerado às 22:22. O log do gateway não registra a injeção.
+  - **Exposição (7 dias):** turnos do assistente desde 07/10: main 571, boris 1.310, forge 140,
+    cipher 95, nox 23, **atlas 0, lex 0**. O `brief_log` registra 6.720 itens "servidos" por agente
+    (13.440 para nox, que alimenta main e nox) em 7 dias porque conta **cada geração do cron**, inclusive
+    para agentes sem nenhum turno.
+  - **Conteúdo:** 195–340 chunks distintos por agente na semana; idade média dos itens **91–154 dias**
+    (exemplo do forge: incidentes e relatórios de abril, pain 1,0).
+  - **Uso: nenhum sinal explícito.** O brief diz "detalhe de qualquer item: `nox_mem_search` por
+    id/título": 0 chamadas desde 01/09; 0 menções a `(chk N)` nos 191 transcripts de outubro.
+  - **Próximo passo proposto:** medir uso implícito com controle: sobreposição entre itens do brief e
+    o texto do assistente, contra itens de mesma idade e tipo que NÃO estavam no brief (sem controle, um
+    nulo não distingue "não usa" de "medida cega"). E decidir com o Toto se o brief deve priorizar
+    recência/relevância por agente em vez de pain global de abril.
 - **Falta:** conferir `kg-confirm` hoje 23:00 UTC; reindex dos agentes 15/10 23:00 UTC.
 
 ## 2026-10-14 (tarde) — item 3 (escrita sem perda) em produção
