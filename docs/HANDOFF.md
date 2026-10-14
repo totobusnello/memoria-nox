@@ -8,8 +8,19 @@
   Seções 239/239 antes e depois. Medir o gatilho do #33 só a partir de 17:19 UTC (antes é `DEFAULT 0`).
 - **npm:** nox-mem#43 (`ba2cd6f2`) porta `requesting_agent` + `was_temporal_query` (schema **v20**),
   `NOX_AGENT_NAME` no README. 733 testes, 729 passam, 0 falham, 4 skipped preexistentes; mutações
-  na INSERT e na migração pegas. **Não publicado**: entra no 3.6.0 junto com a escrita sem perda,
-  pendente do stage approve do Toto.
+  na INSERT e na migração pegas.
+- **3.6.0 pronta, não publicada:** release nox-mem#44 (`5bb40ac5`, tag `v3.6.0`), com #42, #43 e
+  **#45** (`2b093c62`). O #45 saiu do smoke do tarball em HOME limpo: o CLI do tombstone guardava
+  argumento relativo como digitado e recusava chave fora do workspace, então numa instalação
+  standalone (chaves `../`) `tombstone`/`tombstone-keep`/`tombstone-purge` erravam ou recusavam todo
+  arquivo. Agora aceita a chave como `tombstones` lista **ou** caminho a partir do cwd; se as duas
+  leituras existirem e diferirem, recusa. Tarball final: shasum `fee3e011`, smoke verde (NOOP,
+  tombstone, adoção, schema 20, `cli:smoke|1`). `npm stage publish` deu **E401**: falta o Toto rodar
+  `npm login` num terminal comum; depois `cd ~/Claude/Projetos/nox-supermem/nox-mem && npm stage
+  publish` e `npm stage approve <id>`.
+- **Pendente menor:** a linhagem de produção tem o mesmo `tombstonePath` (sem efeito hoje: o watcher
+  manda caminho absoluto e colar a chave listada funciona); portar o #45 por paridade. Standalone
+  guarda chaves `../../..` porque o workspace default é `/root/.openclaw/workspace`.
 - **Falta do plano:** item 3 (agentes mandarem `X-Agent-Name` / `NOX_AGENT_NAME`, config do OpenClaw
   em `openclaw-vps/infra/`); conferir `kg-confirm` hoje 23:00 UTC; reindex dos agentes 15/10 23:00 UTC.
 
