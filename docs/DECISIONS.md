@@ -45,6 +45,7 @@
 | 29 | **Buscar match com mem0 no cap@500 via ingest-side concentration** (chunk summarizer, query rewrite, ou expansão+rerank no query path) | 3 caminhos independentes falharam: PR #337 query rewrite Gemini Flash Lite (−11.8%), PR #339 E+F+H combo KG+RRF+top-k expansion (NEUTRAL +2.4%, gap persiste), PR #341 A2 chunk summarizer (−34% full corpus / −69% gap@500). mem0's cap@500 advantage é **structural** (extracted-fact concentration sobre 500 facts extraídos LLM-side, NÃO 500 raw turns) — não replicável dentro da arquitetura hybrid sem trocar mecanismo de ingest. Custo total dos 3 experimentos: $0.30 Gemini + ~14h compute. | Lab Q1 "hybrid-of-hybrids" router (index both raw + summarized, route by intent) com nDCG@10 + coverage two-metric gate | D59 — 2026-05-24 |
 | 30 | **Memória paramétrica/latente e memory controller treinado por RL** (§9.3 do survey TMLR 2602.06052v4 — MEM1, Mem-α) | Três razões, em ordem de peso: **(i)** exige treino, quebrando o "roda local, custo zero" que é o pilar A; **(ii)** torna a memória **não-inspecionável pelo usuário**, contradizendo o próprio §9.4 do survey (inspeção, edição e revogação user-controllable como objetivo de primeira classe) — que hoje satisfazemos e vendemos; **(iii)** custo de pesquisa não cabe nos 40% de capacity. Registrado **porque o survey tornou a omissão visível no mapa canônico da área**: sem esta linha, a ausência lê-se como descuido em vez de escolha. | GPU dedicada disponível **e** gap de qualidade atribuível à memória externa **e** demanda real por footprint constante — os três juntos, não qualquer um | S-series — 2026-08-13 |
 | 31 | **Adotar TypeSafe Jev (System One) no caminho de retrieval — como reranker ou como terceira perna do RRF** | Avaliado 2026-09-21 contra dois benchmarks independentes com resposta crua publicada. **(i) O ganho de ranking não existe:** `jev-rerank-bench` (8 datasets EN, 1.617 questões) dá Jev rubric **0,692** contra Cohere Rerank 4 Pro **0,691** — Δ +0,001, IC95 [−0,009, +0,012], que não estabelece vencedor **nem** equivalência; com peso igual por query Cohere passa na frente (0,756 × 0,738). Quatro rerankers de arquiteturas distintas empatados entre 0,682 e 0,692 dizem que o teto está no pipeline, não no modelo. **(ii) Sozinho perde de embedding denso:** `jev-search-rerank-eval` (9.831 pares graduados) mede `jev-score(bge-m3@30) − bge-m3` = +0,012 [−0,013, +0,037], e sob juiz independente **−0,028** [−0,052, −0,004] — intervalo que não cruza zero, na direção errada. **(iii) O sinal multilíngue aponta contra nós:** Cohere lidera o Choice do Jev por **6,4 pontos** em MIRACL francês, o proxy mais próximo de um corpus PT-BR. **(iv) Pilar A:** um reranker hospedado vê a **query** junto com o chunk — divulgação estritamente maior que a dos embeddings que já saem pro Gemini, e isso barra o caminho default. **(v) Custo de oportunidade:** as duas frentes boas (MA-protection, `kg-confirm` semântico) competem com o TMLR, que é o que está na mesa. | Os três juntos, não qualquer um: (a) Lab Q1 #2 (MA-protection) sair do parking lot como trabalho priorizado; (b) PT-BR medido **não-inferior** num golden set nosso; (c) o uso entrar como **opt-in explícito**, nunca no default | D-2026-09-21c |
+| 32 | **`nox-mem compact` destrutivo** (troca os chunks de um arquivo por 1 resumo de LLM e apaga os originais) | Rodou todo domingo de 04 a 10/2026 sem decisão registrada: 10.204 chunks viraram 210 resumos, o conteúdo de arquivos ainda vivos em disco saiu da busca e 610 relações do KG perderam a evidência. Esquecer é rebaixar no ranking, nunca apagar sem métrica; os papers lidos em 13/10 (EnSIMem, JAM) guardam o bruto e indexam por cima. | Resumo **ao lado** do original (chunk novo, sem apagar) com eval mostrando ganho, ou política de retenção medida (S1/item 7 do ROADMAP v6) | D-2026-10-14 |
 
 ## 2. Q5 Cross-encoder reranker — DEFERRED (5 razões)
 
@@ -1937,3 +1938,52 @@ goldens (`eval_queries.expected_chunk_ids`). Na 322, 34 chunks ficaram por isso.
 **Onde está o detalhe:** `docs/HANDOFF.md` (2026-09-29/30), `D77` (reempacotamento de 30/09),
 `docs/INCIDENTS.md#2026-09-29`. Scripts de cada operação ficaram em `/root/` na VPS
 (`nox-dedupe-same-file-*`, `nox-dedupe-cross-file-*`, `nox-purge-imports-*`).
+
+
+### D-2026-10-14 — `compact` pausado; 182 arquivos restaurados; evidência do KG reapontada
+
+**Contexto.** Investigando por que 753 relações do KG perderam o chunk de evidência (início da
+expiração em 2026-10-24, primeira deleção no `kg-prune` de 2026-10-26), o cruzamento com os
+snapshots da VPS de Pesquisa mostrou que 610 delas vinham de arquivos que **ainda existem em
+disco**, mas que no banco tinham virado **um único resumo** `[Compacted N entries …]`. Causa: a
+Fase 4 do `nightly-maintenance.sh` roda `nox-mem compact` todo domingo. Ele pega chunks
+`daily`/`team`/`other` com mais de 30 dias, grava 1 resumo de LLM por arquivo e **apaga os
+originais**, sem olhar `retention_days`. Medido: 10.204 chunks → 210 resumos desde abril,
+acelerando (20 arquivos/semana em outubro). Nenhuma linha deste arquivo adotava isso como
+política; a regra 6 só exigia snapshot antes de rodar.
+
+**Decidido pelo Toto (2026-10-14):**
+1. `compact` pausado pela flag `/root/.openclaw/DISABLE_COMPACT` (openclaw-vps#45; o script do
+   repo foi sincronizado com o da VPS, que também tinha mudanças de 07/09 fora do git).
+2. Os 182 arquivos compactados que ainda existem em disco foram reingeridos: os resumos saíram e
+   os originais voltaram (43.284 → 49.511 chunks). `ops_audit` 354.
+3. Evidência do KG reapontada por texto exato no mesmo `source_file`: **681 relações**.
+   `ops_audit` 355. Sobraram 85 sem evidência (68 sem texto recuperável, 12 extraídas dos
+   próprios resumos, 5 com texto que mudou), que seguem o decaimento normal.
+4. NÃO FAZEMOS #32.
+
+**Execução e validação:**
+- A reingestão rodou **sem** `GEMINI_API_KEY` no processo, para o ingest não embedar inline
+  com `RETRIEVAL_QUERY` (defeito do `ingest.ts:182`, item 2 do ROADMAP v6). O `vectorize` em
+  lote embedou os 6.817 chunks como `RETRIEVAL_DOCUMENT`: 0 erros.
+- Pós-op: 49.511/49.511 embedados, 0 órfãos, `compiled == frontmatter == 239` (pré-op 239),
+  KG 15.620/17.753 intacto.
+- ⚠️ O `ops_audit` 354 terminou `failed`, apesar do trabalho feito: `ingestFile` fecha o handle
+  compartilhado do `getDb()`, e o `UPDATE` final do `withOpAudit` encontrou a conexão fechada.
+  A linha foi fechada à mão com a explicação. **Qualquer op que chame `ingestFile` dentro de
+  `withOpAudit` cai nisso**; o remap rodou num segundo processo (`ops_audit` 355, `success`).
+- Snapshots pré-op: `/var/backups/nox-mem/pre-op/restore-compacted-1014-*` e
+  `kg-evidence-remap-1014-*` (retenção 7 d). O snapshot pré-compact de 2026-10-11 foi
+  preservado na VPS de Pesquisa em `/var/backups/nox-mem/compact-preop-preservado/` (sha256
+  igual nas duas pontas).
+- Scripts: `/root/nox-restore-compacted-2026-10-14.mjs`, `/root/nox-kg-remap-2026-10-14.mjs`;
+  medições em `/root/medicoes/2026-10-13-tasktype/`.
+
+**Fica em aberto:**
+- 28 arquivos compactados de `memory/` já não existem em disco (3.448 chunks originais); o
+  conteúdo só existe em backups antigos (Pesquisa: `nox-mem.db.2026-06-17-*`, snapshots de
+  agosto/setembro). Recuperar ou não é decisão de conteúdo.
+- O `kg-build` loga `Built: N relations` contando **tentativas**, não inserções; e as listas
+  fixas de nomes não produzem par novo desde setembro. O KG cobre ~7% do corpus atual (cursor
+  da extração LLM parado em 2026-05-16). Próximo passo do KG: S1 (precisão amostrada) antes de
+  qualquer extração nova.

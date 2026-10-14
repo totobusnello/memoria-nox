@@ -1,5 +1,28 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-10-14 — `compact` pausado, 182 arquivos restaurados, 681 relações do KG com evidência de volta
+
+- **O que aconteceu:** a sessão de ideias (13/10) virou auditoria de ROADMAP contra produto. O
+  achado maior: `nox-mem compact` rodava todo domingo e apagava os originais (10.204 chunks → 210
+  resumos desde abril), levando a evidência de 610 relações do KG. Detalhe e números em
+  `docs/DECISIONS.md#D-2026-10-14`.
+- **Feito em produção (aprovado pelo Toto):** flag `/root/.openclaw/DISABLE_COMPACT` +
+  openclaw-vps#45; reingestão dos 182 arquivos ainda em disco (`ops_audit` 354, 43.284 → 49.511
+  chunks); evidência reapontada (`ops_audit` 355, 681 relações; 85 seguem decaindo); `vectorize`
+  em lote (6.817 como `DOCUMENT`). Validado: 49.511/49.511 vetores, `compiled == frontmatter ==
+  239`, KG 15.620/17.753.
+- **Próximo:**
+  1. **Item 2 do ROADMAP v6:** corrigir o `ingest.ts:182` (embed inline usa `RETRIEVAL_QUERY`
+     para documento; censo de 1.000 chunks: 2,6% afetados) e fazer a passada `DOCUMENT` que acha
+     e troca os vetores errados. Mexe no vec0: snapshot + janela.
+  2. **ROADMAP v6** (aprovado): o produto real (knobs do eval fora do "SHIPPED"; flags mortas;
+     pilar A sem troca de provider no embedding; A2/P4 fora do npm), as prioridades da sessão e o
+     que sobra do roadmap antigo.
+  3. `kg-confirm` das 23:00 UTC de 14/10 deve confirmar as 681 relações: conferir
+     `kg-confirm ... evidence_gone` no `/var/log/nox-maintenance.log` (esperado ~85).
+- **Armadilha nova:** `ingestFile` fecha o handle do `getDb()`; op que o chama dentro de
+  `withOpAudit` termina `failed` com o trabalho feito.
+
 ## 2026-10-13 — data note da telemetria PUBLICADA: `10.5281/zenodo.23354363` (concept `23354362`)
 
 - **Publicada pelo Toto em 2026-10-13.** Conferido pela API pública (`published`, 4/4 md5 = disco) e doi.org 200. Card no labf.bio (site-labf #15, `abcc9bf`), EN e PT conferidos no ar. Infra das vozes: Claude#127 mergeado (`1000885`). Readback ok: 15 campos, 4 arquivos (PDF 6 p., `.md`, `code-v1.0.zip`, `SHA256SUMS`), PDF com a linha do DOI. Relações: `describes` o dataset `10.5281/zenodo.23130191`; `references` arXiv:2606.06448 e o relatório nox-mem v1.0.6; `issupplementedby` a tag `datanote-v1.0` (GitHub 200).
