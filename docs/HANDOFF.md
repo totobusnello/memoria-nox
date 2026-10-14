@@ -25,8 +25,16 @@
     verde (chaves `memory/…`, entity com 3 seções, adoção no rename, chave colada com cwd `/`, schema 20).
   - ✅ **PUBLICADA 14/10 ~18:47 UTC = `latest`** (stage id `c4efe362`, approve do Toto). Smoke do
     registry em HOME limpo: versão 3.6.0, chave `memory/a.md`, reingest 0 new / 1 unchanged, schema 20.
-- **Falta do plano:** item 3 (agentes mandarem `X-Agent-Name` / `NOX_AGENT_NAME`, config do OpenClaw
-  em `openclaw-vps/infra/`); conferir `kg-confirm` hoje 23:00 UTC; reindex dos agentes 15/10 23:00 UTC.
+- **Item 2 fechado sem objeto (medido):** os agentes **não buscam** no nox-mem. Outubro: 48
+  buscas/dia, todas da `semantic-canary.sh`; desde 01/09, 0 `nox_mem_search` nos transcripts dos
+  agentes (`/root/.claude-nuvini-team/projects/`; 4 chamadas MCP no total: 2 ingest, 1 stats, 1
+  cross_search). Eles escrevem (ingest, session-distill) e recebem memória pelo brief que o cron
+  `nox-mem-brief-refresh.sh` gera a cada 15 min (`brief_log.agent` = nox/atlas/…; NULL = hooks do
+  Mac). A canária passou a mandar `X-Agent-Name: semantic-canary` (editada na VPS, script não
+  versionado; backup `semantic-canary.sh.bak-pre-agent-name-20261014`). **Consequência para a fila:**
+  latência de busca (item 6) não tem tráfego de agente para melhorar; o item 7 (o brief é lido e
+  usado?) vira a pergunta central, e "servido" no `brief_log` mede geração do cron, não leitura.
+- **Falta:** conferir `kg-confirm` hoje 23:00 UTC; reindex dos agentes 15/10 23:00 UTC.
 
 ## 2026-10-14 (tarde) — item 3 (escrita sem perda) em produção
 

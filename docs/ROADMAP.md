@@ -85,7 +85,11 @@ README, `CONFIGURATION.md`, `COMPARISON.md` e `COMPETITIVE-POSITIONING.md` corri
 1. Conferir o `kg-confirm` das 23:00 UTC de 14/10 (`evidence_gone` ~85, era 753).
 2. ✅ **Item 3 (escrita sem perda)**, inteiro: em produção desde 2026-10-14 14:34 UTC
    (nox-mem#42 `95ccf0ea`, nox-workspace#56 `9a509eab`; D-2026-10-14c).
-3. **Item 2, fecho:** agentes mandam `X-Agent-Name` (HTTP) / `NOX_AGENT_NAME` (MCP).
+3. ✅ **Item 2, fecho (2026-10-14): sem objeto.** Os agentes não buscam: em outubro, 100% das
+   linhas de `search_telemetry` são da `semantic-canary.sh` (48/dia), que agora se identifica
+   (`probe:semantic-canary`). Desde 01/09 os agentes fizeram 0 `nox_mem_search` (4 chamadas MCP no
+   total, todas de escrita/stats). A memória chega a eles só pelo brief do cron
+   `nox-mem-brief-refresh.sh` (`brief_log.agent` já identifica o agente). Ver HANDOFF 14/10.
 4. ✅ **D49/D50, execução** (2026-10-14 17:19 UTC): drop-in `NOX_TEMPORAL_PATH=shadow` fora do
    `nox-mem-api`; `was_temporal_query` com escritor (nox-workspace#57); `requesting_agent` e
    `was_temporal_query` no npm, schema v20 (nox-mem#43). Ver D-2026-10-14b.
@@ -95,7 +99,7 @@ README, `CONFIGURATION.md`, `COMPARISON.md` e `COMPETITIVE-POSITIONING.md` corri
 | # | item | por quê | primeiro passo / gate |
 |---|---|---|---|
 | **1** ✅ docs | **Discurso = produto.** README, COMPARISON e POSITIONING só citam o que o npm tem; flags mortas saem do `.env`; decidir, knob a knob, entre portar e rebaixar a "resultado de pesquisa" (o KG path é SQL puro e o candidato natural a port, mas o D75 mediu −0,01pp no Gemini) | O GTM é em novembro e o diferencial declarado é honestidade de trade-off | lista feita na §2; PR de docs + release 3.5.2 do npm com o nox-mem#40 |
-| **2** ◐ escritor feito | **Telemetria de quem busca**: gravar `requesting_agent` e marcar sonda vs agente | Na data note, 62,8% das consultas eram sondas; sem isso nenhuma prioridade de retrieval tem base | coluna já existe; falta o escritor + teste que proteja (regra 12) |
+| **2** ✅ medido 14/10 | **Telemetria de quem busca** (resposta: ninguém além da canária; ver plano item 3): gravar `requesting_agent` e marcar sonda vs agente | Na data note, 62,8% das consultas eram sondas; sem isso nenhuma prioridade de retrieval tem base | coluna já existe; falta o escritor + teste que proteja (regra 12) |
 | **3** ✅ prod 14/10 | **Escrita sem perda** (D-2026-10-14c; ainda abertos: `mark.ts` escreve `superseded_by` sem migração, `SCHEMA_VERSION` 18 vs "v22" nos docs): (a) NOOP por hash de conteúdo, reaproveitando vetor e **id** quando o texto não mudou; (b) tombstone soft em delete/rename (rebaixa e lista para revisão, nunca apaga sozinho, respeitando o D-2026-09-30); (c) `ingestFile` parar de fechar o handle do `getDb()` | Hoje regravar um arquivo recria todos os chunks com ids novos e quebra `brief_log`, telemetria e evidência do KG; rename deixa duplicata | a conferir junto: `reindex` com `skipDelete` pode duplicar markdown; `mark.ts` escreve `superseded_by`, coluna que nenhuma migração cria; `SCHEMA_VERSION = 18` no código contra "v22" nos docs |
 | **4** | **KG como endereço.** S1 (precisão amostrada, n ≥ 100) → decidir extração LLM sobre os ~93% não cobertos (poucos dólares com flash-lite) → usar o KG para apontar chunks, não para substituí-los. `kg-build` passa a logar inserções; resíduo de teste (`test_a`, `test_b`, `alpha`, `beta`) sai | O grafo está saturado e as vault facts (`active`) servem 3 triplas por busca de um grafo velho | S1 antes de qualquer extração; o D64 trata do KG do eval, não deste |
 | **5** | **Esquecimento com métrica**: `retention_days` passa a rebaixar no ranking (shadow 7 d) ou sai do discurso. (Os 28 arquivos sem disco: 27 restaurados em 14/10; 1 ficou como resumo.) | Retenção hoje é decorativa: nenhum código age sobre ela | — |
