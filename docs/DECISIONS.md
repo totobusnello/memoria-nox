@@ -2007,3 +2007,42 @@ filtros explícitos (`--as-of`, `--changed-since`), que existem nas três superf
 **Execução (2026-10-15, aprovada):** tirar o drop-in `NOX_TEMPORAL_PATH=shadow` do `nox-mem-api`
 (cada busca deixa de pagar um cálculo que ninguém lê) e dar escritor ao `was_temporal_query`, que é
 o gatilho (a) de reabertura.
+
+### D-2026-10-14c — Escrita sem perda: diff por conteúdo, tombstone, adoção só de arquivo inteiro
+
+**Em produção desde 2026-10-14 14:34 UTC** (nox-mem#42 `95ccf0ea`, nox-workspace#56 `9a509eab`).
+Revisão: Codex NO-GO (5) → consertos → NO-GO (3) → consertos → **GO**; Kimi GO com achados (2 aplicados).
+
+**O que mudou.** O ingest deixou de fazer `DELETE FROM chunks WHERE source_file = ?` + reinserção.
+`lib/chunk-sync.ts` compara por `(section, chunk_text)` como multiset: chunk igual mantém linha, id,
+vetor e histórico; texto novo é inserido (e só ele embedado); texto editado sai. Cópias extras
+colapsam na que tem vetor. `ingestFile` não fecha mais o handle do `getDb()`.
+
+**Decisões de desenho (e por quê):**
+- **Tombstone é marca, não remoção.** Arquivo que sai do disco ganha linha em `chunk_tombstones`;
+  os chunks ficam buscáveis. Só `tombstone-purge` apaga (com `withOpAudit`). Revisão:
+  `nox-mem tombstones`; `tombstone-keep` tira da fila o que é mantido de propósito.
+- **Tabela criada sob demanda, sem bump de schema.** npm e produção numeram versões de schema
+  diferente; `CREATE TABLE IF NOT EXISTS` cai igual nas duas.
+- **Ranking não muda.** Rebaixar tombstone é `feat(search)` com shadow (regra 5), não este item.
+- **Adoção (rename mantém id) só de arquivo INTEIRO**, só de tombstone com `reason='deleted'`
+  (deleção observada pelo watcher) e nunca de arquivo de volta ao disco. Por parágrafo, um trecho
+  em comum transferia o id e uma edição posterior apagava conteúdo alheio (Codex). O `reindex`
+  marca `missing-at-reindex`, que nunca é adotável: protege os arquivos que o D-2026-09-30 mantém.
+- **Overrides explícitos** (Paper 2: `pain`, `metadata`) chegam também à linha mantida ou adotada
+  (`refreshKept`). Chunk `core` nunca tem `retention_days` re-derivado.
+- **`reindex`**: diff por arquivo numa transação única; a guarda de retenção dá ROLLBACK antes do
+  commit; fora de `memory/` e `shared/` nada é tocado. O reindex de produção era a versão sem os
+  consertos do npm de 28/09 e mantinha cada chunk inalterado em dobro nos bancos dos agentes
+  (`pre=4026 inherited=2018 orphans-deleted=2008 post=4071`); o próximo reindex (ímpar) colapsa.
+- **Watcher**: `close_write,moved_to` → ingest; `delete,moved_from` → tombstone; diretório que sai
+  → `tombstone --dir`; diretório que chega → ingest de cada arquivo com o allowlist. Sem debounce:
+  o antigo era de borda inicial e perdia a última escrita da janela (o smoke do deploy achou um
+  caso: o último chunk do `memory/decisions.md` estava 108 caracteres atrás do disco).
+
+**Limitações conhecidas (LOW, ficam):** `tombstones` lista devagar (sem índice em `chunk_text`);
+arquivo que volta vazio não resolve o tombstone; a guarda conta conteúdo distinto, não identidade.
+
+**NÃO FAZEMOS:** adoção por parágrafo; adoção de `missing-at-reindex`; apagar chunk por evento de
+deleção.
+

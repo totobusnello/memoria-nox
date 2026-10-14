@@ -1,5 +1,27 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-10-14 (tarde) — item 3 (escrita sem perda) em produção
+
+- **No ar desde 14:34 UTC**: nox-mem#42 (`95ccf0ea`) e nox-workspace#56 (`9a509eab`). Desenho e
+  porquês em `docs/DECISIONS.md#D-2026-10-14c`. Reingerir arquivo não troca mais ids; arquivo apagado
+  ou movido vira tombstone (`nox-mem tombstones`); rename mantém id por adoção de arquivo inteiro.
+- **Revisão:** Codex NO-GO (5 achados) → consertos → NO-GO (3) → consertos → GO. Kimi GO (2 achados
+  aplicados; a casca cortou ~31 KB do início da saída com `tail -c 60000`, veredito inteiro).
+- **Testes:** npm 724, 0 falhas (`write-path.test.ts`, 22 casos, cada conserto com mutação pega). VPS
+  (Node 24, `/root/medicoes/2026-10-14-write-path`): write-path 22/22; os outros 135 arquivos
+  idênticos à baseline `origin/main` (9 falhas preexistentes nas duas).
+- **Deploy conferido:** antes 52.931 chunks / 52.929 vetores / `compiled == frontmatter == 239`;
+  depois igual, com 1 vetor a menos até o catch-up de 4 h (o chunk que mudou). Smoke: regravar
+  `decisions.md` e uma entity idênticos → entity `0 new, 3 unchanged`; `decisions.md` `1 new, 21
+  unchanged, 1 removed` porque o último chunk estava atrás do disco (perda do debounce antigo).
+- **Primeiro efeito grande:** `reindex` dos bancos dos agentes em 15/10 23:00 UTC (dia ímpar) colapsa
+  as duplicatas (~2.000 por banco). Conferir no `/var/log/nox-maintenance.log`: `deleted` alto,
+  `ratio` ~100%, `ingest-errors=0`. A partir daí, `tombstones` lista os `missing-at-reindex`
+  (incl. mac-docs PESSOAL/BANCOS): marcar com `tombstone-keep` os mantidos de propósito.
+- **▶️ Próximo (do plano aprovado):** (1) `kg-confirm` hoje 23:00 UTC; (3) agentes se identificam
+  (`X-Agent-Name` / `NOX_AGENT_NAME`); (4) D49/D50 execução. Release npm 3.6.0 com o item 3 só com
+  o stage approve do Toto.
+
 ## 2026-10-14 (madrugada) — fechamento: itens 1, 2 e 9 em produção, 27 arquivos de volta, npm 3.5.2 aguardando login
 
 - **Embeddings (item 2) — fechado.** Fix em produção (nox-workspace#54) e no npm (nox-mem#40). O scan dos
