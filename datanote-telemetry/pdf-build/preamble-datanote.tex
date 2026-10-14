@@ -134,3 +134,7 @@
 \AtBeginEnvironment{longtable}{\needspace{10\baselineskip}}
 % Figures live next to DATA-NOTE.md, one level up from pdf-build/.
 \graphicspath{{../}}
+% Let Figure 1 sit at the top of a text page instead of on a page of its own.
+\renewcommand{\topfraction}{0.85}
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.85}

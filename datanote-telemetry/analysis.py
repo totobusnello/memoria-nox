@@ -27,6 +27,8 @@ WIN_START = 1786060800000  # 2026-08-07T00:00Z
 WIN_END = 1788825600000    # 2026-09-08T00:00Z
 DAY_MS = 86_400_000
 PHASES = ("construction", "query", "maintenance")
+COLUMNS = ("id", "timestamp_ms", "provider", "model", "op_type", "tokens_in", "tokens_out",
+           "cost_estimate_usd", "latency_ms", "success", "caller", "phase", "tokens_src")
 
 
 def fetch(dest):
@@ -154,16 +156,81 @@ def measure(rows):
     m["days_with_rows"] = len(days)
     for p in PHASES:
         m[f"days_{p}"] = sum(1 for s in days.values() if p in s)
-    write_silent = [d for d, s in sorted(days.items())
-                    if "construction" not in s and "maintenance" not in s and d >= "2026-08-25"]
-    m["write_silent_first"] = write_silent[0]
-    m["write_silent_days"] = sum(1 for d in write_silent if d <= "2026-09-06")
+    # Longest run of calendar days (all 32, with or without rows) that has no
+    # construction or maintenance row.
+    cal = [datetime.fromtimestamp((WIN_START + i * DAY_MS) / 1000, timezone.utc).date().isoformat()
+           for i in range(32)]
+    best, run = (0, None, None), []
+    for d in cal:
+        s = days.get(d, set())
+        if "construction" in s or "maintenance" in s:
+            run = []
+            continue
+        run.append(d)
+        if len(run) > best[0]:
+            best = (len(run), run[0], run[-1])
+    m["write_silent_days"], m["write_silent_first"], m["write_silent_last"] = best
+    in_silent = [r for r in rows if best[1] <= datetime.fromtimestamp(r["ts"] / 1000, timezone.utc).date().isoformat() <= best[2]]
+    m["write_silent_rows"] = len(in_silent)
+    m["write_silent_query_rows"] = sum(1 for r in in_silent if r["phase"] == "query")
+    m["write_silent_canary_pct"] = 100 * sum(1 for r in in_silent if r["canary"]) / m["write_silent_query_rows"]
+    m["first_row_date"] = datetime.fromtimestamp(rows[0]["ts"] / 1000, timezone.utc).date().isoformat()
+    m["columns"] = len([k for k in rows[0] if k in COLUMNS])
+    m["first_day_hours"] = (rows[0]["ts"] - WIN_START) / 3_600_000
+    m["first_day_hours_covered"] = 24 - m["first_day_hours"]
+
+    # Phase re-derived from caller, by the rule the note states.
+    def rule(c):
+        if c in ("embed.embedQuery", "search-expansion.expand"):
+            return "query"
+        if c in ("compact.gemini", "consolidate.gemini"):
+            return "maintenance"
+        return "construction"
+    m["phase_rule_mismatches"] = sum(1 for r in rows if rule(r["caller"]) != r["phase"])
 
     m["failed_calls"] = sum(1 for r in rows if not r["ok"])
+    m["failed_dates"] = len({datetime.fromtimestamp(r["ts"] / 1000, timezone.utc).date()
+                             for r in rows if not r["ok"]})
+    m["failed_not_query_embed"] = sum(1 for r in rows if not r["ok"] and r["caller"] != "embed.embedQuery")
     m["models"] = len({r["model"] for r in rows})
     m["callers"] = len({r["caller"] for r in rows})
     m["kg_extract_rows"] = sum(1 for r in rows if r["caller"] == "kg-llm.extract")
+    m["kg_extract_non_smoke"] = sum(1 for r in rows if r["caller"] == "kg-llm.extract" and not r["smoke"])
     m["tokens_estimated_pct"] = 100 * sum(1 for r in rows if r["tokens_src"] == "estimated") / len(rows)
+    m["smoke_rows"] = sum(1 for r in rows if r["smoke"])
+    m["query_embed_calls"] = sum(1 for r in qry if r["op_type"] == "embed")
+    m["input_token_ratio"] = m["mean_tin_construction"] / m["mean_tin_query"]
+    top3 = sorted(rows, key=lambda r: r["cost"], reverse=True)[:3]
+    m["top3_digest_calls"] = sum(1 for r in top3 if r["caller"] == "digest.gemini")
+
+    # Construction cost by day: days above 10 milli-USD and their share.
+    cday = {}
+    for r in cons:
+        d = datetime.fromtimestamp(r["ts"] / 1000, timezone.utc).date()
+        cday[d] = cday.get(d, 0.0) + r["cost"]
+    tall = [v for v in cday.values() if v > 0.010]
+    m["construction_days_over_10musd"] = len(tall)
+    m["construction_cost_pct_on_those_days"] = 100 * sum(tall) / raw["construction_cost"]
+
+    # 2026-08-10 window: the 02:00-02:03Z burst and the rest.
+    b0 = WIN_START + 3 * DAY_MS + 2 * 3_600_000
+    aug = [r for r in rows if r["aug10"]]
+    m["aug10_burst_rows"] = sum(1 for r in aug if b0 <= r["ts"] < b0 + 3 * 60_000)
+    m["aug10_other_rows"] = len(aug) - m["aug10_burst_rows"]
+
+    # Unflagged query rows in 02:00-02:59Z on dates whose 02:00 hour also has maintenance rows.
+    def hour2(r):
+        t = datetime.fromtimestamp(r["ts"] / 1000, timezone.utc)
+        return t.date() if t.hour == 2 else None
+    mdates = {hour2(r) for r in rows if r["phase"] == "maintenance"} - {None}
+    night = [r for r in qry if not r["annotated"] and hour2(r) in mdates]
+    m["nightly_unflagged_query_rows"] = len(night)
+    m["nightly_dates"] = len({hour2(r) for r in night})
+
+    # Gaps between consecutive rows (minutes): how many exceed 32 minutes, and the largest other gap.
+    gaps = [(b["ts"] - a["ts"]) / 60_000 for a, b in zip(rows, rows[1:])]
+    m["gaps_over_32min"] = sum(1 for g in gaps if g > 32.0)
+    m["max_gap_otherwise_min"] = max(g for g in gaps if g <= 32.0)
     return m
 
 
