@@ -1,6 +1,6 @@
 # nox-mem HANDOFF — estado vivo
 
-## 2026-10-14 (fim de tarde) — D49/D50 executado; telemetria de quem busca no npm
+## 2026-10-14 (fim de tarde) — D49/D50 executado; npm 3.6.0 publicado
 
 - **Produção (17:19 UTC):** drop-in `d49-temporal-shadow.conf` fora do `nox-mem-api` (guardado em
   `/root/medicoes/2026-10-14-d49-dropin/`); `search_telemetry.was_temporal_query` gravado em toda
@@ -23,8 +23,8 @@
     project-context-gen, api-impact) mantêm o default antigo. Produção não muda (tem a pasta da origem).
   - Suíte 740: 736 passam, 0 falham, 4 skipped preexistentes. Tarball final shasum `32af0ae9`: smoke
     verde (chaves `memory/…`, entity com 3 seções, adoção no rename, chave colada com cwd `/`, schema 20).
-  - **Falta só publicar:** `npm login` num terminal comum (o token deu E401), depois
-    `cd ~/Claude/Projetos/nox-supermem/nox-mem && npm stage publish` e `npm stage approve <id>`.
+  - ✅ **PUBLICADA 14/10 ~18:47 UTC = `latest`** (stage id `c4efe362`, approve do Toto). Smoke do
+    registry em HOME limpo: versão 3.6.0, chave `memory/a.md`, reingest 0 new / 1 unchanged, schema 20.
 - **Falta do plano:** item 3 (agentes mandarem `X-Agent-Name` / `NOX_AGENT_NAME`, config do OpenClaw
   em `openclaw-vps/infra/`); conferir `kg-confirm` hoje 23:00 UTC; reindex dos agentes 15/10 23:00 UTC.
 
