@@ -62,6 +62,7 @@ AMORT = [1.0, 1e6, 1.0, 1e6]  # Table 2: queries, micro-USD per query, queries, 
 BINDINGS = [
     # Status block
     (r"Status \(" + D + r"\)", [lit("2026-10-13")]),
+    (r"Version (1\.0) of a data note", [lit("1.0")]),
     (r"Busnello, L\. A\. \((2026)\)", [lit(2026)]),
     (r"\(" + N + r"-day window, " + D + r" to " + D + r"\)",
      [k("days_with_rows"), rd("2026-08-07"), rd("2026-09-08")]),
@@ -205,7 +206,7 @@ CONDITIONS = [
 IGNORE = [
     r"Table \d", r"Figure \d", r"Section \d", r"\[\d\]", r"^#+ \d\.", r"\bD\d+\b", r"\d\d:\d\d",
     r"SHA-256", r"CC BY 4\.0", r"arXiv:\d+\.\d+", r"[Bb]locks? \d(–\d)?", r"\| [1-5] \((?:Aug|Sep)[^)]*\)",
-    r"rc2", r"\b2026\.(?=\s)",
+    r"\b2026\.(?=\s)",
 ]
 TOKEN = re.compile(r"(?<![\w.])(20\d\d-\d\d-\d\d|\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)*)(?![\w])")
 

@@ -1,6 +1,6 @@
 # Expensive writes, noisy reads: provider-call telemetry from a production agent-memory system
 
-> **Status (2026-10-13).** Draft rc2 of a data note, not peer reviewed and not yet deposited.
+> **Status (2026-10-13).** Version 1.0 of a data note, not peer reviewed.
 > It describes the dataset Busnello, L. A. (2026), *Phase-attributed provider-call telemetry
 > from a production agent-memory system (32-day window, 2026-08-07 to 2026-09-08)*, version
 > 1.0.0, Zenodo, `10.5281/zenodo.23130191`. Rule of this file: each number is either recomputed
@@ -246,7 +246,7 @@ the dataset's verification script checks.
 ## Data availability
 
 The dataset is at https://doi.org/10.5281/zenodo.23130191 under CC BY 4.0. The code for this
-note (`analysis.py`, `parity.py`, `figure.py` and the PDF build) will be deposited with this note and is
+note (`analysis.py`, `parity.py`, `figure.py` and the PDF build) is deposited with this note as `code-v1.0.zip` and is
 also in the public repository https://github.com/totobusnello/memoria-nox, in
 `datanote-telemetry/`. `python3 analysis.py --fetch <dir>` downloads the dataset, checks its
 checksums and recomputes the numbers the note reports.

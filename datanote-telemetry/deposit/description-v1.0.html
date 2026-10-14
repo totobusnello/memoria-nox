@@ -1,0 +1,11 @@
+<p>A data note on the dataset <em>Phase-attributed provider-call telemetry from a production agent-memory system (32-day window, 2026-08-07 to 2026-09-08)</em> (<a href="https://doi.org/10.5281/zenodo.23130191">10.5281/zenodo.23130191</a>): 3,544 external model-provider calls recorded over 32 days by the shared store of nox-mem, a self-hosted memory service consulted by six agents, each labelled construction, query or maintenance.</p>
+<p>The note reads the table twice. As a cost record: construction is 3.16% of calls and 55.7% of estimated cost, and one construction call costs about 55 times as much as one query call, or about 25 times once the rows that match a monitoring signature are removed; construction's share of cost stays between 55.7% and 58.7% under that filter. As a record of the instrument: 62.8% of query calls match a monitoring or probe signature, so call counts cannot be read as agent demand; the log has a 13-day stretch with no recorded construction or maintenance call and contains no production knowledge-graph extraction. The whole window cost an estimated USD 0.135, so the note reports shares and ratios rather than absolute cost.</p>
+<p>Not peer reviewed.</p>
+<h4>Files</h4>
+<ul>
+<li><code>expensive-writes-noisy-reads-v1.0.pdf</code>: the note (6 pages).</li>
+<li><code>expensive-writes-noisy-reads-v1.0.md</code>: its source text.</li>
+<li><code>code-v1.0.zip</code>: <code>analysis.py</code> (downloads the dataset, checks its checksums and recomputes the numbers the note reports), <code>parity.py</code> (binds every number in the note to the metric or dataset-README statement it reports; <code>--selftest</code> checks that seeded errors are caught), <code>figure.py</code> (Figure 1), the PDF build, and the record of the adversarial review the text went through.</li>
+<li><code>SHA256SUMS</code>.</li>
+</ul>
+<p>Reproduce: <code>python3 analysis.py --fetch &lt;dir&gt; --json numbers.json</code>, then <code>python3 parity.py numbers.json expensive-writes-noisy-reads-v1.0.md</code>. Standard library only.</p>

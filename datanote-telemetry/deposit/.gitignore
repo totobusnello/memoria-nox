@@ -1,0 +1,5 @@
+.draft-id
+.metadata.json
+.readback*.json
+*.pdf
+*.zip
