@@ -1,5 +1,7 @@
 # Competitive positioning — nox-mem GTM narrative
 
+> ⚠️ **Flags in this document (2026-10-14 audit).** `NOX_KG_PATH_ENABLED`, `NOX_MQ_ENABLED`, `NOX_MA_PROTECTION_ENABLED`, `NOX_ADAPTIVE_CLASSIFIER`, `NOX_ITERB_GEMINI`, `NOX_LANG_AWARE_RRF` and the IterC/Self-Ask switch exist only in the research harness (`eval/evermembench/`). They are **not** in the npm package or in the reference deployment, so "shipped as opt-in" below means "available in the harness". See `docs/ROADMAP.md` §2.
+
 > ⚠️ **Historical document — superseded (2026-09-28).** The "SOTA" labels below predate the paper's honesty pass (commit `9c11c33`, 2026-09-04, which retracted "dual SOTA"). Current, caveated numbers: the [README headline table](../README.md#headline-results) and paper §5–§6. In short: EverMemBench +9.13 pp over MemOS is the like-for-like (same-backbone) result; the Gemini-3-flash deltas mix backbones; MuSiQue and HotPotQA sit above their benchmark readers but 10–12 pp below published SOTA (Beam Retrieval); LoCoMo retrieval@10 is not comparable to Mem0's answer F1; the full n=2,482 cross-system table (four systems, same corpus and embedder) is in paper §6.3. Kept unedited below as a record.
 
 > **The honest, backbone-portable memory layer that holds 12 SOTA-tier dimensions across research + production + orchestration benchmarks.**
@@ -120,7 +122,7 @@
 - **CLI + HTTP API + MCP:** 26+ CLI subcommands, HTTP `/api/{search,answer,kg,kg/path,...}`, 16 MCP tools for agent integration.
 - **Pain-weighted salience** (`recency × pain × importance`) — incidents stay retrievable when their lessons matter. Shadow mode default ensures ranking changes don't regress silently.
 - **F10 observability dashboard** — 4-panel real-time SSE viewer shipped at 11.7KB (no bundler, no React).
-- **Opt-in flags for advanced workloads:** KG path retrieval (`NOX_KG_PATH_ENABLED=1`), conditional Hard Mutex (`NOX_MUTEX_QUERY_ENTITY_THRESHOLD=2`), language-aware RRF weights (`NOX_LANG_AWARE_RRF=1`). Default configuration is fast factual recall; power users layer on adaptive features.
+- **Tunable ranking:** conditional Hard Mutex (`NOX_MUTEX_QUERY_ENTITY_THRESHOLD`). KG path retrieval and language-aware RRF were measured in the research harness and are not in the package.
 
 ---
 

@@ -1,5 +1,7 @@
 # nox-mem vs the field — public benchmark comparison
 
+> ⚠️ **Flags in this document (2026-10-14 audit).** `NOX_KG_PATH_ENABLED`, `NOX_MQ_ENABLED`, `NOX_MA_PROTECTION_ENABLED`, `NOX_ADAPTIVE_CLASSIFIER`, `NOX_ITERB_GEMINI`, `NOX_LANG_AWARE_RRF` and the IterC/Self-Ask switch exist only in the research harness (`eval/evermembench/`). They are **not** in the npm package or in the reference deployment, so "shipped as opt-in" below means "available in the harness". See `docs/ROADMAP.md` §2.
+
 > ⚠️ **Historical document — superseded (2026-09-28).** The "SOTA" labels below predate the paper's honesty pass (commit `9c11c33`, 2026-09-04, which retracted "dual SOTA"). Current, caveated numbers: the [README headline table](../README.md#headline-results) and paper §5–§6. In short: EverMemBench +9.13 pp over MemOS is the like-for-like (same-backbone) result; the Gemini-3-flash deltas mix backbones; MuSiQue and HotPotQA sit above their benchmark readers but 10–12 pp below published SOTA (Beam Retrieval); LoCoMo retrieval@10 is not comparable to Mem0's answer F1; the full n=2,482 cross-system table (four systems, same corpus and embedder) is in paper §6.3. Kept unedited below as a record.
 
 > **Status: rev8 2026-06-02 — Wave 2 CLOSED. 12 SOTA-tier dimensions canonical (no 13th). D75 + D76 cravados.**
@@ -135,7 +137,7 @@ F_MH 3-7% gap on EverMemBench is **corpus-structural** (long conversation chains
 | Coverage | **90.84%** | — | — | ✅ ≥30% |
 | Latency p50 | 7–105ms | — | within budget | ✅ |
 
-**3/4 gates met → shipped as opt-in** (`NOX_KG_PATH_ENABLED=1` / `--kg-walk=1`). Default OFF until KG densification or adaptive classifier composability closes MA gap. Closes **17% of MemOS F_MH gap** via SQL walks alone. Implementation cost: $0/query, $3.64 bench cost.
+**3/4 gates met → kept as a research-harness opt-in** (`NOX_KG_PATH_ENABLED=1` / `--kg-walk=1` in `eval/evermembench/`; not in the npm package). Default OFF until KG densification or adaptive classifier composability closes MA gap. Closes **17% of MemOS F_MH gap** via SQL walks alone. Implementation cost: $0/query, $3.64 bench cost.
 
 ---
 
@@ -192,7 +194,7 @@ ReAct (Q3 IterB, PR #419) ≠ Self-Ask (Q3 IterC, PR #406). Both are "iterative 
 | **Self-Ask (parallel sub-question decomposition)** | F_HL synthesis / high-level overview queries | F_HL +35.84pp BREAKTHROUGH; F_MH -0.40pp (zero lift on chains) |
 | **ReAct (sequential multi-round retrieve-reason)** | F_MH multi-hop chains | F_MH +2.01pp clean lift on best backbone (PR #419) |
 
-**Ship recommendation:** opt-in via `NOX_ITERB_GEMINI=1` (or per-query `--iterb-gemini`) — F_MH ceiling break for offline/analytics workloads where MA composite trade-off (-3.53pp) and latency (~6s p50) are acceptable. Default OFF until composability with Wave A/B/C measured and MA trade-off addressed.
+**Recommendation (research harness only, not in the npm package):** opt-in via `NOX_ITERB_GEMINI=1` (or per-query `--iterb-gemini`) — F_MH ceiling break for offline/analytics workloads where MA composite trade-off (-3.53pp) and latency (~6s p50) are acceptable. Default OFF until composability with Wave A/B/C measured and MA trade-off addressed.
 
 ---
 
