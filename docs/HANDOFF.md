@@ -18,11 +18,20 @@
   3.443 chunks, filtro de privacidade aplicado (5 redações), `ops_audit` 357. O 28º (waiver de debênture da
   Nuvini, compactado em 27/04, antes do backup) fica como resumo; o `.docx` original está no Mac.
 - **Banco agora:** 52.928 chunks, 52.928 vetores, `compiled == frontmatter == 239`, 1 resumo de compact restante.
-- **npm 3.5.2:** release mergeada (nox-mem#41), tag `v3.5.2`. `npm stage publish` deu **E401** (token
-  expirado): o Toto roda `npm login` num terminal comum; depois `npm stage publish` aqui e `npm stage approve`
-  dele.
-- **Próximo (decisão do Toto): item 10 = item 3 do v6, escrita sem perda** (NOOP por hash, ids estáveis,
-  tombstone soft, fix do handle do `ingestFile`). Também: portar o `requesting_agent` para o npm.
+- **npm 3.5.2 = `latest`** (shasum `0f615820`; aprovado pelo Toto em 14/10 ~00:03 BRT; smoke em HOME limpo ok).
+  Um segundo `npm stage approve` do mesmo id dá `E404`: significa já aprovado, conferir `npm view nox-mem dist-tags`.
+- **D49/D50 decidido:** NÃO FAZEMOS #33 (D-2026-10-14b).
+- **▶️ Amanhã, 2026-10-15 (tudo aprovado pelo Toto), nesta ordem:**
+  1. Conferir o `kg-confirm` (`grep -A3 kg-confirm /var/log/nox-maintenance.log | tail`): `evidence_gone` ~85.
+  2. **Item 3 do ROADMAP v6, escrita sem perda:** NOOP por hash de conteúdo (reaproveita vetor **e id**),
+     tombstone soft em delete/rename (nunca apaga sozinho; respeitar o D-2026-09-30), `ingestFile` sem fechar
+     o handle do `getDb()`. Conferir junto: `reindex` com `skipDelete`, `mark.ts`/`superseded_by`,
+     `SCHEMA_VERSION`. Fluxo: nox-mem (npm) → port para nox-workspace → testes na VPS (Node 24, cópia isolada
+     em `/root/medicoes/`, rodar por arquivo e em série: há 3 arquivos com crash nativo intermitente).
+  3. **Agentes se identificam:** `X-Agent-Name` (HTTP) e `NOX_AGENT_NAME` (MCP) na config do OpenClaw
+     (`~/Claude/Projetos/openclaw-vps/infra/`).
+  4. **D49/D50:** tirar o drop-in `d49-temporal-shadow.conf`; escritor do `was_temporal_query`; portar o
+     `requesting_agent` para o npm.
 - **Conferir hoje às 23:00 UTC:** `kg-confirm` com `evidence_gone` ~85 (era 753). Domingo 18/10: `compact SKIPPED`.
 
 ## 2026-10-14 — `compact` pausado, 182 arquivos restaurados, 681 relações do KG com evidência de volta
