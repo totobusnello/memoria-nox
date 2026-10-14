@@ -1,5 +1,36 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-10-14 (noite) — item 7: P2 desarmado; R1 (brief por recência) em shadow
+
+- **Passo 0, P2 desarmado (19:13 UTC, aprovado pelo Toto):** os drop-ins `p2-designation.conf`,
+  `p2s1-active.conf` (`NOX_EPOCH_SNAPSHOT=active`) e `p2s2-shadow.conf` saíram de
+  `/etc/systemd/system/nox-mem-api.service.d/` para
+  `/root/.openclaw/paper2/desarmado/*.desarmado-20261014T191325Z`; `daemon-reload` + restart.
+  `p2-serving.ndjson` parou em 35.271 linhas. `NOX_P2_WRITE_PATH=on` (vem do `.env`) fica: é a
+  telemetria da data note. O brief do boris quase não mudou ⇒ a idade dos itens vem da **seleção**, não
+  do epoch.
+- **Causa da idade:** o piso de pain do D2 (`specs/2026-06-07-D2-brief-diversity-term.md`, invariante #4:
+  pain ≥ 0,9 é servido sempre) põe 3 itens de abril no brief de **todos** os agentes (chk 112241
+  `PHASE-3-COMPLETION-REPORT`, 116107 `INCIDENTS`, 116094 `EVOLUTION`; pain 1,0; 172 d). Itens
+  distilled aparecem com título UUID. Mudar o piso em produção e o título são decisões do Toto.
+- **R1 em shadow (22:13 UTC):** nox-workspace#59 (`a0b89765`). `NOX_BRIEF_RECENCY=off|shadow` (não
+  aceita `active`); R1 = sessões do próprio agente nos últimos 14 d (6 slots) + global com até 30 d,
+  excluindo `sessions/%` do global. Calculado ao lado do brief servido e gravado em
+  `/root/.openclaw/logs/brief-recency-shadow.ndjson` (`served_ids`, `recency_ids`, `overlap`, idades).
+  Drop-in `r1-recency-shadow.conf`; env do processo conferido em `/proc/<pid>/environ`.
+  - Testes: `brief-recency` 4/4 (mutações pegas: sem exclusão de `sessions/%` vazou sessão de outro
+    agente; shadow alterando o servido; global sem validade). Suíte VPS idêntica ao baseline (9 falhas
+    preexistentes).
+  - Primeiro refresh: 7 linhas (6 agentes, nox 2×). Overlap servido×R1 = **1–3 de 10**. Idades
+    servidas `[172,172,172,171,17,171,4,4,1,1]` contra R1 `[1–4]` (nox).
+  - Os 1–2 últimos slots do servido já variam entre chamadas: duas do nox com 1 s de diferença, ambas
+    em shadow, terminaram diferente. Não comparar o arquivo do brief antes/depois do deploy para provar
+    que o shadow não muda nada; quem prova isso é o teste (shadow on × off).
+- **Próximo (21/10, 7 dias de shadow):** medir a relevância do R1 com o detector da auditoria 7a (itens R1
+  × respostas posteriores), descontando a continuidade de assunto, que favorece o R1 por construção.
+  Depois, ativação comparada (metade dos agentes ou blocos de tempo) e a auditoria de novo. Ativar é
+  decisão do Toto.
+
 ## 2026-10-14 (fim de tarde) — D49/D50 executado; npm 3.6.0 publicado
 
 - **Produção (17:19 UTC):** drop-in `d49-temporal-shadow.conf` fora do `nox-mem-api` (guardado em
