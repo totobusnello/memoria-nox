@@ -1,5 +1,18 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-10-15 (madrugada) — LOWs do item 3: 2 consertados, 1 promovido a decisão
+
+- **Arquivo tombstoned que volta vazio** agora resolve o tombstone; os chunks não mudam (nox-mem#47 →
+  nox-workspace#61, deploy `b8cff643`).
+- **`listTombstones`:** `EXISTS` correlacionado sobre `chunk_text` → CTE de passada única. Numa cópia de
+  `chunks` da produção (52.934 chunks, 20 tombstones simulados), **8 min 31 s → 0,83 s**, saída idêntica
+  (`cmp`). Teste de plano proíbe `CORRELATED` (nox-mem#48 → nox-workspace#62, deploy `717c15b6`).
+- **Chunk gigante NÃO é LOW.** O `decisions.md` de ~71 KB era só um exemplo: **1.107 chunks > 8 KB, 335 >
+  20 KB, o maior com 1 MB** (CSV de due diligence em `mac-docs/NUVIVI`; também churn reports com ~180 KB).
+  O `gemini-embedding-001` lê ~2.048 tokens: o resto desses chunks não existe para a busca semântica.
+  Conserto = re-chunking (ids novos, ~1,1k vetores pagos, ranking muda) ⇒ `feat` com shadow, **decisão do
+  Toto**. Nada foi mexido.
+
 ## 2026-10-15 (madrugada) — `nox-mem mark` consertado em produção (nox-workspace#60)
 
 - **Dois defeitos**, ambos invisíveis aos testes porque eles usavam o `db-shim`, que aceita qualquer
