@@ -1,5 +1,19 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-10-15 (madrugada) — `nox-mem mark` consertado em produção (nox-workspace#60)
+
+- **Dois defeitos**, ambos invisíveis aos testes porque eles usavam o `db-shim`, que aceita qualquer
+  coluna: (1) `chunks.superseded_by` nunca esteve em migração nenhuma (a v19 staged é de
+  `kg_relations.superseded_by_relation_id`); (2) a auditoria gravava `ops_audit(op, details, started_at
+  ISO)`, mas o schema real é `op_name`/`notes`, com um trigger que exige `started_at` inteiro em ms.
+- **Furo no meu primeiro conserto:** pôr a coluna em `migrateToV8Through18` não alcançava produção (v18
+  só roda o reparo por `retention_days`). A coluna agora entra em `ensureLateChunkColumns`, que roda a
+  cada abertura, sem subir `SCHEMA_VERSION` (o npm usa 19/20 para outra coisa). Teste com SQLite real,
+  inclusive um banco v18 sem a coluna.
+- Deploy `b0d3b085`: coluna 0→1 no restart, seções 239/239, `user_version` 18, 0 linhas não nulas.
+- **"v22" nos docs:** são SQL staged aplicados à mão e pela metade (v19 colunas, v21 `conflict_audit` e
+  v22 `confidence_eval_log` presentes; v20 `viewer_events` ausente); `docs/DOCS.md` corrigido.
+
 ## 2026-10-15 (madrugada) — 7b em execução: piloto rodando
 
 - **Spec v3.3** (`specs/2026-10-14-7b-brief-action-probe-design.md`) e **plano**
