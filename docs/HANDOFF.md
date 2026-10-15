@@ -1,5 +1,43 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-10-15 — embedding pegava 2.048 CARACTERES; corpus re-embedado; 7b com primárias inválidas
+
+- **Achado:** o `embed.ts` cortava todo texto em `substring(0, 2048)`, e o limite do modelo é de 2.048
+  **tokens** (a API corta sozinha acima disso; testado). 24.240 chunks (46%) passavam de 2.048 chars e
+  **44% do texto nunca chegava a um vetor**. O chunker cortava por palavras: CSV e OCR geravam chunks
+  de até 1 MB (1.107 acima de 8 KB). Densidade medida: 1,6 a 3,9 chars/token.
+- **Código** (nox-mem#50 → nox-workspace#64, deploy `b677c414`): `EMBED_MAX_CHARS` = 10.000 e
+  `capChunk`/`MAX_CHUNK_CHARS` = 4.000 em `chunkMarkdown`/`chunkJson`. O npm ainda **não foi
+  publicado**: release só com approve do Toto. A telemetria de custo de escrita (`billed`/`tokens_in`)
+  sobe de nível a partir do deploy.
+- **Medição numa cópia** (busca semântica, top-10, mesmos vetores de query): fim de chunk longo 7 → 14
+  de 40; trecho de gigante 6 → 11 de 20; controles: começo de chunk longo 32 → 29 de 50, curto 39 → 38
+  de 50 (0 melhoram, 5 pioram de posição). Trade-off aceito pelo Toto. A produção reproduz a cópia
+  exatamente. Scripts: `/root/medicoes/2026-10-15-embed/{embedwin.mjs,head.py,measure-*.json}`.
+- **Produção** (aprovado pelo Toto, cada passo com `withOpAudit`):
+  - `ops_audit` 361: 20.961 vetores de chunks com 2.048 < len ≤ 4.000, pagos no scan e conferidos
+    por sha do texto, 0 pulados;
+  - `ops_audit` 362: 3.278 chunks gigantes repartidos **dentro do banco** com `capChunk`, porque os
+    `mac-docs` não estão no disco da VPS e re-ingerir não os alcançaria. São 11.350 pedaços, 0
+    caractere perdido. Cada pedaço herda todas as colunas do pai (`created_at`, `access_count`,
+    `pain`, `importance`); KG: 955 relações reapontadas para o pedaço que cita as duas entidades, 201
+    para o que cita uma, 4 para o primeiro;
+  - `vectorize` de 11.350, 0 erros.
+  - Validado: 61.029 = FTS = mapa de vetores = linhas do vec0, órfãos 0; só 1 chunk acima de 4.000 (o
+    entity, de propósito); `evidence_gone` 85; `compiled` = `frontmatter` = 239.
+  - Scripts: `/root/nox-apply-full-window-2026-10-15.mjs` e `/root/nox-rechunk-oversized-2026-10-15.mjs`.
+    Snapshots pré-op em `/var/backups/nox-mem/pre-op/` (retenção de 7 d).
+- **7b:** o piloto terminou (30 × 4 = 120/120 ok). Parâmetros congelados (`frozen/params.json`, branch
+  `feat/7b-action-probe`): **A/A de 0,636 em C e 0,665 em H, acima do teto de 0,5 ⇒ primárias
+  mecânicas INVÁLIDAS nos dois estratos** (spec §5.3); MDE de 0,157 (C) e 0,134 (H). Diagnóstico só
+  sobre B1 (sem contraste): no C o ruído está nos argumentos das ferramentas (só ferramentas 0,626,
+  só texto 0,199); só os nomes das ferramentas dão 0,444 (C) e 0,281 (H). A rodada principal espera
+  a decisão do Toto.
+- **Outras decisões do dia:** histórico do git **não** reescrito. O IP Tailscale não se alcança de
+  fora, o IP público da produção nunca entrou no repo, e o IP público da VPS de Pesquisa está em 100
+  commits e num fork de terceiro (27/09). Títulos distilled agora saem como `sessão <agente> <data>`
+  (nox-workspace#63).
+
 ## 2026-10-15 (madrugada) — LOWs do item 3: 2 consertados, 1 promovido a decisão
 
 - **Arquivo tombstoned que volta vazio** agora resolve o tombstone; os chunks não mudam (nox-mem#47 →
