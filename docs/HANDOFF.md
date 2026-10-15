@@ -1,5 +1,18 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-10-15 (manhã) — 7b encerrado: o brief não guia a primeira ação nem com fato saliente
+
+- **Controle positivo** (spec §7, rodado antes da principal por decisão do Toto): 20 cenários × BP/B1 × 2
+  = 80 runs, 80 ok. Decisivos **0/10** (gate ≥ 7), típicos 0/10, falsos 0/10 ⇒ **falhou**; pela regra
+  fixada, a fase principal (~744 runs) **não rodou**.
+- **O zero é real:** a entrega funciona (P01 e P09 usaram um valor que só existia no `BP.md`). Entre as
+  primeiras mensagens com ação de verdade, o valor plantado aparece em 3/28 no BP e 0/27 no B1. O valor
+  antigo aparece em 13/28 e 12/27: o fato não desloca nada. 12/40 primeiras mensagens do BP são só
+  `ToolSearch` (teto estrutural, declarado como limite; mudar o desfecho seria emendar a spec).
+- Código + audit: memoria-nox#580 (auto-merge). Dados brutos na VPS (`/root/medicoes/7b/`), fora do git.
+- **Próximo do item 7:** 21/10, relevância do R1 em shadow. O 7b reforça o 7a: hoje o brief não é usado
+  nem implicitamente nem na ação.
+
 ## 2026-10-15 — embedding pegava 2.048 CARACTERES; corpus re-embedado; 7b com primárias inválidas
 
 - **Achado:** o `embed.ts` cortava todo texto em `substring(0, 2048)`, e o limite do modelo é de 2.048
