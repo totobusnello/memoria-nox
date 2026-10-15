@@ -1,5 +1,21 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-10-15 (madrugada) — 7b em execução: piloto rodando
+
+- **Spec v3.3** (`specs/2026-10-14-7b-brief-action-probe-design.md`) e **plano**
+  (`plans/2026-10-14-7b-brief-action-probe-plan.md`). Código no branch `feat/7b-action-probe`
+  (worktree `../wt-mn-7b-probe`); dados só na VPS em `/root/medicoes/7b/`.
+- **Achado:** o gate de fidelidade deu **0/525**: o `brief_log` não reconstrói nenhum brief anterior a
+  2026-10-14 14:34 UTC (o re-ingest diário do `lessons.md` trocava ids). Toto escolheu B1/BS a partir dos
+  snapshots servidos no git do workspace (v3.2); mediana de 8 h até o turno, rotatividade 2/10.
+- **Conta:** mesma dos agentes (Toto), via token de longa duração no env; credencial dos agentes
+  intacta; 300 s entre unidades; a fase para no 1º limite (v3.3).
+- Manifesto congelado: C 72 (16 grupos) / R 13 / H 40 / piloto 20+10; 0 descartes; 20 cenários de
+  controle congelados. Piloto em tmux `7b-pilot` desde 00:23 UTC (120 runs). Próximo: congelar
+  parâmetros e mostrar A/A e MDE ao Toto antes da rodada principal.
+- O plano commitado em `2c17b4f` citava o host da VPS; removido em `5c2573a`. Reescrever o histórico
+  da main é decisão do Toto.
+
 ## 2026-10-14 (noite) — item 7: P2 desarmado; R1 (brief por recência) em shadow
 
 - **Passo 0, P2 desarmado (19:13 UTC, aprovado pelo Toto):** os drop-ins `p2-designation.conf`,
