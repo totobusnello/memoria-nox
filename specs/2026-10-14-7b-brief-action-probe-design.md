@@ -1,6 +1,6 @@
 # 7b — Brief action probe: does the injected brief change what agents do?
 
-Status: **v3.2** (2026-10-14; v3.1 approved by Toto, v3.2 amendment §3/§4.1 approved by Toto after the render gate failed). ROADMAP v6 item 7(b).
+Status: **v3.3** (2026-10-14; v3.3: same account with throttle, Toto's decision; v3.1 approved by Toto, v3.2 amendment §3/§4.1 approved by Toto after the render gate failed). ROADMAP v6 item 7(b).
 v1 challenged by Kimi (`adversary-receipt-kimi-2026-10-14T194124-93966.txt`) and Grok
 (`adversary-receipt-grok-2026-10-14T194125-94087.txt`); v2 reviewed by Kimi
 (`…kimi-2026-10-14T195904-11351.txt`, NO-GO, 5 MÉDIO) and Grok (`…grok-2026-10-14T195909-11431.txt`,
@@ -103,11 +103,15 @@ never evidence that B1 helps.
   hash differs.
 - **Arm-file check:** an automated diff asserts the arm files of a unit differ only inside the brief
   block; the unit fails otherwise. sha256 of each arm file, CLI version and flags are logged per run.
-- **One isolated config dir** (`CLAUDE_CONFIG_DIR`), on an account other than the agents'
-  (`claude-nuvini-team`), holds: the `PreToolUse` deny-all hook, and the owner agent's MCP configuration
-  with **schemas only** (no write credentials). An MCP server is included only if the smoke test shows
-  that connecting to it has no side effect; otherwise it is excluded for every arm and listed in the
-  manifest.
+- **One isolated config dir** (`CLAUDE_CONFIG_DIR`) holds the `PreToolUse` deny-all hook and the owner
+  agent's MCP configuration with **schemas only** (no write credentials). An MCP server is included only
+  if the smoke test shows that connecting to it has no side effect; otherwise it is excluded for every
+  arm and listed in the manifest.
+- **Account (amended v3.3, Toto's decision):** the probe uses the agents' own subscription, through
+  their long-lived access token passed per run by environment (`CLAUDE_CODE_OAUTH_TOKEN`); nothing is
+  written to the probe dir, so the agents' credentials are never refreshed or rotated. To protect the
+  agents' quota, units are spaced 300 s apart and a phase **stops** at the first rate-limit signal
+  (no retry through a limit); agent cron failures during the run are checked.
 - **Run:** `claude -p --model claude-sonnet-5 --append-system-prompt-file <arm file> --max-turns 1` in
   that dir. The hook records **every** tool call of the first assistant message (name + input) and
   denies it.
@@ -326,3 +330,4 @@ validity ceiling per stratum · MDE per stratum · config dir hash (hook + MCP s
 | finding | disposition |
 |---|---|
 | §4.1 gate: 0/525 archived briefs reproducible from `brief_log` (ids rotated by daily re-ingest before the 2026-10-14 write-path fix) | B1 and BS come from git-archived served snapshots (§3); gate replaced by a reported gap/turnover measure (§4.1) |
+| separate account (v3.1 §4) | same account via the agents' long-lived token, 300 s spacing, stop at first rate-limit signal (§4), Toto's decision |

@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# Builds the isolated CLAUDE_CONFIG_DIR for the probe (spec §4). Run on the VPS after the login step.
+# Builds the isolated CLAUDE_CONFIG_DIR for the probe (spec §4). Run on the VPS.
 set -euo pipefail
 D=/root/.claude-7b-probe
 CODE=/root/medicoes/7b/code
-test -f "$D/.credentials.json" || { echo "not logged in: run the login step first"; exit 1; }
+mkdir -p "$D" && chmod 700 "$D"
+# Auth: the agents' long-lived token is passed per run by env (probe.runner.oauth_token); nothing is
+# written here, so the agents' credentials can never be refreshed or rotated by the probe.
 python3 "$CODE/scripts/capture_surface.py" "$D/surface.json"
 cat > "$D/settings.json" <<JSON
 {"hooks": {"PreToolUse": [{"matcher": "*", "hooks": [{"type": "command",
@@ -18,12 +20,4 @@ cfg = {"mcpServers": {s: {"command": "python3", "args": [f"{code}/runtime/stub_m
 json.dump(cfg, open(f"{d}/mcp-config.json", "w"), indent=1, sort_keys=True)
 PY
 cat "$D/settings.json" "$D/mcp-config.json" "$D/surface.json" | sha256sum | cut -d' ' -f1 > /root/medicoes/7b/config-dir.sha256
-python3 - <<'PY'
-import json
-a = json.load(open("/root/.claude-7b-probe/.claude.json")).get("oauthAccount", {})
-b = json.load(open("/root/.claude-nuvini-team/.claude.json")).get("oauthAccount", {})
-same = a.get("accountUuid") == b.get("accountUuid")
-print("probe account differs from agents' account:", not same)
-raise SystemExit(1 if same or not a else 0)
-PY
 echo "config dir ready: $(cat /root/medicoes/7b/config-dir.sha256)"
