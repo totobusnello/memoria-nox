@@ -17,8 +17,9 @@
 | IP no histórico | **não** reescrever (decisão do Toto) | entrada de 15/10 abaixo |
 
 **Fila:**
-1. **15/10 20:37 BRT:** conferir o reindex dos agentes, rodar `nox-mem tombstones` e listar ao Toto os
-   itens de mac-docs PESSOAL/BANCOS para `tombstone-keep`. Nada é marcado sem o ok dele.
+1. ✅ **15/10 20:31 BRT:** reindex dos 6 agentes rodou às 23:00 UTC (0 tombstoned, 0 erros de ingest);
+   `nox-mem tombstones` no banco principal = **nenhum** ⇒ nada de mac-docs para `tombstone-keep`.
+   `kg-confirm` `evidence_gone` 85; 61.031 chunks, todos com vetor, 0 órfãos.
 2. **21/10:** medir a relevância do R1 em shadow (`audits/2026-10-14-brief-usage.py`); depois, decisões
    do Toto: piso de pain do D2 e ativação do R1. Com 7a e 7b nulos, o R1 é o caminho aberto do item 7.
 
