@@ -1,5 +1,12 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-10-15 (manhã) — npm `nox-mem@3.7.0` publicado = latest
+
+- Leva #47–#50: embedding do chunk inteiro + chunks ≤ 4.000 chars, tombstone de arquivo que volta vazio,
+  `listTombstones` em uma passada, título legível dos distilled. Release nox-mem#51, tag `v3.7.0` em
+  `e1a6163`, shasum `657ba5c3`. Smoke do tarball (upgrade 3.6.0 → 3.7.0 no mesmo banco) e do registry em
+  HOME limpo verdes. Banco antigo só divide chunk ao reingerir e só ganha vetor inteiro ao re-vetorizar.
+
 ## 2026-10-15 (manhã) — 7b encerrado: o brief não guia a primeira ação nem com fato saliente
 
 - **Controle positivo** (spec §7, rodado antes da principal por decisão do Toto): 20 cenários × BP/B1 × 2
