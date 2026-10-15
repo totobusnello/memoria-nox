@@ -105,6 +105,14 @@
 - [ARCHITECTURE.md](ARCHITECTURE.md) — schema V10 overview + `chunks`, `vec_chunks`, `kg_entities`, `kg_relations`
 - [DECISIONS.md](DECISIONS.md) — D1–D41 includes schema pivots (v8 retention, v9 pain, v10 section)
 - Schema migrations: v11 telemetry (`search_telemetry`), v19 confidence + provenance, v20 viewer (`viewer_events`), v21 `conflict_audit`, v22 `confidence_eval_log` — all in `staged/migrations/`
+  - ⚠️ **These numbers are staged SQL files, not `SCHEMA_VERSION`.** Measured in production on 2026-10-15:
+    `PRAGMA user_version` = `meta.schema_version` = **18** (`SCHEMA_VERSION` in `tools/nox-mem/src/db.ts`).
+    Applied by hand: v19's columns (confidence, provenance, `kg_relations.superseded_by_relation_id`),
+    v21 `conflict_audit` and v22 `confidence_eval_log`, with their append-only triggers. **Not applied:**
+    v20 `viewer_events`. The npm package (`nox-mem` on npm) uses 19 and 20 for unrelated changes
+    (`requesting_agent`/`was_temporal_query`, standalone key rebase), so a version number alone does not
+    identify a schema across the two lineages. `chunks.superseded_by` (read and written by
+    `lib/confidence/mark.ts`) was in no migration at all until nox-workspace `fix/chunks-superseded-by-migration`.
 - [../staged/migrations/README.md](../staged/migrations/README.md) — migration application guide
 
 ### Search
