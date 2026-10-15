@@ -1,5 +1,27 @@
 # nox-mem HANDOFF — estado vivo
 
+## ▶ Estado e fila (15/10, 09:55 BRT): começar aqui
+
+**Feito em 14–15/10 (tudo em produção ou publicado, nenhum PR aberto):**
+
+| frente | resultado | onde |
+|---|---|---|
+| `mark`/`supersede` quebrados | coluna `superseded_by` criada a cada abertura; auditoria no schema real | nox-workspace#60 |
+| tombstone de arquivo que volta vazio | resolve o tombstone | nox-mem#47 → nox-workspace#61 |
+| `listTombstones` | 8 min 31 s → 0,83 s, mesma saída | nox-mem#48 → nox-workspace#62 |
+| título dos itens distilled | `sessão <agente> <data>` | nox-mem#49 → nox-workspace#63 |
+| embedding cortava 2.048 **caracteres** | chunk inteiro + chunks ≤ 4.000; corpus re-embedado (ops 361/362) | nox-mem#50 → nox-workspace#64 |
+| npm | `nox-mem@3.7.0` = latest | nox-mem#51 |
+| 7b (sonda de ação) | **encerrado**: controle positivo 0/10, principal não rodou | memoria-nox#580 |
+| "v22" nos docs | eram SQL staged; produção é `user_version` 18 | `7eabef0` |
+| IP no histórico | **não** reescrever (decisão do Toto) | entrada de 15/10 abaixo |
+
+**Fila:**
+1. **15/10 20:37 BRT:** conferir o reindex dos agentes, rodar `nox-mem tombstones` e listar ao Toto os
+   itens de mac-docs PESSOAL/BANCOS para `tombstone-keep`. Nada é marcado sem o ok dele.
+2. **21/10:** medir a relevância do R1 em shadow (`audits/2026-10-14-brief-usage.py`); depois, decisões
+   do Toto: piso de pain do D2 e ativação do R1. Com 7a e 7b nulos, o R1 é o caminho aberto do item 7.
+
 ## 2026-10-15 (manhã) — npm `nox-mem@3.7.0` publicado = latest
 
 - Leva #47–#50: embedding do chunk inteiro + chunks ≤ 4.000 chars, tombstone de arquivo que volta vazio,
