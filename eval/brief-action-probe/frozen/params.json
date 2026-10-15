@@ -1,0 +1,147 @@
+{
+ "canon_version": "1",
+ "canon_sha256": "44b2defd43338e7d380914a23734de70f9d10894b977ee39209b99fca429d458",
+ "max_tokens": 2000,
+ "ceiling": 0.5,
+ "pilot_aa": {
+  "C": 0.6363273506920406,
+  "H": 0.6648488074749459
+ },
+ "valid": {
+  "C": false,
+  "H": false
+ },
+ "mde": {
+  "C": 0.15733230598593484,
+  "H": 0.13417092130325187
+ },
+ "mde_curve": {
+  "C": [
+   {
+    "q": 0.0,
+    "mean_delta": -0.15531221854247,
+    "power": 0.0
+   },
+   {
+    "q": 0.05,
+    "mean_delta": -0.1429758489998925,
+    "power": 0.0
+   },
+   {
+    "q": 0.1,
+    "mean_delta": -0.12567160776014955,
+    "power": 0.0
+   },
+   {
+    "q": 0.15,
+    "mean_delta": -0.10658806516010215,
+    "power": 0.0
+   },
+   {
+    "q": 0.2,
+    "mean_delta": -0.09249052986045159,
+    "power": 0.0
+   },
+   {
+    "q": 0.3,
+    "mean_delta": -0.058078118337893496,
+    "power": 0.0
+   },
+   {
+    "q": 0.4,
+    "mean_delta": -0.029006965334810526,
+    "power": 0.005
+   },
+   {
+    "q": 0.5,
+    "mean_delta": 0.00012628116599079872,
+    "power": 0.04
+   },
+   {
+    "q": 0.6,
+    "mean_delta": 0.03254852869903677,
+    "power": 0.11
+   },
+   {
+    "q": 0.8,
+    "mean_delta": 0.10191224017321586,
+    "power": 0.535
+   },
+   {
+    "q": 1.0,
+    "mean_delta": 0.15733230598593484,
+    "power": 0.95
+   }
+  ],
+  "H": [
+   {
+    "q": 0.0,
+    "mean_delta": -0.16430941268291252,
+    "power": 0.0
+   },
+   {
+    "q": 0.05,
+    "mean_delta": -0.14880898257063757,
+    "power": 0.0
+   },
+   {
+    "q": 0.1,
+    "mean_delta": -0.1373772050061258,
+    "power": 0.0
+   },
+   {
+    "q": 0.15,
+    "mean_delta": -0.12271166805261419,
+    "power": 0.0
+   },
+   {
+    "q": 0.2,
+    "mean_delta": -0.10796865661227256,
+    "power": 0.0
+   },
+   {
+    "q": 0.3,
+    "mean_delta": -0.07824243552211121,
+    "power": 0.0
+   },
+   {
+    "q": 0.4,
+    "mean_delta": -0.04593428659787166,
+    "power": 0.0
+   },
+   {
+    "q": 0.5,
+    "mean_delta": -0.013677264762445906,
+    "power": 0.005
+   },
+   {
+    "q": 0.6,
+    "mean_delta": 0.010341062556763973,
+    "power": 0.03
+   },
+   {
+    "q": 0.8,
+    "mean_delta": 0.0732664038627576,
+    "power": 0.49
+   },
+   {
+    "q": 1.0,
+    "mean_delta": 0.13417092130325187,
+    "power": 1.0
+   }
+  ]
+ },
+ "seeds": {
+  "manifest": 20261014,
+  "mde": 7
+ },
+ "pilot_units_C": 20,
+ "pilot_units_H": 10,
+ "scaffold_sha256": "7b4b0820009bc170d178e0ce8bf16af5780a9d394e90bf678b2addee0dffb75c",
+ "config_dir_sha256": "4a06b7e6a76356a5f8985a9460032bcd04eee50a9ec9d2f0b66ff5e11e3fe1f2",
+ "manifest_sha256": "fd0e94d14aab34b188340d23bd093c2d3ef68e9b67ee9437a1c24b1e56abdf2d",
+ "h_requests_sha256": "f9438607fa4cddaf5f3dac2b67e27b64c0ac983ff3dfd0205d16765a974bdaaf",
+ "rubrics_sha256": "240f2b29c485c26e8cee4c7a1bdb7a2be21861a4c90c51408f4733e45e5aad87",
+ "control_sha256": "f3f1ca20118ab30b39ac30d4ca1b6f96becb1fb78245b2bb702ff979ee1c7590",
+ "cli_version": "2.1.293 (Claude Code)"
+}

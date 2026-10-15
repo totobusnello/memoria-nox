@@ -1,6 +1,6 @@
 # 7b — Brief action probe: does the injected brief change what agents do?
 
-Status: **v3.1 for review** (2026-10-14). ROADMAP v6 item 7(b).
+Status: **v3.3** (2026-10-14; v3.3: same account with throttle, Toto's decision; v3.1 approved by Toto, v3.2 amendment §3/§4.1 approved by Toto after the render gate failed). ROADMAP v6 item 7(b).
 v1 challenged by Kimi (`adversary-receipt-kimi-2026-10-14T194124-93966.txt`) and Grok
 (`adversary-receipt-grok-2026-10-14T194125-94087.txt`); v2 reviewed by Kimi
 (`…kimi-2026-10-14T195904-11351.txt`, NO-GO, 5 MÉDIO) and Grok (`…grok-2026-10-14T195909-11431.txt`,
@@ -71,20 +71,23 @@ the noise floor):
 | arm | brief block in the system prompt |
 |---|---|
 | **B0** | none (block removed) |
-| **B1** | the brief the agent had at t: latest `brief_id` for that agent with `served_at` < t in `brief_log`, rendered by the production formatter (fidelity gated in §4.1) |
-| **BS** | wrong-agent memory, built by the frozen procedure below |
+| **B1** | the brief **as served**: the latest git-archived snapshot of the owner's `brief/MEMORY.md` whose header `generated_at` ≤ t, byte for byte (§4.1 explains why not `brief_log`) |
+| **BS** | wrong-agent memory, built by the frozen procedure below from other agents' archived snapshots |
 
 **BS procedure (reproducible):**
 
 1. The manifest freezes, per unit and before filtering, an **ordered candidate list**: other agents in
-   a seeded order; for each, its `brief_id`s with `served_at` within ±3 days of t, nearest first.
-2. Flatten the list into one item sequence: candidate briefs in list order, items within a brief in
-   the order the production formatter emits them. Remove items with `created_at > t`, chunk ids present
-   in B1, and items whose distinctive-token overlap with any B1 item exceeds 0.3 (7a token definition).
-3. Slide a window of |B1| consecutive items over that filtered sequence, starting at position 0. Render
-   the window with the production formatter; accept the first window whose rendered block is within
-   ±10% of B1's rendered length in characters; otherwise advance the window by one item. If the
-   sequence is exhausted, the unit is dropped.
+   a seeded order (for owners `main` and `nox`, both are excluded: their briefs share the `nox` content);
+   for each, its archived snapshots with `generated_at` in [t − 3 days, t], nearest first. Only snapshots
+   served **before** t are eligible, so no future information can enter.
+2. Flatten the list into one item sequence: candidate snapshots in list order, item lines in served
+   order. Remove items whose `chk` id is in B1 and items whose distinctive-token overlap with any B1 item
+   exceeds 0.3 (7a token definition); keep each `chk` id once.
+3. Slide a window of |B1| consecutive items over that filtered sequence, starting at position 0. Build
+   the block exactly as served (auto-generated comment, header line with the owner's agent label and
+   B1's `generated_at`, then the item lines as archived); accept the first window whose block is within
+   ±10% of B1's length in characters; otherwise advance the window by one item. If the sequence is
+   exhausted, the unit is dropped.
 4. Drop rate is reported per stratum; if it exceeds 20% of a stratum, that stratum's Δc is flagged as
    estimated on a selected subset.
 
@@ -100,11 +103,15 @@ never evidence that B1 helps.
   hash differs.
 - **Arm-file check:** an automated diff asserts the arm files of a unit differ only inside the brief
   block; the unit fails otherwise. sha256 of each arm file, CLI version and flags are logged per run.
-- **One isolated config dir** (`CLAUDE_CONFIG_DIR`), on an account other than the agents'
-  (`claude-nuvini-team`), holds: the `PreToolUse` deny-all hook, and the owner agent's MCP configuration
-  with **schemas only** (no write credentials). An MCP server is included only if the smoke test shows
-  that connecting to it has no side effect; otherwise it is excluded for every arm and listed in the
-  manifest.
+- **One isolated config dir** (`CLAUDE_CONFIG_DIR`) holds the `PreToolUse` deny-all hook and the owner
+  agent's MCP configuration with **schemas only** (no write credentials). An MCP server is included only
+  if the smoke test shows that connecting to it has no side effect; otherwise it is excluded for every
+  arm and listed in the manifest.
+- **Account (amended v3.3, Toto's decision):** the probe uses the agents' own subscription, through
+  their long-lived access token passed per run by environment (`CLAUDE_CODE_OAUTH_TOKEN`); nothing is
+  written to the probe dir, so the agents' credentials are never refreshed or rotated. To protect the
+  agents' quota, units are spaced 300 s apart and a phase **stops** at the first rate-limit signal
+  (no retry through a limit); agent cron failures during the run are checked.
 - **Run:** `claude -p --model claude-sonnet-5 --append-system-prompt-file <arm file> --max-turns 1` in
   that dir. The hook records **every** tool call of the first assistant message (name + input) and
   denies it.
@@ -120,15 +127,21 @@ never evidence that B1 helps.
   (`/root/medicoes/`). The memoria-nox repo is public: only scripts, frozen non-content parameters and
   aggregates are committed.
 
-### 4.1 Fidelity gates
+### 4.1 Fidelity (amended in v3.2)
 
-- **B1 render fidelity (gating):** each agent's `MEMORY.md` is committed to the workspace git by
-  automatic commits (71 versions per agent in the window). For every such commit, the harness renders
-  the latest `brief_id` before the commit time and compares it byte-for-byte with the committed file
-  (header line excluded). Gate: **≥ 95% exact** across all commits. Committed files are never edited. A
-  mismatch is traced; if the formatter changed during the window, the harness renders each t with the
-  formatter version that was deployed at t (from git). Below the gate, B1 is declared non-identifiable
-  and the probe stops.
+**Why the brief is not rebuilt from `brief_log`.** The v3.1 gate re-rendered every git-archived served
+brief of the window from `brief_log` chunk ids: **0 of 525 matched**, and 524 failed because at least one
+chunk no longer exists. Until the write-path fix of 2026-10-14 14:34 UTC, re-ingesting a file replaced its
+chunk ids; the daily `lessons` re-ingest therefore removed one served item of nearly every brief (e.g.
+chunks 313690–313695, served 2026-10-08/09, gone). `brief_log` cannot reproduce any brief of the window.
+
+**What is used instead.** Each agent's `MEMORY.md` is committed to the workspace git (71 snapshots per
+agent in the window, mostly around 02:00). B1 is the latest snapshot with `generated_at` ≤ t, verbatim:
+exactly a text that was served, not a reconstruction. The cost is timing: the brief at t is approximated
+by the last archived one. **Reported, not gated:** the distribution of t − `generated_at` per stratum,
+and the item turnover between consecutive snapshots of the same agent (share of `chk` ids that change),
+which bounds how far the snapshot can be from the brief at t.
+
 - **Scaffold leakage (reported):** distinctive-token overlap between each B1 and today's bootstrap
   files; units where any B1 item overlaps > 0.5 are flagged and the primaries are reported with and
   without them.
@@ -234,8 +247,8 @@ that the fact changes an argument of the first action.
   construction.
 - The scaffold is today's (one captured template, current bootstrap files); the estimand is "the brief
   block under today's scaffold", not the historical runs.
-- B1 is re-rendered from `brief_log`, gated against the git-archived served files (§4.1), not
-  snapshotted per run.
+- B1 is the last archived served snapshot before t, not the brief at t (§4.1 reports the gap and the
+  turnover).
 - The observed turns happened with the brief present; the corpus is a selected stratum.
 - Stratum H is synthetic; its realism rests on the catalog and on blind authoring by a model family
   other than the judge's. Rubric author and H author are the same family (GPT).
@@ -247,7 +260,7 @@ that the fact changes an argument of the first action.
   arms × 2 = 80 ⇒ ≈ 950, spread over one to two days.
 - GPT: 50 H requests + 124 + 30 rubrics. Gemini: 40 relevance diagnostics + ≈ 500 judgments + 20
   known-answer. Cents.
-- Sequence: scaffold hash check → smoke test → §4.1 render-fidelity gate → manifest (C, R, H, BS
+- Sequence: scaffold hash check → smoke test → snapshot index and §4.1 fidelity report → manifest (C, R, H, BS
   candidate lists, rubrics, control scenarios) frozen → pilot → frozen parameters committed → main run +
   control → analysis exactly as §6–7 → `audits/<date>-7b-action-probe.md`.
 - Code in `eval/brief-action-probe/`; raw data on the VPS only.
@@ -311,3 +324,10 @@ validity ceiling per stratum · MDE per stratum · config dir hash (hook + MCP s
 | BS walk not a function: item order, "continue the walk" (FALSE) | flattened ordered sequence, sliding window of |B1| items (§3) |
 | Invalid stratum could still get CI and null reading (new) | invalid stratum has no Δ, CI or null reading (§6.1) |
 | Fisher across three arms names no arm (new) | 2×2 per arm vs the other two pooled; p = 1 only for contrasts touching it (§4, §6.1) |
+
+### v3.1 → v3.2 (execution finding, Toto's decision)
+
+| finding | disposition |
+|---|---|
+| §4.1 gate: 0/525 archived briefs reproducible from `brief_log` (ids rotated by daily re-ingest before the 2026-10-14 write-path fix) | B1 and BS come from git-archived served snapshots (§3); gate replaced by a reported gap/turnover measure (§4.1) |
+| separate account (v3.1 §4) | same account via the agents' long-lived token, 300 s spacing, stop at first rate-limit signal (§4), Toto's decision |
