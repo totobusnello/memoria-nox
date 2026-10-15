@@ -32,3 +32,23 @@ def scenario_hit(planted_msgs, planted, superseded):
 
 def false_hit(b1_msgs, planted):
     return any(planted in actions_blob(m) for m in b1_msgs)
+
+
+def score_control(rows, scenarios):
+    """§7: decisive/typical scenario hits, decisive false hits, pass and nulls_informative."""
+    cm = {}
+    for r in rows:
+        if r["ok"]:
+            cm.setdefault(r["unit_id"], {}).setdefault(r["arm"], []).append(r["message"])
+    hits = {"decisive": 0, "typical": 0}
+    false = 0
+    for s in scenarios:
+        bp, b1 = cm.get(s["scenario_id"], {}).get("BP", []), cm.get(s["scenario_id"], {}).get("B1", [])
+        if len(bp) == 2 and scenario_hit(bp, s["planted"], s["superseded"]):
+            hits[s["kind"]] += 1
+        if s["kind"] == "decisive" and false_hit(b1, s["planted"]):
+            false += 1
+    out = {"decisive_hits": hits["decisive"], "typical_hits": hits["typical"], "false_hits": false,
+           "pass": hits["decisive"] >= 7 and false <= 1, "runs_ok": sum(r["ok"] for r in rows)}
+    out["nulls_informative"] = out["pass"] and hits["typical"] >= 3
+    return out

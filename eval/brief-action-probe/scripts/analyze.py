@@ -7,7 +7,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
 from probe.canon import divergence, serialize  # noqa: E402
-from probe.control import false_hit, scenario_hit  # noqa: E402
+from probe.control import score_control  # noqa: E402
 from probe.judge import score  # noqa: E402
 from probe.stats import (cluster_bootstrap, fisher_2x2, holm, one_sided_p, percentile_ci,  # noqa: E402
                          stratum_estimate, tost_proportion)
@@ -133,21 +133,7 @@ def main():
     # §7
     ctrl = list(map(json.loads, open(f"{R}/results-control.jsonl")))
     sc = {s["scenario_id"]: s for s in map(json.loads, open(f"{R}/control/scenarios.jsonl", encoding="utf-8"))}
-    cm = {}
-    for r in ctrl:
-        if r["ok"]:
-            cm.setdefault(r["unit_id"], {}).setdefault(r["arm"], []).append(r["message"])
-    hits = {"decisive": 0, "typical": 0}
-    false = 0
-    for sid, s in sc.items():
-        bp, b1 = cm.get(sid, {}).get("BP", []), cm.get(sid, {}).get("B1", [])
-        if len(bp) == 2 and scenario_hit(bp, s["planted"], s["superseded"]):
-            hits[s["kind"]] += 1
-        if s["kind"] == "decisive" and false_hit(b1, s["planted"]):
-            false += 1
-    control = {"decisive_hits": hits["decisive"], "typical_hits": hits["typical"], "false_hits": false,
-               "pass": hits["decisive"] >= 7 and false <= 1}
-    control["nulls_informative"] = control["pass"] and hits["typical"] >= 3
+    control = score_control(ctrl, list(sc.values()))
     rel = [json.loads(l) for l in open(f"{R}/relevance.jsonl")]
     summary = json.load(open(f"{R}/manifest-summary.json"))
     agg = {"params": {k: params[k] for k in ("pilot_aa", "valid", "mde", "canon_sha256", "manifest_sha256")},
