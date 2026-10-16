@@ -1,6 +1,6 @@
 # nox-mem HANDOFF — estado vivo
 
-## ▶ Estado e fila (15/10, 09:55 BRT): começar aqui
+## ▶ Estado e fila (16/10, 14:45 BRT): começar aqui
 
 **Feito em 14–15/10 (tudo em produção ou publicado, nenhum PR aberto):**
 
@@ -20,8 +20,21 @@
 1. ✅ **15/10 20:31 BRT:** reindex dos 6 agentes rodou às 23:00 UTC (0 tombstoned, 0 erros de ingest);
    `nox-mem tombstones` no banco principal = **nenhum** ⇒ nada de mac-docs para `tombstone-keep`.
    `kg-confirm` `evidence_gone` 85; 61.031 chunks, todos com vetor, 0 órfãos.
-2. **21/10:** medir a relevância do R1 em shadow (`audits/2026-10-14-brief-usage.py`); depois, decisões
-   do Toto: piso de pain do D2 e ativação do R1. Com 7a e 7b nulos, o R1 é o caminho aberto do item 7.
+2. **21/10 (sem lembrete: a sessão que o agendou foi fechada; abrir uma e pedir "mede o R1"):** medir a
+   relevância do R1 em shadow. Roteiro:
+   - **dados:** `/root/.openclaw/logs/brief-recency-shadow.ndjson` (`served_ids`, `recency_ids`,
+     `overlap`, idades; 1.229 linhas em 16/10 17:37 UTC, crescendo). Shadow desde 14/10 22:13 UTC.
+   - **detector:** o da auditoria 7a, `audits/2026-10-14-brief-usage.py`. **Não roda como está:**
+     a janela é fixa (`START`/`END` = 21/09–15/10) e o braço exposto vem do `brief_log` (brief servido).
+     Adaptar numa cópia: janela 14/10 22:13 → 21/10 e braço exposto = `recency_ids` do ndjson; comparar
+     com `served_ids` na mesma janela. Só leitura (`mode=ro`); transcripts em `/root/.claude-nuvini-team/projects`.
+   - **confound declarado:** itens recentes ganham por continuidade de assunto (a conversa segue o que
+     aconteceu ontem). Descontar com o braço "futuro" do 7a (itens que só entram depois).
+   - **depois:** decisões do Toto, piso de pain do D2 e ativação comparada do R1 (metade dos agentes ou
+     blocos de tempo). Com 7a e 7b nulos, o R1 é o caminho aberto do item 7.
+
+**Ainda de pé, de antes (não mexido nesta sessão):** `compact` **pausado** desde 14/10 por
+`/root/.openclaw/DISABLE_COMPACT` (ROADMAP §estado, openclaw-vps#45). Reativar é decisão do Toto.
 
 ## 2026-10-15 (manhã) — npm `nox-mem@3.7.0` publicado = latest
 
