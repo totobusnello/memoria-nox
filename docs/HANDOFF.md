@@ -33,8 +33,8 @@
    - **depois:** decisões do Toto, piso de pain do D2 e ativação comparada do R1 (metade dos agentes ou
      blocos de tempo). Com 7a e 7b nulos, o R1 é o caminho aberto do item 7.
 
-**Ainda de pé, de antes (não mexido nesta sessão):** `compact` **pausado** desde 14/10 por
-`/root/.openclaw/DISABLE_COMPACT` (ROADMAP §estado, openclaw-vps#45). Reativar é decisão do Toto.
+**Não é pendência:** o `compact` segue desligado (`/root/.openclaw/DISABLE_COMPACT`, openclaw-vps#45) e é
+o NÃO FAZEMOS #32 (D-2026-10-14): só volta com resumo **ao lado** do original e eval mostrando ganho.
 
 ## 2026-10-15 (manhã) — npm `nox-mem@3.7.0` publicado = latest
 

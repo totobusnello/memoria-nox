@@ -41,7 +41,7 @@
 | buscas | 681 em 14 dias, média **1.081 ms**, sem cache de embedding da query | `search_telemetry` |
 | quem busca | `requesting_agent` gravado desde 14/10 (`<superfície>:<agente>`, `probe:*`); os agentes ainda não se identificam → `*:unknown` | nox-workspace#55 |
 | `compact` | **pausado** (`/root/.openclaw/DISABLE_COMPACT`); 1 resumo restante (waiver da Nuvini, sem backup anterior) | openclaw-vps#45 |
-| npm | **`nox-mem@3.5.2` = latest** (fix de embedding; shasum `0f615820`) | nox-mem#41 |
+| npm | **`nox-mem@3.7.0` = latest** (15/10: embedding do chunk inteiro + chunks ≤ 4.000; shasum `657ba5c3`) | nox-mem#51 |
 
 ---
 
