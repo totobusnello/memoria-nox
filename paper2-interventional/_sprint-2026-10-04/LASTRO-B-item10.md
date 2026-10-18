@@ -54,7 +54,7 @@ Full sha256 per entry: the manifest and the receipts below.
 Each extension followed the same order, which avoids the "rsync before check" trap: verify, then
 extend, then copy additively, then verify.
 
-| step | local (`…-COPIA/artefatos`) | off-machine | git (`origin/main`) |
+| step | local (`…-ESPELHO/artefatos`) | off-machine | git (`origin/main`) |
 |---|---|---|---|
 | pre-check `556ef20c…`, nothing copied | **12/12** | **12/12** (12 examined = 12 local) | — |
 | post-check `8f264b5d…` | **16/16** | **16/16** | **20/20** (`item10`) |
@@ -156,7 +156,7 @@ Prelude, every time. The host stays in the environment, never in a file:
 cd ~/Claude/Projetos/memoria-nox && git fetch -q origin
 export NOX_LASTRO_HOST=$(plutil -extract EnvironmentVariables.NOX_LASTRO_HOST raw \
   ~/Library/LaunchAgents/com.toto.nox-mem.verifica-lastro.plist)
-O=~/Backups/paper2-ensaio-2026-09-21; C=$O-COPIA/artefatos
+O=~/Backups/paper2-ensaio-2026-09-21; C=$O-ESPELHO/artefatos
 D=/var/backups/nox-mem/paper2-lastro-ensaio/artefatos
 ```
 
@@ -172,6 +172,14 @@ rsync -a -e "ssh -o ConnectTimeout=15 -o BatchMode=yes" $O/<LABEL> $O/manifestos
   $O/MANIFESTO-LASTRO-P2.json "$NOX_LASTRO_HOST:$D/"
 bash scripts/backup-lastro-p2.sh --verificar            # local N/N, remote N/N, examined = local
 ```
+
+⚠️ The local directory was named `-COPIA` until 2026-10-18, when PR #581 renamed it to
+`-ESPELHO`. The old name said "copy" of one origin; the directory is an `rsync --delete`
+mirror of TWO (`$ORIG` into `artefatos/`, `$VERD` into `verdicts/`), and two disk sweeps
+read the name and proposed deleting 214 MB as a duplicate. Tables and receipts emitted
+before that date cite the path ending in `-COPIA` — it is the same directory. Pasting the
+old prelude creates a fresh empty `-COPIA/` beside the mirror, which is exactly the
+confusion the rename undid.
 
 **Whole-window sham (`job-janela2`, CONCLUIDO expected about 2026-10-07T03:00Z), together with
 `JANELA-LANCAMENTO.md`.** Run only after `JANELA-LANCAMENTO.md` §8 steps 1–3 are done: the resume
