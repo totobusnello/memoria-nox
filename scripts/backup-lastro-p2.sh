@@ -46,7 +46,16 @@ REC="$RECIBOS/backup-$TS.txt"
 # Segundo diretório no mesmo disco. Protege contra apagar por engano, NÃO
 # contra falha de disco — e isso vai dito no recibo, para o recibo não afirmar
 # mais do que a cópia vale.
-DEST_L="$HOME/Backups/paper2-ensaio-2026-09-21-COPIA"
+#
+# ⚠️ O nome diz ESPELHO, não CÓPIA, e a razão foi medida em 2026-10-17: uma
+# varredura de disco leu «-COPIA» ao lado de `paper2-ensaio-2026-09-21` e
+# propôs apagar 214 MB por duplicata. Não é duplicata — este diretório é
+# espelho `rsync --delete` de DUAS origens ($ORIG em artefatos/, $VERD em
+# verdicts/), e a ORIG é que é a fonte. Quem olhar de fora vê 1.070 ficheiros
+# contra 898 sem nenhum em comum, o que convida à conclusão errada nos dois
+# sentidos. O nome é a primeira defesa; o comentário é a segunda.
+# Recibos até 2026-10-18 citam o caminho antigo, terminado em `-COPIA`.
+DEST_L="$HOME/Backups/paper2-ensaio-2026-09-21-ESPELHO"
 echo "── perna LOCAL → $DEST_L" | tee -a "$REC"
 mkdir -p "$DEST_L"
 if [ "$SO_VERIFICAR" -eq 1 ]; then
