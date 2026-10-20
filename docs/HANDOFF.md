@@ -1,6 +1,6 @@
 # nox-mem HANDOFF — estado vivo
 
-## ▶ Estado e fila (16/10, 14:45 BRT): começar aqui
+## ▶ Estado e fila (19/10 seg, 22:00 BRT): começar aqui
 
 **Feito em 14–15/10 (tudo em produção ou publicado, nenhum PR aberto):**
 
@@ -33,8 +33,58 @@
    - **depois:** decisões do Toto, piso de pain do D2 e ativação comparada do R1 (metade dos agentes ou
      blocos de tempo). Com 7a e 7b nulos, o R1 é o caminho aberto do item 7.
 
+3. **Sessão de 19/10 (seg) deixou dois itens do lado Omri, nenhum urgente:**
+   - **(a) decidir se a data note ganha v1.1.** Dois ajustes identificados, ambos pequenos, ambos em
+     artefato **publicado** (`10.5281/zenodo.23354363` v1.0), logo exigem novo depósito e podem mexer no
+     `parity.py`: (i) a §3 diz *"The decomposition in [1] has no maintenance phase"* — ambíguo, porque o
+     Omri **define** maintenance (sétimo dos sete estágios) e escreve que nos sistemas ela é *"weak or
+     absent"*; quem não tem maintenance é o **harness** dele, de três fases. A formulação da seção
+     *Value of the data* já é a precisa. O ajuste nos favorece: vira "medimos o estágio que ele
+     identificou como não-medido" (2,29% das chamadas, 13,8% do custo). (ii) citar `arXiv:2606.06448v2`
+     com número de versão, pela mesma razão que se cita DOI de versão.
+   - **(b) rodar o harness dele contra o nox-mem.** A v2 (22/09) acrescentou o **Artifact Appendix**
+     (A.1–A.8) à v1 (04/06) — é o template de *artifact evaluation* de conferência de sistemas, e o
+     harness de profiling é open-source e instalável (`git clone --recurse-submodules`). Daria o primeiro
+     número nosso **na régua dele** (J por resposta correta) em vez de só na nossa. Trabalho de verdade,
+     não cabe antes do R1.
+   - ⚠️ **Nenhum número da data note precisa mudar.** As quatro citações de [1] sobrevivem à leitura da v2.
+     Detalhe conferido em `project_stanford_omri_telemetria_por_fase` (memória).
+
 **Não é pendência:** o `compact` segue desligado (`/root/.openclaw/DISABLE_COMPACT`, openclaw-vps#45) e é
 o NÃO FAZEMOS #32 (D-2026-10-14): só volta com resumo **ao lado** do original e eval mostrando ganho.
+
+## 2026-10-19 (seg, noite) — 11 papers lidos; v2 do Omri conferida contra a data note
+
+- **Catálogo dos 11 papers** que o Toto trouxe: memória `catalogo_papers_memoria_agente_2026_10_19`.
+  Três grupos — (A) memória de agente aplicável: `2606.06448v2` Omri, `2609.24971` DolphinBench,
+  `2609.34385` JAM, `2609.27279` EnSIMem, `2610.21375` Memorilla; (B) memória dentro do modelo, fora de
+  alcance: `2607.26760` Metis, `2605.15156v2` MeMo; (C) RSI/harness, não é memória: `2608.24876` Recuris,
+  `2609.20519` SoL-Pi, `2610.18933` Agentic Scientist, `2610.12176` MASS. Profundidade de leitura marcada
+  item a item no catálogo.
+- **DolphinBench (Mem0) é o instrumento que faltou ao 7b.** Mede memória pela **ação**, não por QA, e
+  **verifica cada tarefa rodando o agente com e sem o histórico relevante**, exigindo sucesso com e falha
+  sem. O nosso controle positivo deu 0/10 com 10 tarefas que nunca foram validadas como memory-dependent
+  por construção. Não desencerra o 7b sozinho; é um caminho de reabertura, com dataset público
+  (`dolphinbench.ai`). **Decisão do Toto, ainda não tomada.**
+- **JAM descreve o que nós somos:** brief do cron é AOT puro, request-agnostic — exatamente o alvo do
+  paper. Casa com `project_agents_do_not_search_nox_mem`. Número útil: mediana de **3 rounds** com teto
+  de 20, exaustão < 5%.
+- **EnSIMem tem duas ablações baratas de replicar no eval**, sem tocar produção: granularidade de
+  propriedade com ótimo **intermediário** (Fine 92,05 · Broad 96,59 · Broad+ 95,45 · Very broad 90,91) e
+  episódio *theme-coherent* batendo per-turn e per-session (nós chunkamos por arquivo/seção). Alerta de
+  custo: no EnSIMem o planner come **71,1%** da latência end-to-end.
+- **Erro meu, corrigido no mesmo dia:** afirmei que as 10 recomendações eram novidade da v2 do Omri. São
+  da v1 (04/06) — contagens de `Recommendation`, `Insight`, `maintenance`, `amortiz` e `seven stages`
+  idênticas nas duas versões, abstract igual. A v2 acrescenta o Artifact Appendix e mais texto sobre
+  energia.
+- **Amortização: a memória do Omri se contradizia** (topo dizia que ele não recomenda, rodapé chamava de
+  "recomendação dele"). O topo estava certo: `amortization via query volume` aparece **só no abstract**,
+  como rótulo; no corpo não há seção, nem break-even, nem "queries to amortize". A recomendação
+  substantiva é a Rec. 6, que é critério de **seleção de sistema**. Corrigido.
+- **Comparação de magnitude, com a ressalva.** Ele: energia de construção excede a energia total de query
+  em **300 queries**. Nós: construção 55,7% do custo contra 30,5% de query, com **3.351** queries. Direção
+  igual, magnitude maior do nosso lado — mas 94,6% das nossas queries são embeddings baratos e 62,8% são
+  monitoring, e as unidades diferem (kJ em vLLM local × list price de API). A data note já declara isso.
 
 ## 2026-10-15 (manhã) — npm `nox-mem@3.7.0` publicado = latest
 
