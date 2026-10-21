@@ -110,7 +110,7 @@ O número é o identificador do item (citado em DECISIONS, HANDOFF e memória); 
 | **8** | **Abstenção (S2)**: checagem de suficiência da evidência como piso do `/api/answer` | Hoje o answer sempre responde se houver qualquer match | negativas vêm do item 9 |
 | **9** | **Golden set PT-BR** com filtro oráculo: a query entra só se a resposta passa com o chunk-fonte e falha sem ele | O corpus é majoritariamente português; condição (b) do D-2026-09-21c | 50 candidatas, rodar com/sem fonte |
 | **10** | **Procedural (S3)**: injetar procedimento no momento da chamada de ferramenta, ranquear por taxa de sucesso (`validateProcedure` já grava desfechos), medir alcance | Só existem 3 procedimentos; o distill descarta tool_use | capturar trajetórias reabre o P2 autocapture (GATED, NÃO FAZEMOS §1) |
-| **11** | **Confiança por chunk (S5)**: `confidence` e `provenance_kind` já existem em `chunks` e ninguém lê; ler no ranking ou remover | Decidir antes do próximo bump de schema | — |
+| **11** ✅ decidido 20/10 | **Confiança por chunk (S5)** → **NÃO FAZEMOS #34** (D-2026-10-20). Censo em produção: 61.256 chunks, `provenance_kind` NULL em 100% e `confidence` = 0.8 em 100% — um valor distinto em cada coluna, nunca escrito. As colunas e o `mark` ficam; os três módulos sem importador saíram (nox-workspace#65) e a decisão virou teste com mutação confirmada | Reabre com as duas pernas: consumidor real buscando (`requesting_agent`) **e** o gold do item 9 | decidido, sem trabalho pendente |
 
 ### Lab (pesquisa, não produto)
 
@@ -122,6 +122,12 @@ O número é o identificador do item (citado em DECISIONS, HANDOFF e memória); 
 - **Grid search dos pesos da salience v2** (desenho no PR #169).
 
 ### Fechado sem fazer
+
+- **Item 11 (confiança por chunk) → NÃO FAZEMOS #34** (D-2026-10-20). Ler `confidence` /
+  `provenance_kind` no ranking mede no vazio: as duas colunas nunca foram escritas (61.256 linhas no
+  default) e sem o gold do item 9 não há métrica. `write-hooks.ts`, `ranking.ts` e
+  `search-filter.ts` saíram por não terem importador — o cabeçalho de `search-filter.ts` afirmava
+  estar ligado e não estava. O `mark`/`supersede` e a telemetria `health-confidence` continuam.
 
 - **D49/D50 (temporal path) → NÃO FAZEMOS #33** (D-2026-10-14b). O produto temporal são os
   filtros explícitos `--as-of` / `--changed-since`. Reabre só com (a) fração relevante de buscas

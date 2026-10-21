@@ -47,6 +47,7 @@
 | 31 | **Adotar TypeSafe Jev (System One) no caminho de retrieval — como reranker ou como terceira perna do RRF** | Avaliado 2026-09-21 contra dois benchmarks independentes com resposta crua publicada. **(i) O ganho de ranking não existe:** `jev-rerank-bench` (8 datasets EN, 1.617 questões) dá Jev rubric **0,692** contra Cohere Rerank 4 Pro **0,691** — Δ +0,001, IC95 [−0,009, +0,012], que não estabelece vencedor **nem** equivalência; com peso igual por query Cohere passa na frente (0,756 × 0,738). Quatro rerankers de arquiteturas distintas empatados entre 0,682 e 0,692 dizem que o teto está no pipeline, não no modelo. **(ii) Sozinho perde de embedding denso:** `jev-search-rerank-eval` (9.831 pares graduados) mede `jev-score(bge-m3@30) − bge-m3` = +0,012 [−0,013, +0,037], e sob juiz independente **−0,028** [−0,052, −0,004] — intervalo que não cruza zero, na direção errada. **(iii) O sinal multilíngue aponta contra nós:** Cohere lidera o Choice do Jev por **6,4 pontos** em MIRACL francês, o proxy mais próximo de um corpus PT-BR. **(iv) Pilar A:** um reranker hospedado vê a **query** junto com o chunk — divulgação estritamente maior que a dos embeddings que já saem pro Gemini, e isso barra o caminho default. **(v) Custo de oportunidade:** as duas frentes boas (MA-protection, `kg-confirm` semântico) competem com o TMLR, que é o que está na mesa. | Os três juntos, não qualquer um: (a) Lab Q1 #2 (MA-protection) sair do parking lot como trabalho priorizado; (b) PT-BR medido **não-inferior** num golden set nosso; (c) o uso entrar como **opt-in explícito**, nunca no default | D-2026-09-21c |
 | 32 | **`nox-mem compact` destrutivo** (troca os chunks de um arquivo por 1 resumo de LLM e apaga os originais) | Rodou todo domingo de 04 a 10/2026 sem decisão registrada: 10.204 chunks viraram 210 resumos, o conteúdo de arquivos ainda vivos em disco saiu da busca e 610 relações do KG perderam a evidência. Esquecer é rebaixar no ranking, nunca apagar sem métrica; os papers lidos em 13/10 (EnSIMem, JAM) guardam o bruto e indexam por cima. | Resumo **ao lado** do original (chunk novo, sem apagar) com eval mostrando ganho, ou política de retenção medida (S1/item 7 do ROADMAP v6) | D-2026-10-14 |
 | 33 | **Rerank temporal implícito** (D49/D50: `NOX_TEMPORAL_PATH`, proximidade de data inferida da pergunta) | Cinco meses em shadow sem decisão; nenhuma evidência de demanda (a métrica `was_temporal_query` nem tinha escritor); o modo `active` não muda ranking; ativar exige 7 d de shadow + 5 batches + A/A. O produto temporal são os filtros explícitos `--as-of` / `--changed-since` (npm 3.4.0+). | Os dois juntos: (a) fração relevante de buscas reais com expressão temporal, medida pelo `was_temporal_query`; (b) gold temporal em que o rerank implícito vence o filtro explícito | D-2026-10-14b |
+| 34 | **Ler `chunks.confidence` / `chunks.provenance_kind` no ranking** (item 11 do ROADMAP v6) | Censo de 2026-10-20 no banco de produção: **61.256 chunks com `provenance_kind` NULL em 100% e `confidence` = 0.8 (o `DEFAULT`) em 100%** — um único valor distinto em cada coluna, sem histórico; `superseded_by` nulo em todas e **zero** `op_name` de mark/supersede no `ops_audit`. Não é "parou de escrever": nunca escreveu. Não há sinal a ler, e sem o gold (item 9) não há métrica que mostre que rebaixar por confiança melhora algo — vale a mesma condição que congelou o item 6: os agentes não buscam. Os três módulos que implementavam a leitura (`write-hooks`, `ranking`, `search-filter`) não tinham importador e saíram (nox-workspace#65); as duas colunas e o `mark` ficam. | Os dois juntos: (a) consumidor real buscando, medido por `search_telemetry.requesting_agent`; (b) o golden set do item 9 existindo | D-2026-10-20 |
 
 ## 2. Q5 Cross-encoder reranker — DEFERRED (5 razões)
 
@@ -2054,3 +2055,51 @@ arquivo que volta vazio não resolve o tombstone; a guarda conta conteúdo disti
 **NÃO FAZEMOS:** adoção por parágrafo; adoção de `missing-at-reindex`; apagar chunk por evento de
 deleção.
 
+### 2026-10-20 — item 11 (confiança por chunk) decidido: as colunas ficam, a leitura no ranking não entra
+
+O item 11 do ROADMAP v6 pedia "ler no ranking ou remover", **antes do próximo bump de schema**.
+Decidido: **nenhum dos dois na forma literal** — as colunas ficam, a leitura não entra, e o código
+que fingia implementá-la sai. Vira NÃO FAZEMOS #34, com reabertura de duas pernas.
+
+**O que o censo mediu** (banco de produção `epochs/current.db`, epoch de 2026-10-20 06:01Z):
+
+| medida | valor |
+|---|---|
+| chunks | 61.256 |
+| `provenance_kind` não-nulo | **0** |
+| `confidence` ≠ 0.8 (o `DEFAULT`) | **0** |
+| `superseded_by` não-nulo | **0** |
+| `op_name` de mark/supersede no `ops_audit` | **0** (de 25 distintas) |
+
+A regra 8 do `CLAUDE.md` manda medir numa janela **posterior** à morte suspeita, porque histórico
+pré-morte infla os distintos. Aqui o caso é mais forte e mais simples: **um** valor distinto em cada
+coluna no banco inteiro, e esse valor é o default. Não houve morte — não houve nascimento.
+
+**O que saiu, e por quê não era opt-in desligado.** `write-hooks.ts`, `ranking.ts` e
+`search-filter.ts` (−902 linhas com os três testes que só exercitavam a si mesmos) **não tinham
+importador algum** fora do próprio diretório, e `src/search.ts` não menciona nenhuma das colunas. O
+cabeçalho de `search-filter.ts` afirmava o contrário — *"Wired into search via CLI flag
+`--min-confidence`, HTTP query param"* —, o que é a armadilha de ler promessa de cabeçalho como
+implementação. Nada disso chegou ao npm: o pacote `nox-mem@3.7.0` não tem as colunas nem o módulo.
+
+**O que ficou.** As duas colunas (custam um `DEFAULT` e um TEXT nulo), o `mark`/`supersede` (CLI, MCP
+e API) — consertado em 15/10, nox-workspace#60, e que é a porta da curadoria humana — e a fatia
+`health-confidence` da telemetria.
+
+**A decisão virou teste**, não só parágrafo: `lib/confidence/__tests__/no-ranking-read.test.ts` exige
+que `src/search.ts` não leia as colunas, que os três arquivos não voltem, e — controle positivo, sem
+o qual apagar o L3 inteiro faria o teste passar por vacuidade — que o `mark` continue escrevendo as
+duas. Mutação confirmada: plantar `provenance_kind` em `search.ts` e recriar `ranking.ts` derruba 2
+dos 3; a reversão devolve 3/3. Sem isso, ausência deliberada é indistinguível de esquecimento, que é
+a confusão que custou 3,3 meses no `top_chunk_ids`.
+
+**Pergunta aberta, que não é esta decisão:** o `mark` nunca foi usado em 61 mil chunks. Ou falta um
+fluxo que o chame (revisar o brief, por exemplo), ou a curadoria manual não é desejada. Não decidido.
+
+**Fora de escopo, observado no caminho:** no Mac, `better-sqlite3` fixado em `^11` não cobre o ABI
+147 do Node 26.5.0 e `npm rebuild` falha no node-gyp, então a suíte que abre SQLite real não roda
+localmente (684 erros de ABI, todos pré-existentes). E `migration.test.ts` aponta para
+`edits/migrations/v22-confidence-eval-log.sql`, que não existe neste checkout — é ponteiro para a
+árvore `staged/`, como o `eval.test.ts` que o `tsconfig.json` já exclui com justificativa escrita;
+a diferença é que o `migration` não está no `exclude` e por isso fica vermelho. Nenhum dos dois foi
+tocado.

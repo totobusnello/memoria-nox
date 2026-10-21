@@ -1,6 +1,6 @@
 # nox-mem HANDOFF — estado vivo
 
-## ▶ Estado e fila (19/10 seg, 22:00 BRT): começar aqui
+## ▶ Estado e fila (20/10 ter, 21:30 BRT): começar aqui
 
 **Feito em 14–15/10 (tudo em produção ou publicado, nenhum PR aberto):**
 
@@ -50,8 +50,45 @@
    - ⚠️ **Nenhum número da data note precisa mudar.** As quatro citações de [1] sobrevivem à leitura da v2.
      Detalhe conferido em `project_stanford_omri_telemetria_por_fase` (memória).
 
+4. **Ordem acordada com o Toto em 20/10 para a fila do ROADMAP** (vale se o R1 der nulo; se der
+   sinal, o item 7 volta a ser o carro-chefe e esta fila cede a vez):
+   **11 ✅ feito** → **9** (golden set PT-BR: é o instrumento, e o mais longo) → **4-S1** (precisão
+   amostrada do KG, barata e decide se vale a extração LLM) → **8** (depende do 9) → **5-implementação**
+   (só com consumidor buscando) → **10** (último: reabre o P2 autocapture, que é GATED).
+   O fio: o que é instrumento de medição ou decisão de honestidade rende agora; o que mexe em
+   **ranking** não tem consumidor hoje.
+
 **Não é pendência:** o `compact` segue desligado (`/root/.openclaw/DISABLE_COMPACT`, openclaw-vps#45) e é
 o NÃO FAZEMOS #32 (D-2026-10-14): só volta com resumo **ao lado** do original e eval mostrando ganho.
+
+## 2026-10-20 (ter, noite) — item 11 decidido e executado: NÃO FAZEMOS #34
+
+- **O censo, que é o que decidiu.** Banco de produção (`epochs/current.db`, epoch de 06:01Z):
+  **61.256 chunks, `provenance_kind` NULL em 100% e `confidence` = 0.8 (o `DEFAULT`) em 100%** — um
+  único valor distinto em cada coluna, `superseded_by` nulo em todas e **zero** `op_name` de
+  mark/supersede no `ops_audit`. Não é "parou de escrever": nunca escreveu.
+- **Decisão (D-2026-10-20, NÃO FAZEMOS #34):** as duas colunas e o `mark` ficam; a leitura no
+  ranking **não entra**. Reabre só com as duas pernas juntas — consumidor real buscando (medido por
+  `search_telemetry.requesting_agent`) **e** o golden set do item 9 existindo. Sem sinal e sem gold,
+  ligar o ranking mede no vazio, pela mesma razão que congelou o item 6.
+- **nox-workspace#65** (aberto, não mergeado): saem `write-hooks.ts`, `ranking.ts` e
+  `search-filter.ts` — **−902 linhas**, zero importadores, e o cabeçalho de `search-filter.ts`
+  afirmava *"Wired into search via CLI flag `--min-confidence`"* sem estar ligado a nada. Entra
+  `__tests__/no-ranking-read.test.ts`, com controle positivo (`mark` continua escrevendo as duas
+  colunas) e **mutação confirmada**: plantar `provenance_kind` em `search.ts` e recriar `ranking.ts`
+  derruba 2 dos 3; reverter devolve 3/3.
+- **Erro meu no caminho, corrigido antes do commit:** removi `eval.test.ts` junto, e ele está no
+  `exclude` do `tsconfig.json` **de propósito**, com justificativa escrita — é ponteiro para a árvore
+  `staged/`, que a memória `staged/ = ponteiros de implementação, NÃO lixo` protege. Restaurado,
+  junto com `migration.test.ts` (mesma família, apontando para `edits/migrations/v22-...sql`).
+- **Limite de validação, declarado:** no Mac a suíte que abre SQLite real **não roda** —
+  `better-sqlite3` fixado em `^11` não cobre o ABI 147 do Node 26.5.0 e `npm rebuild` falha no
+  node-gyp (684 erros de ABI, todos pré-existentes e independentes do diff). Verde obtido: `tsc`
+  limpo e **55/55** nos testes L3 que não tocam o nativo.
+- **Pergunta aberta, não decidida:** o `mark` nunca foi usado em 61 mil chunks, e foi consertado há
+  cinco dias (nox-workspace#60). Ou falta um fluxo que o chame, ou a curadoria manual não é desejada.
+- **Fora de escopo, anotado:** `migration.test.ts` deveria estar no `exclude` junto com os outros
+  ponteiros staged — hoje ele compila e fica vermelho. Não tocado.
 
 ## 2026-10-19 (seg, noite) — 11 papers lidos; v2 do Omri conferida contra a data note
 
