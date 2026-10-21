@@ -92,10 +92,36 @@ o NÃO FAZEMOS #32 (D-2026-10-14): só volta com resumo **ao lado** do original 
   a guarda, agora no lugar certo) e **#66** `9d0c8401` (os três pontos). `git pull` feito na VPS
   (fast-forward, **zero colisão** com os 23 arquivos modificados lá, todos de `agents/`/`brief/`), e o
   `package.json` de produção passou a declarar `^12.11.1`.
-- ⚠️ **O `mark` ainda NÃO existe em produção.** O pull mexe em `src/`; o serviço roda do `dist/`, que
-  segue sem o comando (`grep -c supersede-by dist/index.js` = 0). Ativar exige **build + restart** do
-  `nox-mem-api` — mudança de produção, não feita. O restart também é o que faz entrar o `.node` novo
-  do better-sqlite3 12.11.1, já instalado e validado.
+- ✅ **ATIVADO em produção 21/10 19:12Z** (build + restart dos dois serviços, autorizado pelo Toto).
+  Backup do `dist` anterior em `/root/backups/dist-nox-mem-20261021T191134Z` (813 arquivos, 5,4 M);
+  `tsc` exit 0. Provas de alcance, **nenhuma escrevendo no banco**:
+
+  | superfície | predicado | resultado |
+  |---|---|---|
+  | CLI | `node dist/index.js mark --help` | as 5 flags; comando falso dá 0 ocorrências |
+  | HTTP `/mark` | POST id numérico + `kind` inválido | **400 `bad_kind`** (não 503) |
+  | HTTP `/supersede` | POST + `superseded_by` inválido | **400 `bad_by_id`** |
+  | controle | `/api/chunk/999999999/marcar-xpto` | 404 — o predicado discrimina |
+  | binário | `.node` mapeado pelo pid da API | caminho normal, `45cb92a1…` = 12.11.1 |
+  | CLI + binário novo | `node dist/index.js stats` | 61.275 chunks, exit 0 |
+
+  Censo pós-sonda **intocado**: `provenance_kind` não-nulo **0**, `confidence` com **1** valor
+  distinto, `superseded_by` **0**, zero `op_name` de mark no `ops_audit`.
+- ⚠️ **Dois erros meus de medição nesta ativação, os dois pegos por controle:**
+  1. **`.js` mais novo que `.ts` não detecta edição manual no `dist`** — é o estado normal pós-build,
+     e o predicado acusou 380 arquivos. O que separa é mtime **fora** do grupo do build: 17 arquivos,
+     14 backups/módulos aposentados sem `.ts` e 3 que são exatamente os ponteiros `staged/` do
+     `exclude`. Nenhuma edição manual.
+  2. **Sondar a rota com id não-numérico (`abc`) deu 404 e eu quase li como "rota ausente"** — o
+     matcher é `/^\/api\/chunk\/(\d+)\/mark$/`, então id fora do padrão cai no 404 genérico. E a
+     lista de `endpoints` desse 404 é **estática**: nunca incluiu as rotas do `wire-up`, logo a
+     ausência nela não é evidência. Ver `[[feedback_a_404_endpoint_list_can_be_hand_written]]`.
+- **Órfãos do #65 limpos do `dist`:** `tsc` não apaga, então `ranking.js`, `search-filter.js`,
+  `write-hooks.js` e os 3 testes deles sobreviveriam ao PR que os removeu do repo. Zero importadores
+  nos dois lados antes de remover.
+- **O `nox-mem-watch` não mantém o `.node` mapeado:** é shell + `inotifywait`, e cada ingest é um
+  processo Node efêmero — o binário novo entra sozinho no próximo evento. O caminho foi exercitado
+  pelo `stats`, que é o mesmo arranque (processo novo, código novo, binário novo).
 - **Fora de escopo, anotado:** `npm test` deixa de fora tudo que vive em `src/lib/**/__tests__/`,
   incluindo as 94 do L3. Corrigir o glob é PR próprio — varrer o `dist/` inteiro traz falhas
   pré-existentes para dentro do check.

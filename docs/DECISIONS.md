@@ -2172,3 +2172,19 @@ por ENOENT.
 **Fora de escopo, observado no caminho:** `npm test` alcança 38 das suítes e deixa de fora tudo que
 vive em `src/lib/**/__tests__/` — incluindo as 94 do L3. Corrigir o glob é um PR próprio, porque
 varrer o `dist/` inteiro traz falhas pré-existentes para dentro do check.
+
+**Fecho operacional (21/10 19:12Z): ativado em produção.** O merge dos dois PRs (#65 `be083dd0`,
+#66 `9d0c8401`) e o `git pull` na VPS levam o conserto ao `src/`; o serviço roda do `dist/`, logo o
+`mark` só passou a existir de fato depois de `npm run build` + `systemctl restart`. Backup do `dist`
+anterior em `/root/backups/dist-nox-mem-20261021T191134Z`.
+
+Alcance conferido nas duas superfícies que abriram, **sem escrever no banco**: o CLI responde às 5
+flags (e um comando falso não), e as rotas HTTP devolvem **400 de validação** em vez do 503
+`L3 db not deployed` de ontem, com 404 no controle de rota inexistente. Censo pós-sonda intocado —
+`provenance_kind` não-nulo 0, `confidence` com 1 valor distinto, zero `op_name` de mark no
+`ops_audit`. O restart também trocou o binário: a API tinha mapeado um `.node` dentro de
+`node_modules/.better-sqlite3-hG0H788M/`, o diretório temporário do `npm install` já removido do
+disco — prova direta de que rodava o 11.x; agora mapeia o caminho normal, hash `45cb92a1…` = 12.11.1.
+
+A superfície **MCP** segue fechada (sem importador), e isso continua deliberado: nada muda no
+ranking, logo o NÃO FAZEMOS #34 fica de pé.
