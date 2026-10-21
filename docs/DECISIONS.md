@@ -2188,3 +2188,42 @@ disco — prova direta de que rodava o 11.x; agora mapeia o caminho normal, hash
 
 A superfície **MCP** segue fechada (sem importador), e isso continua deliberado: nada muda no
 ranking, logo o NÃO FAZEMOS #34 fica de pé.
+
+### 2026-10-21 — NÃO reempacotar o vec0 agora: a régua de agosto não replica (33,1% → 4,0%)
+
+Medido hoje com o **mesmo harness** (sha256 `a46e111f…`), em cópia do epoch, produção não tocada —
+artefato em `paper2-interventional/out/bench-vec0-2026-10-21.json`.
+
+| | 2026-08-28 | 2026-10-21 |
+|---|---|---|
+| chunks antes → depois | 103 → 68 | **91 → 60** |
+| bytes cortados | −34% | **−34%** |
+| latência mediana fragmentado | 668,2 ms | **2.874,5 ms** |
+| **ganho** | **33,1%** | **4,0%** |
+| dispersão (min/max) | não registrada | 2.126 / 5.517 ms (**2,6×**) |
+
+🔴 **Primeiro: o reempacotamento JÁ foi executado**, em 28/08 22:30–22:35 UTC, com −38,7% medido em
+produção (§5 do `VEC0-REEMPACOTAMENTO-2026-08-28.md`). Os 91 chunks de hoje são **refragmentação em
+dois meses** (68 → 91), não fragmentação nunca corrigida. Quem reler só o `.json` de agosto tira a
+conclusão oposta — foi o que eu quase fiz.
+
+**Por que não replicou.** A fração de bytes cortada é idêntica, e a latência base **quadruplicou**.
+Logo o excedente não está no índice. O KNN do vec0 é **brute-force**: 61.275 vetores × 3.072 dims
+≈ 188 M multiplicações por busca, e slot vazio custa **I/O, não distância**. Quando a CPU passa a
+dominar, cortar bytes rende pouco. Mesma ação, mesmo ganho de espaço (−372 MB), ganho de tempo que
+evaporou.
+
+**O contexto que decide, e que nenhuma das duas medições olhava.** A latência real de produção —
+lida da `search_telemetry`, **sem sondar** — é **mediana 1.491 ms, p90 4.640 ms** em 15.719 linhas.
+E **337 das 382 buscas desde 14/10 são `probe:semantic-canary`**, nenhuma de agente real
+(cf. `project_agents_do_not_search_nox_mem`). Otimizar latência de busca hoje otimiza a **sonda**.
+Por isso a decisão não é "o ganho é pequeno", é **"o beneficiário não existe ainda"** — a mesma razão
+que congelou o item 6 e o #34.
+
+**Reabre quando:** houver consumidor real buscando (o item 7), ou se a mediana da telemetria piorar
+ao ponto de a sonda falhar. Se reabrir, medir **antes** — a régua de agosto está marcada como
+não-replicável.
+
+**Fica anotado, não medido:** `sqlite_stat1` **não existe** (o `ANALYZE` nunca rodou neste banco) e o
+FTS5 tem **16.220 linhas** em `chunks_fts_idx` / 107 MB em `chunks_fts_data`, candidato a
+`optimize`. Nenhum dos dois tem ganho medido; medir em cópia antes de tocar produção.

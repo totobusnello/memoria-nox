@@ -1,0 +1,27 @@
+{
+  "gerado_em": "2026-10-21",
+  "harness": "bench-vec0-reempacotamento.mjs (mesmo binário de 2026-08-28, sha256 a46e111f…)",
+  "host": "srv1826603 (producao OpenClaw)",
+  "fonte": "copia de /var/lib/nox-mem/epochs/e20261021T060001Z.db em /root/medicoes (ext4, NAO tmpfs)",
+  "parametros": { "sondas": 12, "reps": 5, "k": 10 },
+  "antes":  { "chunks": 91, "ocupados": 61274, "alocados": 93184, "mb": 1092 },
+  "depois": { "chunks": 60, "ocupados": 61274, "alocados": 61440, "mb": 720 },
+  "reempacotamento_s": 17.3,
+  "latencia_ms": {
+    "fragmentado_mediana": 2874.5, "fragmentado_min": 2126.3, "fragmentado_max": 5516.7,
+    "reempacotado_mediana": 2758.8, "reempacotado_min": 2141.8, "reempacotado_max": 5044.9,
+    "n_por_braco": 60
+  },
+  "ganho_pct": 4.0,
+  "ganho_pct_agosto": 33.1,
+  "sondas_resposta_identica": "11/12",
+  "producao_tocada": false,
+  "veredito": "NAO aplicar. O ganho de 2026-08-28 (33,1%) nao replica: 4,0% dentro de uma distribuicao que varia 2,6x (min 2126 / max 5517).",
+  "por_que_nao_replicou": "A fracao de bytes cortada e a MESMA (-34% dos slots), mas a latencia base quadruplicou (668,2 -> 2874,5 ms). O excedente nao vem do indice: o KNN do vec0 e brute-force sobre 61.275 vetores de 3072 dims (~188M multiplicacoes por busca), e slot vazio custa I/O, nao distancia. Quando a CPU passa a dominar, cortar bytes rende pouco.",
+  "contexto_que_decide": {
+    "latencia_real_de_producao": "mediana 1491 ms, p90 4640 ms (15.719 linhas de search_telemetry, lidas sem sondar)",
+    "quem_busca": "337 de 382 buscas desde 14/10 sao probe:semantic-canary; nenhum agente real",
+    "implicacao": "otimizar latencia de busca hoje otimiza a sonda, nao um consumidor"
+  },
+  "ja_foi_executado_antes": "Sim, em 2026-08-28 22:30-22:35 UTC (VEC0-REEMPACOTAMENTO-2026-08-28.md secao 5), com -38,7% medido em producao. 91 chunks hoje sao REFRAGMENTACAO em ~2 meses (68 -> 91), nao fragmentacao nunca corrigida."
+}
