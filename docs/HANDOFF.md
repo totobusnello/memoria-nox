@@ -88,8 +88,14 @@ o NÃO FAZEMOS #32 (D-2026-10-14): só volta com resumo **ao lado** do original 
 - **A suíte L3 voltou a rodar no Mac:** era 684 × `ERR_DLOPEN_FAILED`, hoje **94/94**, com
   `mark-real-sqlite` (abre SQLite real) incluído. `npm test`: 417/419 — a única falha é
   `op-audit-e2e`, EACCES em `/var/backups`, que o CI prepara com `sudo` e o Mac não tem.
-- **Dois PRs abertos, nenhum mergeado:** **#65** (−902 linhas do L3 morto + a guarda, agora no lugar
-  certo) e **#66** (os três pontos). Ambos verdes no check `test`.
+- **Os dois PRs mergeados em 21/10, 15:52Z** (squash): **#65** `be083dd0` (−902 linhas do L3 morto +
+  a guarda, agora no lugar certo) e **#66** `9d0c8401` (os três pontos). `git pull` feito na VPS
+  (fast-forward, **zero colisão** com os 23 arquivos modificados lá, todos de `agents/`/`brief/`), e o
+  `package.json` de produção passou a declarar `^12.11.1`.
+- ⚠️ **O `mark` ainda NÃO existe em produção.** O pull mexe em `src/`; o serviço roda do `dist/`, que
+  segue sem o comando (`grep -c supersede-by dist/index.js` = 0). Ativar exige **build + restart** do
+  `nox-mem-api` — mudança de produção, não feita. O restart também é o que faz entrar o `.node` novo
+  do better-sqlite3 12.11.1, já instalado e validado.
 - **Fora de escopo, anotado:** `npm test` deixa de fora tudo que vive em `src/lib/**/__tests__/`,
   incluindo as 94 do L3. Corrigir o glob é PR próprio — varrer o `dist/` inteiro traz falhas
   pré-existentes para dentro do check.
@@ -104,7 +110,7 @@ o NÃO FAZEMOS #32 (D-2026-10-14): só volta com resumo **ao lado** do original 
   ranking **não entra**. Reabre só com as duas pernas juntas — consumidor real buscando (medido por
   `search_telemetry.requesting_agent`) **e** o golden set do item 9 existindo. Sem sinal e sem gold,
   ligar o ranking mede no vazio, pela mesma razão que congelou o item 6.
-- **nox-workspace#65** (aberto, não mergeado): saem `write-hooks.ts`, `ranking.ts` e
+- **nox-workspace#65** (mergeado 21/10, `be083dd0`): saem `write-hooks.ts`, `ranking.ts` e
   `search-filter.ts` — **−902 linhas**, zero importadores, e o cabeçalho de `search-filter.ts`
   afirmava *"Wired into search via CLI flag `--min-confidence`"* sem estar ligado a nada. Entra
   `__tests__/no-ranking-read.test.ts`, com controle positivo (`mark` continua escrevendo as duas
