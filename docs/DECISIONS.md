@@ -2085,6 +2085,9 @@ implementação. Nada disso chegou ao npm: o pacote `nox-mem@3.7.0` não tem as 
 **O que ficou.** As duas colunas (custam um `DEFAULT` e um TEXT nulo), o `mark`/`supersede` (CLI, MCP
 e API) — consertado em 15/10, nox-workspace#60, e que é a porta da curadoria humana — e a fatia
 `health-confidence` da telemetria.
+> ⚠️ **Corrigido em 21/10:** «é a porta da curadoria humana» estava errado. O `mark` existia nas três
+> superfícies e **nenhuma delas era alcançável** — comando nunca registrado no commander, rota HTTP
+> em 503, MCP sem importador. Ver a entrada de 2026-10-21 abaixo.
 
 **A decisão virou teste**, não só parágrafo: `lib/confidence/__tests__/no-ranking-read.test.ts` exige
 que `src/search.ts` não leia as colunas, que os três arquivos não voltem, e — controle positivo, sem
@@ -2095,6 +2098,7 @@ a confusão que custou 3,3 meses no `top_chunk_ids`.
 
 **Pergunta aberta, que não é esta decisão:** o `mark` nunca foi usado em 61 mil chunks. Ou falta um
 fluxo que o chame (revisar o brief, por exemplo), ou a curadoria manual não é desejada. Não decidido.
+> ✅ **Respondida em 21/10, e a resposta não era nenhuma das duas:** não havia porta. Ver abaixo.
 
 **Fora de escopo, observado no caminho:** no Mac, `better-sqlite3` fixado em `^11` não cobre o ABI
 147 do Node 26.5.0 e `npm rebuild` falha no node-gyp, então a suíte que abre SQLite real não roda
@@ -2103,3 +2107,68 @@ localmente (684 erros de ABI, todos pré-existentes). E `migration.test.ts` apon
 árvore `staged/`, como o `eval.test.ts` que o `tsconfig.json` já exclui com justificativa escrita;
 a diferença é que o `migration` não está no `exclude` e por isso fica vermelho. Nenhum dos dois foi
 tocado.
+
+---
+
+### 2026-10-21 — os três pontos abertos do item 11, resolvidos. O `mark` não tinha porta nenhuma
+
+**1. O `mark` nunca escreveu porque nenhuma das três superfícies era alcançável.** A pergunta de
+ontem — «falta um fluxo que o chame, ou a curadoria manual não é desejada?» — tinha uma terceira
+resposta, que é a verdadeira:
+
+| superfície | o que existe | estado medido |
+|---|---|---|
+| CLI | `markCommand()` em `src/cli/mark.ts` desde maio: parser, dispatch, linha de `ops_audit`, 3 suítes | **0 de 57** comandos registrados no commander ⇒ `nox-mem mark` **não existia** |
+| HTTP | `POST /api/chunk/:id/{mark,supersede}`, ligadas no `wire-up.ts` | o guard exige `getConfidenceDb` em `db-shim.js`; o reexport **nunca foi aplicado** ⇒ **503 `L3 db not deployed`** |
+| MCP | `listMarkTools()` | **0 importadores** — segue fechado, fora de escopo |
+
+O reexport é o *apply step* que o próprio `db-shim-singleton.ts` **descreve no seu docstring**
+(«Apply step appends one line to staged-L3's `db-shim.ts`»). Descrever o passo não é tê-lo dado —
+mesma família de «promessa no cabeçalho não é implementação», aqui na forma mais traiçoeira: o
+arquivo que documenta o conserto é o que prova que ele não foi feito.
+
+Conferido no `src` **e** no `dist` da VPS. **Sem sondar o endpoint**: um `POST` escreveria o que
+mede, e o `grep` responde a mesma pergunta sem tocar o banco.
+
+E o comentário em `db.ts` — *«`nox-mem mark` failed (found 2026-10-15)»* — era sintoma disto: em
+15/10 a coluna `superseded_by` foi migrada, a porta não. O conserto de 15/10 removeu o **segundo**
+obstáculo de três.
+
+**Resolvido** (nox-workspace#66): reexport no `db-shim.ts`, comando `mark` registrado com as 5
+flags, e as duas rotas aquecendo o singleton antes de usá-lo — `getConfidenceDb()` devolve `null`
+até o warmup assíncrono terminar, e a **primeira** requisição é exatamente a que o pega frio (a rota
+L2 logo acima já fazia `await ensureConflictDb()` por isso). `parseMarkArgs` continua a única fonte
+de verdade das regras; o commander só remonta o argv para ela.
+
+Isto **não reabre** o #34: a leitura de confiança no ranking continua fora. Abrir a porta é o que
+faltava para «curadoria sob demanda» ser verdade em vez de promessa.
+
+⚠️ **O controle positivo salvou o predicado.** O teste óbvio — *`nox-mem mark --help` sai 0* — é
+**vazio**: o commander responde 0 também para comando inexistente, caindo no help geral. O predicado
+válido é a flag aparecer na saída. Mutação confirmada perna por perna: renomear o comando derruba só
+o teste do CLI, remover o reexport derruba só o do `db-shim`; restaurado, 5/5.
+
+**2. A guarda de ontem não rodava no CI.** `npm test` é `node --test dist/__tests__/*.test.js` e
+**não varre subdiretórios**. O `no-ranking-read.test.ts`, posto em `src/lib/confidence/__tests__/`,
+nunca era executado — guarda que não roda não guarda nada, e é a mesma classe de defeito que ela
+existe para evitar. Movida para `src/__tests__/` no próprio #65, onde vivem as 38 suítes do CI,
+mutação reconfirmada no local novo. A guarda do #66 já nasceu lá.
+
+**3. O pin do `better-sqlite3` alcançou a árvore de produção.** `^11.0.0` → `^12.11.1` no espelho
+(#66) e o módulo trocado na VPS, com backup em `/root/backups/bs3-<ts>` e **sem reiniciar serviço**:
+o processo vivo mantém o `.node` antigo mapeado, o novo entra no próximo restart e já está validado
+(`require` + `INSERT`/`SELECT` em Node 24.21.0, binário com hash diferente do backup — não foi o
+velho reaproveitado). Produção segue `active`, API respondendo, `nox-mem-api` sem restart desde
+17/10. Efeito colateral que vale mais que o pin: a suíte L3 **voltou a rodar no Mac** — era 684 ×
+`ERR_DLOPEN_FAILED`, hoje é **94/94**, `mark-real-sqlite` incluído.
+
+⚠️ O `package.json` da VPS **não** foi editado (instalação com `--no-save`): o pin chega lá pelo
+`git pull` depois do merge, e mexer no arquivo criaria conflito no pull.
+
+**4. `migration.test.ts` saiu do build** (#66): lê `edits/migrations/v22-*.sql`, árvore fora do
+checkout, mesmo padrão `staged/` dos três já excluídos. Tipava limpo, ia para o `dist/` e falhava
+por ENOENT.
+
+**Fora de escopo, observado no caminho:** `npm test` alcança 38 das suítes e deixa de fora tudo que
+vive em `src/lib/**/__tests__/` — incluindo as 94 do L3. Corrigir o glob é um PR próprio, porque
+varrer o `dist/` inteiro traz falhas pré-existentes para dentro do check.

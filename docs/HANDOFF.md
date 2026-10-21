@@ -1,6 +1,6 @@
 # nox-mem HANDOFF — estado vivo
 
-## ▶ Estado e fila (20/10 ter, 21:30 BRT): começar aqui
+## ▶ Estado e fila (21/10 qua, 11:00 BRT): começar aqui
 
 **Feito em 14–15/10 (tudo em produção ou publicado, nenhum PR aberto):**
 
@@ -20,7 +20,7 @@
 1. ✅ **15/10 20:31 BRT:** reindex dos 6 agentes rodou às 23:00 UTC (0 tombstoned, 0 erros de ingest);
    `nox-mem tombstones` no banco principal = **nenhum** ⇒ nada de mac-docs para `tombstone-keep`.
    `kg-confirm` `evidence_gone` 85; 61.031 chunks, todos com vetor, 0 órfãos.
-2. **21/10 (sem lembrete: a sessão que o agendou foi fechada; abrir uma e pedir "mede o R1"):** medir a
+2. 🔴 **É HOJE (21/10). Sem lembrete automático** — a sessão que o agendou foi fechada. Medir a
    relevância do R1 em shadow. Roteiro:
    - **dados:** `/root/.openclaw/logs/brief-recency-shadow.ndjson` (`served_ids`, `recency_ids`,
      `overlap`, idades; 1.229 linhas em 16/10 17:37 UTC, crescendo). Shadow desde 14/10 22:13 UTC.
@@ -52,7 +52,7 @@
 
 4. **Ordem acordada com o Toto em 20/10 para a fila do ROADMAP** (vale se o R1 der nulo; se der
    sinal, o item 7 volta a ser o carro-chefe e esta fila cede a vez):
-   **11 ✅ feito** → **9** (golden set PT-BR: é o instrumento, e o mais longo) → **4-S1** (precisão
+   **11 ✅ feito, e os 3 pontos que ele deixou abertos resolvidos em 21/10 (#66)** → **9** (golden set PT-BR: é o instrumento, e o mais longo) → **4-S1** (precisão
    amostrada do KG, barata e decide se vale a extração LLM) → **8** (depende do 9) → **5-implementação**
    (só com consumidor buscando) → **10** (último: reabre o P2 autocapture, que é GATED).
    O fio: o que é instrumento de medição ou decisão de honestidade rende agora; o que mexe em
@@ -60,6 +60,39 @@
 
 **Não é pendência:** o `compact` segue desligado (`/root/.openclaw/DISABLE_COMPACT`, openclaw-vps#45) e é
 o NÃO FAZEMOS #32 (D-2026-10-14): só volta com resumo **ao lado** do original e eval mostrando ganho.
+
+## 2026-10-21 (qua, manhã) — os 3 pontos do item 11 resolvidos: o `mark` não tinha porta
+
+- 🔴 **A resposta da pergunta aberta de ontem não era nenhuma das duas opções.** Não era «falta um
+  fluxo que chame o `mark`» nem «a curadoria manual não é desejada»: **não havia porta**. As três
+  superfícies existiam e nenhuma era alcançável — comando **0 de 57** no commander (`nox-mem mark`
+  não existia), rota HTTP em **503** porque `db-shim.js` não reexportava `getConfidenceDb`, MCP sem
+  importador. Conferido no `src` **e** no `dist` da VPS, sem sondar o endpoint (um POST escreveria o
+  que mede).
+- 🔑 **O arquivo que documenta o conserto é o que prova que ele não foi feito.** O reexport que
+  faltava é o *apply step* descrito no docstring de `db-shim-singleton.ts` — descrever o passo não é
+  tê-lo dado. E o comentário em `db.ts` («`nox-mem mark` failed, found 2026-10-15») era sintoma: em
+  15/10 consertou-se a coluna, não a porta. O #60 removeu o segundo de três obstáculos.
+- ⚠️ **A guarda que eu escrevi ontem não rodava no CI.** `npm test` é
+  `node --test dist/__tests__/*.test.js` e não varre subdiretórios; o teste nasceu em
+  `src/lib/confidence/__tests__/`. Movido no próprio **#65**, mutação reconfirmada no local novo.
+  Guarda que não roda não guarda nada — a mesma classe de defeito que ela existe para evitar.
+- ⚠️ **O controle positivo salvou o predicado.** `nox-mem mark --help` sai **0 também para comando
+  inexistente** (o commander cai no help geral), então exit code não prova registro nenhum. O
+  predicado válido é a flag aparecer na saída.
+- **Produção:** `better-sqlite3` trocado para 12.11.1 na VPS com backup em `/root/backups/bs3-<ts>`,
+  **sem reiniciar serviço** — o processo vivo mantém o `.node` antigo mapeado, o novo entra no
+  próximo restart e já está validado em Node 24.21.0 (hash diferente do backup: não foi o velho
+  reaproveitado). `package.json` de lá **não** editado (`--no-save`): o pin chega pelo `git pull`.
+  API respondendo, `nox-mem-api` sem restart desde 17/10.
+- **A suíte L3 voltou a rodar no Mac:** era 684 × `ERR_DLOPEN_FAILED`, hoje **94/94**, com
+  `mark-real-sqlite` (abre SQLite real) incluído. `npm test`: 417/419 — a única falha é
+  `op-audit-e2e`, EACCES em `/var/backups`, que o CI prepara com `sudo` e o Mac não tem.
+- **Dois PRs abertos, nenhum mergeado:** **#65** (−902 linhas do L3 morto + a guarda, agora no lugar
+  certo) e **#66** (os três pontos). Ambos verdes no check `test`.
+- **Fora de escopo, anotado:** `npm test` deixa de fora tudo que vive em `src/lib/**/__tests__/`,
+  incluindo as 94 do L3. Corrigir o glob é PR próprio — varrer o `dist/` inteiro traz falhas
+  pré-existentes para dentro do check.
 
 ## 2026-10-20 (ter, noite) — item 11 decidido e executado: NÃO FAZEMOS #34
 
