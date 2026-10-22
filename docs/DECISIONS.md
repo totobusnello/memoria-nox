@@ -2320,3 +2320,94 @@ com o ingest incremental, como o vec0.
 não medido — nenhum `query_hash` aparece nos dois braços), e o FTS5 é 0,1% disso. Para onde vão
 esses ~690 ms é desconhecido. Não foi perseguido pela razão de sempre: **348 das 394 buscas desde
 14/10 são `probe:semantic-canary`**, nenhuma de agente real.
+
+---
+
+### 2026-10-22 — `optimize` rodado em produção; e a correção: ele não devolve disco
+
+Executado às 11:25 UTC no banco servido (`/root/.openclaw/workspace/tools/nox-mem/nox-mem.db`,
+1,62 GB), com snapshot atômico antes
+(`/var/backups/nox-mem/pre-op/fts-optimize-20261022T112356Z-407966.db`, 1,61 GB, validado por
+`user_version` 18 = 18, `quick_check ok`, `chunks` 61.315 = 61.315, `vec_chunk_map` 61.315 = 61.315).
+
+| | antes | depois |
+|---|---|---|
+| `chunks_fts_data` | 114,4 MB / 27.921 páginas | **54,8 MB / 13.369** |
+| `chunks_fts_idx` | 299 KB / 73 páginas | 164 KB / 40 |
+| `freelist_count` | 81 páginas | **15.599** (63,9 MB) |
+| arquivo em disco | 1.617.829.888 B | **1.621.651.456 B** (+3,8 MB) |
+| operação | — | 2.054 ms |
+
+Verificação: `quick_check ok`, `INSERT INTO chunks_fts(chunks_fts) VALUES('integrity-check')` sem
+erro, e **as 12 sondas devolvem exatamente a mesma resposta** — mesmo sha256 do conjunto
+(`509b13c6…`), 0/12 com ordem de ids diferente. Sondas em `mode=ro` direto no SQLite, nunca pela
+API: uma busca pela API escreve `search_telemetry` e `access_count`, isto é, alimenta os sinais de
+ranking que a sonda deveria estar medindo.
+
+🔴 **A entrada de ontem dizia «vale como espaço» e isso estava errado no que importa.** O banco tem
+`auto_vacuum=0`. As páginas liberadas viram **freelist dentro do arquivo** (81 → 15.599), não disco
+devolvido: o arquivo **cresceu** 3,8 MB com o checkpoint. A medição de ontem foi do tamanho da
+*tabela* (`dbstat`), não do arquivo, e eu li uma como a outra.
+
+O que o `optimize` entrega de fato: os 63,9 MB voltam como espaço reutilizável (o índice volta a
+crescer sobre eles em vez de esticar o arquivo) e os segmentos do FTS5 ficam fundidos. **Não** é
+redução de disco e **não** é latência perceptível (0,025% da busca).
+
+**`VACUUM` para devolver os 63,9 MB: não fazer.** São 64 MB num disco com 31 GB livres, ao custo de
+lock exclusivo sobre 1,6 GB que contêm a única cópia dos 61.315 embeddings (regra 10). A conta não
+fecha.
+
+---
+
+### 2026-10-22 — o título "sessão \<agente\>" não alcançava 1.655 dos 6.622 `distilled`
+
+O recorte de 15/10 (`displayTitle`) ancorava `$` logo depois do uuid. Censo em produção, read-only:
+
+| forma de `source_file` | chunks |
+|---|---|
+| `sessions/<agente>/<agente>:<uuid>` | 4.967 |
+| `sessions/<agente>/<agente>:<uuid>.checkpoint.<uuid>` | **1.655** |
+
+Não há terceira forma. As 1.655 são todas de **cipher (1.185)** e **atlas (470)** — e era visível no
+brief servido no mesmo instante: desses seis agentes, cipher e atlas eram **os dois únicos** com
+título UUID, 4 e 3 dos 10 slots; nox, boris, forge e lex, zero. Um título desses gasta 80 caracteres
+de um orçamento de 10 itens sem dizer nada.
+
+🔑 **Havia teste, e por isso o recorte parcial passou verde.** A fixture tinha **uma** das duas
+formas que existem em produção. Não é «fix sem teste»: é fixture que modela um corpus mais simples
+do que o real — e um teste assim não falha, ele confirma. Corrigido em nox-workspace#68 com 6 casos
+diretos (as duas formas, sem data, tipo não-distilled, título que não é id de sessão, e quatro
+sufixos parecidos que **não** devem casar) + 1 ponta-a-ponta com fixture própria. Mutação conferida:
+revertendo a regex falham exatamente os 3 casos novos. CI: 1.751 testes, 0 falhas.
+
+Ganhou prioridade porque a medição do R1 mostrou `distilled` em **48,3%** do brief servido.
+
+---
+
+### 2026-10-22 — `MemoryHigh`: o drop-in perde por ordem de NOME, e quem é estrangulado é o gateway
+
+O `50-MemoryHigh.conf` do `nox-mem-api` (criado por `systemctl set-property` em 23/08) pede
+**1600 MiB** e não está em efeito. O efetivo é 1000 MB / 1500 MB, que é o que diz
+`/etc/systemd/system/nox-mem-api.service.d/limits.conf`.
+
+🔑 **Não é precedência de diretório: drop-in de systemd é ordenado por NOME DE ARQUIVO entre todos
+os diretórios, e o último vence.** `limits.conf` ordena depois de `50-MemoryHigh.conf`, logo um
+arquivo acrescentado depois derrubou em silêncio um `set-property` feito antes. Procurar o
+`set-property` no diretório «mais forte» não explica nada; o que explica é o `ls` ordenado.
+
+**Medido antes de mexer** (`python3 /root/.openclaw/scripts/cgroup-mem-sample.py`):
+
+| unidade | current | peak / high | `memory.events.high` | de pé desde |
+|---|---|---|---|---|
+| `nox-mem-api` | 874 MB (87,5%) | **96,2%** | **0** | 21/10 19:12 |
+| `openclaw-gateway` | 3.219 MB (89,4%) | **100,1%** | **89.694** | 17/10 14:46 |
+
+🔴 **O serviço estrangulado é o gateway, não o nox-mem.** 89.694 eventos de `high` em 5 dias, com
+pico tocando o teto. O `nox-mem-api` nunca foi estrangulado — mas isso só quer dizer algo junto do
+tempo acumulado, porque **os contadores de `memory.events` zeram a cada restart**, e um restart meu
+em 21/10 apagou a evidência que existia. Por isso cada amostra carrega `active_since`.
+
+Instrumentação instalada e coletando: `cgroup-mem-sample.timer` (5 min, `Persistent=true`), log
+NDJSON em `/root/.openclaw/logs/cgroup-mem.ndjson`, logrotate semanal × 6. Só lê `/sys/fs/cgroup` e
+`systemctl show`; não altera limite nenhum, não reinicia nada. **Nenhum limite mexido** — decidir
+com série, não com uma foto.

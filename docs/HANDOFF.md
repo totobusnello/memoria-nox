@@ -1,6 +1,6 @@
 # nox-mem HANDOFF — estado vivo
 
-## ▶ Estado e fila (21/10 qua, 22:10 BRT): começar aqui
+## ▶ Estado e fila (22/10 qui, 08:40 BRT): começar aqui
 
 **Feito em 14–15/10 (tudo em produção ou publicado, nenhum PR aberto):**
 
@@ -41,8 +41,9 @@
      cortaria `pain ≥ 0,9` pela metade (45,0% → 21,2%). Os itens velhos são velhos **por desenho**:
      piso de pain do D2 e os incidentes de abril. Incidente grave é velho porque é raro.
    - **Reabre com consumidor.** O shadow segue gravando; o script é parametrizado por
-     `R1_START`/`R1_END`. Duas decisões do Toto seguem abertas e uma ganhou peso: o **piso de pain
-     do D2** e o **título UUID dos `distilled`** (48% do brief hoje, 67,5% com R1).
+     `R1_START`/`R1_END`. Sobra **uma** decisão do Toto: o **piso de pain do D2**. O **título UUID
+     dos `distilled`** saiu da lista — era defeito, não decisão, e foi consertado em 22/10
+     (nox-workspace#68).
    - **Com 7a, 7b e R1 nulos, o item 7 não tem caminho aberto por medição de brief.** O que resta é
      fazer um consumidor buscar (item 5) ou medir ação com tarefas validadas como memory-dependent
      (o controle que o DolphinBench traz pronto).
@@ -71,17 +72,56 @@
    O fio: o que é instrumento de medição ou decisão de honestidade rende agora; o que mexe em
    **ranking** não tem consumidor hoje.
 
-**Eficiência do binário — fechado em 21/10, nada a fazer (DECISIONS):** o reempacotamento do vec0
-rende **4,0%** hoje (era 33,1% em agosto) e **já tinha sido executado em 28/08**; o `ANALYZE` mede
-**−3,5%** e instalaria `sqlite_stat1` regendo o planner inteiro; o FTS5 `optimize` corta 54,8% de uma
-perna que é **0,045%** da busca (0,61 ms de 1.349 ms), valendo só como higiene de disco (**−58,7 MB**,
-2,1 s, 12/12 sondas iguais) — decisão do Toto, com snapshot. **Aberto e não perseguido:** mesmo sem a
-perna semântica a busca custa ~690 ms e o FTS5 é 0,1% disso; e o drop-in `50-MemoryHigh.conf` pede
-1.600 MB sem estar em efeito (efetivo 1.000/1.500 MB numa máquina com ~4,9 GB livres), com a evidência
-de throttling zerada pelo restart de hoje — instrumentar antes de mexer.
+**Eficiência do binário — fechado (DECISIONS 21 e 22/10):** o reempacotamento do vec0 rende **4,0%**
+hoje (era 33,1% em agosto) e **já tinha sido executado em 28/08**; o `ANALYZE` mede **−3,5%** e
+instalaria `sqlite_stat1` regendo o planner inteiro ⇒ nenhum dos dois. O FTS5 `optimize` **foi
+rodado** em 22/10 com snapshot: 2,05 s, `chunks_fts_data` 114,4 → 54,8 MB, 12/12 sondas com resposta
+idêntica (mesmo sha256), `integrity-check` limpo. ⚠️ **Correção do que eu disse em 21/10:** com
+`auto_vacuum=0`, isso **não devolve disco** — vira freelist dentro do arquivo (81 → 15.599 páginas) e
+o arquivo até cresceu 3,8 MB. Eu havia medido o tamanho da *tabela* e lido como tamanho do *arquivo*.
+`VACUUM` para devolver os 63,9 MB: não vale (31 GB livres contra lock exclusivo sobre a única cópia
+dos embeddings). **Aberto e não perseguido:** mesmo sem a perna semântica a busca custa ~690 ms e o
+FTS5 é 0,1% disso.
 
 **Não é pendência:** o `compact` segue desligado (`/root/.openclaw/DISABLE_COMPACT`, openclaw-vps#45) e é
 o NÃO FAZEMOS #32 (D-2026-10-14): só volta com resumo **ao lado** do original e eval mostrando ganho.
+
+## 2026-10-22 (qui, manhã) — `optimize` rodado, título dos `distilled` consertado, memória instrumentada
+
+Três frentes, todas com medição antes da ação. Detalhe e números em `docs/DECISIONS.md`.
+
+**1. FTS5 `optimize` em produção (11:25 UTC).** Snapshot atômico antes
+(`/var/backups/nox-mem/pre-op/fts-optimize-20261022T112356Z-407966.db`, validado por `user_version`,
+`quick_check`, `chunks` e `vec_chunk_map`). 2.054 ms; `chunks_fts_data` 114,4 → 54,8 MB;
+`quick_check ok`; `integrity-check` sem erro; **12/12 sondas com resposta idêntica** (mesmo sha256,
+`mode=ro` direto no SQLite, nunca pela API — a API escreveria os sinais de ranking que a sonda mede).
+⚠️ **E a correção do que eu disse ontem:** `auto_vacuum=0` ⇒ isso **não devolve disco**, vira
+freelist (81 → 15.599 páginas) e o arquivo cresceu 3,8 MB. Medi o tamanho da *tabela* e li como
+*arquivo*. `VACUUM` não vale: 64 MB contra lock exclusivo sobre a única cópia dos embeddings.
+
+**2. Título dos `distilled` — nox-workspace#68, CI verde (1.751 testes, 0 falhas).** O recorte de
+15/10 alcançava 4.967 dos 6.622; os outros **1.655** têm `source_file` na forma
+`<agente>:<uuid>.checkpoint.<uuid>` e chegavam ao brief como 80 caracteres de uuid. São todos de
+**cipher (1.185)** e **atlas (470)** — e no brief servido eram exatamente esses dois os únicos
+agentes com título UUID (4 e 3 dos 10 slots). 🔑 **Havia teste; a fixture é que tinha uma das duas
+formas.** Teste que modela corpus mais simples que o real não falha, confirma.
+
+**3. Memória: instrumentada, nada mexido.** O `50-MemoryHigh.conf` pede 1600 MiB e perde para o
+`limits.conf` (1000M/1500M) — **drop-in de systemd ordena por nome de arquivo entre todos os
+diretórios**, e `limits.conf` vem depois de `50-…`. Medido antes de decidir: `nox-mem-api` com
+`memory.events.high` = **0** (pico em 96,2% do teto), `openclaw-gateway` com **89.694** eventos em
+5 dias e pico em 100,1% — **o estrangulado é o gateway**. `cgroup-mem-sample.timer` coletando a cada
+5 min em `/root/.openclaw/logs/cgroup-mem.ndjson`, com `active_since` em cada amostra porque os
+contadores zeram no restart. Nenhum limite alterado.
+
+**4. Higiene da VPS.** `/root/medicoes` 1,8 GB → 754 MB: apagados **só** os `node_modules` de
+`nws-test` (1,06 GB, reproduzíveis por `npm install`), preservados os 29 MB de fonte e tudo que o
+repositório cita. **Não apagado:** os 669 MB de `2026-10-15-embed/ws` (cópias de
+`openclaw-agent.sqlite` de 15/10 — estado passado, irreproduzível, sem citação) e, em `/var/tmp`,
+`c2-sem-agentfresh.db` (1,2 GB, 08/09) e 15 × `replay-oportunidade-*/serve-state.db` (1,4 GB, 22/09),
+que cheiram a lastro de ensaio e estão fora do que foi autorizado. **Decisão do Toto.**
+
+---
 
 ## 2026-10-21 (qua, manhã) — os 3 pontos do item 11 resolvidos: o `mark` não tinha porta
 
