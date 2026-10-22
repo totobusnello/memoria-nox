@@ -2557,3 +2557,54 @@ contrato ou grafo de memória, e o roadmap não diz qual.
 E 0,833 é o teto com que a função de endereço tem de conviver: **um ponteiro em seis cai em evidência
 que não diz o que a tripla afirma.** Tolerável quando o consumidor lê o chunk; intolerável quando a
 tripla é servida como fato — e hoje a busca serve 3 triplas por query.
+
+---
+
+### 2026-10-22 — item 8, linha de base: o guarda anti-alucinação protege a CITAÇÃO, não a afirmação
+
+O gate do item 8 era "negativas vêm do item 9", e o item 9 provou que juiz LLM não sustenta
+negativa. Então as 23 negativas desta linha de base **não foram julgadas: foram construídas e
+verificadas mecanicamente** — token distintivo com **zero** ocorrências por três vias (substring cru
+sobre os 61.319 chunks, `MATCH` no FTS5, e `kg_entities` por nome), de 30 candidatas escritas a
+partir dos padrões de nomenclatura do próprio corpus. Audit:
+`audits/2026-10-22-abstention-baseline.md`.
+
+Rodadas pelo `answer()` de produção numa cópia `VACUUM INTO` — obrigatório, porque o
+`retrieveContext` chama `searchHybrid` com **`trackAccess=true`** e contra o banco servido isso
+subiria `access_count`, que alimenta a salience que um gate de abstenção depois iria ranquear.
+
+| | n | abstenção | retrieval médio |
+|---|---|---|---|
+| **negativas** (não existe resposta) | 23 | **0,696** | 8,0 |
+| **positivas** (existe resposta) | 25 | **0,200** | 8,0 |
+| diferença | | **0,496** | |
+
+Negativa sozinha não responde nada — quem abstém de tudo acerta 100% das negativas e é inútil. Por
+isso as positivas correram no mesmo lote.
+
+🔴 **As 7 negativas respondidas vieram TODAS com citação.** O guarda do `prompt.ts` proíbe inventar
+*marcador*, e um passe de retry pega marcador inexistente — funcionou, nenhum marcador inventado.
+**Mas o marcador nunca foi o que estava em risco.** O modelo escolhe um chunk vizinho real, cita
+corretamente, e afirma algo sobre um assunto que aquele chunk não menciona: *"O TTL padrão para o
+cache de embeddings é de 24 horas [chunk_5]"* para um `embed_cache_ttl` que não existe; `nox-mem
+fsck` respondido com `nox-mem reindex` e 5 citações. Um caso diz as duas coisas: começa com *"não é
+explicitamente explicado no contexto fornecido"* e responde em seguida — dizer que não sabe não é
+abster-se.
+
+🔴 **O portão duro é código morto na prática.** O `answer()` curto-circuita com
+`chunks.length === 0`; em 48 execuções o `retrieval_count` foi **8 em todas** e o portão disparou
+**zero** vezes. A busca híbrida sempre devolve `topK`. É a **regra 9 do CLAUDE.md** num lugar novo:
+guarda cujo predicado exige o dado que falta não cobre a falta do dado — aqui o predicado é "nenhum
+resultado" e o retriever é estruturalmente incapaz de não devolver resultado.
+
+**O que isso obriga o item 8 a construir** não é "checagem de suficiência" em abstrato, e sim um
+gate que possa falhar **com o conjunto cheio e as citações válidas**, porque é o único modo de falha
+observado: (a) pontuar a **evidência**, não o retrieval — `retrieval_count` não carrega informação
+(é sempre topK) e validade de marcador também não (o retry já garante); é preciso distinguir "o
+chunk_5 é sobre isto" de "o chunk_5 está perto"; (b) medir **as duas direções sempre** — o
+comportamento atual já custa 20% de recusa indevida em pergunta respondível, e qualquer gate que
+suba a abstenção nas negativas empurrando as positivas acima de 0,20 não é melhoria.
+
+Artefato reutilizável: `eval/golden-negatives-v1.jsonl` (23 negativas com as contagens de
+verificação e esta linha de base). **Falta** a classe mais difícil — assunto real, atributo nunca
+registrado — que é justamente onde um piso de similaridade tende a falhar.
