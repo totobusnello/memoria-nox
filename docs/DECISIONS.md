@@ -2411,3 +2411,48 @@ Instrumentação instalada e coletando: `cgroup-mem-sample.timer` (5 min, `Persi
 NDJSON em `/root/.openclaw/logs/cgroup-mem.ndjson`, logrotate semanal × 6. Só lê `/sys/fs/cgroup` e
 `systemctl show`; não altera limite nenhum, não reinicia nada. **Nenhum limite mexido** — decidir
 com série, não com uma foto.
+
+---
+
+### 2026-10-22 — item 9: a régua PT-BR já existia e tinha apodrecido; âncora no lugar de id
+
+`eval/golden-queries.jsonl` (66 queries PT-BR, importado "for paper pre-registration", `f75d186`)
+conferido contra produção: **61 dos 85 chunk ids (71,8%) não existem mais**; 33 de 66 queries
+apontavam inteiramente para ids mortos, 15 nunca tiveram gold, e **nenhuma** passara pelo filtro
+oráculo que o roadmap define como gate. Sobravam 18 utilizáveis.
+
+🔑 **A causa é estrutural e condena refazer do mesmo jeito.** Gold chaveado por **chunk id** decai a
+cada re-ingest — e o arquivo continua parseando, continua parecendo válido, e pontua contra
+fantasmas. A v2 chaveia por **(`source_file`, trecho verbatim)**, resolvido para id em tempo de
+execução por `eval/resolve-gold-anchors.py`, que sai `!=0` quando uma âncora não resolve. Âncora
+também quebra; a diferença é que quebra **alto**. Resolvendo hoje: 82 de 85 exatas, **0 não
+resolvidas**, 3 ambíguas — e a ambiguidade é o formato de entity file (1 `frontmatter` + 1
+`compiled` por arquivo, texto sobreposto por construção), reportada em vez de escolhida.
+
+**Oráculo.** Pool profundo (BM25 top-40 ∪ KNN top-40, 65–80 candidatos) de propósito: o conjunto é
+avaliado em rank 10, e tirar gold de um pool top-10 garantiria nota alta por construção. Resultado:
+**48 de 66 aceitas** (85 chunks de gold), 11 com citação não conferida, 6 sem fonte no pool, 1
+negativa. v1 **não foi tocada** — a reparada fica ao lado, não por cima.
+
+🔴 **O juiz chamou de verbatim 34,5% de citações que não eram.** De 139 julgamentos que afirmavam
+que o trecho responde, **48** citaram trecho que não está no chunk: casam nos primeiros 13–53
+caracteres e derivam para paráfrase, e um emenda duas passagens com um `\n---\n` inventado. Sem a
+conferência mecânica (substring com acento dobrado), os 48 teriam entrado como gold fundamentado.
+**Pedir a citação não torna a citação real; só a verificação torna.**
+
+🔴 **Um juiz LLM não sustenta uma negativa.** A Q68 (*"como resolver Sentence Transformer Issue
+62028"*) é armadilha de premissa falsa — a 62028 é o fratricide do gateway. O oráculo positivo
+aceitou em 3 chunks; um segundo passe **pedindo explicitamente para checar a premissa** devolveu
+`premissa_confere: true` nos três, e em dois deles o próprio motivo escrito diz *"Embora a pergunta
+mencione 'Sentence Transformer', o trecho foca em 'OpenClaw gateway fratricide'"*. **A prosa e o
+campo discordaram, e só o campo seria lido.** ⇒ Negativa precisa de construção verdadeira por
+desenho (entidade mecanicamente ausente do corpus) ou de autor humano. **Entrada direta para o item
+8**, que depende de negativas: não dá para tirá-las de juiz LLM.
+
+**A perna contrafactual rejeitou zero queries** — 58 de 66 respostas sem fonte são `NAO SEI`, porque
+o corpus pergunta sobre sistemas internos. Não é inerte: no nível do *chunk* acendeu 6 vezes e
+excluiu esses candidatos do gold. Fica, porque é o que pegaria uma pergunta genérica no futuro.
+
+**Não feito, e nomeado:** 17 queries ainda não servem como positivo; a única negativa está errada;
+nenhuma busca foi pontuada ainda — isto produziu a régua, não a medição. Audit:
+`audits/2026-10-22-ptbr-golden-set-repair.md`.
