@@ -13,13 +13,23 @@ and fuzzy (>= 60% of the item's distinctive tokens, min 4). Distinctive = token
 
 Read-only: sqlite opened with mode=ro; transcripts only read. Prints aggregates
 and a small sample of hits for manual precision checking.
+
+2026-10-22 fix. Transcripts live under TWO roots and this script read one. The
+same hole was found in the R1 audit on 2026-10-21, where reading a single root
+covered 345 of 523 messages (66%) and `cipher` went from 3 to 42; the numbers
+published from this script on 2026-10-14 are understated by that mechanism.
+Both roots are read now, deduped by `(agent, message id)` because a session can
+appear under both. Set PROJ_ROOTS to re-run the old single-root configuration
+and attribute the delta to the roots alone.
 """
 import glob, json, os, re, sqlite3, sys, random
 from bisect import bisect_right
 from collections import defaultdict
 
 DB = "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db"
-PROJ = "/root/.claude-nuvini-team/projects"
+PROJ_ROOTS = os.environ.get(
+    "PROJ_ROOTS", "/root/.claude-nuvini-team/projects:/root/.claude/projects"
+).split(":")
 START, END = "2026-09-21 00:00:00", "2026-10-15 00:00:00"
 ONE_LINER_MAX = int(os.environ.get("ONE_LINER_MAX", "140"))  # src/api/brief.ts
 # transcript dir suffix -> brief_log.agent (main uses agent=nox in the cron)
@@ -49,12 +59,17 @@ def norm_ts(ts):  # transcript ISO "2026-10-01T12:00:00.000Z" -> sqlite "2026-10
     return ts[:19].replace("T", " ")
 
 # ── assistant messages ────────────────────────────────────────────────────────
-msgs = []  # (agent, ts, text)
-for suffix, agent in DIRS.items():
+# Keyed by (agent, message id) across BOTH roots: a session present in each
+# would otherwise be counted twice. The fallback key uses the basename, not the
+# full path, for the same reason.
+by_id = {}
+seen_dirs = []
+for PROJ in PROJ_ROOTS:
+  for suffix, agent in DIRS.items():
     d = f"{PROJ}/-root--openclaw-workspace{suffix}"
     if not os.path.isdir(d):
         continue
-    by_id = {}
+    seen_dirs.append(d)
     for f in glob.glob(f"{d}/**/*.jsonl", recursive=True):
         if os.path.getmtime(f) < 1758412800:  # 2026-09-21
             continue
@@ -73,11 +88,13 @@ for suffix, agent in DIRS.items():
                 parts = [c.get("text", "") for c in m.get("content", []) if isinstance(c, dict) and c.get("type") == "text"]
                 if not parts:
                     continue
-                key = (suffix, m.get("id") or f"{f}:{ts}")
+                key = (agent, m.get("id") or f"{os.path.basename(f)}:{ts}")
                 prev = by_id.get(key)
                 txt = "\n".join(parts)
                 by_id[key] = (agent, norm_ts(ts), (prev[2] + "\n" + txt) if prev else txt)
-    msgs.extend(by_id.values())
+msgs = list(by_id.values())
+print(f"transcript roots: {PROJ_ROOTS}")
+print(f"transcript dirs read: {len(seen_dirs)}")
 print(f"assistant messages with text in window: {len(msgs)}")
 by_agent_n = defaultdict(int)
 for a, _, _ in msgs:

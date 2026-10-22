@@ -43,7 +43,17 @@ DB = "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db"
 # tinham diretório na primeira. Não é só atlas/lex: TODO agente tem sessões nas
 # duas, e a segunda raiz carrega 179 das 524 mensagens da janela (cipher passa
 # de 3 para 42). Medir só a primeira cobria 66%.
-PROJ_ROOTS = ["/root/.claude-nuvini-team/projects", "/root/.claude/projects"]
+# 2026-10-22: a THIRD root. `prune-claude-sessions.sh` deletes transcripts
+# older than 7 days (and small ones older than 12 h) from /root/.claude/projects,
+# and `nox-archive-transcripts.sh` copies every root to the archive below four
+# times a day. The archive is therefore the only place the pruned sessions
+# survive, and reading only the live roots measures a substrate that shrinks
+# daily. On audit 7a this took the base from 1,120 to 1,524 messages.
+PROJ_ROOTS = os.environ.get(
+    "PROJ_ROOTS",
+    "/root/.claude-nuvini-team/projects:/root/.claude/projects"
+    ":/var/lib/nox-mem/action-archive",
+).split(":")
 SHADOW = "/root/.openclaw/logs/brief-recency-shadow.ndjson"
 START = os.environ.get("R1_START", "2026-10-14 22:13:20")
 END = os.environ.get("R1_END", "2026-10-22 01:00:00")

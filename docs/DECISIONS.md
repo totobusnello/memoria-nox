@@ -2608,3 +2608,67 @@ suba a abstenção nas negativas empurrando as positivas acima de 0,20 não é m
 Artefato reutilizável: `eval/golden-negatives-v1.jsonl` (23 negativas com as contagens de
 verificação e esta linha de base). **Falta** a classe mais difícil — assunto real, atributo nunca
 registrado — que é justamente onde um piso de similaridade tende a falhar.
+
+---
+
+### 2026-10-22 (qua, tarde) — o KG serve pela porta errada: 1.273 palavras comuns abrem 66,4% do grafo
+
+Pergunta aberta deixada pelo S1 de hoje: o viés de 74,7% em `mac-docs` chega a quem **pergunta**?
+Medido com o `dist` de produção sobre as 55 queries do golden set
+(`audits/2026-10-22-kg-what-search-serves.md`). **A hipótese foi refutada e substituída por duas
+piores.**
+
+Das 201 triplas servidas, **5,5%** vêm do vault, não 74,7% — porque a entrada é casamento literal
+do nome da entidade com um token da frase, e pergunta de engenharia nomeia entidade de engenharia.
+
+**(a) O ranking não tem como ser relevante.** `confidence = 0,8` em **17.678 de 17.753** relações
+(99,58%) e `confidence_base` tem **um** valor no grafo inteiro: o `ORDER BY confidence DESC` do
+`lookupTopK` é empate universal, e quem ordena de fato é `created_at DESC`. O agente não recebe as
+8 triplas mais confiáveis sobre o assunto — recebe as **8 mais recentes que tocam aquele nome**.
+56,7% com `relation_reason = mentions`, a aresta mais fraca.
+
+**(b) 🔴 Entidade de nome de palavra comum é porta aberta do vault.** `qual foi a decisão sobre
+fallback chain após v.26` casa a entidade `decisão` e recebe **6 de 6 triplas jurídicas**, com nome
+de pessoa, sentença e jurisdição. Não é cauda longa: **3.169 das 15.620 entidades** têm nome de uma
+palavra ≤ 12 caracteres; **1.273** delas têm ≥ 50% da evidência em `mac-docs`; juntas alcançam
+**11.781 relações — 66,4% do grafo**. As de maior grau são vocabulário de contrato com evidência
+100% no vault: `Company` (731), `Sociedade` (639), `Contrato` (529), `Note` (316), `Holder` (272),
+`Investor` (219). `Note` é prosa inglesa corriqueira.
+
+**Decidido:** o item 4 não é sobre fechar vocabulário de predicado — nem o predicado nem o corpus
+são o gargalo. O conserto barato é na **entrada** (`extractCandidateEntities`), recusando casar
+token contra entidade de palavra única comum, ou escopando o casamento ao corpus de quem pergunta.
+Nada disso exige re-extração. **Em aberto para o Toto:** se põe `NOX_VAULT_FACTS_MODE=shadow` até
+o conserto — desliga a superfície inteira, incluindo os 57,2% de tripla de engenharia; é mudança de
+produção e de ranking (regra 5).
+
+### 2026-10-22 — o 7a estava subestimado em 36%, e o substrato é podado todo dia
+
+O R1 achou que transcript vive em **duas** raízes. São **três**. `prune-claude-sessions.sh` (cron
+04:23) apaga `.jsonl` com mais de 7 dias de `/root/.claude/projects` — e os menores que 50 KB com
+mais de 12 h; `nox-archive-transcripts.sh` (4×/dia) copia **toda** raiz `~/.claude*/projects` para
+`/var/lib/nox-mem/action-archive` (1.543 arquivos, 443 MB, desde 15/08). O arquivo é o único lugar
+onde a sessão podada sobrevive, e nenhuma medição o lia.
+
+Mesmo código, mesma janela, variando só `PROJ_ROOTS`: publicado 1.120 msgs → 1 raiz hoje 1.029 → 2
+raízes 1.079 → **3 raízes 1.524** (+36% sobre o publicado). A frase "atlas and lex had no turns"
+era falsa: têm 7 e 11. **O veredito aguenta** — 0 strict em 12.782 pares expostos, com o controle
+positivo escalando junto (22 → 57 fuzzy). R1 refeito igual: 523 → 574, veredito idêntico.
+
+🔑 **Medição sobre transcript é medição sobre substrato que outro processo poda.** O número depende
+de *quando* roda, não só do que lê; refazer um audit depois não é refazer o mesmo audit. Os dois
+scripts agora leem as três raízes por default e imprimem raízes e contagem de diretórios.
+
+### 2026-10-22 — higiene: drop-in morto apagado, resíduos NÃO apagados
+
+**`50-MemoryHigh.conf` do `nox-mem-api` removido** (backup em `/var/backups/`). Pedia 1600 MiB e
+estava inerte: `limits.conf` ordena depois e dá 1000M/1500M. Removido sem reiniciar (mesmo PID
+353328, mesmos valores, API viva). ⚠️ **O homônimo do `openclaw-gateway` NÃO foi tocado** — lá ele
+é quem manda (3600 MiB em efeito) e apagar mudaria o limite. O gateway segue estrangulado: **96.990**
+eventos `memory.events.high` (eram 89.694), a 88,7% do teto.
+
+**Resíduos: nada apagado, e é essa a decisão.** Os 669 MB de `2026-10-15-embed/ws` o HANDOFF já
+classificava como "estado passado, irreproduzível"; `replay-oportunidade` e `serve-state` são o
+vocabulário do ensaio do Paper B (DOI `10.5281/zenodo.23223385`) e aparecem em 111 e 85 arquivos do
+repo. Regra 13: `irrecuperavel` não se apaga com base em script. São 3,3 GB num disco com 32 GB
+livres — o risco não compra nada.
