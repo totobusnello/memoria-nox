@@ -57,6 +57,8 @@ quote is not in the chunk is discarded, not trusted. This is the positive contro
 | verdict | queries | |
 |---|---|---|
 | **accepted** (gold found and verified) | **48** | 72.7% |
+
+*(first pass; §7 raises this to 55 after the second pass.)*
 | quote unverified | 11 | 16.7% |
 | no source in pool | 6 | 9.1% |
 | negative, unvalidated (see §5) | 1 | 1.5% |
@@ -113,7 +115,64 @@ where the question is generic; on this set most questions are not. Two accepted 
 enough to deserve a second look by hand: Q101 (*"o que acontece se o disco enche"*) and Q104 (*"como
 medir se a busca está boa"*).
 
-## 7. Status and what is not done
+## 7. Second pass: the span length was the defect
+
+The 11 queries whose quote did not verify were re-judged with one change — the judge was asked for
+the **first eight words** of the supporting sentence instead of a free-length span. **Seven of the
+11 then verified.** The grounding was mostly there; the long span was an invitation to rewrite it.
+That makes the rule concrete: ask for a short span, and check it.
+
+Accepted rises to **55 of 66** (83.3%), 95 gold chunks, of which 91 resolve exactly today, 0
+unresolved, 4 ambiguous (the entity-file `frontmatter`/`compiled` pair).
+
+## 8. First score — and why one number would have been a lie
+
+The ranking was produced by the **production code path** (`searchHybrid` from `dist/`), not a
+reimplementation: an ad-hoc BM25→KNN→RRF would be a second implementation of the thing under test,
+and would agree with itself rather than with production. Two layers of isolation, because one is
+not enough: `NOX_DB_PATH` on a `VACUUM INTO` copy, so `search_telemetry` lands in the copy; and
+`trackAccess=false`, so `access_count` is not bumped even inside the copy — `access_count` feeds
+salience, which is part of what is being scored.
+
+The first result was **nDCG@10 = 0.2428**, with 29 of 55 queries scoring zero. Before reporting it,
+one check:
+
+```
+results returned in the top-10, summed:      548
+   ever judged by the oracle:                 50  ( 9.1%)
+on the 29 zero-scoring queries:              290
+   ever judged:                                9  ( 3.1%)
+   never judged:                             281  (96.9%)
+```
+
+🔴 **An unjudged result is not a proven miss — it is a don't-know, and counting don't-knows as
+misses manufactures a low score exactly as a shallow pool manufactures a high one.** The cause is in
+this pipeline: the oracle triaged only the top 12 of each 65–80 pool and capped gold at 3, so the
+gold is sparse by construction.
+
+So the 518 unjudged results the system returned were judged under the same contract (eight words,
+verified). **108 of them (20.8%) are relevant** — real hits that the strict score had counted as
+misses. A further 50 claimed to answer with a quote that did not verify, the same ≈⅓ rate as the
+first pass.
+
+| | nDCG@10 | recall@10 | MRR | zero-hit | gold/query |
+|---|---|---|---|---|---|
+| **strict** (pre-registered gold only) | **0.2428** | 0.3485 | 0.2437 | 29/55 | 1.76 |
+| **pooled** (+ judged system output) | **0.5114** | 0.6458 | 0.5412 | 5/55 | 3.73 |
+
+**Neither number is "the" nDCG, and the honest claim is the interval [0.24, 0.51].** Strict is a
+lower bound because the gold is incomplete. Pooled is an upper bound because pooling over a *single*
+system's output favours that system — TREC pools across many systems precisely to avoid this. With
+one system, the pooled figure is what the set can award at best.
+
+Pooled, by category: security 0.820 (n=5) · entity 0.561 (9) · decision 0.522 (6) · procedure 0.518
+(11) · concept 0.458 (13) · temporal 0.403 (9) · cross-agent 0.283 (2, too few to read).
+
+Five queries find nothing even after pooling, and those are the honest misses: Q64 (quarterly DR
+drill cron), Q91 (why F09 off-site backup was rejected), Q96, Q99, Q101. Median latency 2,101 ms,
+above the 1,349 ms in `search_telemetry` because query expansion runs on this path.
+
+## 9. Status and what is not done
 
 `eval/golden-queries-v2.jsonl` carries all 66 queries with their status, anchors, and the oracle's
 provenance (model, date, closed-book answer, pool size, judgements). **v1 is left untouched**: it is
@@ -121,10 +180,14 @@ the registered artifact, and the repair is offered beside it, not over it.
 
 Not done, and named so it is not mistaken for done:
 
-- **17 queries are not usable as positives** (11 quote-unverified, 6 no-source-in-pool). The
-  quote-unverified ones are not necessarily bad queries — they need a second judging pass.
-- **The set has one negative, and it is wrong.** Item 8 needs a real negative pipeline.
-- **No retrieval has been scored yet.** This produced the ruler, not a measurement.
+- **10 queries are still not usable as positives** (4 quote-unverified after two passes, 6
+  no-source-in-pool).
+- **The set has one negative, and it is wrong.** Item 8 needs a real negative pipeline, and §5 says
+  it cannot come from an LLM judge.
+- **The score is an interval, not a point.** Narrowing it needs judgements from a second retrieval
+  configuration so the pool is not one system's own output.
+- **The judge is `gemini-2.5-flash-lite` throughout.** Agreement with a human on a sample has not
+  been measured, so every relevance label here carries that unmeasured error.
 - Nothing published depends on this file. The Wave A set of 100 queries in the paper (§5.1) is a
   separate artifact, of which the paper itself records that "no record documents how the 100 queries
   were selected".

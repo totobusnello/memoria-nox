@@ -1,0 +1,1911 @@
+{
+ "measured": "2026-10-22",
+ "system": "searchHybrid (dist de producao), trackAccess=false, copia isolada do banco",
+ "judge": "gemini-2.5-flash-lite; evidencia = 8 primeiras palavras, conferidas por substring",
+ "n_queries": 55,
+ "strict": {
+  "what": "gold pre-registado apenas; LIMITE INFERIOR (so 9,1% do que a busca devolveu tinha sido julgado)",
+  "ndcg_at_10": 0.2428,
+  "recall_at_10": 0.3485,
+  "mrr": 0.2437,
+  "zero_hit": 29,
+  "mean_gold": 1.76
+ },
+ "pooled": {
+  "what": "gold + os 518 resultados do sistema julgados depois; LIMITE SUPERIOR (pooling de um sistema so favorece esse sistema)",
+  "ndcg_at_10": 0.5114,
+  "recall_at_10": 0.6458,
+  "mrr": 0.5412,
+  "zero_hit": 5,
+  "mean_gold": 3.73
+ },
+ "median_latency_ms": 2101,
+ "by_category_pooled": {
+  "security": {
+   "n": 5,
+   "ndcg": 0.8199
+  },
+  "entity": {
+   "n": 9,
+   "ndcg": 0.5612
+  },
+  "decision": {
+   "n": 6,
+   "ndcg": 0.5214
+  },
+  "procedure": {
+   "n": 11,
+   "ndcg": 0.5179
+  },
+  "concept": {
+   "n": 13,
+   "ndcg": 0.4581
+  },
+  "temporal": {
+   "n": 9,
+   "ndcg": 0.4034
+  },
+  "cross-agent": {
+   "n": 2,
+   "ndcg": 0.283
+  }
+ },
+ "rows": [
+  {
+   "query_id": 45,
+   "query": "como funciona monkey-patch do Issue 62028 do OpenClaw",
+   "category": "entity",
+   "difficulty": "hard",
+   "gold_ids": [
+    116814
+   ],
+   "ranked": [
+    116818,
+    116814,
+    116188,
+    112605,
+    285936,
+    147764,
+    285932,
+    285456,
+    225972,
+    285488
+   ],
+   "hit_ranks": [
+    2
+   ],
+   "latency_ms": 2759,
+   "error": null,
+   "ndcg_strict": 0.6309,
+   "recall_strict": 1.0,
+   "mrr_strict": 0.5,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.686,
+   "recall_pooled": 1.0,
+   "mrr_pooled": 0.5,
+   "n_gold_pooled": 5
+  },
+  {
+   "query_id": 46,
+   "query": "qual modelo Gemini usar como default no nox-mem",
+   "category": "decision",
+   "difficulty": "easy",
+   "gold_ids": [
+    108588,
+    109223,
+    116415
+   ],
+   "ranked": [
+    336826,
+    227416,
+    227415,
+    227528,
+    112187,
+    112236,
+    227612,
+    227348,
+    312382,
+    112183
+   ],
+   "hit_ranks": [],
+   "latency_ms": 2217,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 3,
+   "ndcg_pooled": 0.8701,
+   "recall_pooled": 0.8,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 11
+  },
+  {
+   "query_id": 47,
+   "query": "o que faz withOpAudit e quando usar",
+   "category": "entity",
+   "difficulty": "medium",
+   "gold_ids": [
+    316829
+   ],
+   "ranked": [
+    316839,
+    316833,
+    227520,
+    314616,
+    317199,
+    335138,
+    318713,
+    147378,
+    335266,
+    227100
+   ],
+   "hit_ranks": [],
+   "latency_ms": 2051,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.647,
+   "recall_pooled": 0.75,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 4
+  },
+  {
+   "query_id": 48,
+   "query": "como ativar salience em produção",
+   "category": "procedure",
+   "difficulty": "medium",
+   "gold_ids": [
+    227790
+   ],
+   "ranked": [
+    222576,
+    227790,
+    227644,
+    305701,
+    227778,
+    315112,
+    311576,
+    222575,
+    227076,
+    222585
+   ],
+   "hit_ranks": [
+    2
+   ],
+   "latency_ms": 2329,
+   "error": null,
+   "ndcg_strict": 0.6309,
+   "recall_strict": 1.0,
+   "mrr_strict": 0.5,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 1.0,
+   "recall_pooled": 1.0,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 2
+  },
+  {
+   "query_id": 50,
+   "query": "qual a porta da nox-mem-api",
+   "category": "entity",
+   "difficulty": "easy",
+   "gold_ids": [
+    273632,
+    320869
+   ],
+   "ranked": [
+    335737,
+    227776,
+    334990,
+    311629,
+    335230,
+    305706,
+    335295,
+    309491,
+    335195,
+    310493
+   ],
+   "hit_ranks": [],
+   "latency_ms": 2336,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.4291,
+   "recall_pooled": 0.6,
+   "mrr_pooled": 0.5,
+   "n_gold_pooled": 5
+  },
+  {
+   "query_id": 51,
+   "query": "o que é monkey-patch fratricide",
+   "category": "concept",
+   "difficulty": "medium",
+   "gold_ids": [
+    116805
+   ],
+   "ranked": [
+    147764,
+    116814,
+    116818,
+    285936,
+    116188,
+    285932,
+    326172,
+    285456,
+    285465,
+    116107
+   ],
+   "hit_ranks": [],
+   "latency_ms": 2371,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.6257,
+   "recall_pooled": 0.6667,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 3
+  },
+  {
+   "query_id": 53,
+   "query": "qual o trigger de cascade delete em chunks",
+   "category": "entity",
+   "difficulty": "hard",
+   "gold_ids": [
+    116410,
+    148298
+   ],
+   "ranked": [
+    148298,
+    305699,
+    305684,
+    130272,
+    129877,
+    320253,
+    305438,
+    320967,
+    130007,
+    305432
+   ],
+   "hit_ranks": [
+    1
+   ],
+   "latency_ms": 2194,
+   "error": null,
+   "ndcg_strict": 0.6131,
+   "recall_strict": 0.5,
+   "mrr_strict": 1.0,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.6131,
+   "recall_pooled": 0.5,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 2
+  },
+  {
+   "query_id": 54,
+   "query": "diferença entre tier core warm peripheral",
+   "category": "concept",
+   "difficulty": "medium",
+   "gold_ids": [
+    320252,
+    320254
+   ],
+   "ranked": [
+    227444,
+    320252,
+    227608,
+    320255,
+    108531,
+    227231,
+    317316,
+    265509,
+    116682,
+    227232
+   ],
+   "hit_ranks": [
+    2
+   ],
+   "latency_ms": 2040,
+   "error": null,
+   "ndcg_strict": 0.3869,
+   "recall_strict": 0.5,
+   "mrr_strict": 0.5,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.4632,
+   "recall_pooled": 0.6667,
+   "mrr_pooled": 0.5,
+   "n_gold_pooled": 3
+  },
+  {
+   "query_id": 55,
+   "query": "como fazer backup pre-op atomico",
+   "category": "procedure",
+   "difficulty": "medium",
+   "gold_ids": [
+    305437,
+    335337
+   ],
+   "ranked": [
+    305437,
+    116179,
+    116380,
+    112245,
+    316824,
+    116816,
+    298262,
+    273804,
+    284914,
+    110133
+   ],
+   "hit_ranks": [
+    1
+   ],
+   "latency_ms": 2112,
+   "error": null,
+   "ndcg_strict": 0.6131,
+   "recall_strict": 0.5,
+   "mrr_strict": 1.0,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.7089,
+   "recall_pooled": 0.8,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 5
+  },
+  {
+   "query_id": 56,
+   "query": "qual modelo embedding usar",
+   "category": "decision",
+   "difficulty": "easy",
+   "gold_ids": [
+    112229,
+    318987
+   ],
+   "ranked": [
+    227148,
+    136489,
+    112238,
+    112231,
+    318990,
+    227147,
+    320709,
+    227352,
+    227149,
+    227276
+   ],
+   "hit_ranks": [],
+   "latency_ms": 2147,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.5161,
+   "recall_pooled": 0.7143,
+   "mrr_pooled": 0.3333,
+   "n_gold_pooled": 7
+  },
+  {
+   "query_id": 57,
+   "query": "como gerar entity file no formato compiled+timeline",
+   "category": "procedure",
+   "difficulty": "hard",
+   "gold_ids": [
+    144195,
+    144196
+   ],
+   "ranked": [
+    144198,
+    144195,
+    108593,
+    260440,
+    285129,
+    260443,
+    227776,
+    227570
+   ],
+   "hit_ranks": [
+    2
+   ],
+   "latency_ms": 2203,
+   "error": null,
+   "ndcg_strict": 0.3869,
+   "recall_strict": 0.5,
+   "mrr_strict": 0.5,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.4525,
+   "recall_pooled": 0.6667,
+   "mrr_pooled": 0.5,
+   "n_gold_pooled": 3
+  },
+  {
+   "query_id": 58,
+   "query": "o que é shadow-mode e por quê obrigatório",
+   "category": "concept",
+   "difficulty": "medium",
+   "gold_ids": [
+    108590
+   ],
+   "ranked": [
+    336823,
+    222576,
+    260194,
+    227778,
+    222580,
+    216240,
+    227803,
+    261409,
+    271610,
+    227797
+   ],
+   "hit_ranks": [],
+   "latency_ms": 2134,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.5925,
+   "recall_pooled": 0.75,
+   "mrr_pooled": 0.5,
+   "n_gold_pooled": 4
+  },
+  {
+   "query_id": 59,
+   "query": "como o RRF funciona no hybrid search",
+   "category": "concept",
+   "difficulty": "hard",
+   "gold_ids": [
+    112183,
+    112234,
+    321626
+   ],
+   "ranked": [
+    335079,
+    136515,
+    321626,
+    112234,
+    115961,
+    130186,
+    222590,
+    320960,
+    222578,
+    222597
+   ],
+   "hit_ranks": [
+    3,
+    4
+   ],
+   "latency_ms": 2101,
+   "error": null,
+   "ndcg_strict": 0.4367,
+   "recall_strict": 0.6667,
+   "mrr_strict": 0.3333,
+   "n_gold_strict": 3,
+   "ndcg_pooled": 0.9021,
+   "recall_pooled": 0.8571,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 7
+  },
+  {
+   "query_id": 60,
+   "query": "qual a diferença entre salience e tier",
+   "category": "concept",
+   "difficulty": "hard",
+   "gold_ids": [
+    222575,
+    335294
+   ],
+   "ranked": [
+    227644,
+    227444,
+    305701,
+    227608,
+    222575,
+    222576,
+    222585,
+    320256,
+    320251,
+    227790
+   ],
+   "hit_ranks": [
+    5
+   ],
+   "latency_ms": 2203,
+   "error": null,
+   "ndcg_strict": 0.2372,
+   "recall_strict": 0.5,
+   "mrr_strict": 0.2,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.2372,
+   "recall_pooled": 0.5,
+   "mrr_pooled": 0.2,
+   "n_gold_pooled": 2
+  },
+  {
+   "query_id": 61,
+   "query": "como ativar section_boost",
+   "category": "procedure",
+   "difficulty": "medium",
+   "gold_ids": [
+    227803
+   ],
+   "ranked": [
+    227792,
+    227803,
+    320254,
+    130213,
+    130036,
+    320252,
+    206415,
+    321693,
+    227802,
+    130441
+   ],
+   "hit_ranks": [
+    2
+   ],
+   "latency_ms": 2130,
+   "error": null,
+   "ndcg_strict": 0.6309,
+   "recall_strict": 1.0,
+   "mrr_strict": 0.5,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 1.0,
+   "recall_pooled": 1.0,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 2
+  },
+  {
+   "query_id": 62,
+   "query": "quem é o Toto",
+   "category": "entity",
+   "difficulty": "easy",
+   "gold_ids": [
+    335718
+   ],
+   "ranked": [
+    315405,
+    335718,
+    285135,
+    111872,
+    225708,
+    107985,
+    316118,
+    225565,
+    260430,
+    319358
+   ],
+   "hit_ranks": [
+    2
+   ],
+   "latency_ms": 2070,
+   "error": null,
+   "ndcg_strict": 0.6309,
+   "recall_strict": 1.0,
+   "mrr_strict": 0.5,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.696,
+   "recall_pooled": 1.0,
+   "mrr_pooled": 0.5,
+   "n_gold_pooled": 5
+  },
+  {
+   "query_id": 63,
+   "query": "qual a estratégia de retention por tipo",
+   "category": "decision",
+   "difficulty": "medium",
+   "gold_ids": [
+    316018
+   ],
+   "ranked": [
+    227752,
+    227568,
+    316214,
+    316037,
+    315892,
+    319458,
+    318619,
+    117029,
+    227428,
+    159274
+   ],
+   "hit_ranks": [],
+   "latency_ms": 2092,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.3028,
+   "recall_pooled": 0.6667,
+   "mrr_pooled": 0.1667,
+   "n_gold_pooled": 3
+  },
+  {
+   "query_id": 64,
+   "query": "como funciona o cron quarterly DR drill",
+   "category": "procedure",
+   "difficulty": "medium",
+   "gold_ids": [
+    315508
+   ],
+   "ranked": [
+    227264,
+    112184,
+    273566,
+    108685,
+    273635,
+    316828,
+    321699,
+    314681,
+    321207,
+    112573
+   ],
+   "hit_ranks": [],
+   "latency_ms": 2017,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.0,
+   "recall_pooled": 0.0,
+   "mrr_pooled": 0.0,
+   "n_gold_pooled": 1
+  },
+  {
+   "query_id": 65,
+   "query": "o que faz o ingest-router routeIngest",
+   "category": "entity",
+   "difficulty": "medium",
+   "gold_ids": [
+    311372,
+    335388
+   ],
+   "ranked": [
+    335226,
+    311576,
+    336897,
+    130274,
+    336896,
+    130267,
+    130268,
+    129826,
+    306599,
+    306736
+   ],
+   "hit_ranks": [],
+   "latency_ms": 2049,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.4693,
+   "recall_pooled": 0.3333,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 3
+  },
+  {
+   "query_id": 66,
+   "query": "como migrar Gemini Flash pra Flash-Lite",
+   "category": "procedure",
+   "difficulty": "medium",
+   "gold_ids": [
+    116415
+   ],
+   "ranked": [
+    316559,
+    316531,
+    335359,
+    227560,
+    227536,
+    116415,
+    227280,
+    227279,
+    227723,
+    227535
+   ],
+   "hit_ranks": [
+    6
+   ],
+   "latency_ms": 2091,
+   "error": null,
+   "ndcg_strict": 0.3562,
+   "recall_strict": 1.0,
+   "mrr_strict": 0.1667,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.4844,
+   "recall_pooled": 1.0,
+   "mrr_pooled": 0.2,
+   "n_gold_pooled": 3
+  },
+  {
+   "query_id": 67,
+   "query": "qual a regra sobre rsync delete",
+   "category": "decision",
+   "difficulty": "hard",
+   "gold_ids": [
+    227508
+   ],
+   "ranked": [
+    224118,
+    227508,
+    227404,
+    265385,
+    227400,
+    336890,
+    316860,
+    305633,
+    227584,
+    108127
+   ],
+   "hit_ranks": [
+    2
+   ],
+   "latency_ms": 2225,
+   "error": null,
+   "ndcg_strict": 0.6309,
+   "recall_strict": 1.0,
+   "mrr_strict": 0.5,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.6309,
+   "recall_pooled": 1.0,
+   "mrr_pooled": 0.5,
+   "n_gold_pooled": 1
+  },
+  {
+   "query_id": 69,
+   "query": "qual versão do schema atual",
+   "category": "entity",
+   "difficulty": "easy",
+   "gold_ids": [
+    209817,
+    222584,
+    308800
+   ],
+   "ranked": [
+    309907,
+    115961,
+    314207,
+    227776,
+    337174,
+    325476,
+    325478,
+    112524,
+    316856,
+    225314
+   ],
+   "hit_ranks": [],
+   "latency_ms": 3298,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 3,
+   "ndcg_pooled": 0.1175,
+   "recall_pooled": 0.25,
+   "mrr_pooled": 0.1111,
+   "n_gold_pooled": 4
+  },
+  {
+   "query_id": 70,
+   "query": "quando o salience foi ativado",
+   "category": "temporal",
+   "difficulty": "easy",
+   "gold_ids": [
+    108590,
+    335152
+   ],
+   "ranked": [
+    335213,
+    227790,
+    305701,
+    227778,
+    222575,
+    222576,
+    222585,
+    315112,
+    335152,
+    227803
+   ],
+   "hit_ranks": [
+    9
+   ],
+   "latency_ms": 2678,
+   "error": null,
+   "ndcg_strict": 0.1846,
+   "recall_strict": 0.5,
+   "mrr_strict": 0.1111,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.2893,
+   "recall_pooled": 0.6667,
+   "mrr_pooled": 0.125,
+   "n_gold_pooled": 3
+  },
+  {
+   "query_id": 71,
+   "query": "qual a primeira lição do incident reindex 2026-04-25",
+   "category": "temporal",
+   "difficulty": "hard",
+   "gold_ids": [
+    222580
+   ],
+   "ranked": [
+    222566,
+    222580,
+    227695,
+    227607,
+    227787,
+    227735,
+    227693,
+    315526,
+    227609,
+    112161
+   ],
+   "hit_ranks": [
+    2
+   ],
+   "latency_ms": 2487,
+   "error": null,
+   "ndcg_strict": 0.6309,
+   "recall_strict": 1.0,
+   "mrr_strict": 0.5,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.6309,
+   "recall_pooled": 1.0,
+   "mrr_pooled": 0.5,
+   "n_gold_pooled": 1
+  },
+  {
+   "query_id": 73,
+   "query": "o que é graph-memory plugin",
+   "category": "entity",
+   "difficulty": "medium",
+   "gold_ids": [
+    335158,
+    335298
+   ],
+   "ranked": [
+    227724,
+    227536,
+    336830,
+    116321,
+    335702,
+    285479,
+    148386,
+    285475,
+    335713,
+    227784
+   ],
+   "hit_ranks": [],
+   "latency_ms": 2648,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.6891,
+   "recall_pooled": 0.7143,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 7
+  },
+  {
+   "query_id": 74,
+   "query": "onde estão as creds Gemini",
+   "category": "security",
+   "difficulty": "medium",
+   "gold_ids": [
+    331397
+   ],
+   "ranked": [
+    316553,
+    316560,
+    112187,
+    227352,
+    285562,
+    285468,
+    322007,
+    227576,
+    322012,
+    112231
+   ],
+   "hit_ranks": [],
+   "latency_ms": 2366,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.7683,
+   "recall_pooled": 0.8,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 5
+  },
+  {
+   "query_id": 75,
+   "query": "qual a regra sobre commitar secrets",
+   "category": "security",
+   "difficulty": "easy",
+   "gold_ids": [
+    148843,
+    337107
+   ],
+   "ranked": [
+    148847,
+    321673,
+    335118,
+    227712,
+    335116,
+    337007,
+    337107,
+    320418,
+    321672,
+    321853
+   ],
+   "hit_ranks": [
+    7
+   ],
+   "latency_ms": 2324,
+   "error": null,
+   "ndcg_strict": 0.2044,
+   "recall_strict": 0.5,
+   "mrr_strict": 0.1429,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.9135,
+   "recall_pooled": 0.8889,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 9
+  },
+  {
+   "query_id": 76,
+   "query": "como Atlas e Boris se comunicam",
+   "category": "cross-agent",
+   "difficulty": "hard",
+   "gold_ids": [
+    224725,
+    285144
+   ],
+   "ranked": [
+    335275,
+    335098,
+    112536,
+    265634,
+    284884,
+    112544,
+    108606,
+    310841,
+    222567,
+    306927
+   ],
+   "hit_ranks": [],
+   "latency_ms": 2423,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.2476,
+   "recall_pooled": 0.5,
+   "mrr_pooled": 0.1429,
+   "n_gold_pooled": 4
+  },
+  {
+   "query_id": 77,
+   "query": "qual o uso de chattr +i no .credentials.json",
+   "category": "security",
+   "difficulty": "hard",
+   "gold_ids": [
+    116504
+   ],
+   "ranked": [
+    116504,
+    227152,
+    320863,
+    320410,
+    116513,
+    320414,
+    227592,
+    304776,
+    315432,
+    320867
+   ],
+   "hit_ranks": [
+    1
+   ],
+   "latency_ms": 2116,
+   "error": null,
+   "ndcg_strict": 1.0,
+   "recall_strict": 1.0,
+   "mrr_strict": 1.0,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 1.0,
+   "recall_pooled": 1.0,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 1
+  },
+  {
+   "query_id": 78,
+   "query": "como rodar smoke test completo",
+   "category": "procedure",
+   "difficulty": "medium",
+   "gold_ids": [
+    321589,
+    321595,
+    335369
+   ],
+   "ranked": [
+    321589,
+    147287,
+    306517,
+    316857,
+    316854,
+    320704,
+    315587,
+    335758,
+    311369,
+    306001
+   ],
+   "hit_ranks": [
+    1
+   ],
+   "latency_ms": 2191,
+   "error": null,
+   "ndcg_strict": 0.4693,
+   "recall_strict": 0.3333,
+   "mrr_strict": 1.0,
+   "n_gold_strict": 3,
+   "ndcg_pooled": 0.5856,
+   "recall_pooled": 0.5,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 4
+  },
+  {
+   "query_id": 80,
+   "query": "como debugar gateway fratricide",
+   "category": "procedure",
+   "difficulty": "hard",
+   "gold_ids": [
+    148363,
+    321211
+   ],
+   "ranked": [
+    227560,
+    148363,
+    227376,
+    116188,
+    116107,
+    108456,
+    227368,
+    310518,
+    108458,
+    116808
+   ],
+   "hit_ranks": [
+    2
+   ],
+   "latency_ms": 2167,
+   "error": null,
+   "ndcg_strict": 0.3869,
+   "recall_strict": 0.5,
+   "mrr_strict": 0.5,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.7582,
+   "recall_pooled": 0.8,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 5
+  },
+  {
+   "query_id": 81,
+   "query": "o que faz o reflect cache",
+   "category": "concept",
+   "difficulty": "hard",
+   "gold_ids": [
+    227456
+   ],
+   "ranked": [
+    227456,
+    112776,
+    326302,
+    147333,
+    130169,
+    225309,
+    112796,
+    130172,
+    317144,
+    227798
+   ],
+   "hit_ranks": [
+    1
+   ],
+   "latency_ms": 2100,
+   "error": null,
+   "ndcg_strict": 1.0,
+   "recall_strict": 1.0,
+   "mrr_strict": 1.0,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 1.0,
+   "recall_pooled": 1.0,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 1
+  },
+  {
+   "query_id": 82,
+   "query": "qual a estratégia de 7 agentes",
+   "category": "concept",
+   "difficulty": "medium",
+   "gold_ids": [
+    268112,
+    316693
+   ],
+   "ranked": [
+    335680,
+    336834,
+    321561,
+    336835,
+    227464,
+    335746,
+    227075,
+    335681,
+    316125,
+    335365
+   ],
+   "hit_ranks": [],
+   "latency_ms": 2453,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.3362,
+   "recall_pooled": 0.6,
+   "mrr_pooled": 0.2,
+   "n_gold_pooled": 5
+  },
+  {
+   "query_id": 84,
+   "query": "qual o risco de boost stacking",
+   "category": "concept",
+   "difficulty": "hard",
+   "gold_ids": [
+    116108,
+    227696
+   ],
+   "ranked": [
+    227696,
+    116108,
+    116094,
+    116803,
+    209766,
+    111964,
+    317584,
+    317502,
+    153958,
+    320585
+   ],
+   "hit_ranks": [
+    1,
+    2
+   ],
+   "latency_ms": 2238,
+   "error": null,
+   "ndcg_strict": 1.0,
+   "recall_strict": 1.0,
+   "mrr_strict": 1.0,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 1.0,
+   "recall_pooled": 1.0,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 3
+  },
+  {
+   "query_id": 86,
+   "query": "qual workflow Forge usa pra code review",
+   "category": "cross-agent",
+   "difficulty": "medium",
+   "gold_ids": [
+    116823,
+    117111,
+    321597
+   ],
+   "ranked": [
+    131936,
+    146720,
+    321597,
+    321378,
+    131708,
+    131706,
+    227100,
+    265211,
+    337000,
+    305583
+   ],
+   "hit_ranks": [
+    3
+   ],
+   "latency_ms": 3404,
+   "error": null,
+   "ndcg_strict": 0.2346,
+   "recall_strict": 0.3333,
+   "mrr_strict": 0.3333,
+   "n_gold_strict": 3,
+   "ndcg_pooled": 0.3183,
+   "recall_pooled": 0.5,
+   "mrr_pooled": 0.3333,
+   "n_gold_pooled": 4
+  },
+  {
+   "query_id": 87,
+   "query": "quando o E05 edge typing foi deployado",
+   "category": "temporal",
+   "difficulty": "easy",
+   "gold_ids": [
+    335179,
+    335182
+   ],
+   "ranked": [
+    335213,
+    227794,
+    227802,
+    335182,
+    216240,
+    227795,
+    335214,
+    335179,
+    335277,
+    317706
+   ],
+   "hit_ranks": [
+    4,
+    8
+   ],
+   "latency_ms": 3500,
+   "error": null,
+   "ndcg_strict": 0.4575,
+   "recall_strict": 1.0,
+   "mrr_strict": 0.25,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.5605,
+   "recall_pooled": 1.0,
+   "mrr_pooled": 0.25,
+   "n_gold_pooled": 4
+  },
+  {
+   "query_id": 88,
+   "query": "quando subiu o schema v12",
+   "category": "temporal",
+   "difficulty": "easy",
+   "gold_ids": [
+    335180,
+    335182
+   ],
+   "ranked": [
+    335213,
+    227795,
+    108589,
+    227803,
+    316856,
+    314028,
+    115961,
+    108590,
+    227802,
+    318857
+   ],
+   "hit_ranks": [],
+   "latency_ms": 1050,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.1672,
+   "recall_pooled": 0.3333,
+   "mrr_pooled": 0.1667,
+   "n_gold_pooled": 3
+  },
+  {
+   "query_id": 90,
+   "query": "qual a regra sobre sed em arquivos binários",
+   "category": "security",
+   "difficulty": "medium",
+   "gold_ids": [
+    285924
+   ],
+   "ranked": [
+    284982,
+    285924,
+    314137,
+    109175,
+    286004,
+    336885,
+    287303,
+    313995,
+    336384,
+    108777
+   ],
+   "hit_ranks": [
+    2
+   ],
+   "latency_ms": 943,
+   "error": null,
+   "ndcg_strict": 0.6309,
+   "recall_strict": 1.0,
+   "mrr_strict": 0.5,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 1.0,
+   "recall_pooled": 1.0,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 2
+  },
+  {
+   "query_id": 91,
+   "query": "por que F09 off-site backup foi rejeitado",
+   "category": "decision",
+   "difficulty": "hard",
+   "gold_ids": [
+    335733
+   ],
+   "ranked": [
+    328503,
+    315147,
+    315183,
+    112245,
+    260190,
+    315151,
+    227396,
+    227708,
+    207575,
+    305702
+   ],
+   "hit_ranks": [],
+   "latency_ms": 853,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.0,
+   "recall_pooled": 0.0,
+   "mrr_pooled": 0.0,
+   "n_gold_pooled": 1
+  },
+  {
+   "query_id": 92,
+   "query": "qual foi a decisão sobre fallback chain após v.26",
+   "category": "decision",
+   "difficulty": "medium",
+   "gold_ids": [
+    227267,
+    227268,
+    227319,
+    227320
+   ],
+   "ranked": [
+    316528,
+    336834,
+    227267,
+    335142,
+    227320,
+    335140,
+    279726,
+    335177,
+    227269,
+    225980
+   ],
+   "hit_ranks": [
+    3,
+    5
+   ],
+   "latency_ms": 845,
+   "error": null,
+   "ndcg_strict": 0.3462,
+   "recall_strict": 0.5,
+   "mrr_strict": 0.3333,
+   "n_gold_strict": 4,
+   "ndcg_pooled": 0.8088,
+   "recall_pooled": 0.7778,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 9
+  },
+  {
+   "query_id": 95,
+   "query": "como o sistema lida com chunks duplicados",
+   "category": "concept",
+   "difficulty": "medium",
+   "gold_ids": [
+    209704,
+    284892,
+    321716
+   ],
+   "ranked": [
+    305684,
+    227232,
+    308907,
+    320714,
+    112185,
+    312754,
+    304705,
+    315131,
+    321633,
+    320251
+   ],
+   "hit_ranks": [],
+   "latency_ms": 811,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 3,
+   "ndcg_pooled": 0.1232,
+   "recall_pooled": 0.25,
+   "mrr_pooled": 0.125,
+   "n_gold_pooled": 4
+  },
+  {
+   "query_id": 96,
+   "query": "qual a diferença entre memória de curto e longo prazo aqui",
+   "category": "concept",
+   "difficulty": "hard",
+   "gold_ids": [
+    117111,
+    309371
+   ],
+   "ranked": [
+    316534,
+    227468,
+    112181,
+    117097,
+    285149,
+    308893,
+    222565,
+    227428,
+    320560,
+    337057
+   ],
+   "hit_ranks": [],
+   "latency_ms": 832,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.0,
+   "recall_pooled": 0.0,
+   "mrr_pooled": 0.0,
+   "n_gold_pooled": 2
+  },
+  {
+   "query_id": 97,
+   "query": "como adicionar um novo agente ao sistema",
+   "category": "procedure",
+   "difficulty": "medium",
+   "gold_ids": [
+    306551
+   ],
+   "ranked": [
+    316558,
+    335733,
+    227075,
+    326313,
+    317135,
+    149229,
+    148785,
+    265334,
+    335215,
+    111981
+   ],
+   "hit_ranks": [],
+   "latency_ms": 835,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.338,
+   "recall_pooled": 0.6667,
+   "mrr_pooled": 0.2,
+   "n_gold_pooled": 3
+  },
+  {
+   "query_id": 98,
+   "query": "o sistema funciona offline",
+   "category": "concept",
+   "difficulty": "easy",
+   "gold_ids": [
+    226829,
+    316775
+   ],
+   "ranked": [
+    197649,
+    335281,
+    326640,
+    265621,
+    315850,
+    326646,
+    326162,
+    316773,
+    326410,
+    310509
+   ],
+   "hit_ranks": [],
+   "latency_ms": 843,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.4303,
+   "recall_pooled": 0.6667,
+   "mrr_pooled": 0.25,
+   "n_gold_pooled": 6
+  },
+  {
+   "query_id": 99,
+   "query": "qual o limite máximo de chunks armazenáveis",
+   "category": "concept",
+   "difficulty": "medium",
+   "gold_ids": [
+    227611,
+    227612
+   ],
+   "ranked": [
+    320714,
+    305684,
+    311413,
+    316935,
+    321633,
+    305685,
+    112237,
+    320955,
+    225541,
+    311577
+   ],
+   "hit_ranks": [],
+   "latency_ms": 839,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.0,
+   "recall_pooled": 0.0,
+   "mrr_pooled": 0.0,
+   "n_gold_pooled": 2
+  },
+  {
+   "query_id": 100,
+   "query": "como exportar a memória pra outro lugar",
+   "category": "procedure",
+   "difficulty": "medium",
+   "gold_ids": [
+    319030
+   ],
+   "ranked": [
+    222568,
+    116739,
+    321694,
+    108600,
+    116777,
+    227428,
+    117097,
+    222565,
+    116776,
+    116752
+   ],
+   "hit_ranks": [],
+   "latency_ms": 817,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.3693,
+   "recall_pooled": 0.6667,
+   "mrr_pooled": 0.25,
+   "n_gold_pooled": 3
+  },
+  {
+   "query_id": 101,
+   "query": "o que acontece se o disco enche",
+   "category": "procedure",
+   "difficulty": "hard",
+   "gold_ids": [
+    261308
+   ],
+   "ranked": [
+    309462,
+    310786,
+    227404,
+    313913,
+    309450,
+    314731,
+    117916,
+    311629,
+    209095,
+    315179
+   ],
+   "hit_ranks": [],
+   "latency_ms": 829,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.0,
+   "recall_pooled": 0.0,
+   "mrr_pooled": 0.0,
+   "n_gold_pooled": 1
+  },
+  {
+   "query_id": 102,
+   "query": "como auditar quem acessou o que",
+   "category": "security",
+   "difficulty": "hard",
+   "gold_ids": [
+    227652,
+    285138
+   ],
+   "ranked": [
+    112253,
+    335908,
+    316385,
+    318609,
+    318714,
+    317200,
+    225937,
+    227520,
+    261553,
+    279742
+   ],
+   "hit_ranks": [],
+   "latency_ms": 801,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.4177,
+   "recall_pooled": 0.6,
+   "mrr_pooled": 0.3333,
+   "n_gold_pooled": 5
+  },
+  {
+   "query_id": 103,
+   "query": "qual modelo de IA é usado pra busca",
+   "category": "entity",
+   "difficulty": "easy",
+   "gold_ids": [
+    230037
+   ],
+   "ranked": [
+    227148,
+    318989,
+    115961,
+    318555,
+    265475,
+    321624,
+    265737,
+    318598,
+    316933,
+    306304
+   ],
+   "hit_ranks": [],
+   "latency_ms": 888,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.7039,
+   "recall_pooled": 0.6667,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 3
+  },
+  {
+   "query_id": 104,
+   "query": "como medir se a busca está boa",
+   "category": "concept",
+   "difficulty": "medium",
+   "gold_ids": [
+    305869,
+    307157,
+    320277
+   ],
+   "ranked": [
+    320953,
+    317777,
+    320703,
+    209818,
+    260196,
+    112237,
+    222578,
+    328556,
+    328593,
+    222599
+   ],
+   "hit_ranks": [],
+   "latency_ms": 894,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 3,
+   "ndcg_pooled": 0.2443,
+   "recall_pooled": 0.4,
+   "mrr_pooled": 0.2,
+   "n_gold_pooled": 5
+  },
+  {
+   "query_id": 105,
+   "query": "quando o arXiv preprint do paper nox-mem foi planejado publicar",
+   "category": "temporal",
+   "difficulty": "medium",
+   "gold_ids": [
+    222581,
+    281927,
+    335251
+   ],
+   "ranked": [
+    227096,
+    336839,
+    281927,
+    320946,
+    260188,
+    227233,
+    312278,
+    313985,
+    227776,
+    320249
+   ],
+   "hit_ranks": [
+    3
+   ],
+   "latency_ms": 787,
+   "error": null,
+   "ndcg_strict": 0.2346,
+   "recall_strict": 0.3333,
+   "mrr_strict": 0.3333,
+   "n_gold_strict": 3,
+   "ndcg_pooled": 0.2346,
+   "recall_pooled": 0.3333,
+   "mrr_pooled": 0.3333,
+   "n_gold_pooled": 3
+  },
+  {
+   "query_id": 106,
+   "query": "quando o OpenClaw upgrade zero-downtime 7 critical fixes foi feito",
+   "category": "temporal",
+   "difficulty": "medium",
+   "gold_ids": [
+    335159,
+    335358
+   ],
+   "ranked": [
+    321327,
+    321322,
+    227791,
+    148364,
+    116817,
+    335432,
+    320824,
+    335361,
+    335262,
+    315582
+   ],
+   "hit_ranks": [],
+   "latency_ms": 856,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.4144,
+   "recall_pooled": 0.5,
+   "mrr_pooled": 0.5,
+   "n_gold_pooled": 4
+  },
+  {
+   "query_id": 107,
+   "query": "data em que a KG migration Ollama para Gemini foi completada nox-mem",
+   "category": "temporal",
+   "difficulty": "medium",
+   "gold_ids": [
+    312361
+   ],
+   "ranked": [
+    227416,
+    227612,
+    227348,
+    227760,
+    312361,
+    314728,
+    227786,
+    314727,
+    312382,
+    227176
+   ],
+   "hit_ranks": [
+    5
+   ],
+   "latency_ms": 840,
+   "error": null,
+   "ndcg_strict": 0.3869,
+   "recall_strict": 1.0,
+   "mrr_strict": 0.2,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.3869,
+   "recall_pooled": 1.0,
+   "mrr_pooled": 0.2,
+   "n_gold_pooled": 1
+  },
+  {
+   "query_id": 109,
+   "query": "quando o active-memory foi migrado para Gemini flash lite em abril 2026",
+   "category": "temporal",
+   "difficulty": "medium",
+   "gold_ids": [
+    108789,
+    227724
+   ],
+   "ranked": [
+    316559,
+    227279,
+    227280,
+    227392,
+    227348,
+    227536,
+    227535,
+    116415,
+    225402,
+    212254
+   ],
+   "hit_ranks": [],
+   "latency_ms": 776,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 2,
+   "ndcg_pooled": 0.243,
+   "recall_pooled": 0.5,
+   "mrr_pooled": 0.1429,
+   "n_gold_pooled": 4
+  },
+  {
+   "query_id": 110,
+   "query": "quando a search quality e core memory quality foram melhoradas no nox-mem",
+   "category": "temporal",
+   "difficulty": "medium",
+   "gold_ids": [
+    227784
+   ],
+   "ranked": [
+    227476,
+    227444,
+    108531,
+    227096,
+    320946,
+    310255,
+    260188,
+    320250,
+    334976,
+    227468
+   ],
+   "hit_ranks": [],
+   "latency_ms": 772,
+   "error": null,
+   "ndcg_strict": 0.0,
+   "recall_strict": 0.0,
+   "mrr_strict": 0.0,
+   "n_gold_strict": 1,
+   "ndcg_pooled": 0.7039,
+   "recall_pooled": 0.6667,
+   "mrr_pooled": 1.0,
+   "n_gold_pooled": 3
+  }
+ ]
+}
