@@ -2456,3 +2456,46 @@ excluiu esses candidatos do gold. Fica, porque é o que pegaria uma pergunta gen
 **Não feito, e nomeado:** 17 queries ainda não servem como positivo; a única negativa está errada;
 nenhuma busca foi pontuada ainda — isto produziu a régua, não a medição. Audit:
 `audits/2026-10-22-ptbr-golden-set-repair.md`.
+
+---
+
+### 2026-10-22 — primeira pontuação da régua PT-BR: nDCG@10 está no intervalo [0,24 · 0,51]
+
+Ranking produzido pelo **caminho de produção** (`searchHybrid` do `dist/`), não por reimplementação:
+um BM25→KNN→RRF ad-hoc seria uma segunda implementação da coisa sob teste e concordaria consigo
+mesma, não com produção. Isolamento em duas camadas, porque uma não basta: `NOX_DB_PATH` numa cópia
+`VACUUM INTO` (a telemetria cai na cópia) **e** `trackAccess=false` (o `access_count` não sobe nem
+dentro da cópia — ele alimenta a salience, que é parte do que está sendo pontuado).
+
+| | nDCG@10 | recall@10 | MRR | zero-hit | gold/query |
+|---|---|---|---|---|---|
+| **estrito** (só gold pré-registado) | **0,2428** | 0,3485 | 0,2437 | 29/55 | 1,76 |
+| **pooled** (+ saída do sistema julgada) | **0,5114** | 0,6458 | 0,5412 | 5/55 | 3,73 |
+
+🔴 **O 0,2428 sozinho seria mentira, e a conta que mostra isso é de uma linha:** dos 548 resultados
+que a busca devolveu, **apenas 9,1% tinham sido julgados**; nas 29 queries que zeraram, **96,9% do
+top-10 nunca passou por juiz nenhum**. Resultado não julgado não é erro provado — é *não sei*, e
+contar não-sei como erro fabrica nota baixa pelo mesmo mecanismo que um pool raso fabrica nota alta.
+A causa estava no meu próprio pipeline: o oráculo triou só os 12 primeiros de cada pool de 65–80 e
+limitou o gold a 3, logo o gold é **esparso por construção**.
+
+Julgados os 518 resultados que faltavam, **108 (20,8%) são relevantes** — acertos reais que o
+estrito contava como erro. **Nenhum dos dois números é "o" nDCG:** o estrito é limite inferior (gold
+incompleto) e o pooled é limite **superior**, porque pooling sobre a saída de **um** sistema favorece
+esse sistema (o TREC pooliza sobre vários justamente por isso). A afirmação honesta é o intervalo.
+
+Por categoria (pooled): security 0,820 (n=5) · entity 0,561 (9) · decision 0,522 (6) · procedure
+0,518 (11) · concept 0,458 (13) · temporal 0,403 (9) · cross-agent 0,283 (2, pouco para ler).
+
+**Segundo passe do oráculo: o defeito era o tamanho do trecho.** Pedindo as **8 primeiras palavras**
+da frase em vez de um trecho livre, 7 das 11 citações que não conferiam passaram a conferir — o
+embasamento estava lá, o trecho longo é que convidava à reescrita. Aceitas: **55 de 66** (83,3%), 95
+chunks de gold, 91 resolvendo exatamente hoje.
+
+**Não comparar com o 0,6237 do Wave A no paper**: outro conjunto, outro corpus, outra língua, e o
+próprio paper registra que não há documento de como aquelas 100 queries foram escolhidas.
+
+**Para estreitar o intervalo** é preciso julgar a saída de **uma segunda configuração** de
+retrieval, para o pool deixar de ser a saída de um sistema só. E o juiz é `gemini-2.5-flash-lite` do
+começo ao fim: a concordância com humano numa amostra **não foi medida**, então todo rótulo carrega
+esse erro não quantificado. Artefato: `audits/out/golden-set-v2-score-2026-10-22.json`.

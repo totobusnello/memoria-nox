@@ -1,8 +1,8 @@
 {
  "tally": {
-  "resolved": 82,
+  "resolved": 91,
   "moved": 0,
-  "ambiguous": 3,
+  "ambiguous": 4,
   "unresolved": 0
  },
  "entries": [
@@ -237,6 +237,26 @@
    "anchor_head": "Híbrida (FTS5 + Gemini semântico via RRF)\nnox-mem search \"query\" --hybrid"
   },
   {
+   "query_id": 60,
+   "source_file": "events/mac/memoria-nox/cmem-memoria-nox-2026-05-19.md",
+   "state": "resolved",
+   "recorded_id": 335294,
+   "resolved_ids": [
+    335294
+   ],
+   "anchor_head": "Salience SHADOW mode delivers strong +20.1% improvement"
+  },
+  {
+   "query_id": 60,
+   "source_file": "memory/2026-05-09-pain-diary-paper.md",
+   "state": "resolved",
+   "recorded_id": 222575,
+   "resolved_ids": [
+    222575
+   ],
+   "anchor_head": "salience = recency × pain × importance"
+  },
+  {
    "query_id": 61,
    "source_file": "memory/entities/systems/nox-mem.md",
    "state": "resolved",
@@ -245,6 +265,16 @@
     227803
    ],
    "anchor_head": "Override section_boost timeline 0.8→1.4 em queries temporais."
+  },
+  {
+   "query_id": 62,
+   "source_file": "memory/people.md",
+   "state": "resolved",
+   "recorded_id": 335718,
+   "resolved_ids": [
+    335718
+   ],
+   "anchor_head": "Totó é o usuário que está conversando comigo."
   },
   {
    "query_id": 63,
@@ -355,6 +385,16 @@
     108590
    ],
    "anchor_head": "6. Fase 1.7b-b — Salience formula shadow-mode (schema v9)"
+  },
+  {
+   "query_id": 71,
+   "source_file": "memory/2026-05-09-pain-diary-paper.md",
+   "state": "resolved",
+   "recorded_id": 222580,
+   "resolved_ids": [
+    222580
+   ],
+   "anchor_head": "Esse incidente fundou a shadow discipline."
   },
   {
    "query_id": 73,
@@ -515,6 +555,26 @@
     316693
    ],
    "anchor_head": "Nao propomos eliminar ChatGPT. Estrategia de convivencia:\n\n| Ferramenta | Uso | "
+  },
+  {
+   "query_id": 84,
+   "source_file": "memory/entities/lessons/2026-04-19-forge-fake-green-boost-multiplicativo-env-nao.md",
+   "state": "resolved",
+   "recorded_id": 227696,
+   "resolved_ids": [
+    227696
+   ],
+   "anchor_head": "Empilhou com TIER_BOOST (3×) × BOOST_TYPES (1.5×) × recency"
+  },
+  {
+   "query_id": 84,
+   "source_file": "shared/imports/memoria-nox/docs/INCIDENTS.md",
+   "state": "resolved",
+   "recorded_id": 116108,
+   "resolved_ids": [
+    116108
+   ],
+   "anchor_head": "Boost multiplicativo é veneno quando empilhável — usar aditivo"
   },
   {
    "query_id": 86,
@@ -720,6 +780,27 @@
    "anchor_head": "✅ Boris sessão interativa offline — RESOLVIDO (31/05)"
   },
   {
+   "query_id": 99,
+   "source_file": "memory/entities/lessons/2026-04-12-nox-mem-digest-falha-com-groq-12k.md",
+   "state": "ambiguous",
+   "recorded_id": 227612,
+   "resolved_ids": [
+    227611,
+    227612
+   ],
+   "anchor_head": "229 chunks = ~52k tokens excede o limite do Groq"
+  },
+  {
+   "query_id": 100,
+   "source_file": "shared/imports/Granix-App/_archive/v1-pre-pivot/security-requirements.md",
+   "state": "resolved",
+   "recorded_id": 319030,
+   "resolved_ids": [
+    319030
+   ],
+   "anchor_head": "Exportar JSON/PDF via app"
+  },
+  {
    "query_id": 101,
    "source_file": "sessions/forge/forge:a6d8e662-7e40-43d7-b36f-b8e1fecc2de7",
    "state": "resolved",
@@ -848,6 +929,26 @@
     312361
    ],
    "anchor_head": "Ollama foi descomissionado em 11/04/2026 e migrado para Gemini/Groq."
+  },
+  {
+   "query_id": 109,
+   "source_file": "memory/entities/lessons/2026-04-22-gemini-flash-lite-devia-ter-sido-default.md",
+   "state": "resolved",
+   "recorded_id": 227724,
+   "resolved_ids": [
+    227724
+   ],
+   "anchor_head": "plugins.entries[\"graph-memory\"].config.llm = gemini-2.5-flash-lite"
+  },
+  {
+   "query_id": 109,
+   "source_file": "memory/decisions/2026-04-22-heartbeat-model-policy.md",
+   "state": "resolved",
+   "recorded_id": 108789,
+   "resolved_ids": [
+    108789
+   ],
+   "anchor_head": "Qualquer heartbeat, seu ou de outro agent, deve rodar"
   },
   {
    "query_id": 110,
