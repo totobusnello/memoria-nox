@@ -1,6 +1,32 @@
 # nox-mem HANDOFF — estado vivo
 
-## ▶ Estado e fila (22/10 qui, 08:40 BRT): começar aqui
+## ▶ Estado e fila (22/10 qua, 14:00 BRT): começar aqui
+
+**Dois PRs abertos e verdes, esperando o Toto:**
+
+| PR | o quê |
+|---|---|
+| nox-workspace**#69** | provider Gemini nasce na primeira chamada, não no import; a chave falsa sai do CI. Sem chave, falhas 17 → 7, e o conjunto vira idêntico ao de com chave |
+| nox-workspace**#70** | `edge-typing` e `embed-window` escreviam no banco do **repositório**; não era flakiness de macOS. Mais `guarda-db-do-repo.sh` no CI. Mergear o #69 primeiro (tocam o mesmo workflow) |
+
+**Pendente do Toto:** julgar os 40 itens em `claude.ai/artifact/VaJ5vB3WsudP7yxK6EUjQy` (a régua do
+juiz). Depois disso, `audits/2026-10-22-judge-agreement.py` fecha, e os números de hoje param de
+carregar erro não quantificado.
+
+**🔴 Decisão de produção em aberto:** o KG serve material do vault a pergunta de engenharia por
+entidade de nome de palavra comum (1.273 delas, 66,4% do grafo). Pôr
+`NOX_VAULT_FACTS_MODE=shadow` desliga a superfície inteira enquanto o conserto na
+`extractCandidateEntities` não sai — é mudança de produção e de ranking (regra 5), então é dele.
+Detalhe em `audits/2026-10-22-kg-what-search-serves.md`.
+
+**Higiene:** `50-MemoryHigh.conf` inerte do `nox-mem-api` removido (o homônimo do gateway **não** —
+lá ele é quem manda). Resíduos da VPS **não** apagados, e é a decisão: são lastro do Paper B e
+estado irreproduzível, 3,3 GB com 32 GB livres. O gateway segue estrangulado, **96.990** eventos
+`memory.events.high`.
+
+---
+
+## Estado anterior (22/10 qui, 08:40 BRT)
 
 **Feito em 14–15/10 (tudo em produção ou publicado, nenhum PR aberto):**
 
