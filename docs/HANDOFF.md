@@ -1,6 +1,6 @@
 # nox-mem HANDOFF — estado vivo
 
-## ▶ Estado e fila (21/10 qua, 11:00 BRT): começar aqui
+## ▶ Estado e fila (21/10 qua, 22:10 BRT): começar aqui
 
 **Feito em 14–15/10 (tudo em produção ou publicado, nenhum PR aberto):**
 
@@ -20,19 +20,30 @@
 1. ✅ **15/10 20:31 BRT:** reindex dos 6 agentes rodou às 23:00 UTC (0 tombstoned, 0 erros de ingest);
    `nox-mem tombstones` no banco principal = **nenhum** ⇒ nada de mac-docs para `tombstone-keep`.
    `kg-confirm` `evidence_gone` 85; 61.031 chunks, todos com vetor, 0 órfãos.
-2. 🔴 **É HOJE (21/10). Sem lembrete automático** — a sessão que o agendou foi fechada. Medir a
-   relevância do R1 em shadow. Roteiro:
-   - **dados:** `/root/.openclaw/logs/brief-recency-shadow.ndjson` (`served_ids`, `recency_ids`,
-     `overlap`, idades; 1.229 linhas em 16/10 17:37 UTC, crescendo). Shadow desde 14/10 22:13 UTC.
-   - **detector:** o da auditoria 7a, `audits/2026-10-14-brief-usage.py`. **Não roda como está:**
-     a janela é fixa (`START`/`END` = 21/09–15/10) e o braço exposto vem do `brief_log` (brief servido).
-     Adaptar numa cópia: janela 14/10 22:13 → 21/10 e braço exposto = `recency_ids` do ndjson; comparar
-     com `served_ids` na mesma janela. Só leitura (`mode=ro`); transcripts em `/root/.claude-nuvini-team/projects`.
-   - **confound declarado:** itens recentes ganham por continuidade de assunto (a conversa segue o que
-     aconteceu ontem). Descontar com o braço "futuro" do 7a (itens que só entram depois).
-   - **depois:** decisões do Toto, piso de pain do D2 e ativação comparada do R1 (metade dos agentes ou
-     blocos de tempo). Com 7a e 7b nulos, o R1 é o caminho aberto do item 7.
-
+2. ✅ **MEDIDO em 21/10 22h BRT — o R1 NÃO deve ser ativado.** 7 dias de shadow (4.778 registros),
+   detector do 7a sem alteração, `mode=ro`, produção não tocada. Audit:
+   `audits/2026-10-21-r1-recency-relevance.md`; decisão no DECISIONS.
+   - **Os dois braços deram zero:** `served_now` 0 hits em 3.444 pares, `recency_now` 0 em 3.303,
+     **0 de 345 mensagens** nos dois. McNemar com **0 pares discordantes** ⇒ o teste não tem
+     informação. Os únicos 9 hits ficaram nos controles e são **todos auto-match**: `distilled` da
+     própria sessão do agente, casando com a conversa que o gerou.
+   - 🔑 **Tem controle positivo, ao contrário do 7b.** 99,6% dos itens são detectáveis por
+     construção; injetando o item no texto, o strict acende em **93,3%** (one-liner) e **99,7%**
+     (one-liner + stem). O zero é fato sobre os agentes, não sobre a sonda. Continua invisível a
+     influência **sem traço textual** — três nulos independentes (7a, 7b, R1), não prova de ausência.
+   - 🔴 **O que decide é a composição, não o nulo.** O R1 cumpre na idade (mediana **173 d → 4 d**,
+     de 65,1% acima de 90 dias para 0%) e falha no resto: trocaria **8 de 10** slots, levaria
+     `distilled` de 48,3% para **67,5%**, zeraria `INCIDENTS`+`EVOLUTION`+`PHASE-3` (30% → 0) e
+     cortaria `pain ≥ 0,9` pela metade (45,0% → 21,2%). Os itens velhos são velhos **por desenho**:
+     piso de pain do D2 e os incidentes de abril. Incidente grave é velho porque é raro.
+   - **Reabre com consumidor.** O shadow segue gravando; o script é parametrizado por
+     `R1_START`/`R1_END`. Duas decisões do Toto seguem abertas e uma ganhou peso: o **piso de pain
+     do D2** e o **título UUID dos `distilled`** (48% do brief hoje, 67,5% com R1).
+   - ⚠️ **atlas e lex não têm transcript nenhum** em `/root/.claude-nuvini-team/projects` — 2 dos 6
+     agentes não são mensuráveis por esta via, e o 7a tinha o mesmo buraco sem declará-lo.
+   - **Com 7a, 7b e R1 nulos, o item 7 não tem caminho aberto por medição de brief.** O que resta é
+     fazer um consumidor buscar (item 5) ou medir ação com tarefas validadas como memory-dependent
+     (o controle que o DolphinBench traz pronto).
 3. **Sessão de 19/10 (seg) deixou dois itens do lado Omri, nenhum urgente:**
    - **(a) decidir se a data note ganha v1.1.** Dois ajustes identificados, ambos pequenos, ambos em
      artefato **publicado** (`10.5281/zenodo.23354363` v1.0), logo exigem novo depósito e podem mexer no

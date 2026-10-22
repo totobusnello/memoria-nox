@@ -2227,3 +2227,53 @@ não-replicável.
 **Fica anotado, não medido:** `sqlite_stat1` **não existe** (o `ANALYZE` nunca rodou neste banco) e o
 FTS5 tem **16.220 linhas** em `chunks_fts_idx` / 107 MB em `chunks_fts_data`, candidato a
 `optimize`. Nenhum dos dois tem ganho medido; medir em cópia antes de tocar produção.
+
+### 2026-10-21 — NÃO ativar o R1: ele rejuvenesce o brief trocando incidentes por auto-resumo
+
+Medição de 7 dias de shadow (14/10 22:13 → 22/10 01:00 UTC, 4.778 registros), detector do 7a sem
+alteração, banco em `mode=ro`, produção não tocada. Audit completo em
+`audits/2026-10-21-r1-recency-relevance.md`.
+
+**O braço exposto e o contrafactual deram zero, e o teste pareado não tem informação:**
+
+| braço | pares | strict | fuzzy | mensagens com ≥1 hit |
+|---|---|---|---|---|
+| `served_now` (no prompt) | 3.444 | 0 | 0 | **0 / 345** |
+| `recency_now` (o que o R1 serviria) | 3.303 | 0 | 0 | **0 / 345** |
+| controles (past/future) | 165.890 | 0 | 9 | 7 / 345 |
+
+McNemar: 0 pares discordantes ⇒ nenhuma evidência para nenhum lado. E **os 9 hits dos controles são
+todos `distilled` da própria sessão do agente** — a conversa gerou o chunk, o chunk entrou num brief
+posterior, e o detector casou a conversa com o resumo dela mesma. É o auto-match que o braço futuro
+existe para expor, e foi a única coisa que acendeu.
+
+🔑 **O nulo tem controle positivo, ao contrário do 7b.** 99,6% dos itens são detectáveis por
+construção; injetando o item no texto da mensagem, o strict acende em **93,3%** (one-liner) e
+**99,7%** (one-liner + stem). O zero é fato sobre os agentes, não sobre a sonda. O que a sonda ainda
+não vê é influência **sem traço textual** — e era isso que o 7b tentava medir, falhando no próprio
+controle positivo (0/10). Honestamente: **três nulos independentes** (7a, 7b, R1), não prova de
+ausência de efeito.
+
+**O que decide não é o nulo, é a composição.** O R1 cumpre o que prometia na idade e falha no resto:
+
+| | servido | R1 |
+|---|---|---|
+| idade mediana | **173 d** (65,1% > 90 d) | **4 d** (0% > 90 d) |
+| overlap | 2/10 — **o R1 trocaria 8 de 10 itens** | |
+| `distilled` (resumo de sessão) | 48,3% | **67,5%** |
+| `INCIDENTS` + `EVOLUTION` + `PHASE-3` | 30,0% | **0%** |
+| `pain ≥ 0,9` | 45,0% | **21,2%** |
+
+Ele **não** troca material velho por material novo curado: troca o registro de incidentes por mais
+resumo automático de conversa. Os itens velhos são velhos **por desenho** — são o piso de pain do D2
+(invariante #4) e são os incidentes de abril (gateway fratricide, fake-green, crash loop). Incidente
+grave é velho porque incidente grave é raro. E o material que o R1 serviria mais é exatamente aquele
+em que o detector pegou auto-match: devolver ao agente o resumo da conversa que ele acabou de ter.
+
+**Reabre quando houver consumidor.** O item 7 parte de que o brief é o único canal; esta medição diz
+que o canal não é usado em nenhuma das duas pontas. O shadow continua gravando e o script é
+parametrizado por `R1_START`/`R1_END` — re-rodar é barato depois que existir quem busque.
+
+**Decisões do Toto que isto NÃO resolve, e que seguem abertas:** o piso de pain do D2 (os itens de
+abril ficam?) e o título UUID dos `distilled` — este ganhou peso, porque são 48% do brief servido e
+seriam 67,5% com o R1.
