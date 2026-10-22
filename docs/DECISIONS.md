@@ -2499,3 +2499,61 @@ próprio paper registra que não há documento de como aquelas 100 queries foram
 retrieval, para o pool deixar de ser a saída de um sistema só. E o juiz é `gemini-2.5-flash-lite` do
 começo ao fim: a concordância com humano numa amostra **não foi medida**, então todo rótulo carrega
 esse erro não quantificado. Artefato: `audits/out/golden-set-v2-score-2026-10-22.json`.
+
+---
+
+### 2026-10-22 — item 4 / S1: fidelidade do KG é 0,833; não comprar extração LLM ainda
+
+Amostra uniforme de **150** relações com evidência viva (seed `20261022`, registrada), julgadas
+contra o próprio `evidence_chunk_id`. População: 17.753 relações, 2 sem id de evidência, **85 com
+evidência morta** (contadas e excluídas, não descartadas em silêncio), 17.666 elegíveis.
+Audit: `audits/2026-10-22-kg-s1-precision.md`.
+
+🔴 **O critério de verificação precisou ser calibrado, e o primeiro estava errado.** O estrito
+(acento + espaço) reprovou 32 das 137 citações; inspecionadas uma a uma, **20 das 32 casam** com
+comparação insensível a markdown e pontuação — a evidência do KG vive em filings e contratos, com
+tabela de pipe, `**negrito**` e aspas curvas, e o critério falhava na formatação, não na fabricação.
+Recomputado sobre as 150 (aplicar regra mais frouxa só aos fracassos seria seleção) e **controlado**:
+cada citação testada contra um chunk **sorteado** — 0 falsos positivos nos dois critérios, logo o
+frouxo ainda verifica.
+
+| critério | precisão | IC95 | |
+|---|---|---|---|
+| **frouxo, calibrado** | **0,833** | [0,774 · 0,893] | o número |
+| estrito | 0,700 | [0,627 · 0,773] | severo demais aqui |
+| sem conferência | 0,913 | — | o que eu teria reportado |
+
+**A palavra do juiz infla 8 pontos; um critério mal calibrado deprime 13.** As duas direções estão
+disponíveis para quem não olhar.
+
+Por `relation_reason`: `depends_on` 0,935 (n=31) · `unknown` 0,846 (52) · **`mentions` 0,767** (60) —
+e `mentions` é o maior balde do grafo, 8.736 de 17.753. Das 25 falhas: 12 citação fabricada, 10
+`relacao_errada` (uma afirma `grants rights` sobre passagem que **nega** conceder qualquer direito),
+2 entidade ausente, 1 só co-ocorrência.
+
+**Os dois fatos estruturais pesam mais que a precisão:**
+
+1. **O predicado é texto livre, não vocabulário.** 8.359 `relation_type` distintos para 17.753
+   relações, **6.130 usados exatamente uma vez**; na amostra, **59 de 150 (39,3%)** usam predicado
+   que aparece uma única vez no grafo inteiro. Predicado hapax não se consulta, não se filtra, não se
+   agrega — só aponta. (O enum fechado de 7 é o `relation_reason`, que está preenchido; o livre é o
+   `relation_type`.)
+2. **74,7% da evidência vem de `memory/mac-docs/`** — filings 6-K, SPA, settlement agreement, term
+   sheets. O grafo é majoritariamente de documento jurídico/M&A, não da memória de engenharia que os
+   agentes usam.
+
+Mais dois, anotados: **98,7% do grafo (17.517 relações) nasceu em 2026-07** — é um lote congelado, 4
+relações desde setembro; e `extraction_method` é **NULL em 100%**, o mesmo padrão de coluna nunca
+escrita que fechou o item 11.
+
+**Decisão: NÃO comprar extração LLM ampla agora.** Não por causa do 0,833 — para o KG como
+**endereço** (apontar chunk, não substituí-lo) isso serve. Pelas outras duas razões: (a) extrair
+multiplicaria predicado hapax — dez vezes o volume de um predicado inconsultável dá dez vezes o
+armazenamento e as mesmas zero consultas; fechar o vocabulário primeiro, ou assumir que o predicado
+não é consultável e indexar por `relation_reason` + ponteiro de evidência; (b) **o corpus-alvo não
+está decidido** — "os 93% não cobertos" significa coisas diferentes conforme o produto seja grafo de
+contrato ou grafo de memória, e o roadmap não diz qual.
+
+E 0,833 é o teto com que a função de endereço tem de conviver: **um ponteiro em seis cai em evidência
+que não diz o que a tripla afirma.** Tolerável quando o consumidor lê o chunk; intolerável quando a
+tripla é servida como fato — e hoje a busca serve 3 triplas por query.
