@@ -23,12 +23,16 @@
 2. ✅ **MEDIDO em 21/10 22h BRT — o R1 NÃO deve ser ativado.** 7 dias de shadow (4.778 registros),
    detector do 7a sem alteração, `mode=ro`, produção não tocada. Audit:
    `audits/2026-10-21-r1-recency-relevance.md`; decisão no DECISIONS.
-   - **Os dois braços deram zero:** `served_now` 0 hits em 3.444 pares, `recency_now` 0 em 3.303,
-     **0 de 345 mensagens** nos dois. McNemar com **0 pares discordantes** ⇒ o teste não tem
-     informação. Os únicos 9 hits ficaram nos controles e são **todos auto-match**: `distilled` da
-     própria sessão do agente, casando com a conversa que o gerou.
+   - **Os dois braços deram zero:** `served_now` 0 hits em 5.212 pares, `recency_now` 0 em 4.965,
+     **0 de 523 mensagens** nos dois. McNemar com **0 pares discordantes** ⇒ o teste não tem
+     informação. **Zero `strict` em braço nenhum**; todo `fuzzy` ficou nos controles e é
+     **auto-match**: `distilled` da própria sessão do agente, casando com a conversa que o gerou.
+   - ⚠️ **Corrigido no mesmo dia:** a primeira passagem leu **uma** das duas raízes de transcript e
+     deu 345 mensagens. `atlas` e `lex` estão em `/root/.claude/projects`, e lá há segunda leva de
+     **todos** os agentes (`cipher`: 3 → 42). Com as duas raízes a base cresce 52% e o resultado não
+     muda. O audit 7a tem o mesmo buraco.
    - 🔑 **Tem controle positivo, ao contrário do 7b.** 99,6% dos itens são detectáveis por
-     construção; injetando o item no texto, o strict acende em **93,3%** (one-liner) e **99,7%**
+     construção; injetando o item no texto, o strict acende em **95,7%** (one-liner) e **100%**
      (one-liner + stem). O zero é fato sobre os agentes, não sobre a sonda. Continua invisível a
      influência **sem traço textual** — três nulos independentes (7a, 7b, R1), não prova de ausência.
    - 🔴 **O que decide é a composição, não o nulo.** O R1 cumpre na idade (mediana **173 d → 4 d**,
@@ -39,8 +43,6 @@
    - **Reabre com consumidor.** O shadow segue gravando; o script é parametrizado por
      `R1_START`/`R1_END`. Duas decisões do Toto seguem abertas e uma ganhou peso: o **piso de pain
      do D2** e o **título UUID dos `distilled`** (48% do brief hoje, 67,5% com R1).
-   - ⚠️ **atlas e lex não têm transcript nenhum** em `/root/.claude-nuvini-team/projects` — 2 dos 6
-     agentes não são mensuráveis por esta via, e o 7a tinha o mesmo buraco sem declará-lo.
    - **Com 7a, 7b e R1 nulos, o item 7 não tem caminho aberto por medição de brief.** O que resta é
      fazer um consumidor buscar (item 5) ou medir ação com tarefas validadas como memory-dependent
      (o controle que o DolphinBench traz pronto).

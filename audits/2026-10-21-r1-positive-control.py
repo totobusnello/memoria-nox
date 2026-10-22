@@ -13,12 +13,12 @@ from collections import defaultdict
 exec(open("/root/medicoes/2026-10-21-r1/r1-relevance.py").read().split("# ── assistant messages")[0].split('"""', 2)[2])
 
 # re-executa a coleta (identica ao detector) ------------------------------
-msgs = []
-for suffix, agent in DIRS.items():
+by_id = {}
+for PROJ in PROJ_ROOTS:
+  for suffix, agent in DIRS.items():
     d = f"{PROJ}/-root--openclaw-workspace{suffix}"
     if not os.path.isdir(d):
         continue
-    by_id = {}
     for f in glob.glob(f"{d}/**/*.jsonl", recursive=True):
         with open(f, errors="replace") as fh:
             for line in fh:
@@ -34,10 +34,11 @@ for suffix, agent in DIRS.items():
                 parts = [c.get("text", "") for c in m.get("content", []) if isinstance(c, dict) and c.get("type") == "text"]
                 if not parts:
                     continue
-                key = (suffix, m.get("id") or f"{f}:{ts}")
+                key = (agent, m.get("id") or f"{os.path.basename(f)}:{ts}")
                 prev = by_id.get(key); txt = "\n".join(parts)
                 by_id[key] = (agent, norm_ts(ts), (prev[2] + "\n" + txt) if prev else txt)
-    msgs.extend(by_id.values())
+msgs = list(by_id.values())
+print("mensagens:", len(msgs))
 
 df = defaultdict(int); msg_toks = []
 for _, _, t in msgs:

@@ -39,7 +39,11 @@ from bisect import bisect_right
 from collections import defaultdict
 
 DB = "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db"
-PROJ = "/root/.claude-nuvini-team/projects"
+# DUAS raízes de transcript, descobertas em 21/10 ao notar que atlas e lex não
+# tinham diretório na primeira. Não é só atlas/lex: TODO agente tem sessões nas
+# duas, e a segunda raiz carrega 179 das 524 mensagens da janela (cipher passa
+# de 3 para 42). Medir só a primeira cobria 66%.
+PROJ_ROOTS = ["/root/.claude-nuvini-team/projects", "/root/.claude/projects"]
 SHADOW = "/root/.openclaw/logs/brief-recency-shadow.ndjson"
 START = os.environ.get("R1_START", "2026-10-14 22:13:20")
 END = os.environ.get("R1_END", "2026-10-22 01:00:00")
@@ -76,13 +80,14 @@ def norm_ts(ts):
 
 
 # ── assistant messages ────────────────────────────────────────────────────────
-msgs = []
-for suffix, agent in DIRS.items():
+by_id = {}  # (agent, message id) -> row; dedupes a session present in BOTH roots
+seen_dirs = []
+for PROJ in PROJ_ROOTS:
+  for suffix, agent in DIRS.items():
     d = f"{PROJ}/-root--openclaw-workspace{suffix}"
     if not os.path.isdir(d):
-        print(f"  (no transcript dir for agent={agent}: {d})")
         continue
-    by_id = {}
+    seen_dirs.append(d)
     for f in glob.glob(f"{d}/**/*.jsonl", recursive=True):
         with open(f, errors="replace") as fh:
             for line in fh:
@@ -100,11 +105,12 @@ for suffix, agent in DIRS.items():
                          if isinstance(c, dict) and c.get("type") == "text"]
                 if not parts:
                     continue
-                key = (suffix, m.get("id") or f"{f}:{ts}")
+                key = (agent, m.get("id") or f"{os.path.basename(f)}:{ts}")
                 prev = by_id.get(key)
                 txt = "\n".join(parts)
                 by_id[key] = (agent, norm_ts(ts), (prev[2] + "\n" + txt) if prev else txt)
-    msgs.extend(by_id.values())
+msgs = list(by_id.values())
+print(f"transcript dirs read: {len(seen_dirs)}")
 print(f"assistant messages with text in window: {len(msgs)}")
 by_agent_n = defaultdict(int)
 for a, _, _ in msgs:

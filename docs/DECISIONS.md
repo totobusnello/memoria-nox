@@ -2238,18 +2238,28 @@ alteração, banco em `mode=ro`, produção não tocada. Audit completo em
 
 | braço | pares | strict | fuzzy | mensagens com ≥1 hit |
 |---|---|---|---|---|
-| `served_now` (no prompt) | 3.444 | 0 | 0 | **0 / 345** |
-| `recency_now` (o que o R1 serviria) | 3.303 | 0 | 0 | **0 / 345** |
-| controles (past/future) | 165.890 | 0 | 9 | 7 / 345 |
+| `served_now` (no prompt) | 5.212 | 0 | 0 | **0 / 523** |
+| `recency_now` (o que o R1 serviria) | 4.965 | 0 | 0 | **0 / 523** |
+| controles (past/future) | 233.803 | **0** | 11/5/11/6 por braço | ≤4 / 523 |
 
-McNemar: 0 pares discordantes ⇒ nenhuma evidência para nenhum lado. E **os 9 hits dos controles são
-todos `distilled` da própria sessão do agente** — a conversa gerou o chunk, o chunk entrou num brief
+McNemar: 0 pares discordantes ⇒ nenhuma evidência para nenhum lado. **Nenhum hit `strict` em braço
+nenhum**, e todo `fuzzy` está num controle (past e future se sobrepõem, logo as contagens não somam)
+e é **`distilled` da própria sessão do agente** — a conversa gerou o chunk, o chunk entrou num brief
 posterior, e o detector casou a conversa com o resumo dela mesma. É o auto-match que o braço futuro
 existe para expor, e foi a única coisa que acendeu.
 
+⚠️ **Correção da primeira passagem, no mesmo dia.** Reportei antes 345 mensagens e "atlas e lex não
+têm transcript, logo 2 dos 6 agentes não são mensuráveis". Errado: os transcripts vivem em **duas
+raízes** e eu li uma. `atlas` e `lex` estão em `/root/.claude/projects`, e lá há também uma segunda
+leva de sessões de **todos** os outros — 345 de 523 mensagens é 66% do total, e `cipher` passou de
+3 para 42. Refeito com as duas raízes, deduplicado por `(agente, id da mensagem)`: **a base cresceu
+52% e o resultado não mudou**. Mesma classe de
+[[feedback_checked_a_directory_concluded_about_a_behaviour]] — "não existe" era "mudou de endereço".
+O audit 7a tem o mesmo buraco.
+
 🔑 **O nulo tem controle positivo, ao contrário do 7b.** 99,6% dos itens são detectáveis por
-construção; injetando o item no texto da mensagem, o strict acende em **93,3%** (one-liner) e
-**99,7%** (one-liner + stem). O zero é fato sobre os agentes, não sobre a sonda. O que a sonda ainda
+construção; injetando o item no texto da mensagem, o strict acende em **95,7%** (one-liner) e
+**100%** (one-liner + stem). O zero é fato sobre os agentes, não sobre a sonda. O que a sonda ainda
 não vê é influência **sem traço textual** — e era isso que o 7b tentava medir, falhando no próprio
 controle positivo (0/10). Honestamente: **três nulos independentes** (7a, 7b, R1), não prova de
 ausência de efeito.
