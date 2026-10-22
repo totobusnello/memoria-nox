@@ -71,3 +71,47 @@ notes — only reaches the brief afterwards. Changing what the brief selects is 
 Script: `audits/2026-10-14-brief-usage.py` (read-only; run on the production host). Per-hit samples
 with session content stay on the host (`/root/medicoes/2026-10-14-brief-uso/`), not in this public
 repo.
+
+---
+
+## 2026-10-22 — rerun: the base was understated by 36%, the verdict is not
+
+The R1 audit of 2026-10-21 found that transcripts live under **two** roots and that it had read
+one. This script had the same hole. Fixing it exposed a second, larger one.
+
+**There are three roots, not two, and the live ones shrink daily.** `prune-claude-sessions.sh`
+(cron 04:23) deletes every `.jsonl` older than 7 days from `/root/.claude/projects`, plus any
+smaller than 50 KB older than 12 h. `nox-archive-transcripts.sh` (cron 03:40/09:40/15:40/21:40)
+discovers every `$HOME/.claude*/projects` by glob and copies them to
+`/var/lib/nox-mem/action-archive` — 1,543 files, 443 MB, reaching back to 2026-08-15. The archive
+is where the pruned sessions survive, and no measurement had been reading it.
+
+So the substrate of this audit is not stable: it is pruned on a 7-day clock. Rerunning the
+published single-root configuration **today** reaches fewer messages than it did on 14/10, because
+the window has since aged past the prune.
+
+Same code, same window (2026-09-21 → 2026-10-15), roots varied via `PROJ_ROOTS`:
+
+| configuration | dirs | messages | exposed pairs | strict | fuzzy (future control) |
+|---|---|---|---|---|---|
+| as published, 2026-10-14 | 5 | 1,120 | 9,398 | **0** | 22 |
+| one root, rerun today | 5 | 1,029 | 8,683 | **0** | 20 |
+| two roots, today | 12 | 1,079 | 9,108 | **0** | 25 |
+| **three roots (with archive), today** | **19** | **1,524** | **12,782** | **0** | 57 |
+
+**What was wrong.** The published base was understated by 36% (1,120 → 1,524), and the sentence
+"atlas and lex had no turns" was false by the same mechanism — they have 7 and 11. `forge` goes
+103 → 237, `cipher` 42 → 76.
+
+**What holds.** Zero strict hits in 12,782 exposed pairs, against 57 fuzzy hits in the future
+control — the positive control scales with the base and the exposed arm stays at zero. The reading
+of this audit is unchanged, now on 36% more evidence.
+
+🔑 **Transferable: a measurement over transcripts is a measurement over a substrate someone else
+prunes.** Two jobs touch it on a schedule, one of them deleting on a 7-day clock, and the number a
+script reports therefore depends on *when* it is run, not only on what it reads. Re-running an
+audit later is not re-running the same audit. Both this script and the R1 one now default to all
+three roots and print the roots and the directory count, so the base is auditable from the output.
+The R1 audit was rerun the same way: 523 → 574 messages (+9.8%), verdict identical.
+
+Reruns on the host in `/root/medicoes/2026-10-22-7a-refeito/`.

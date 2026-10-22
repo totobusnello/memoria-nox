@@ -138,3 +138,28 @@ parameterised by `R1_START` / `R1_END` and the shadow keeps logging.
 `audits/2026-10-21-r1-positive-control.py`; raw output on the VPS in
 `/root/medicoes/2026-10-21-r1/{saida-v2,controle-v2}.txt`. Shadow unchanged, production untouched,
 nothing written to the database.
+
+---
+
+## 2026-10-22 — rerun with the third root
+
+The warning above ("transcripts live under TWO roots") was itself incomplete. There is a third:
+`/var/lib/nox-mem/action-archive`, written four times a day by `nox-archive-transcripts.sh`, which
+is the only place sessions survive after `prune-claude-sessions.sh` deletes them from
+`/root/.claude/projects` on a 7-day clock. Detail and the full table in
+`audits/2026-10-14-brief-usage.md` (§2026-10-22), where the same fix moved the base 1,120 → 1,524.
+
+Here the window (2026-10-14 → 2026-10-22) is younger than the prune, so the loss is small:
+
+```
+transcript dirs read: 19   (was 12)
+assistant messages in window: 574   (was 523, +9.8%)
+by brief agent: {'nox': 215, 'boris': 259, 'forge': 54, 'cipher': 43, 'atlas': 1, 'lex': 2}
+
+  served_now   pairs=5718  strict=0  fuzzy=0   msgs_with_hit=0/574
+  recency_now  pairs=5412  strict=0  fuzzy=0   msgs_with_hit=0/574
+  McNemar: discordant pairs = 0 -> the test still has no information
+```
+
+Verdict unchanged, for the reason it was unchanged before: not the null, but the composition shift.
+The script now takes `PROJ_ROOTS` and defaults to all three roots.

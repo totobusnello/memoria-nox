@@ -1,0 +1,464 @@
+{
+  "probe": "what the KG serves to an engineering question",
+  "date": "2026-10-22",
+  "db": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
+  "mode": "active (as in production)",
+  "k": 8,
+  "queries": 55,
+  "queries_matching_any_entity": 45,
+  "queries_served_at_least_one_triple": 42,
+  "triples_served_total": 201,
+  "triples_per_served_query_mean": 4.79,
+  "ambiguous_spo_matches": 0,
+  "evidence_chunk_missing_from_chunks": 0,
+  "corpus_of_served_triples": {
+    "shared (engineering)": "115 (57.2%)",
+    "memory/plan-autonomous-agents.md": "51 (25.4%)",
+    "mac-docs (vault/legal)": "11 (5.5%)",
+    "memory/feedback": "7 (3.5%)",
+    "memory/SYSTEM-HARDENING-PLAN.md": "4 (2.0%)",
+    "memory/2026-04-15.md": "4 (2.0%)",
+    "memory/decisions": "2 (1.0%)",
+    "memory/ORCHESTRATION-PATTERN-AGENTS.md": "2 (1.0%)",
+    "memory/2026-04-22.md": "1 (0.5%)",
+    "memory/lessons": "1 (0.5%)",
+    "memory/openclaw-cli-reference.md": "1 (0.5%)",
+    "memory/digests": "1 (0.5%)",
+    "memory/wip.md": "1 (0.5%)"
+  },
+  "per_query_redacted": [
+    {
+      "query_id": 45,
+      "entities": 1,
+      "triples": 8,
+      "corpora": {
+        "memory/plan-autonomous-agents.md": 8
+      }
+    },
+    {
+      "query_id": 46,
+      "entities": 4,
+      "triples": 7,
+      "corpora": {
+        "memory/plan-autonomous-agents.md": 1,
+        "shared (engineering)": 6
+      }
+    },
+    {
+      "query_id": 47,
+      "entities": 0,
+      "triples": 0,
+      "corpora": {}
+    },
+    {
+      "query_id": 48,
+      "entities": 1,
+      "triples": 1,
+      "corpora": {
+        "shared (engineering)": 1
+      }
+    },
+    {
+      "query_id": 50,
+      "entities": 1,
+      "triples": 1,
+      "corpora": {
+        "memory/2026-04-22.md": 1
+      }
+    },
+    {
+      "query_id": 51,
+      "entities": 0,
+      "triples": 0,
+      "corpora": {}
+    },
+    {
+      "query_id": 53,
+      "entities": 3,
+      "triples": 7,
+      "corpora": {
+        "shared (engineering)": 7
+      }
+    },
+    {
+      "query_id": 54,
+      "entities": 3,
+      "triples": 7,
+      "corpora": {
+        "shared (engineering)": 7
+      }
+    },
+    {
+      "query_id": 55,
+      "entities": 1,
+      "triples": 6,
+      "corpora": {
+        "shared (engineering)": 5,
+        "mac-docs (vault/legal)": 1
+      }
+    },
+    {
+      "query_id": 56,
+      "entities": 1,
+      "triples": 3,
+      "corpora": {
+        "shared (engineering)": 3
+      }
+    },
+    {
+      "query_id": 57,
+      "entities": 1,
+      "triples": 1,
+      "corpora": {
+        "memory/feedback": 1
+      }
+    },
+    {
+      "query_id": 58,
+      "entities": 0,
+      "triples": 0,
+      "corpora": {}
+    },
+    {
+      "query_id": 59,
+      "entities": 3,
+      "triples": 7,
+      "corpora": {
+        "shared (engineering)": 7
+      }
+    },
+    {
+      "query_id": 60,
+      "entities": 1,
+      "triples": 1,
+      "corpora": {
+        "shared (engineering)": 1
+      }
+    },
+    {
+      "query_id": 61,
+      "entities": 0,
+      "triples": 0,
+      "corpora": {}
+    },
+    {
+      "query_id": 62,
+      "entities": 1,
+      "triples": 7,
+      "corpora": {
+        "memory/plan-autonomous-agents.md": 7
+      }
+    },
+    {
+      "query_id": 63,
+      "entities": 2,
+      "triples": 2,
+      "corpora": {
+        "mac-docs (vault/legal)": 1,
+        "shared (engineering)": 1
+      }
+    },
+    {
+      "query_id": 64,
+      "entities": 2,
+      "triples": 8,
+      "corpora": {
+        "shared (engineering)": 4,
+        "memory/SYSTEM-HARDENING-PLAN.md": 4
+      }
+    },
+    {
+      "query_id": 65,
+      "entities": 0,
+      "triples": 0,
+      "corpora": {}
+    },
+    {
+      "query_id": 66,
+      "entities": 3,
+      "triples": 7,
+      "corpora": {
+        "memory/plan-autonomous-agents.md": 1,
+        "shared (engineering)": 6
+      }
+    },
+    {
+      "query_id": 67,
+      "entities": 2,
+      "triples": 3,
+      "corpora": {
+        "memory/2026-04-15.md": 3
+      }
+    },
+    {
+      "query_id": 69,
+      "entities": 1,
+      "triples": 1,
+      "corpora": {
+        "shared (engineering)": 1
+      }
+    },
+    {
+      "query_id": 70,
+      "entities": 0,
+      "triples": 0,
+      "corpora": {}
+    },
+    {
+      "query_id": 71,
+      "entities": 2,
+      "triples": 0,
+      "corpora": {}
+    },
+    {
+      "query_id": 73,
+      "entities": 1,
+      "triples": 3,
+      "corpora": {
+        "memory/decisions": 2,
+        "memory/lessons": 1
+      }
+    },
+    {
+      "query_id": 74,
+      "entities": 3,
+      "triples": 7,
+      "corpora": {
+        "memory/plan-autonomous-agents.md": 1,
+        "shared (engineering)": 6
+      }
+    },
+    {
+      "query_id": 75,
+      "entities": 1,
+      "triples": 0,
+      "corpora": {}
+    },
+    {
+      "query_id": 76,
+      "entities": 2,
+      "triples": 7,
+      "corpora": {
+        "memory/plan-autonomous-agents.md": 7
+      }
+    },
+    {
+      "query_id": 77,
+      "entities": 1,
+      "triples": 4,
+      "corpora": {
+        "memory/2026-04-15.md": 1,
+        "memory/feedback": 3
+      }
+    },
+    {
+      "query_id": 78,
+      "entities": 1,
+      "triples": 0,
+      "corpora": {}
+    },
+    {
+      "query_id": 80,
+      "entities": 2,
+      "triples": 7,
+      "corpora": {
+        "memory/openclaw-cli-reference.md": 1,
+        "shared (engineering)": 6
+      }
+    },
+    {
+      "query_id": 81,
+      "entities": 1,
+      "triples": 1,
+      "corpora": {
+        "memory/digests": 1
+      }
+    },
+    {
+      "query_id": 82,
+      "entities": 2,
+      "triples": 7,
+      "corpora": {
+        "mac-docs (vault/legal)": 1,
+        "memory/plan-autonomous-agents.md": 4,
+        "memory/wip.md": 1,
+        "shared (engineering)": 1
+      }
+    },
+    {
+      "query_id": 84,
+      "entities": 0,
+      "triples": 0,
+      "corpora": {}
+    },
+    {
+      "query_id": 86,
+      "entities": 5,
+      "triples": 7,
+      "corpora": {
+        "memory/plan-autonomous-agents.md": 7
+      }
+    },
+    {
+      "query_id": 87,
+      "entities": 0,
+      "triples": 0,
+      "corpora": {}
+    },
+    {
+      "query_id": 88,
+      "entities": 1,
+      "triples": 1,
+      "corpora": {
+        "shared (engineering)": 1
+      }
+    },
+    {
+      "query_id": 90,
+      "entities": 2,
+      "triples": 3,
+      "corpora": {
+        "memory/feedback": 3
+      }
+    },
+    {
+      "query_id": 91,
+      "entities": 1,
+      "triples": 6,
+      "corpora": {
+        "shared (engineering)": 5,
+        "mac-docs (vault/legal)": 1
+      }
+    },
+    {
+      "query_id": 92,
+      "entities": 1,
+      "triples": 6,
+      "corpora": {
+        "mac-docs (vault/legal)": 6
+      }
+    },
+    {
+      "query_id": 95,
+      "entities": 2,
+      "triples": 7,
+      "corpora": {
+        "shared (engineering)": 7
+      }
+    },
+    {
+      "query_id": 96,
+      "entities": 1,
+      "triples": 1,
+      "corpora": {
+        "shared (engineering)": 1
+      }
+    },
+    {
+      "query_id": 97,
+      "entities": 4,
+      "triples": 7,
+      "corpora": {
+        "memory/plan-autonomous-agents.md": 4,
+        "shared (engineering)": 3
+      }
+    },
+    {
+      "query_id": 98,
+      "entities": 1,
+      "triples": 2,
+      "corpora": {
+        "memory/ORCHESTRATION-PATTERN-AGENTS.md": 2
+      }
+    },
+    {
+      "query_id": 99,
+      "entities": 1,
+      "triples": 7,
+      "corpora": {
+        "shared (engineering)": 7
+      }
+    },
+    {
+      "query_id": 100,
+      "entities": 1,
+      "triples": 1,
+      "corpora": {
+        "shared (engineering)": 1
+      }
+    },
+    {
+      "query_id": 101,
+      "entities": 0,
+      "triples": 0,
+      "corpora": {}
+    },
+    {
+      "query_id": 102,
+      "entities": 0,
+      "triples": 0,
+      "corpora": {}
+    },
+    {
+      "query_id": 103,
+      "entities": 2,
+      "triples": 3,
+      "corpora": {
+        "mac-docs (vault/legal)": 1,
+        "shared (engineering)": 2
+      }
+    },
+    {
+      "query_id": 104,
+      "entities": 1,
+      "triples": 2,
+      "corpora": {
+        "shared (engineering)": 2
+      }
+    },
+    {
+      "query_id": 105,
+      "entities": 3,
+      "triples": 7,
+      "corpora": {
+        "memory/plan-autonomous-agents.md": 1,
+        "shared (engineering)": 6
+      }
+    },
+    {
+      "query_id": 106,
+      "entities": 2,
+      "triples": 7,
+      "corpora": {
+        "memory/plan-autonomous-agents.md": 7
+      }
+    },
+    {
+      "query_id": 107,
+      "entities": 6,
+      "triples": 7,
+      "corpora": {
+        "memory/plan-autonomous-agents.md": 1,
+        "shared (engineering)": 6
+      }
+    },
+    {
+      "query_id": 109,
+      "entities": 4,
+      "triples": 7,
+      "corpora": {
+        "memory/plan-autonomous-agents.md": 1,
+        "shared (engineering)": 6
+      }
+    },
+    {
+      "query_id": 110,
+      "entities": 6,
+      "triples": 7,
+      "corpora": {
+        "memory/plan-autonomous-agents.md": 1,
+        "shared (engineering)": 6
+      }
+    }
+  ]
+}
