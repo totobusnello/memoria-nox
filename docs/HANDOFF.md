@@ -69,6 +69,15 @@
    O fio: o que é instrumento de medição ou decisão de honestidade rende agora; o que mexe em
    **ranking** não tem consumidor hoje.
 
+**Eficiência do binário — fechado em 21/10, nada a fazer (DECISIONS):** o reempacotamento do vec0
+rende **4,0%** hoje (era 33,1% em agosto) e **já tinha sido executado em 28/08**; o `ANALYZE` mede
+**−3,5%** e instalaria `sqlite_stat1` regendo o planner inteiro; o FTS5 `optimize` corta 54,8% de uma
+perna que é **0,045%** da busca (0,61 ms de 1.349 ms), valendo só como higiene de disco (**−58,7 MB**,
+2,1 s, 12/12 sondas iguais) — decisão do Toto, com snapshot. **Aberto e não perseguido:** mesmo sem a
+perna semântica a busca custa ~690 ms e o FTS5 é 0,1% disso; e o drop-in `50-MemoryHigh.conf` pede
+1.600 MB sem estar em efeito (efetivo 1.000/1.500 MB numa máquina com ~4,9 GB livres), com a evidência
+de throttling zerada pelo restart de hoje — instrumentar antes de mexer.
+
 **Não é pendência:** o `compact` segue desligado (`/root/.openclaw/DISABLE_COMPACT`, openclaw-vps#45) e é
 o NÃO FAZEMOS #32 (D-2026-10-14): só volta com resumo **ao lado** do original e eval mostrando ganho.
 

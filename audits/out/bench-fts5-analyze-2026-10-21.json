@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-21",
+  "question": "Are ANALYZE and FTS5 optimize worth running on production?",
+  "method": "copy of /var/lib/nox-mem/epochs/current.db (1.61 GB) on ext4, exact FTS5 query of src/search.ts:410, 12 PT-BR queries x 15 reps, warm-up discarded, median; production untouched, nothing written to the live DB",
+  "script": "audits/2026-10-21-fts5-analyze-bench.py",
+  "initial_state": {"fts_idx_rows": 16219, "fts_data_rows": 28647, "fts_data_bytes": 112647661, "has_sqlite_stat1": false},
+  "final_state": {"fts_idx_rows": 7714, "fts_data_rows": 13663, "fts_data_bytes": 53889268, "has_sqlite_stat1": true},
+  "fts_leg_latency_ms": {"baseline": 0.61, "after_analyze": 0.63, "after_optimize": 0.28},
+  "analyze": {"runtime_s": 0.5, "sqlite_stat1_rows": 63, "gain_pct": -3.5, "verdict": "do not run: measures negative (inside the noise) and installs sqlite_stat1, which changes the planner for every query in the system"},
+  "optimize": {"runtime_s": 2.1, "gain_pct": 54.8, "gain_abs_ms": 0.34, "bytes_freed": 58758393, "probes_identical": "12/12", "verdict": "not worth it as latency work; marginally worth it as disk hygiene (-58.7 MB, 3.7% of the file) - the user's call, needs an atomic snapshot"},
+  "denominator": {
+    "production_search_median_ms": 1349.0,
+    "source": "search_telemetry, n=394 since 2026-10-14, read-only, no probe",
+    "fts_leg_share_of_search_pct": 0.045,
+    "optimize_gain_share_of_search_pct": 0.025,
+    "knn_leg_median_ms": 2874.5,
+    "knn_source": "bench-vec0-2026-10-21.json, measured on a copy of the same epoch"
+  },
+  "not_measured": {
+    "non_semantic_leg": "has_semantic=0 has only n=2 (median 691.5 ms) against n=392 with semantic (1349.0 ms); no query_hash appears in both arms, so the ~658 ms delta is indicative, NOT measured. Notable anyway: even without the semantic leg a search costs ~690 ms, of which FTS5 is 0.1% - where that time goes is unknown and was not pursued.",
+    "why_not_pursued": "348 of 394 searches since 14/10 are probe:semantic-canary and none is a real agent; optimising search latency today optimises the probe"
+  },
+  "production_touched": false
+}

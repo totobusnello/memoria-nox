@@ -2277,3 +2277,36 @@ parametrizado por `R1_START`/`R1_END` — re-rodar é barato depois que existir 
 **Decisões do Toto que isto NÃO resolve, e que seguem abertas:** o piso de pain do D2 (os itens de
 abril ficam?) e o título UUID dos `distilled` — este ganhou peso, porque são 48% do brief servido e
 seriam 67,5% com o R1.
+
+### 2026-10-21 — NÃO rodar `ANALYZE`; o FTS5 `optimize` é higiene de disco, não latência
+
+Medido em cópia do epoch (1,61 GB, ext4), com a query exata de `src/search.ts:410`, 12 queries
+PT-BR × 15 repetições, aquecimento descartado, mediana. Produção não tocada, nada escrito no banco
+vivo. Artefato: `audits/out/bench-fts5-analyze-2026-10-21.json`.
+
+| | baseline | depois do `ANALYZE` | depois do `optimize` |
+|---|---|---|---|
+| perna FTS5 + JOIN | **0,61 ms** | 0,63 ms (**−3,5%**) | **0,28 ms** (−54,8%) |
+| `chunks_fts_idx` | 16.219 linhas | — | **7.714** |
+| `chunks_fts_data` | 112,6 MB | — | **53,9 MB** (**−58,7 MB**) |
+| tempo da operação | — | 0,5 s | 2,1 s |
+
+🔑 **O denominador mata as duas frentes.** A busca de produção tem mediana **1.349 ms**
+(`search_telemetry`, n=394 desde 14/10, lida sem sondar). A perna FTS5 inteira é **0,045%** disso, e
+o que o `optimize` economiza é **0,34 ms = 0,025%** da busca. Cortar 54,8% de uma perna que não pesa
+não se vê em lugar nenhum. É o mesmo erro de forma que o vec0 de hoje de manhã, e desta vez o
+denominador foi medido **antes** de propor a ação.
+
+**`ANALYZE`: não fazer.** Mede **negativo** (−3,5%, dentro do ruído de 0,02 ms) e instala
+`sqlite_stat1` (63 linhas), que passa a reger o planner de **toda** query do sistema. Risco difuso,
+benefício zero medido. O fato de nunca ter rodado não é dívida: é um default que está servindo bem.
+
+**`optimize`: não vale como performance; vale pouco como espaço.** −58,7 MB (3,7% do arquivo), 2,1 s,
+**12/12 sondas com resposta idêntica**. Fica como decisão do Toto, com snapshot atômico obrigatório
+(regra 10 — o banco contém a única cópia dos embeddings), e sabendo que o FTS5 refragmenta sozinho
+com o ingest incremental, como o vec0.
+
+**Anotado, não perseguido:** mesmo **sem** a perna semântica a busca custa ~690 ms (n=2, indicativo,
+não medido — nenhum `query_hash` aparece nos dois braços), e o FTS5 é 0,1% disso. Para onde vão
+esses ~690 ms é desconhecido. Não foi perseguido pela razão de sempre: **348 das 394 buscas desde
+14/10 são `probe:semantic-canary`**, nenhuma de agente real.
