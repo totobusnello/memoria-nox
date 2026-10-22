@@ -2672,3 +2672,28 @@ classificava como "estado passado, irreproduzível"; `replay-oportunidade` e `se
 vocabulário do ensaio do Paper B (DOI `10.5281/zenodo.23223385`) e aparecem em 111 e 85 arquivos do
 repo. Regra 13: `irrecuperavel` não se apaga com base em script. São 3,3 GB num disco com 32 GB
 livres — o risco não compra nada.
+
+### 2026-10-22 — a régua do juiz: amostra cega de 40, estratificada, pronta para o Toto
+
+Todo número de hoje — fidelidade 0,833 do KG, nDCG em [0,24 · 0,51], abstenção 0,696/0,200 — foi
+rotulado pelo `gemini-2.5-flash-lite`, e a concordância dele com humano **nunca foi medida**. É o
+maior obstáculo isolado a qualquer um desses números sair do repo.
+
+Montada a amostra: 40 itens, 10 por célula `(família × rótulo do juiz)` nas duas famílias que
+decidem um número — fidelidade do KG (`sustenta`) e relevância do pool (`relevante`). Estratificada
+**pelo rótulo do próprio juiz**, porque a classe rara é a que fixa a precisão: amostra aleatória
+simples de 20 cairia com ~17 positivos e estimaria a célula negativa em 3 itens. O rótulo do juiz
+**não vai na página** (fica em `gabarito-juiz.json` na VPS) e os itens vão embaralhados, senão
+ancoram. A evidência vai inteira, porque julgar fidelidade só contra o trecho citado confere a
+citação, não a afirmação — a distinção que moveu o S1 de 0,700 para 0,833.
+
+Página privada para o Toto julgar: `claude.ai/artifact/VaJ5vB3WsudP7yxK6EUjQy`. Fechamento por
+`audits/2026-10-22-judge-agreement.py`, que reporta **por célula**, não agregado: a célula
+`juiz=sim` dá a precisão dele, a `juiz=não` dá a taxa de falso negativo, e com as duas a população
+se corrige por `p·P(h=sim|j=sim) + (1−p)·P(h=sim|j=não)`. Kappa sai junto, mas numa amostra
+estratificada pelo rótulo de um dos juízes o kappa não é a manchete. 10 por célula é intervalo
+largo (9/10 → Wilson ≈ [0,60 · 0,98]): separa "o juiz está mais ou menos certo" de "o juiz erra
+para um lado", e não autoriza publicar três dígitos.
+
+A amostra e o gabarito **não** entram neste repositório: 74,7% da evidência do KG é `mac-docs`, e
+o repositório é público. Só os instrumentos.
