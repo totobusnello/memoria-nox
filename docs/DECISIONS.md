@@ -2697,3 +2697,40 @@ para um lado", e não autoriza publicar três dígitos.
 
 A amostra e o gabarito **não** entram neste repositório: 74,7% da evidência do KG é `mac-docs`, e
 o repositório é público. Só os instrumentos.
+
+### 2026-10-22 — a régua do juiz, segunda leitura: o conferidor de citação é que reprova, não o modelo
+
+Segundo leitor cego sobre os 40 itens — **Claude Opus 5, não uma pessoa**. É concordância entre
+juízes de famílias diferentes, não validação humana; a página continua aberta para o Toto, e estes
+números devem ser relidos quando ele passar. Audit: `audits/2026-10-22-judge-agreement.md`.
+
+| | juiz disse SIM | juiz disse NÃO | kappa |
+|---|---|---|---|
+| fidelidade do KG | 13/14 = **0,929** | 1/6 = **0,167** | +0,118 |
+| relevância do pool | 6/10 = 0,600 | 8/10 = 0,800 | +0,400 |
+
+Corrigindo a população: **KG 0,833 → 0,913** e **pool 0,208 → 0,283**.
+
+**O que reprova não é o modelo.** Em **8 das 9** triplas em que os dois leitores discordaram,
+`sustenta_segundo_juiz` já era `True`: quem reprovou foi a conferência mecânica de citação, e as
+reprovações são formatação — tabela de pipe, `<u>` em volta do termo, `R\$` escapado, aspas
+curvas. Cada uma dessas citações é verbatim aos olhos de um leitor. **0,913, que o S1 descartou
+como "o que seria tomar o juiz pela palavra", é o número que o segundo leitor reproduz** — e a
+correção de população cai exatamente nele. O critério solto foi melhora sobre o estrito (0,700) e
+ainda assim enviesa para baixo: **0,833 é piso, não estimativa.**
+
+**Duas correções feitas ANTES de comparar, e as duas mudaram o resultado.** (1) A amostra exibia
+2.600 caracteres e os dois juízes recebiam **6.000**: 18 dos 40 itens estavam cortados, e **5 dos
+8 "não" do segundo leitor dentro deles eram falta de texto**, não discordância. 🔑 Mostrar menos
+contexto ao segundo avaliador **fabrica discordância, e só na direção "não sustenta"**. (2) A
+estratificação usou o campo `sustenta`, que é o critério **estrito** (0,700), não o publicado
+(`sustenta_segundo_juiz AND confere_solto` = 0,833); refeita, as células do KG ficam 14/6 em vez
+de 10/10 e o intervalo da negativa alarga.
+
+**O que muda:** nada no item 4 — "não comprar extração LLM" se apoiava em hapax (39,3%) e corpus
+(74,7% `mac-docs`), não na fidelidade; grafo 0,91 fiel do corpus errado continua sendo o corpus
+errado. **O nDCG piora:** kappa 0,400 no pooling é concordância moderada, o juiz super-marca
+relevância e a taxa corrigida é 0,283 contra 0,208 — o intervalo [0,24 · 0,51] repousa em rótulos
+que um leitor em dois refaria. **Abstenção não foi amostrada** e segue sem medida neste eixo.
+
+**Limites:** 6 e 10 por célula; a célula negativa do KG, em 1/6, tem Wilson [0,03 · 0,56].
