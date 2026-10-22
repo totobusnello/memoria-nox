@@ -145,6 +145,20 @@ o NÃO FAZEMOS #32 (D-2026-10-14): só volta com resumo **ao lado** do original 
 - **Fora de escopo, anotado:** `npm test` deixa de fora tudo que vive em `src/lib/**/__tests__/`,
   incluindo as 94 do L3. Corrigir o glob é PR próprio — varrer o `dist/` inteiro traz falhas
   pré-existentes para dentro do check.
+  ✅ **Feito em 21/10 à noite: nox-workspace#67.** O buraco era maior do que o anotado — não eram as
+  94 do L3, eram **102 dos 142 arquivos** de teste (todo `src/lib/**`, `src/api`, `src/cli`,
+  `src/mcp`, `src/observability`, `src/providers`). **422 → 1.738 testes no check.** E o medo de
+  "falhas pré-existentes" não se confirmou: o glob antigo, rodado na **mesma árvore `npm ci` limpa**,
+  dá exatamente as mesmas 3 falhas (`op-audit-e2e` por EACCES em `/var/backups`, que o CI prepara com
+  sudo, e `edge-typing` ×2 por `SQLITE_CONSTRAINT_UNIQUE`, determinístico no macOS e verde no CI
+  Linux). 🔑 **O baseline que eu havia medido no repo principal dizia 1 falha e estava errado** — o
+  `dist/` de lá tinha órfãos de builds anteriores; árvore suja mede errado, e a comparação só vale
+  entre árvores igualmente limpas.
+  **O que o glob desenterrou, e que prova o custo:** `cli.test.ts` usava passphrases de ~39 bits
+  contra um gate que exige `good` — o código está certo, o **teste** é que envelheceu em silêncio
+  por nunca rodar. Também entraram no `exclude` os `migration.test.ts` do viewer e do conflict, que
+  leem `.sql` de árvores fora do checkout (nenhum dos dois `.sql` está versionado em lugar nenhum —
+  conferido por `find`), mesma classe dos quatro que já estavam lá.
 
 ## 2026-10-20 (ter, noite) — item 11 decidido e executado: NÃO FAZEMOS #34
 
