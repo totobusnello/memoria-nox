@@ -1,6 +1,23 @@
 # nox-mem HANDOFF — estado vivo
 
-## ▶ Estado e fila (23/10 sex, 09:30 BRT): começar aqui
+## ▶ Estado e fila (23/10 sex, 10:05 BRT): começar aqui
+
+**🔄 Item 7 mudou de pergunta: o agente BUSCA.** Primeira medição do lado **pull**
+(`audits/2026-10-23-item7-pull-degraus-1-2.md`). Com Lex, sessão nova por degrau e desfecho na
+telemetria: ordem explícita ✅, pedido natural sem nomear a tool ✅, **tarefa que exige o corpus
+sem mandar buscar ✅ (6 buscas)**, tarefa genérica de controle **0 buscas**. Três experimentos de
+push deram nulo porque mediam se a memória chega ao agente; nenhum mediu se **o trabalho dele tem
+pergunta dentro**. Não tem: o heartbeat do Lex é 360 min, `lightContext`, `target: none`. A
+pergunta agora é **qual tarefa recorrente deveria consultar o corpus**.
+
+**🔴 Degrau 3 bloqueado por instrumento.** A telemetria grava `mcp:unknown`: o `mcp-server.ts` lê
+`NOX_AGENT_NAME`, mas o processo não recebe env de agente nenhuma (cwd `/`) e o schema do OpenClaw
+só aceita `mcp` global, nunca por agente. Logo o item 2 («telemetria de quem busca») é **parcial**:
+na superfície que os agentes usam ele diz *MCP*, nunca *qual*. Rota que funciona: HTTP com
+`X-Agent-Name`, que o servidor já lê.
+
+### Antes disso, hoje de manhã
+
 
 **🔢 Fidelidade do KG: 0,900 [0,842 · 0,938].** Os quatro itens que restavam da amostra cega não
 eram ambiguidade de leitura — eram **quatro perguntas de política** sobre o que conta como
