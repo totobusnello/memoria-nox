@@ -2817,3 +2817,41 @@ doc/audit direto na `main`, e a conta tem bypass — o GitHub avisa e segue.
 
 **O que segue em aberto:** voltar a `active`. O pré-requisito está cumprido e em produção. É
 mudança de serving (regra 5), logo é do Toto.
+
+---
+
+### 2026-10-22 23:00 BRT — de volta a `active`, com o escopo por corpus em produção
+
+**Decisão do Toto.** `NOX_VAULT_FACTS_MODE=shadow → active` no `.env` da VPS (backup datado ao
+lado, razão anotada acima da linha), serviço reiniciado, conferido no **env do processo**. O
+pré-requisito que a entrada anterior registrou está cumprido e rodando: nox-workspace#71 em
+produção desde o deploy de hoje.
+
+**Prova em produção, não no banco de teste.** Sondas com `?track=false` (D1), logo sem inflar
+`access_count` nem realimentar salience, e com `X-Agent-Name: probe-reativacao` para ficarem
+separáveis na telemetria:
+
+| query | o que a **busca** devolveu | triplas servidas |
+|---|---|---|
+| 92 — a que vazava, 6 de 6 do vault no audit de 22/10 | 10 workspace, 0 vault | **0** |
+| 55 | 9 workspace, 1 vault | 6 |
+| 63 | 9 workspace, 1 vault | 2 |
+| 91 | 8 workspace, 2 vault | 6 |
+
+E `qual foi a decisão sobre fallback chain após v.26` — o caso que abriu o episódio, que casava a
+palavra `decisão` e recebia **6 de 6 triplas de contrato com nome de pessoa** — agora recebe
+**nenhuma**: a busca devolveu 10 chunks, todos de workspace. Uma pergunta de engenharia
+(`fallback chain do gateway`) recebe 8 triplas, todas de infraestrutura.
+
+🔑 **As duas direções, não só a que interessa.** Barrar o vazamento e continuar servindo onde a
+busca já trouxe vault são afirmações diferentes, e um teste que só exercita a primeira não
+distingue o escopo de um banimento do assunto.
+
+**O que vigiar:** a telemetria ganhou `corpora=N` no log, ao lado de `entities` e `triples`. Isso
+é o que separa «o escopo barrou» de «nenhuma entidade casou» — sem ele os dois estados têm a mesma
+assinatura.
+
+⚠️ **Limite honesto desta reativação:** nenhum agente busca (380 das 1.471 buscas de 30 dias são a
+canária, as demais pararam em 14/10). O risco imediato é ~zero **e** não haverá sinal de que o KG
+ajuda até existir consumidor — item 7. Reativar agora é barato e reversível; não é evidência de
+utilidade.

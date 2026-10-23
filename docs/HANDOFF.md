@@ -11,10 +11,15 @@ Snapshot do `dist` anterior em `/root/.openclaw/dist-snapshot-20261023T014309Z.t
 rollback. Health: 62.023 chunks, vetores 62.023/62.023, 0 órfãos. ⚠️ **Não existe cron nem script
 de deploy** — produção fica parada até alguém puxar; o `dist` estava de 21/10.
 
-**Decisão que sobra para o Toto: voltar a `active`.** O pré-requisito está cumprido (escopo por
-corpus em produção). O que isso muda: volta a servir KG no `/api/search`, agora limitado ao corpus
-que a busca devolveu — na amostra de 55, 193 das 201 triplas e 3 das 11 do vault, estas três em
-queries onde a busca já trouxera vault. É mudança de serving (regra 5), logo é dele.
+**🟢 Produção voltou a `active`** (decisão do Toto, 23:00 BRT), com o escopo por corpus rodando.
+Provado em produção com `?track=false`: a query que vazava 6 de 6 triplas de contrato agora recebe
+**0** (busca trouxe só workspace); as queries 55/63/91, onde a busca trouxe vault, continuam
+recebendo 6/2/6 — barra o vazamento sem virar banimento do assunto. Uma pergunta de engenharia
+recebe 8 triplas, todas de infraestrutura.
+
+**O que vigiar:** o log agora traz `corpora=N` junto de `entities` e `triples` — é o que distingue
+«o escopo barrou» de «nenhuma entidade casou». ⚠️ E nenhum agente busca, então a reativação é
+barata e reversível, mas **não produz evidência de utilidade** até o item 7 existir.
 
 **🟢 Produção em `shadow`.** `NOX_VAULT_FACTS_MODE=active → shadow` no `.env` da VPS (linha 57,
 backup datado ao lado), serviço reiniciado, conferido no **env do processo**. Prova funcional: a
