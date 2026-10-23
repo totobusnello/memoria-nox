@@ -1,6 +1,27 @@
 # nox-mem HANDOFF — estado vivo
 
-## ▶ Estado e fila (22/10 qui, 22:45 BRT): começar aqui
+## ▶ Estado e fila (23/10 sex, 00:10 BRT): começar aqui
+
+**🔢 Número publicado corrigido: fidelidade do KG é 0,907 [0,849 · 0,944], não 0,833.** O
+predicado que deu o 0,833 nunca foi versionado — só sobrevivia o booleano por linha. Reescrito no
+claro (`audits/2026-10-23-kg-s1-recheck-conferidor.py`), faltava tratar o espaço que um marcador
+markdown removido deixa: `**"Trading Market"**` vira `" trading market "` contra `"trading
+market"`. Vale 10 das 150 linhas. O poder do conferidor foi medido perturbando a citação contra o
+**próprio** chunk (0 de 136 aceitas com palavra trocada, 0 de 25 com dígito trocado) — controle
+contra chunk aleatório não serve, porque até predicado inútil tira zero lá.
+
+**📐 Item 4 decidido: o KG é um grafo do VAULT.** Censo: 82,2% das 17.753 relações têm evidência
+em `memory/mac-docs/`, contra 8,3% em `shared/`. Ele responde engenharia a partir de 17,3% de si.
+Sai do gold set de engenharia; extração LLM fechada até existir consumidor. Não é que o grafo
+seja ruim — 0,907 é fiel ao corpus que ele de fato tem; o defeito era de enquadramento.
+
+**Pendência do Toto, agora de 6 itens e não 40:** a célula «juiz NÃO» do KG na página
+`claude.ai/artifact/VaJ5vB3WsudP7yxK6EUjQy`. É onde concordamos em 1 de 6 (kappa +0,118, Wilson
+[0,03 · 0,56]) e onde vive todo o erro não quantificado. Os 20 do pool ficam como estão.
+
+---
+
+## Estado anterior (22/10 qui, 22:45 BRT)
 
 **#69, #70, #71 e #72 mergeados.** Worktrees fechadas, branches apagadas, nenhum PR aberto
 em nenhum dos dois repos e nenhum CI vermelho.

@@ -115,3 +115,12 @@ Test residue is real but trivial (5 entities, 7 relations: `test_a`, `test_b`, `
 **Artifacts.** `audits/2026-10-22-kg-s1-precision.py`, data
 `audits/out/kg-s1-precision-2026-10-22.json` (all 150 rows with judgements, quotes and both
 criteria). Raw run on the VPS in `/root/medicoes/2026-10-22-kg-s1/`.
+
+---
+
+> **Superseded in part, 2026-10-23.** The 0.833 reported here came from a predicate that was
+> never committed — only the per-row boolean survived. Rebuilt in the open, with the spacing a
+> dropped markdown marker leaves, faithfulness is **0.907 [0.849, 0.944]**, and the check's power
+> was measured by perturbing the quote against its own chunk (0/136 accepted with a word swapped,
+> 0/25 with a digit changed). The reasoning in this file stands; the figure does not. See
+> `2026-10-23-kg-s1-conferidor-reproduzivel.md`.
