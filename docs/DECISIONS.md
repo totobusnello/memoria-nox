@@ -2855,3 +2855,71 @@ assinatura.
 canária, as demais pararam em 14/10). O risco imediato é ~zero **e** não haverá sinal de que o KG
 ajuda até existir consumidor — item 7. Reativar agora é barato e reversível; não é evidência de
 utilidade.
+
+---
+
+### 2026-10-23 — o conferidor de citação: 0,833 era predicado não versionado, e 7 pp baixo
+
+**Correção de número publicado.** A fidelidade do KG no S1 é **0,907** [0,849 · 0,944], não 0,833.
+Audit: `audits/2026-10-23-kg-s1-conferidor-reproduzivel.md`; código:
+`audits/2026-10-23-kg-s1-recheck-conferidor.py`. Nenhuma chamada de LLM — os rótulos do juiz
+ficaram fixos e só o predicado mecânico mudou.
+
+🔴 **O predicado que deu o 0,833 nunca foi versionado.** Sobrevivia apenas o booleano
+`confere_solto` por linha, num JSON na VPS. Um número citado aqui repousava em código que não
+existia mais em lugar nenhum — não reproduzível e não inspecionável. É a mesma família de
+[[feedback_a_ruler_i_chose_is_not_the_ruler_that_was_registered]], agravada: aqui nem a régua que
+eu escolhi sobrou.
+
+**O que faltava nele.** Remover um marcador deixa o espaço que ele ocupava: `**"Trading Market"**`
+normaliza para `" trading market "` e a citação para `"trading market"` — conteúdo igual, string
+diferente. Duas regras de espaçamento fecham isso, mais o `~` de strikethrough. É toda a
+diferença, e vale **10 das 150 linhas**.
+
+| critério | | IC95 |
+|---|---|---|
+| estrito (acento + espaço) | 0,700 | [0,622 · 0,768] |
+| **markdown-insensitive calibrado** | **0,907** | **[0,849 · 0,944]** |
+| só alfanumérico (toda pontuação fora) | 0,913 | [0,857 · 0,949] |
+| palavra do juiz, sem conferência | 0,913 | — |
+| *[publicado em 22/10, não reproduzível]* | *0,833* | *[0,766 · 0,884]* |
+
+🔑 **Afrouxar um critério até ele parar de reprovar não é calibrar, é desistir — e o controle
+negativo contra chunk ALEATÓRIO não distingue as duas coisas**, porque documentos diferentes
+compartilham pouco vocabulário e até um predicado inútil tira zero ali. O controle que decide
+**perturba a própria citação contra o próprio chunk**: uma palavra trocada, um dígito trocado
+(`R$ 50.000` → `R$ 60.000`, a falha que custa dinheiro num contrato), a ordem embaralhada. Os três
+critérios rejeitam **100%** das perturbações, logo o de 0,907 discrimina — ele tem pouco a pegar,
+e isso é propriedade do prompt, não fraqueza do predicado.
+
+🔑 **E essa é a lição que transfere:** o primeiro passe do gold PT-BR pedia um span verbatim de
+**comprimento livre** e 34,5% dos spans não estavam na fonte; o S1 pediu **oito palavras** e a taxa
+é **1 em 137 ≈ 0,7%**. Pedir citação limitada, em vez de «o trecho que sustenta isto», é o que
+impede o juiz de inventar uma.
+
+**A única linha entre 0,907 e 0,913:** o chunk traz `“<u>Trading Market</u>” means…` e o juiz
+copiou o termo e a frase, mas não as aspas tipográficas do termo definido. Arguível, e imaterial.
+O número reportado usa o critério que **preserva pontuação linguística** e descarta só marcação —
+vírgula que o juiz acrescenta é paráfrase, pipe de tabela não é.
+
+---
+
+### 2026-10-23 — o KG é um grafo do VAULT (confirmado pelo Toto)
+
+**Censo das 17.753 relações, por corpus da evidência:** vault (`memory/mac-docs/`) **14.592 =
+82,2%**; `memory/` outros 1.589 = 9,0%; `shared/` (engenharia) 1.473 = 8,3%; sem evidência 87;
+sessions + entities 12. Os 74,7% citados em 22/10 eram da **amostra** S1; o censo é 82,2%.
+
+**Decisão:** o KG responde pergunta de engenharia a partir de **17,3% de si mesmo**, e vinha sendo
+avaliado como se fosse um grafo de engenharia. ⇒ (a) sai do gold set de engenharia — resultado
+ruim ali é artefato do enquadramento, não do grafo; (b) **extração LLM fechada**, pela mesma
+cláusula do item 6 e do 11 (não há consumidor); (c) o uso que resta é apontar chunks, não
+substituí-los; (d) higiene do `kg-build` segue valendo. Item 4 marcado decidido no ROADMAP.
+
+**Por que não a alternativa** (extração dirigida sobre `shared/` para construir um grafo de
+engenharia): seria pagar extração para um canal sem receptor — exatamente o erro que os três nulos
+do item 7 já custaram. Reabre com consumidor real buscando **e** com o corpus-alvo declarado antes
+da primeira extração.
+
+**O que isto NÃO diz:** que o grafo é ruim. 0,907 de fidelidade é bom; é fiel ao corpus que de
+fato tem. O defeito era de enquadramento, não de qualidade.

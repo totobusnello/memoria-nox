@@ -93,3 +93,12 @@ And the second reader is a model, not a person.
 `audits/2026-10-22-judge-agreement.py`. The sample, the key and the verdicts stay on the host
 (`/root/medicoes/2026-10-22-kg-s1/`): 74.7% of the KG evidence is `mac-docs` and this repository is
 public.
+
+---
+
+> **Superseded in part, 2026-10-23.** The 0.833 reported here came from a predicate that was
+> never committed — only the per-row boolean survived. Rebuilt in the open, with the spacing a
+> dropped markdown marker leaves, faithfulness is **0.907 [0.849, 0.944]**, and the check's power
+> was measured by perturbing the quote against its own chunk (0/136 accepted with a word swapped,
+> 0/25 with a digit changed). The reasoning in this file stands; the figure does not. See
+> `2026-10-23-kg-s1-conferidor-reproduzivel.md`.
