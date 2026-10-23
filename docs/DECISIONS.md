@@ -2923,3 +2923,72 @@ da primeira extração.
 
 **O que isto NÃO diz:** que o grafo é ruim. 0,907 de fidelidade é bom; é fiel ao corpus que de
 fato tem. O defeito era de enquadramento, não de qualidade.
+
+---
+
+### 2026-10-23 — os quatro em disputa eram política, não leitura; a fidelidade é 0,900
+
+**Correção de número publicado, de novo, e na direção oposta à de hoje de manhã.** Os quatro
+itens que sobraram da amostra cega não eram ambiguidade: os dois leitores leram o mesmo texto e
+concordaram sobre o que ele diz. Eram **quatro perguntas de política** sobre o que conta como
+«sustenta». O Toto decidiu as quatro:
+
+| | princípio | decidido |
+|---|---|---|
+| **P1** | tripla que **inverte** a relação, mesmo com citação verbatim e as duas entidades lado a lado | não sustenta |
+| **P2** | predicado **empobrecido, mas não invertido** | sustenta |
+| **P3** | **placeholder dentro de um exemplo** não é entidade | não sustenta |
+| **P4** | **formatação não derruba**: o conferidor passa a largar toda pontuação | sustenta |
+
+Discordância sobre **critério**, ao contrário de discordância sobre fato, não é contaminada por
+ver a posição do outro antes. Foi por isso que as quatro puderam ir como quatro perguntas e não
+como quatro vereditos.
+
+**Aplicadas aos 150, elas BAIXAM o número:**
+
+| passo | | IC95 |
+|---|---|---|
+| P4 só (conferidor alfanumérico) | 0,913 | [0,857 · 0,949] |
+| − P1 (inversão) | 0,907 | [0,849 · 0,944] |
+| **− P3 (placeholder) = verificada** | **0,900** (135/150) | **[0,842 · 0,938]** |
+| + P2 (predicado pobre) = teto substantivo | 0,927 (139/150) | [0,873 · 0,959] |
+
+**Número reportado: 0,900.** P4 afrouxa e recupera 1 linha; P1 e P3 apertam e custam 2. O líquido
+de concordar com as quatro posições do segundo leitor é **um ponto abaixo** do 0,907 da manhã.
+
+**Por que 0,900 e não 0,927.** As 4 que P2 devolve **não têm citação**: o juiz que as rejeitou
+devolve string vazia, e string vazia não dá o que conferir. E o pior: reler **só as rejeitadas**
+é assimétrico — só pode subir. É o mesmo defeito que o estudo de concordância achou espelhado em
+22/10, quando mostrar menos contexto ao segundo avaliador fabricou discordância só na direção
+«não sustenta». 0,900 exclui esta passagem inteira; 0,927 é o que ela compra, e é teto.
+
+**Como cada princípio alcança os 150.** P4 é mecânico. P1 e P3 são enumerados por marcador
+(exceção: `exceto|except|unless|other than`; exemplo: `Ex:|e.g.|por exemplo`) e a enumeração é
+lida — cada filtro devolveu **exatamente 1** candidato entre as 137, os dois já conhecidos. P2
+**não é enumerável**: a varredura devolve 0 candidatos entre as 13 excluídas, inclusive o caso em
+que P2 foi decidido, porque a citação é vazia. As 13 foram lidas uma a uma; 4 voltaram.
+
+🔑 **Adjudicar as discordâncias de um estudo de concordância CONSOME o estudo.** O critério novo
+agora concorda com os 20 vereditos cegos — e isso não é validação: os quatro princípios foram
+decididos **a partir** desses vereditos, logo 20/20 mede o critério contra si mesmo. A correção
+de população que dava 0,913 em 22/10 dependia de critério e leitor serem independentes, e não
+são mais. Corrigir de novo exige linhas julgadas por quem não participou de fixar o critério.
+
+**O que foi medido, e não assumido:**
+
+- **mutação:** desligar um princípio reabre a discordância dele e só a dele (1 para cada um dos
+  quatro) — nenhum é redundante, nenhum subsume outro;
+- **cobertura do filtro:** das 137 aceitas, 19 estão na amostra cega; o leitor cego rejeita 2 e
+  o filtro por marcador pega exatamente essas 2, sem falso positivo. Recall 2/2 em n=19 — real, e
+  pequeno demais para estender às 118 que ninguém leu. **A cobertura de P1 e P3 sobre o restante
+  é desconhecida, e é o maior termo aberto do 0,900.**
+
+**Um erro do juiz que vale registrar sozinho:** em `kg-41383` ele chegou ao veredito certo («não
+sustenta») por uma razão **falsa** — afirmou que a entidade-objeto não aparece no trecho, e ela
+aparece. Veredito certo carregado por razão errada sobrevive a qualquer conferência que leia só o
+booleano.
+
+**Não muda o item 4.** 39,3% dos predicados são hapax e 82,2% da evidência está no vault. Um
+grafo 0,900 fiel ao corpus errado continua sendo o corpus errado.
+
+`audits/2026-10-23-kg-s1-quatro-principios.{py,md}`.

@@ -98,3 +98,11 @@ The item 4 verdict stands and for untouched reasons: 39.3% of predicates are
 hapax, and **82.2% of the graph's evidence sits in the vault** (14.592 of
 17.753 relations, censused 2026-10-22). A graph 0.907 faithful to the wrong
 corpus is still the wrong corpus.
+
+---
+
+> **Superseded in part, same day.** The four disputed rows were adjudicated as four *policy*
+> questions, and applying all four to the 150 moves faithfulness to **0.900 [0.842, 0.938]** —
+> one point BELOW the 0.907 here, because relaxing the check (P4) recovers one row while ruling
+> out inversions (P1) and example placeholders (P3) costs two. The reasoning in this file stands;
+> the figure does not. See `2026-10-23-kg-s1-quatro-principios.md`.
