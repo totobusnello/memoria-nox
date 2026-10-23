@@ -1,6 +1,32 @@
 # nox-mem HANDOFF — estado vivo
 
-## ▶ Estado e fila (23/10 sex, 10:05 BRT): começar aqui
+## ▶ Estado e fila (23/10 sex, 11:35 BRT): começar aqui
+
+**✅ O item 7 tem consumidor, e falta uma coisa só: saber se é lido.**
+(`audits/2026-10-23-item7-consumidor-construido.md`.) O censo de 30 dias dá **5 buscas** fora da
+canária e das minhas sondas. E o MCP do Mac **funciona** — handshake limpo em 2,7 s no log de
+19/10 — logo **eu também não buscava**: em três dias de audits sobre este corpus fui ao banco por
+`ssh`+`sqlite3`, sempre. Minhas perguntas eram **censo**; a busca híbrida responde
+**recuperação**. Zero tráfego media a forma das perguntas, não a qualidade das respostas, e
+nenhum ganho de ranking, latência ou grafo o teria movido.
+
+Job `prazos-semanal` no ar (openclaw-vps**#49**, seg 08h BRT, `lex-prazos-semanal.sh`): varredura
+SQL exaustiva dos 27.166 chunks do vault acha os candidatos; o agente classifica e **busca** se
+houve aditivo, renovação ou distrato. Duas corridas em produção: 33 candidatos em 14 arquivos, 5
+obrigações reais, **11 e 6 buscas espontâneas** — a tool nunca é nomeada no prompt, de propósito.
+Uma das 5 só existe porque ele buscou.
+
+**➡️ A próxima ação é do Toto, e é a única que falta: ler o relatório de segunda.** Lido e mudando
+algo ⇒ há consumidor, e os itens 4, 6 e 11 reabrem com objeto real. Ignorado duas semanas
+seguidas ⇒ essa é a resposta do item 7 e o lado pull fecha, honestamente. Relatório em
+`/root/.openclaw/reports/prazos/` na VPS (fora do `workspace/`, senão o watcher o ingere e o
+agente passa a ler a própria conclusão como evidência — aconteceu, 19 chunks, removidos com
+snapshot pré-op).
+
+⚠️ **Pendência de canal:** hoje a entrega é só arquivo. É cláusula de contrato privado e a escolha
+do canal é do Toto, não do script.
+
+### Antes disso, hoje de manhã (10:05 BRT)
 
 **🔄 Item 7 mudou de pergunta: o agente BUSCA.** Primeira medição do lado **pull**
 (`audits/2026-10-23-item7-pull-degraus-1-2.md`). Com Lex, sessão nova por degrau e desfecho na
