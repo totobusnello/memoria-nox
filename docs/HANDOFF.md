@@ -26,6 +26,24 @@ snapshot pré-op).
 ⚠️ **Pendência de canal:** hoje a entrega é só arquivo. É cláusula de contrato privado e a escolha
 do canal é do Toto, não do script.
 
+### 📅 Pauta combinada para segunda (26/10) — o Toto pediu para falar de tudo junto
+
+1. **Ler o relatório de prazos.** O cron roda seg 08h BRT e grava em
+   `/root/.openclaw/reports/prazos/`. É a única coisa que falta para o item 7: lido e mudando
+   algo ⇒ há consumidor e 4, 6 e 11 reabrem; ignorado duas semanas ⇒ o lado pull fecha.
+2. **⏰ Dois pagamentos com data curta já apareceram no 1º relatório** — um em **30/10** e outro
+   em **02/11**. O de 02/11 veio com ressalva do agente: existem versões posteriores do
+   instrumento com preço/bônus revisado e ele não confirmou que a assinada manteve a fórmula.
+   Recomendação registrada em 23/10: comparar as versões no acervo **antes** de autorizar.
+   Detalhe (com nomes) só no relatório na VPS — este repositório é público.
+3. **Canal de entrega do relatório:** hoje é só arquivo. Discord, e-mail ou ponteiro no morning
+   report sem conteúdo — escolha do Toto, porque é cláusula de contrato privado.
+4. **Os 40 da régua do juiz** (`claude.ai/artifact/VaJ5vB3WsudP7yxK6EUjQy`): recomendação
+   mantida de **não fazer** — com o item 4 decidido e a extração fechada, mover 0,900 para 0,91
+   não muda nenhuma ação.
+5. **Degrau 3 / atribuição por HTTP:** não vale até (1) resolver. Instrumentar melhor um canal
+   sem consumidor é o padrão que esta semana diagnosticou.
+
 ### Antes disso, hoje de manhã (10:05 BRT)
 
 **🔄 Item 7 mudou de pergunta: o agente BUSCA.** Primeira medição do lado **pull**
