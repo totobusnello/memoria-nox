@@ -1,8 +1,20 @@
 # nox-mem HANDOFF — estado vivo
 
-## ▶ Estado e fila (22/10 qui, 22:30 BRT): começar aqui
+## ▶ Estado e fila (22/10 qui, 22:45 BRT): começar aqui
 
-**#69 e #70 mergeados.** Worktrees fechadas (`wt done`), branches apagadas.
+**#69, #70, #71 e #72 mergeados.** Worktrees fechadas, branches apagadas, nenhum PR aberto
+em nenhum dos dois repos e nenhum CI vermelho.
+
+**🟢 O conserto do KG está EM PRODUÇÃO, e produção segue em `shadow`.** `git pull` (2 commits,
+interseção vazia com os 19 arquivos de estado vivo — medida antes), `npm run build`, restart.
+Snapshot do `dist` anterior em `/root/.openclaw/dist-snapshot-20261023T014309Z.tar.gz` para
+rollback. Health: 62.023 chunks, vetores 62.023/62.023, 0 órfãos. ⚠️ **Não existe cron nem script
+de deploy** — produção fica parada até alguém puxar; o `dist` estava de 21/10.
+
+**Decisão que sobra para o Toto: voltar a `active`.** O pré-requisito está cumprido (escopo por
+corpus em produção). O que isso muda: volta a servir KG no `/api/search`, agora limitado ao corpus
+que a busca devolveu — na amostra de 55, 193 das 201 triplas e 3 das 11 do vault, estas três em
+queries onde a busca já trouxera vault. É mudança de serving (regra 5), logo é dele.
 
 **🟢 Produção em `shadow`.** `NOX_VAULT_FACTS_MODE=active → shadow` no `.env` da VPS (linha 57,
 backup datado ao lado), serviço reiniciado, conferido no **env do processo**. Prova funcional: a
@@ -10,7 +22,7 @@ canária das 01:16:03 UTC gravou `mode=shadow` com o mesmo cômputo de antes (`e
 tokens=37`) — computa, loga, não serve. Razão: desligar enquanto ninguém consome é grátis; depois
 que o item 7 criar consumidor, deixa de ser. Entrada no `DECISIONS.md`.
 
-**PR aberto e verde: nox-workspace#71** — o escopo por corpus, que é o **pré-requisito de voltar a
+**nox-workspace#71 (mergeado)** — o escopo por corpus, que era o **pré-requisito de voltar a
 `active`**. A tripla só é servida se o chunk de onde ela saiu está num corpus que a própria busca
 devolveu. Três partições medidas antes de escolher: a **vault × workspace** mantém 96,0% das
 triplas e corta o vazamento igual à mais fina, que mantinha 59,2%. Audit
@@ -22,8 +34,15 @@ de citação**, não o juiz — as falhas são formatação (pipe de tabela, `<u
 leitor foi o Opus 5, **não uma pessoa**: isso é concordância inter-juízes. A página
 `claude.ai/artifact/VaJ5vB3WsudP7yxK6EUjQy` segue aberta para o Toto.
 
-**Fila:** mergear o #71 → reavaliar voltar a `active` → item 5 (esquecimento com métrica) → item 10
-(procedural, GATED no P2 autocapture).
+**nox-workspace#72 (mergeado)** — `op-audit-e2e` prometia «fora da VPS, pula por ambiente» desde
+abril e nada implementava: estourava `EACCES` no load e derrubava os 7 testes do arquivo em toda
+máquina que não é a VPS. Agora são três estados — roda onde `/var/backups` é gravável (VPS e CI,
+que o cria de propósito), **falha** se `CI` está setado e o diretório não existe, pula fora disso
+com a razão impressa. Suíte no Mac: **1.756 passam, 0 falham**. No CI os 7 rodam (`ok 214`–`ok
+220`), `skipped` continua 4.
+
+**Fila:** decidir sobre `active` → item 5 (esquecimento com métrica) → item 10 (procedural, GATED
+no P2 autocapture).
 
 **Higiene:** `50-MemoryHigh.conf` inerte do `nox-mem-api` removido (o homônimo do gateway **não** —
 lá ele é quem manda). Resíduos da VPS **não** apagados, e é a decisão: lastro do Paper B e estado

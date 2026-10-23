@@ -2782,3 +2782,38 @@ de conteúdo vestida de argumento de procedência.
 **O que isto NÃO conserta:** a porta. O match por palavra comum continua, e `confidence = 0,8` em
 17.678 de 17.753 relações mantém o `ORDER BY` como empate universal resolvido por `created_at`. O
 escopo limita o dano dos dois; não remove nenhum. Nada disso exige re-extração.
+
+---
+
+### 2026-10-22 — o conserto em produção, e o que o deploy revelou
+
+**Feito:** nox-workspace#71 e #72 mergeados; `git pull` + `npm run build` + restart na VPS.
+Snapshot do `dist` anterior em `/root/.openclaw/dist-snapshot-20261023T014309Z.tar.gz`. Produção
+**continua em `shadow`** — deploy não muda modo. Health pós-restart: 62.023 chunks, vetores
+62.023/62.023, 0 órfãos.
+
+⚠️ **Não existe cron nem script de deploy do nox-mem.** Produção é um clone do `nox-workspace` em
+`/root/.openclaw/workspace` e fica parada até alguém puxar à mão: estava em `e0643222`, com `dist`
+de 21/10. Antes do pull medi a interseção entre os arquivos que ele tocaria (5) e os 19 sujos de
+estado vivo (sqlite dos agentes, `MEMORY.md` dos briefs): **vazia**, logo `--ff-only` era seguro.
+Medir essa interseção deveria ser parte de qualquer pull nessa árvore, que nunca está limpa.
+
+**#72 — `op-audit-e2e` prometia pular fora da VPS desde abril e nada implementava.**
+`mkdtempSync("/var/backups/…")` estourava `EACCES` no **load** e derrubava os 7 testes do arquivo
+em toda máquina que não é a VPS. Eu vinha lendo isso como «falha ambiental conhecida», que é
+precisamente o efeito que um cabeçalho mentiroso produz. 🔑 **Numa suíte de 1.767, falha ambiental
+permanente é ruído de fundo — e ruído de fundo é onde a próxima falha de verdade se esconde.**
+
+O conserto **não** foi pular: pular sempre apagaria a verificação do guard `ALLOWED_PREFIXES`, que
+o CI roda de propósito (o workflow cria `/var/backups` com `sudo mkdir && chown` só para isso). São
+três estados — roda onde o diretório é gravável; **falha** se `CI` está setado e ele não existe;
+pula fora disso, imprimindo a razão. A perna do meio impede o skip de virar desaparecimento
+silencioso. Suíte no Mac: 1.756 passam, **0 falham**. No CI: `ok 214`–`ok 220`, `skipped` ainda 4.
+
+**Não é falha:** o aviso `Required status check "Secret Scan (gitleaks)" is expected` em push
+direto na `main` do memoria-nox. O job **roda e passa** em todo push (`e02d9a66` success); o check
+só não existe no instante do push, que é ordem causal e não resultado. A política do repo autoriza
+doc/audit direto na `main`, e a conta tem bypass — o GitHub avisa e segue.
+
+**O que segue em aberto:** voltar a `active`. O pré-requisito está cumprido e em produção. É
+mudança de serving (regra 5), logo é do Toto.
