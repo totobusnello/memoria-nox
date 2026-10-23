@@ -1,0 +1,40 @@
+{
+  "probe": "corpus scoping — what the fix would keep and drop, by partition",
+  "date": "2026-10-23",
+  "db": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
+  "top_n_of_search": 10,
+  "queries": 55,
+  "queries_where_search_returned_nothing": 0,
+  "triples_with_no_evidence_chunk": 0,
+  "baseline": {
+    "triples_served_today": 201,
+    "queries_with_at_least_one_triple": 42,
+    "mac_docs_triples": 11
+  },
+  "by_partition": {
+    "g1": {
+      "triples_kept": 187,
+      "triples_dropped": 14,
+      "pct_kept": 93,
+      "queries_with_at_least_one_triple": 41,
+      "queries_that_lost_everything": 1,
+      "mac_docs_triples_kept": 11
+    },
+    "g2": {
+      "triples_kept": 119,
+      "triples_dropped": 82,
+      "pct_kept": 59.2,
+      "queries_with_at_least_one_triple": 28,
+      "queries_that_lost_everything": 14,
+      "mac_docs_triples_kept": 3
+    },
+    "g3": {
+      "triples_kept": 193,
+      "triples_dropped": 8,
+      "pct_kept": 96,
+      "queries_with_at_least_one_triple": 41,
+      "queries_that_lost_everything": 1,
+      "mac_docs_triples_kept": 3
+    }
+  }
+}

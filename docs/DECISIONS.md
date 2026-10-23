@@ -2734,3 +2734,51 @@ relevância e a taxa corrigida é 0,283 contra 0,208 — o intervalo [0,24 · 0,
 que um leitor em dois refaria. **Abstenção não foi amostrada** e segue sem medida neste eixo.
 
 **Limites:** 6 e 10 por célula; a célula negativa do KG, em 1/6, tem Wilson [0,03 · 0,56].
+
+---
+
+### 2026-10-22 — produção volta a `shadow`, e a volta a `active` ganha um pré-requisito
+
+**Decisão:** `NOX_VAULT_FACTS_MODE=active` → **`shadow`** em produção (`/root/.openclaw/.env`
+linha 57, backup datado ao lado, serviço reiniciado; conferido no **env do processo**, não no
+arquivo). Em `shadow` o cômputo e a telemetria continuam; só não serve. Prova funcional: a canária
+das 01:16:03 UTC gravou `mode=shadow` com o mesmo cômputo de antes (`entities=2 triples=3
+tokens=37`).
+
+**Por que agora, se ninguém consome.** Exatamente por isso. Em 30 dias, 1.471 buscas: **380 são a
+canária** (de 30 em 30 min, minutos :16 e :46), as 1.051 sem agente **pararam em 14/10**, o resto
+são sondas — **nenhum agente busca** ([[project_agents_do_not_search_nox_mem]]). Logo o vazamento
+hoje alcança ~ninguém **e** desligar hoje custa ~nada. É a janela em que a decisão é grátis;
+depois que o item 7 criar consumidor, ela passa a ter preço.
+
+**O que estava vazando.** `extractCandidateEntities` casa qualquer token ≥2 chars contra
+`kg_entities.name`, exato, sem NER e sem desambiguação: **1.273 entidades de palavra única abrem
+11.781 relações = 66,4% do grafo**, e em 55 perguntas de engenharia **11 das 201 triplas servidas**
+vinham do vault pessoal/jurídico, com nome de pessoa.
+
+**O pré-requisito de reativar** é o escopo por corpus — a tripla só é servida se o chunk de onde
+saiu está num corpus que a **própria busca** devolveu. nox-workspace#71, audit
+`audits/2026-10-22-kg-corpus-scope.md`.
+
+🔑 **A partição é a decisão, não o princípio.** "Escopar por corpus" não é uma regra só; a
+granularidade muda o resultado por um fator de dez, e a granularidade óbvia é a errada:
+
+| partição | triplas mantidas | queries com ≥1 | esvaziadas | vault servidas |
+|---|---|---|---|---|
+| 1º componente do caminho | 187 (93,0%) | 41 de 42 | 1 | **11 — não corta nada** |
+| 2 componentes (a do audit de 22/10) | 119 (59,2%) | 28 de 42 | 14 | 3 |
+| **vault × workspace** | **193 (96,0%)** | **41 de 42** | **1** | **3** |
+
+A primeira colapsa `memory/mac-docs/` com `memory/plan-autonomous-agents.md` e não separa nada. A
+segunda funciona e custa **82 triplas** — não por separar domínios melhor, mas porque cada arquivo
+solto em `memory/` vira corpus próprio: layout de arquivo lido como fronteira de procedência. A
+terceira corta a mesma coisa por **8**. **A partição mais fina não é a mais segura**, e o custo dela
+teria sido lido como o preço do conserto em vez de como propriedade da régua.
+
+**As 3 que sobrevivem são corretas:** nelas a busca já havia devolvido material do vault. O escopo
+exige coerência com a resposta, não proíbe assunto — regra que derrubasse essas três seria política
+de conteúdo vestida de argumento de procedência.
+
+**O que isto NÃO conserta:** a porta. O match por palavra comum continua, e `confidence = 0,8` em
+17.678 de 17.753 relações mantém o `ORDER BY` como empate universal resolvido por `created_at`. O
+escopo limita o dano dos dois; não remove nenhum. Nada disso exige re-extração.
