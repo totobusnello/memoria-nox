@@ -42,7 +42,7 @@ só aceita `mcp` global, nunca por agente. Logo o item 2 («telemetria de quem b
 na superfície que os agentes usam ele diz *MCP*, nunca *qual*. Rota que funciona: HTTP com
 `X-Agent-Name`, que o servidor já lê.
 
-### Antes disso, hoje de manhã
+### E antes disso, no começo da manhã (KG)
 
 
 **🔢 Fidelidade do KG: 0,900 [0,842 · 0,938].** Os quatro itens que restavam da amostra cega não
