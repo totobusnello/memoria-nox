@@ -1,10 +1,9 @@
 # Benchmark History — Timeseries
 
-_Updated: 2026-10-25 | Rolling 30-day window_
+_Updated: 2026-10-26 | Rolling 30-day window_
 
 | Date | Overall | Pass | Fail | A2.export.encrypted.500chunks_3072d.archive_mb | A2.export.plain.500chunks_3072d.archive_mb |
 | --- | --- | ---: | ---: | ---: | ---: |
-| 2026-09-25 | PASS | 2 | 0 | 6.303544044494629 | 5.357962608337402 |
 | 2026-09-26 | PASS | 2 | 0 | 6.303557395935059 | 5.357963562011719 |
 | 2026-09-27 | PASS | 2 | 0 | 6.303544044494629 | 5.357948303222656 |
 | 2026-09-28 | PASS | 2 | 0 | 6.30354118347168 | 5.3579559326171875 |
@@ -35,5 +34,6 @@ _Updated: 2026-10-25 | Rolling 30-day window_
 | 2026-10-23 | PASS | 2 | 0 | 6.303544998168945 | 5.35794734954834 |
 | 2026-10-24 | PASS | 2 | 0 | 6.303549766540527 | 5.357959747314453 |
 | 2026-10-25 | PASS | 2 | 0 | 6.3035383224487305 | 5.357948303222656 |
+| 2026-10-26 | PASS | 2 | 0 | 6.303553581237793 | 5.357963562011719 |
 
 > Full metric details in per-day `.json` files. Chart data in `timeseries.json`.
