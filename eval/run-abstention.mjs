@@ -19,6 +19,17 @@ const NPOS = Number(process.env.N_POS || 25);
 
 const { answer } = await import(`${DIST}/lib/answer/index.js`);
 
+// ⚠️ ESTE PREDICADO E UM PISO, nao o valor de abstencao. Calibrado em
+// 2026-10-26 contra um juiz delimitado sobre os mesmos 48 itens (entrada
+// igualada e provada: reaplicado ao `answer_head` ele reproduz o rotulo em
+// 48/48): kappa 0,7938, e a celula "so o detector" VAZIA — ele nunca marca
+// abstencao a mais, perde cinco. 0,6957/0,2000 vira 0,7826/0,3200; o GAP, que
+// e o que a linha de base afirma, sobrevive (0,4957 -> 0,4626). Duas das cinco
+// perdas sao uma flexao de numero: "informação" NAO e substring de
+// "informações". Nao ampliar a lista — repete o defeito mais adiante; o conserto
+// duravel e a abstencao emitir CANON deterministicamente em vez de pedir ao LLM
+// que a escreva. O predicado fica como esta porque e o que produziu o numero
+// publicado. Ver audits/2026-10-26-abstention-judge.md.
 const CANON = "i have no memory matches for this question";
 const abstained = (t) => {
   const s = (t || "").toLowerCase();

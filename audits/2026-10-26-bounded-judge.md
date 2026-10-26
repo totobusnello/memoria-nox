@@ -49,15 +49,29 @@ The second is the stronger one: it shows the *text* is the same, not just the fi
 |---|---|---|---|---|
 | strict, pre-registered gold only *(published)* | 0.2428 | 0.2437 | 29 | 30 |
 | pooled, prose judge *(published)* | **0.5114** | 0.5412 | 5 | 138 |
-| bounded judge, p > 0.3 | 0.5085 | 0.4311 | 14 | 111 |
-| **bounded judge, p > 0.5** | **0.4764** | 0.4092 | 17 | 101 |
-| bounded judge, p > 0.7 | 0.4406 | 0.3728 | 19 | 87 |
+| bounded judge, p > 0.3 | 0.4521 | 0.4311 | 14 | 112 |
+| **bounded judge, p > 0.5** | **0.4315** | 0.4092 | 17 | 102 |
+| bounded judge, p > 0.7 | 0.3995 | 0.3728 | 19 | 88 |
 
 A predicate returns a probability, so the binary cut is a choice and not a measurement; all three
 cuts are reported so the reader sees what the number owes to it. **The headline is that nothing
 collapses:** a different model family, a different output shape and 10.9× the judged coverage move
-the upper bound from 0.5114 to 0.4764, −6.8%. The interval becomes **[0.2428, 0.44–0.51]**. The
+the upper bound from 0.5114 to 0.4315, −15.6%. The interval becomes **[0.2428, 0.40–0.51]**. The
 pooled figure was not an artefact of the judge.
+
+⚠️ **The three bounded rows are corrected; the first version of this file read 0.5085 / 0.4764 /
+0.4406.** Those came from an IDEAL built out of the relevants found inside the ranking, while both
+published arms carry the whole pre-registered gold in theirs. An ideal that counts only what the
+ranking returned cannot see a relevant document the system failed to retrieve: one relevant item
+returned at rank 1 scores 1.0 even where the corpus holds five. So the denominator was looser for
+the new arm, in the direction that flatters it, and the −6.8% first reported understated the gap.
+Rebuilt over (top-10 ∪ gold) — 609 of 615 pairs labelled, which is what made it possible — the
+drop is −15.6%. Applying the same rule to the OLD labels leaves the pooled arm at 0.5114
+**exactly**: its construction was already the fair one, and only the new arm needed fixing. MRR is
+unchanged because it never depended on the ideal. `2026-10-26-rescore-canonical.py`, which refuses
+to print any new number until it has reproduced 0.2428, 0.5114 **and** the superseded 0.4764 —
+and on its first execution it did refuse, because the labels for the 30 gold pairs live in a
+second file and loading only the first left them scoring zero at 0.3579.
 
 ⚠️ The graded arm (gain 0–3, nDCG 0.8384) is **not comparable** to any row above — different gain,
 different ideal ranking — and it is close to uninformative as built: the ideal is the same ranking
@@ -105,7 +119,7 @@ family.
 
 ## What this changes
 
-- **The interval stands, with a wider upper end.** Quote **[0.2428, 0.44–0.51]**, not 0.5114.
+- **The interval stands, with a wider upper end.** Quote **[0.2428, 0.40–0.51]**, not 0.5114.
 - **Retire the 8-word citation check as a relevance gate.** It was an improvement on the strict
   check and it is the wrong instrument for this job: it rejects on formatting. Keep a citation check
   where the claim *is* about a quote (the oracle, KG fidelity); drop it from the relevance AND.

@@ -17,6 +17,18 @@ Judge contract is the one that survived the first pass: the supporting evidence
 must be the FIRST 8 WORDS of a sentence, copied exactly, verified by substring.
 
 Read-only on the evaluation copy; writes only its own output.
+
+SUPERSEDED as the relevance contract on 2026-10-26, and left unchanged on
+purpose: this file is the record of what produced the published 0.5114, and
+rewriting it would delete that record. What is retired is the LABEL RULE
+`relevante = trecho_responde AND citacao_confere`, measured over 510 pairs to
+cost 0.105 of kappa, with the stratum the check REJECTED scoring higher on a
+level scale than the stratum it accepted (2.17 against 1.88). It partitions by
+copyable formatting, not by relevance. Future pooling passes use
+`eval/judge-relevance.py`, which has no citation leg; see
+`audits/2026-10-26-bounded-judge.md`. The check is NOT retired where the claim
+under test is itself about a quotation — the two-legged gold oracle and KG
+faithfulness still use it, and should.
 """
 import json, os, re, sqlite3, sys, time, unicodedata, urllib.request
 from concurrent.futures import ThreadPoolExecutor
