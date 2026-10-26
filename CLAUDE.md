@@ -142,7 +142,7 @@ Scoring é feature work (prefix `tune(search):` ou `feat(search):`). Boost multi
 
 ### 6. Operações destrutivas em chunks só com `--dry-run` ou snapshot atômico
 
-Lição do incident 2026-04-25 (reindex.ts wipou section/retention de 183 entities; root cause = end-of-day cron diário rodava `nox-mem reindex` sem rede de proteção). Antes de `reindex`, `consolidate`, `compact`, `crystallize`, `kg-prune` em prod: ou rodar com `--dry-run` (preview JSON, não muta) OU usar `withOpAudit()` wrapper que cria snapshot atômico em `/var/backups/nox-mem/pre-op/<op>-<ts>-<pid>-<uuid>.db` (retention 7d, ACL 0600, dir 0700, snapshot path validation symlink-aware via realpathSync). Backup-all.sh 02:00 NÃO conta — é diário, não pré-op. Ingest-router unified (Fase A2 v1.6) rota entity files via `ingestEntityFile()` automaticamente; sem ele, `ingestFile()` genérico zera section/retention.
+Lição do incident 2026-04-25 (reindex.ts wipou section/retention de 183 entities; root cause = end-of-day cron diário rodava `nox-mem reindex` sem rede de proteção). Antes de `reindex`, `consolidate`, `compact`, `crystallize`, `kg-prune` em prod: ou rodar com `--dry-run` (preview JSON, não muta) OU usar `withOpAudit()` wrapper que cria snapshot atômico em `/var/backups/nox-mem/pre-op/<op>-<ts>-<pid>-<uuid>.db` (retention **5d** desde 2026-10-26, ACL 0600, dir 0700, snapshot path validation symlink-aware via realpathSync). Backup-all.sh 02:00 NÃO conta — é diário, não pré-op. Ingest-router unified (Fase A2 v1.6) rota entity files via `ingestEntityFile()` automaticamente; sem ele, `ingestFile()` genérico zera section/retention.
 
 **Validação pós-op — duas pernas, porque nenhuma sozinha cobre as duas classes de dano:**
 
@@ -178,6 +178,24 @@ Apontar `sqlite3` para caminho inexistente **cria banco vazio** e devolve
 caminho (medido 2026-09-09: criou arquivo de 0 byte em produção, removido no mesmo minuto).
 Conferir o caminho **antes** de interpretar a resposta — vale para o banco vivo igual.
 
+⚠️ **A retenção do `pre-op` são 5 dias, e o número vive no script** (2026-10-26). Até aqui a
+regra dizia 7 e o efetivo eram ~3: havia **dois** podadores do mesmo diretório —
+`prune-pre-op-snapshots.sh` (03:30, `-mtime +7`) e `prune-nox-backups.sh` (04:10, invocado com
+`NOX_BACKUP_RETENTION_DAYS=2`) — e vencia o que rodava depois, então o efetivo era acidental. O
+segundo saiu do cron (openclaw-vps#66); o `RETENTION_DAYS` default do que ficou é **5** e a
+decisão mora no script, não na linha do cron: duas sessões diagnosticaram errado no mesmo dia por
+lerem o default em vez da invocação.
+
+**Por que 5.** A janela tem de cobrir o tempo de **detecção**, não um número redondo. Nos dois
+incidentes reais (25/04 e 23/05) a detecção levou **~9 h** e **~15 min**. Quem manda no número é
+o fim de semana: dano na sexta 23h notado na segunda de manhã são ~58 h, e `-mtime +2` apaga a
+partir de 72 h — cabe, mas morre antes se a segunda for feriado. 5 dias cobre sexta-noite →
+terça-manhã. Custo medido: ~1,3 snapshot grande por dia a ~1,5 GB ⇒ ~10 GB.
+
+⚠️ E o que **nenhuma** retenção resolve: dano silencioso de meses. O KG drenou por compounding
+decay durante ~2 meses e o `top_chunk_ids` ficou 3,3 meses sem escritor. Para essa classe, 7 dias
+não protegem mais que 5 — o que protege é censo, não snapshot.
+
 **Recovery via `safeRestore()`** em `src/lib/op-audit.ts` — valida `user_version` match + restaura main DB primeiro + remove WAL/SHM órfãos depois (W2-4 fix 04-26: ordem importa). NÃO fazer `cp snapshot.db nox-mem.db` direto (corrompe se WAL stale).
 
 **Mapa das cópias do banco (medido 2026-10-26).** Três mecanismos copiavam o mesmo banco de
@@ -186,7 +204,7 @@ Conferir o caminho **antes** de interpretar a resposta — vale para o banco viv
 | cópia | cadência | formato / retenção | quem lê |
 |---|---|---|---|
 | `/var/backups/nox-mem/daily-main/*.db.gz` | 03:00 UTC (`snapshot-main-db.sh`) | gz ~810 MB, **6 dias** | `morning-report.sh` (freshness) e `weekly-integrity-check.sh` — o **restore-test real**: gunzip + `quick_check` |
-| `/var/backups/nox-mem/pre-op/*.db` | por operação (`withOpAudit()`) | cru, 7 dias | `safeRestore()` |
+| `/var/backups/nox-mem/pre-op/*.db` | por operação (`withOpAudit()`) | cru, **5 dias** | `safeRestore()` |
 | ~~`tools/nox-mem/backups/nox-mem-<data>.db`~~ | **desativado 26/10** | cru 1,6 GB, 2–3 dias | **ninguém** |
 
 A terceira saiu por três razões medidas: nenhum guarda a lia (os dois leem `daily-main`); a
