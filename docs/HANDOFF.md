@@ -1,5 +1,57 @@
 # nox-mem HANDOFF — estado vivo
 
+## ▶ Segunda 26/10, 16h BRT — o check de 8 palavras aposentado, a abstenção fechada, e o denominador era meu
+
+**PR #588 mergeado.** Três entregas depois dele, nesta ordem de importância:
+
+**1. Corrigi o número que eu mesmo publiquei quatro horas antes.** O braço delimitado construía o
+**ideal** do nDCG a partir dos relevantes achados **dentro do ranking**; os dois braços publicados
+carregam o gold inteiro no deles. Um ideal que só conta o que o ranking trouxe não vê documento
+relevante que o sistema não recuperou — um relevante em 1º lugar pontua 1,0 mesmo havendo cinco no
+corpus. Denominador mais frouxo, na direção que me favorecia. Refeito sobre `top-10 ∪ gold` (609 de
+615 pares rotulados): **0,4764 → 0,4315**, a troca de juiz custa **−15,6%** e não −6,8%, e o
+intervalo a citar passa a **[0,2428; 0,40–0,51]**. A mesma regra nos rótulos antigos deixa o pooled
+em 0,5114 **exato** — a construção dele já era a justa. O recomputador exige reproduzir 0,2428,
+0,5114 **e** o 0,4764 superado antes de imprimir qualquer coisa; na primeira execução ele **recusou**
+(0,3579), porque os 30 pares gold moram num segundo arquivo que eu não tinha carregado.
+
+**2. O check de 8 palavras está aposentado como porta de relevância**, com o instrumento que o
+substitui no lugar: `eval/judge-relevance.py`, sem segunda perna, julgando `top-k ∪ gold` a partir
+da saída do próprio scorer. `audits/2026-10-22-gold-pooling.py` fica **intacto** com cabeçalho de
+`SUPERSEDED` — é o registro do que produziu o 0,5114. O check **não** sai de onde a afirmação é
+sobre uma citação (oráculo, fidelidade do KG). Decisão em `docs/DECISIONS.md`.
+
+**3. A abstenção (item 8) saiu do buraco do eixo de concordância.** kappa **0,7938** entre o
+detector de 5 substrings e o juiz delimitado — melhor concordância medida esta semana, e a célula
+«só o detector» está **vazia** em todas as linhas: ele nunca marca abstenção a mais, perde cinco.
+Taxas corrigidas: negativas 0,6957 → **0,7826**, positivas 0,2000 → **0,3200**; as duas subestimadas
+quase igual, logo o **gap** vai de 0,4957 a **0,4626 e sobrevive** — e é o gap que a linha de base
+afirma. Duas das cinco discordâncias são **uma flexão de número**: `"informação"` não é substring de
+`"informações"`. E a perna nova: **4 de 23 negativas (17,4%) afirmam um dado como fato sobre
+parâmetro inexistente, todas com citação.**
+
+🔑 **Mecânico não é o problema; não calibrado é.** O check de citação custa 0,105 de kappa; o
+detector de abstenção, igualmente mecânico, concorda a 0,79. A diferença é só se alguém já o
+confrontou com a propriedade que ele substitui.
+
+**O termo mais frágil que sobrou é o gold.** Dos 97 ids, o juiz confirma **43 (44,3%)** — 63,3% dos
+que aparecem no top-10 contra **35,8%** dos que ficam fora. Parte do que o braço strict conta como
+falha de busca é gold ruim. Não autoriza chamar o gold de lixo (juiz e ranker partilham o viés de
+«contém os termos da pergunta»), autoriza dizer que a régua precisa de conserto antes de o zero_hit
+do strict ser lido como diagnóstico do sistema.
+
+**O juiz é determinístico:** 540 pares julgados duas vezes em corridas separadas, **0** mudanças de
+rótulo, max |Δp| **0,000**. Nada medido hoje é ruído de amostragem.
+
+**Custo do dia inteiro em julgamento: US$ 0,079.**
+
+**Aberto:** o passe **humano** de `claude.ai/artifact/VaJ5vB3WsudP7yxK6EUjQy` segue a única perna
+que não é modelo lendo modelo. O conserto durável do detector de abstenção é em **serving** (emitir
+a frase canônica deterministicamente em vez de pedir ao LLM que a escreva) e **não foi tocado**.
+Consertar a régua PT-BR é o pré-requisito de qualquer leitura do braço strict.
+
+Detalhe: `audits/2026-10-26-{bounded-judge,abstention-judge}.md`.
+
 ## ▶ Segunda 26/10, 12h30 BRT — juiz delimitado: o limite superior do nDCG sobrevive, o check de citação não
 
 **PR #588.** O intervalo publicado [0,2428; 0,5114] tinha todos os rótulos escritos por um prompt de
@@ -12,11 +64,15 @@ de texto livre** — logo a classe de defeito «a prosa contradiz o campo» não
 |---|---|---|
 | strict (gold pré-registrado) — publicado | 0,2428 | 29 |
 | pooled, juiz de prosa — publicado | 0,5114 | 5 |
-| **delimitado, p > 0,5** | **0,4764** | 17 |
-| delimitado, p > 0,3 / p > 0,7 | 0,5085 / 0,4406 | 14 / 19 |
+| **delimitado, p > 0,5** | **0,4315** | 17 |
+| delimitado, p > 0,3 / p > 0,7 | 0,4521 / 0,3995 | 14 / 19 |
 
-**Nada desaba:** outra família, outra forma de saída e 10,9× a cobertura movem o topo −6,8%. Citar
-**[0,2428; 0,44–0,51]**. O pooled não era artefato do juiz.
+**Nada desaba:** outra família, outra forma de saída e 10,9× a cobertura movem o topo −15,6%. Citar
+**[0,2428; 0,40–0,51]**. O pooled não era artefato do juiz.
+
+⚠️ **Estes três números foram corrigidos às 16h** — a primeira versão deste bloco dizia 0,5085 /
+0,4764 / 0,4406 e −6,8%, com o ideal do braço novo contando só os relevantes **dentro do ranking**
+enquanto os dois braços publicados carregam o gold inteiro. Ver o bloco das 16h.
 
 **O achado operacional:** `relevante = trecho_responde AND citacao_confere` particiona por
 *formatação copiável*, não por relevância. Juiz-contra-juiz concorda a **kappa 0,5458**; somar o
