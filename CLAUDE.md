@@ -161,15 +161,22 @@ envelhece valida errado nas duas direções — passa quando devia falhar, e fal
 corpus só cresceu.
 
 ```sh
-sqlite3 -readonly /var/lib/nox-mem/epochs/current.db \
+sqlite3 -readonly /root/.openclaw/workspace/tools/nox-mem/nox-mem.db \
   "SELECT (SELECT COUNT(*) FROM chunks WHERE section='compiled'),
           (SELECT COUNT(*) FROM chunks WHERE section='frontmatter');"
 ```
 
-⚠️ O ponteiro é `/var/lib/nox-mem/epochs/current.db` — **dentro** de `epochs/`, não no
-pai. Apontar `sqlite3` para caminho inexistente **cria banco vazio** e devolve
+⚠️ **O caminho é o banco vivo (`NOX_DB_PATH`), não `epochs/current.db`** — a rotação diária
+de epoch foi **desativada em 2026-10-26** (openclaw-vps#63) por não ter leitor nenhum:
+`/api/health.servingSnapshot` respondia `mode: "off"`, nenhum cron ativo lia o diretório, e o
+P2 — único consumidor por desenho — encerrou em 21/09. Quem precisar de corpus **congelado**
+para medir sem tocar produção descomprime um `/var/backups/nox-mem/daily-main/*.db.gz` (03:00,
+retenção 6 dias); medir sobre `epochs/` hoje é medir sobre nada.
+
+Apontar `sqlite3` para caminho inexistente **cria banco vazio** e devolve
 `no such table: chunks`, erro que se lê como fato sobre o schema e é fato sobre o
 caminho (medido 2026-09-09: criou arquivo de 0 byte em produção, removido no mesmo minuto).
+Conferir o caminho **antes** de interpretar a resposta — vale para o banco vivo igual.
 
 **Recovery via `safeRestore()`** em `src/lib/op-audit.ts` — valida `user_version` match + restaura main DB primeiro + remove WAL/SHM órfãos depois (W2-4 fix 04-26: ordem importa). NÃO fazer `cp snapshot.db nox-mem.db` direto (corrompe se WAL stale).
 
