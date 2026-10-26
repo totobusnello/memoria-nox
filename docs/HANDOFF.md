@@ -1,5 +1,70 @@
 # nox-mem HANDOFF — estado vivo
 
+## ▶ Segunda 26/10, 11h BRT — o relatório de prazos SAIU, e a sessão virou faxina de agendadores
+
+**A pauta nº 1 está cumprida do lado da máquina:** `/root/.openclaw/reports/prazos/prazos-2026-10-26.md`
+(10.267 bytes, 11:03 UTC — quase 3× o de 23/10), de 33 candidatos em 14 arquivos. Seis obrigações
+classificadas: 🔴 SPA MK Solutions (bônus de performance), 🟡 SCP Renato 410, 🟡 São Paulo Bay Torre 2,
+🟡 SPBAY 193/194, ⚪ SPA Segway Nuvini, ⚪ Aeskins SOP, mais a seção de ruído/fato consumado.
+**Falta só o Toto ler** — é o que decide o item 7: lido e mudando algo ⇒ há consumidor e 4, 6 e 11
+reabrem; ignorado duas semanas ⇒ o lado pull fecha.
+
+⚠️ **Defeito latente no `lex-prazos-semanal.sh`, achado hoje e NÃO corrigido.** O log traz
+`line 149: $'json); print(json.dumps(...)': command not found`: o bloco de **fallback** (o que deveria
+despejar o JSON bruto quando a extração do texto falha) tem ` ```json ` dentro de aspas duplas no
+shell, e os backticks viram substituição de comando antes de o Python ver a string. O relatório de
+hoje saiu íntegro porque o caminho normal retorna antes — mas no dia em que a resposta do agente vier
+num formato inesperado, o salva-vidas não salva e o relatório sai mutilado sem dizer por quê. Fix é
+escapar os backticks ou usar heredoc quoted.
+
+### Faxina dos dois agendadores da KVM2 (hoje)
+
+A KVM2 agenda por **dois mecanismos que não se veem**: crontab do root e automations do gateway
+(`openclaw cron`). `grep` no `crontab -l` não acha job do gateway — foi o que fez o backup diário do
+nox-mem parecer órfão. Saíram 4 jobs e 9,1 GB:
+
+| job | agendador | por quê |
+|---|---|---|
+| `nox-epoch-boundary` | crontab | serving em `mode: off`, nenhum cron lia `epochs/`, P2 encerrado em 21/09 |
+| `nox-mem-backup-daily` | gateway | mesmo banco que o `snapshot-main-db.sh` já guarda em gz com mais histórico |
+| `delivery-queue-weekly-cleanup` | gateway | rodava **o mesmo** script do crontab diário, em sonnet |
+| 2 one-shots de setembro | gateway | `kind: at` já cumpridos |
+
+Mais: pico das 07h BRT escalonado para antes das 7h; relay de alertas de 146 → 48 corridas/dia;
+**um só podador do `pre-op`, retenção 5 dias no script** (eram dois, com 7 e 2 dias, vencendo o que
+rodava depois — a regra 6 dizia 7 e o efetivo era ~3). Crontab: 44 → **42** linhas; automations:
+44 → **42**, ativas 29 → **27**. PRs: openclaw-vps #63/#65/#66, memoria-nox #584/#585/#587.
+
+### Esperando o Toto
+
+1. **Ler o relatório de prazos** (acima).
+2. **`notion-health-crons-sync`:** atualiza 6 páginas de Health & Crons no Notion por `curl` — ele abre
+   essas páginas? Se não, o job cai. Se abre, vira linha de crontab: o próprio script se descreve como
+   "Sem LLM — puro shell + curl" e é disparado por um `agentTurn` em haiku.
+3. **`slack-20f-daily-summary`:** recomendado desativar. 239 de 264 corridas (90,5%) terminam em
+   `no messages, skipping`; nas outras escreve `/tmp/slack-20f-summary.txt` "para o daily-briefing ler",
+   e o briefing lê outros quatro arquivos, não esse. Não há entrega a ninguém em nenhum caminho.
+4. **Canal de entrega do relatório de prazos** — ainda só arquivo (cláusula de contrato privado).
+
+### Na mão da sessão do openclaw-vps
+
+Abertura do banco de agente leva 31–36 s (`integrityCheckSyncMs=31046`) **no `main`**, cujo banco tem
+831 MB — medido em 4 eventos; as outras 95 linhas de `slow open` do `envio.err` não trazem campo, logo
+a magnitude total **não** está estabelecida (reparo deles, correto). Caminho prático apontado por eles:
+encolher o banco do `main`, porque o modo do gate parece ser escolhido por lógica interna. A
+instrumentação do 10.7 (`smaps-classify`, `cgroup-mem-sample`) fica ligada até 27/10 a pedido deles —
+precisam de 12 h de curva com o `MALLOC_ARENA_MAX=2` do PR #62.
+
+### Anotado como desenho, não bug
+
+Jobs de 664 s e 686 s (`cipher-weekly-full`, `ai-daily-digest-manha`) convivem com o
+`gateway-leak-watchdog`, que reinicia o gateway e mede a cada 10 min. Foi essa colisão que matou dois
+jobs em 25/10 (`Gateway is shutting down`, não defeito deles). Escalonar afastou do pico; a corrida
+estrutural segue.
+
+---
+
+
 ## ▶ Estado e fila (23/10 sex, 11:35 BRT): começar aqui
 
 > **Sessão encerrada sábado 24/10, 23:44 BRT, sem mudança de código nem de estado.** Repo em
