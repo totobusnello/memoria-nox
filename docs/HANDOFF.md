@@ -1,5 +1,42 @@
 # nox-mem HANDOFF — estado vivo
 
+## ▶ Segunda 26/10, 12h30 BRT — juiz delimitado: o limite superior do nDCG sobrevive, o check de citação não
+
+**PR #588.** O intervalo publicado [0,2428; 0,5114] tinha todos os rótulos escritos por um prompt de
+prosa+booleano do `gemini-2.5-flash-lite`, com concordância medida em **20 dos 518 pares**. Os 548
+pares das mesmas 55 rankings foram re-julgados pela Decisions API (`gpt-6-luna`), que **não tem campo
+de texto livre** — logo a classe de defeito «a prosa contradiz o campo» não ocorre por construção.
+542 de 548 julgados (98,9%, contra 9,1% do braço strict), **12 s, US$ 0,0312**.
+
+| rótulos | nDCG@10 | zero-hit |
+|---|---|---|
+| strict (gold pré-registrado) — publicado | 0,2428 | 29 |
+| pooled, juiz de prosa — publicado | 0,5114 | 5 |
+| **delimitado, p > 0,5** | **0,4764** | 17 |
+| delimitado, p > 0,3 / p > 0,7 | 0,5085 / 0,4406 | 14 / 19 |
+
+**Nada desaba:** outra família, outra forma de saída e 10,9× a cobertura movem o topo −6,8%. Citar
+**[0,2428; 0,44–0,51]**. O pooled não era artefato do juiz.
+
+**O achado operacional:** `relevante = trecho_responde AND citacao_confere` particiona por
+*formatação copiável*, não por relevância. Juiz-contra-juiz concorda a **kappa 0,5458**; somar o
+check de 8 palavras a um lado derruba para **0,4412**. E o estrato que o check **rejeitou** pontua
+mais alto (nível 2,17, n=49) que o que ele aceitou (1,88, n=106) — é o achado do KG de 22/10
+reproduzido em retrieval. ⇒ **aposentar o check de 8 palavras como porta de relevância**; mantê-lo
+onde a afirmação *é* sobre uma citação (oráculo, fidelidade do KG).
+
+O controle que torna o resto legível: nas 355 negativas os dois juízes concordam em **98,3%**. E a
+amostra de 20 de 22/10 acertou — kappa +0,400 virou 0,4412 em 510 pares.
+
+⚠️ O gold pré-registrado também não é inquestionável: **19 de 30** confirmados. O oráculo de duas
+pernas produziu rótulos melhores que o pooling de uma, como devia, mas 11 não sobrevivem a uma
+segunda família.
+
+**Aberto:** abstenção (0,696/0,200) nunca foi amostrada neste eixo; e o passe **humano** da página
+`claude.ai/artifact/VaJ5vB3WsudP7yxK6EUjQy` segue a única perna que não é modelo lendo modelo.
+
+Detalhe, defeitos achados e disciplinas: `audits/2026-10-26-bounded-judge.md`.
+
 ## ▶ Segunda 26/10, 11h BRT — o relatório de prazos SAIU, e a sessão virou faxina de agendadores
 
 **A pauta nº 1 está cumprida do lado da máquina:** `/root/.openclaw/reports/prazos/prazos-2026-10-26.md`
@@ -9,13 +46,16 @@ classificadas: 🔴 SPA MK Solutions (bônus de performance), 🟡 SCP Renato 41
 **Falta só o Toto ler** — é o que decide o item 7: lido e mudando algo ⇒ há consumidor e 4, 6 e 11
 reabrem; ignorado duas semanas ⇒ o lado pull fecha.
 
-⚠️ **Defeito latente no `lex-prazos-semanal.sh`, achado hoje e NÃO corrigido.** O log traz
+✅ **Defeito do `lex-prazos-semanal.sh` corrigido no mesmo dia** (openclaw-vps#67, provado por
+mutação: a versão HEAD reproduz o erro e perde o JSON, a corrigida imprime o bloco inteiro). O log traz
 `line 149: $'json); print(json.dumps(...)': command not found`: o bloco de **fallback** (o que deveria
 despejar o JSON bruto quando a extração do texto falha) tem ` ```json ` dentro de aspas duplas no
 shell, e os backticks viram substituição de comando antes de o Python ver a string. O relatório de
 hoje saiu íntegro porque o caminho normal retorna antes — mas no dia em que a resposta do agente vier
-num formato inesperado, o salva-vidas não salva e o relatório sai mutilado sem dizer por quê. Fix é
-escapar os backticks ou usar heredoc quoted.
+num formato inesperado, o salva-vidas não salvaria e o relatório sairia mutilado sem dizer por quê.
+A cerca de código passou a vir de `chr(96)`, e o comentário que explica o porquê também não pode
+conter backtick nem aspa dupla — a primeira versão do fix reintroduziu o próprio defeito no
+comentário, e o teste de mutação pegou.
 
 ### Faxina dos dois agendadores da KVM2 (hoje)
 
