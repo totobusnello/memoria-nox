@@ -180,6 +180,29 @@ Conferir o caminho **antes** de interpretar a resposta — vale para o banco viv
 
 **Recovery via `safeRestore()`** em `src/lib/op-audit.ts` — valida `user_version` match + restaura main DB primeiro + remove WAL/SHM órfãos depois (W2-4 fix 04-26: ordem importa). NÃO fazer `cp snapshot.db nox-mem.db` direto (corrompe se WAL stale).
 
+**Mapa das cópias do banco (medido 2026-10-26).** Três mecanismos copiavam o mesmo banco de
+1,6 GB. Dois ficaram:
+
+| cópia | cadência | formato / retenção | quem lê |
+|---|---|---|---|
+| `/var/backups/nox-mem/daily-main/*.db.gz` | 03:00 UTC (`snapshot-main-db.sh`) | gz ~810 MB, **6 dias** | `morning-report.sh` (freshness) e `weekly-integrity-check.sh` — o **restore-test real**: gunzip + `quick_check` |
+| `/var/backups/nox-mem/pre-op/*.db` | por operação (`withOpAudit()`) | cru, 7 dias | `safeRestore()` |
+| ~~`tools/nox-mem/backups/nox-mem-<data>.db`~~ | **desativado 26/10** | cru 1,6 GB, 2–3 dias | **ninguém** |
+
+A terceira saiu por três razões medidas: nenhum guarda a lia (os dois leem `daily-main`); a
+premissa do job estava quebrada — existia para "preceder o consolidate das 23h" e rodava
+`50 22 * * *` America/Sao_Paulo = **01:50 UTC**, 21 h fora do `nightly-maintenance` das 23:00
+UTC, que hoje tem rede própria em `pre-op/`; e custava 4,6 GB **mais uma chamada de LLM por
+dia** (o job era um `agentTurn` do `forge` em haiku só para rodar um bash, 40 s por corrida).
+
+⚠️ **O agendador dele não era o cron.** Era o do gateway (`openclaw cron`), então `crontab -l`
+não o mostra — e `backupDb()` em `src/db.ts` é homônimo **sem chamador nenhum**, o que faz um
+`grep` por nome apontar para o lugar errado. O produtor é `tools/nox-mem/nox-mem-backup.sh`,
+disparado pelo automation `nox-mem-backup-daily` (`5053cc02-9711-4888-8bcd-617b5d518356`), hoje
+`enabled = 0` no `cron_jobs` do `state/openclaw.sqlite`. Religar:
+`openclaw cron enable 5053cc02-9711-4888-8bcd-617b5d518356` — e conferir no banco, porque o CLI
+do gateway sai com **exit 0 sem aplicar** quando o timeout o corta.
+
 **Override emergencial:** `NOX_ALLOW_NO_SNAPSHOT=1` no env permite rodar op destrutiva mesmo se snapshot falhar (ex: disk full + emergency reindex) — usar SÓ se snapshot falhou por motivo legítimo conhecido, nunca como atalho.
 
 Audit log `ops_audit` é **append-only** (W2-1 trigger CWE-693): DELETE bloqueado, UPDATE bloqueado em rows com status terminal.
