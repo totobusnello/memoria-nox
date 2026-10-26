@@ -2992,3 +2992,75 @@ booleano.
 grafo 0,900 fiel ao corpus errado continua sendo o corpus errado.
 
 `audits/2026-10-23-kg-s1-quatro-principios.{py,md}`.
+
+---
+
+### 2026-10-26 — o check de 8 palavras sai como porta de relevância; e o denominador do nDCG também era meu
+
+**Decidido.** O rótulo `relevante = trecho_responde AND citacao_confere` **não** é mais o contrato
+de relevância do eval. Medido sobre 510 pares: juiz contra juiz concorda a kappa **0,5458**; somar
+o check de 8 palavras a um lado derruba para **0,4412** — ele custa **0,105 de kappa** — e o
+estrato que o check **rejeitou** pontua mais alto na escala de níveis (2,17, n=49) que o estrato
+que ele aceitou (1,88, n=106). Ele particiona por **formatação copiável** (pipes de tabela
+markdown, `<u>`, sinal de moeda escapado), não por relevância. É o achado do KG de 22/10
+reproduzido em retrieval, com n 25× maior.
+
+**O que entra no lugar:** `eval/judge-relevance.py`, sem segunda perna, que julga o universo
+inteiro — `top-k ∪ gold` — a partir da própria saída do `run-gold-eval.mjs`. Julgar tudo custa
+US$ 0,038 e 21 s para 615 pares, então amostrar deixou de ser economia defensável: foi a amostragem
+que quase nos fez publicar nDCG com 9,1% do top-10 julgado.
+
+**O que NÃO sai.** Onde a afirmação sob teste *é* sobre uma citação — o oráculo de duas pernas, a
+fidelidade do KG — o check fica, porque lá a citação é o objeto da medição, não um proxy. E
+`audits/2026-10-22-gold-pooling.py` fica **intacto**, com cabeçalho de `SUPERSEDED`: é o registro
+do que produziu o 0,5114 publicado, e reescrevê-lo apagaria o registro.
+
+🔑 **Mecânico não é o problema; não calibrado é.** No mesmo dia, o detector de abstenção — cinco
+substrings — concordou com o juiz delimitado a kappa **0,7938**, melhor que qualquer par de juízes
+medido esta semana. A diferença entre os dois predicados mecânicos não é a natureza, é se alguém
+já os confrontou com a propriedade que eles substituem.
+
+**A correção que tive de fazer no meu próprio número do dia.** O braço delimitado que reportei
+(0,5085 / 0,4764 / 0,4406) construía o **ideal** a partir dos relevantes achados **dentro do
+ranking**, enquanto os dois braços publicados carregam o gold inteiro no deles. Um ideal que só
+conta o que o ranking trouxe não vê documento relevante que o sistema deixou de recuperar: um
+relevante devolvido em 1º lugar pontua 1,0 mesmo havendo cinco no corpus. Denominador mais frouxo,
+na direção que favorece o braço novo. Refeito sobre `top-10 ∪ gold` — 609 de 615 pares rotulados, o
+que só agora era possível:
+
+| rótulos | nDCG@10 | MRR | zero-hit |
+|---|---|---|---|
+| strict (gold pré-registrado) | 0,2428 | 0,2437 | 29 |
+| pooled, juiz de prosa | 0,5114 | 0,5412 | 5 |
+| delimitado p>0,3 | 0,4521 | 0,4311 | 14 |
+| **delimitado p>0,5** | **0,4315** | 0,4092 | 17 |
+| delimitado p>0,7 | 0,3995 | 0,3728 | 19 |
+
+A troca de juiz custa **−15,6%**, não os −6,8% que reportei. **Citar `[0,2428; 0,40–0,51]`.** A
+mesma regra aplicada aos rótulos **antigos** deixa o pooled em 0,5114 **exato** — a construção dele
+já era a justa, só a minha precisava de conserto. O MRR não muda porque nunca dependeu do ideal.
+
+⚠️ **E o gold pré-registrado é o termo mais frágil que sobrou.** Dos 97 ids, o juiz delimitado
+confirma **43 (44,3%)** — e a repartição diz mais que a média: **63,3%** dos que aparecem no top-10
+contra **35,8%** dos que ficam fora. Ou seja, parte do que o braço strict conta como falha de busca
+é gold ruim. Limite declarado: juiz e ranker não partilham mecanismo (BM25+embeddings contra LLM)
+mas partilham o viés de «contém os termos da pergunta», então isto **não** autoriza concluir que o
+gold fora do top-10 é lixo — autoriza dizer que a régua precisa de conserto antes de o zero_hit do
+strict ser lido como diagnóstico do sistema.
+
+**Abstenção (item 8), fechada no eixo de concordância.** Taxas corrigidas: negativas 0,6957 →
+**0,7826**, positivas 0,2000 → **0,3200**, as duas subestimadas quase na mesma medida, logo o
+**gap** — que é o que a linha de base afirma — vai de 0,4957 a **0,4626** e sobrevive. As duas
+pontas são **piso**: 14 dos 48 heads estão truncados em 180 chars e todos os 14 são não-abstenção.
+Das cinco discordâncias, zero são o detector vendo abstenção a mais; **duas são uma flexão de
+número** (`"informação"` não é substring de `"informações"`). E a perna que o binário não tinha:
+**4 de 23 negativas (17,4%) afirmam um dado como fato sobre parâmetro inexistente, todas com
+citação** — o guarda protege a citação, não a afirmação, agora com taxa.
+
+**O juiz é determinístico.** 540 pares julgados duas vezes em corridas separadas: **0** mudanças de
+rótulo, max |Δp| = **0,000**. Nada do que foi medido hoje é ruído de amostragem, e não há razão
+para repetir corrida.
+
+`audits/2026-10-26-{bounded-judge,abstention-judge}.md`,
+`audits/2026-10-26-{abstention-judge,abstention-rescore,rescore-canonical}.py`,
+`eval/judge-relevance.py`.
