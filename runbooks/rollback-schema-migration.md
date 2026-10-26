@@ -8,6 +8,11 @@
 
 - SSH root VPS (`ssh root@<NOX_TAILSCALE_IP>`)
 - Backup pré-migration existe em `/root/.openclaw/workspace/tools/nox-mem/backups/nox-mem-pre-v<N>-*.db`
+  — ⚠️ **esse diretório não tem mais cópias automáticas** (o backup diário das 01:50 UTC foi
+  desativado em 2026-10-26; ver o mapa das cópias na regra 6 do `CLAUDE.md`). O `nox-mem-pre-v*`
+  é feito **à mão** antes da migração e continua sendo o alvo deste rollback. Se ele não existe,
+  o backup mais recente do banco é `/var/backups/nox-mem/daily-main/*.db.gz` (03:00 UTC, 6 dias,
+  **descomprimir antes**) e as redes por operação estão em `/var/backups/nox-mem/pre-op/`.
 - Conhece a versão estável anterior (current schema_version: v10)
 
 ## Procedure (15min)
