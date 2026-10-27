@@ -1,6 +1,8 @@
 # Pre-registration plan — the construction interaction. DRAFT for approval, not deposited.
 
-> **Status.** Written 2026-10-27 after the collision check (`README.md`). **Nothing has been run
+> **Status.** Written 2026-10-27 after the collision check (`README.md`), and **revised the same day
+> after reading `2601.00821` in full** — which took the faithfulness half off our side of the ledger
+> and replaced it with a named prediction to test. H2 and H3 are the revision. **Nothing has been run
 > under this plan.** It is submitted for Toto's approval; on approval it gets a Zenodo DOI *before*
 > any arm executes, and the DOI goes in the paper. The exploratory run that motivated it
 > (`audits/2026-10-27-*`) is cited as exploratory and never as confirmation.
@@ -10,17 +12,46 @@
 Four studies find that LLM-extracted memory loses to retrieval over raw turns, and conclude that the
 answer is better search rather than better construction (`2601.00821`, `2609.34227`, `2610.29823`,
 `2609.34160`). All four hold the extraction step at its defaults — `2610.29823` says so: *"Mem0 and
-Zep run with their default extraction and retrieval, and other settings may do better."*
+Zep run with their default extraction and retrieval, and other settings may do better"* — and
+`2601.00821`, which is the closest and the one that isolates the mechanism, states the open question
+as a prediction:
+
+> *"Better extraction prompts — explicit date/time targeting, temporal attribute modeling — could
+> shrink this class, **but cannot reach the unconditional retention of a verbatim store.**"*
+
+This plan tests that prediction, and adds a factor no benchmark study can have: how much of the
+conversation the builder was shown. `factorial` appears **zero** times in all four.
 
 **H1 (primary).** The window the builder is shown and the criterion it extracts under **interact**:
 the joint effect on answer accuracy exceeds the sum of the two main effects.
 
-**H2.** With both changed, extracted memory is **non-inferior** to naive RAG over the raw transcript
-at equal context budget.
+**H2 (the prediction).** With both changed, extracted memory is **non-inferior** to naive RAG over
+the raw transcript. Pre-specified in **two budget regimes**, because the exploratory run split on
+exactly this and reporting one alone would be choosing the answer:
 
-**H3 (mechanism).** The interaction is concentrated in facts whose answer is an identifier — file
-name, path, command, config key, numeric value — and is absent or small for facts whose answer is a
-lesson or a decision.
+- **H2a, equal context budget** — the memory arm truncated to the characters the deployed memory
+  serves. The exploratory estimate was 48.5% against 63.6%, i.e. **the prediction holds**.
+- **H2b, native budget** — the memory arm serving all the units a repaired builder produces, which
+  is 2.4× the deployed volume and is what the fixed system would actually serve. The exploratory
+  estimate was 63.6% against 63.6%, i.e. **the prediction fails**.
+
+Both are reported whatever they say. A result that holds in one regime and fails in the other is the
+outcome, not a problem with it.
+
+**H3 (mechanism — identifier survival, not text survival).** `2601.00821` establishes that accuracy
+tracks how much **source text** survives the store. We predict the governing quantity is narrower:
+the survival of the **identifier the question asks for**. Two consequences are tested:
+
+- **H3a.** The interaction is concentrated in facts whose answer is an identifier — file name, path,
+  command, config key, numeric value — and is small or absent for lessons and decisions.
+- **H3b.** Accuracy draws level **well below** full retention. Mechanical identifier-survival rate is
+  measured by string match, with no judge, before any accuracy is read; the exploratory run saw
+  6.6% → 12.9% against a verbatim store's 100%.
+
+⚠️ **H3a is confirmatory of An, not novel.** That extraction loses the literal detail is already
+established there (*"use type hints everywhere"* → *"the user prefers type hints"*, 14.0% against
+91.0%), with a 69%/31% write-time/query-time split. H3a is included because the factorial needs it,
+and it is labelled as replication. **H3b is the new claim.**
 
 ## 2. Design — 2×2 factorial, within-question
 
@@ -105,9 +136,15 @@ Nothing else is excluded, and in particular **no item is dropped for being hard*
 | claim | falsified by |
 |---|---|
 | H1 | interaction term not significant, or negative |
-| H2 | lower bound below −5 pp against naive RAG at equal budget |
-| H3 | interaction as large on `lesson`/`decision` as on `identifier` |
+| H2a | lower bound **above** −5 pp at equal budget — i.e. An's prediction would fail where we expect it to hold |
+| H2b | lower bound below −5 pp at native budget — the prediction holds everywhere and we have no accuracy result |
+| H3a | interaction as large on `lesson`/`decision` as on `identifier` |
+| **H3b** | accuracy drawing level **only** once identifier survival approaches a verbatim store's, which would make the mechanism text survival after all and leave An's law unrefined |
 | the whole instrument | W0C0 failing to reproduce the deployed system's accuracy within 5 pp |
+
+Note that H2a and H2b are falsified by **opposite** results, deliberately: the claim is that the
+budget regime decides, so a plan that could only be confirmed by one direction would not be testing
+it.
 
 ## 7. Known weaknesses of this plan, stated before the result
 
