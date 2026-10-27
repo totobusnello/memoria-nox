@@ -1,6 +1,6 @@
 # Pre-registration plan — the construction interaction. DRAFT for approval, not deposited.
 
-> 🔴 **NOT DEPOSITABLE — §4 blocked 2026-10-27, §11 at rc2 after an adversarial pass.** §11 supersedes §4 as the design; the Codex pass (`audits/2026-10-27-codex-challenge-s11.md`) then found two literal errors in §11 — the dose in the wrong unit and the truncation direction inverted — plus a power calculation that does not cover its own estimand, decision labels contradicting their intervals, two controls a constant `NAO SEI` would pass, and four claims asserted rather than derived. All are addressed, and the two items §11.7 had left open were closed the same day — both making the study harder: **n=193 rather than 52** for production's own effect size, and the dose demoted from a point to a three-level factor because its median rests on **six** sessions spanning [0.020 .. 0.894].
+> 📌 **DEPOSIT CANDIDATE — §11 is the active design; §4 is kept as the blocked first attempt.** §11 supersedes §4 as the design; the Codex pass (`audits/2026-10-27-codex-challenge-s11.md`) then found two literal errors in §11 — the dose in the wrong unit and the truncation direction inverted — plus a power calculation that does not cover its own estimand, decision labels contradicting their intervals, two controls a constant `NAO SEI` would pass, and four claims asserted rather than derived. All are addressed, and the two items §11.7 had left open were closed the same day — both making the study harder: **n=193 rather than 52** for production's own effect size, and the dose demoted from a point to a three-level factor because its median rests on **six** sessions spanning [0.020 .. 0.894]. A later run then bracketed the criterion effect across judge families at **[+8.1 · +21.2] pp** (§11.5 item 7), which is pre-specified here as the reporting form. §4 stays in the document as the record of a design its own sampling code refuted — removing it would hide why §11 looks the way it does.
 >
 > 🔴 **On §4 as written — blocked 2026-10-27.** Writing the sampling code revealed that the
 > corpus cannot support §4. The window factor has variance in **12 of 194** eligible sessions and
@@ -520,11 +520,28 @@ the alpha split is dropped. That choice goes in the final text, not here.
    capacity, and higher identifier density could as easily **saturate** the store and reduce the
    gain. Without a stated additional assumption there is no demonstrated ordering between the two
    corpora, so the effect here is **an estimate on this corpus** and nothing more.
-7. 🔴 **A constant judge is not a constant error.** Holding the judge identical across cells removes
-   one source of variance; it does not validate the labels. The identifier prompt plausibly produces
-   more **literal** answers, which a judge may reward without an equal gain in correctness — so the
-   risk is to the **internal** interaction estimate, not only to leaderboard comparability. ⇒ the
-   human validation in §7 must reach the **primary contrast**, not only H2.
+7. 🔴 **A constant judge is not a constant error — and this is now MEASURED, not feared.** Holding
+   the judge identical across cells removes one source of variance; it does not validate the labels.
+   A second family was run over the same 99 replay items (Google `gemini-2.5-flash-lite` against
+   OpenAI `gpt-6-luna`, 594 judgements; `audits/2026-10-27-a-second-family-measured-the-problem-it-
+   was-meant-to-remove.md`):
+
+   | contrast | family 1 | family 2 | difference |
+   |---|---|---|---|
+   | **`d_full − c_all`** — full window both sides, only the prompt differing | **+8.1 pp** | **+21.2 pp** | **13.1 pp** |
+
+   **The difference between families exceeds the effect one of them reports.** The disagreement is
+   almost one-directional (family 2 adds 123 acceptances, removes 1 — a calibration difference, not
+   noise) and **asymmetric toward D**: it adds 17.2% on `c_all` against **30.3%** on `d_full`.
+
+   Two readings fit and they have opposite consequences — **literalness bias** (D attracts credit it
+   has not earned, so +21.2 is inflated) or **severity** (family 1 rejects correct answers, so +21.2
+   is truer). The asymmetry is consistent with both, and two LLM judges cannot separate them.
+
+   ⇒ **Pre-specified consequence:** the criterion effect is reported as the **bracket
+   [+8.1 · +21.2] pp across judge families**, never as one family's figure, unless a human pass
+   picks between them. The human validation of §7 must therefore reach the **primary contrast**, and
+   its job is now stated precisely: collapse this bracket.
 8. 🔴 **The factorial does not identify the mechanism.** The prompt changes identifier survival *and*
    unit count, length, selection and retrievability together. A positive interaction does not
    establish that identifier survival governs the effect, so the mechanism claim is not among the
