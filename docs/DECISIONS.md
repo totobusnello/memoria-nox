@@ -2995,6 +2995,45 @@ grafo 0,900 fiel ao corpus errado continua sendo o corpus errado.
 
 ---
 
+### 2026-10-27 (noite) — NENHUMA causa explica sozinha: é INTERAÇÃO, e as duas juntas empatam com RAG naive
+
+`audits/2026-10-27-neither-cause-explains-it-alone.md`. Custo ~US$ 0,48. **Supersede a atribuição das
+duas entradas anteriores de hoje; os números delas continuam válidos.**
+
+**1. A tese do paper troca de forma, e fica mais forte.** Não "memória de agente tem valor líquido
+negativo", mas "**esta construção** tem, a causa é uma interação de **janela × critério de
+extração**, e consertar as duas a empata com RAG naive". Resultado com mecanismo **e** remédio, em
+dado de produção — não um negativo.
+
+**2. O efeito é superaditivo, e é por isso que as duas leituras anteriores erraram.** Só a janela:
++4,0 pp (8,7% do gap). Só o prompt: +4,0 pp (8,7%). **As duas: +21,2 pp (45,7%)** — interação de
+**13,2 pp**, maior que qualquer efeito principal. Instrução de carregar identificador só age sobre
+identificador que **está** no bloco mostrado; bloco que o contém não serve se o critério o descarta.
+⇒ **entregar as duas ou nenhuma.** Cada conserto isolado se leria como intervenção fracassada, e
+entregar o prompt sem consertar o see-once é a maneira provável de concluir, errado, que o prompt não
+funciona.
+
+**3. O valor líquido fecha.** Contra RAG naive em 63,6%: B **−21,2 pp** · D_iso (orçamento igual)
+−15,2 pp · **D_full 0,0 pp**. ⚠️ **NUNCA citar o 0,0 pp sem dizer que D_full recebe 2,41× o contexto
+de B** (construtor que volta produz mais memória). No orçamento estritamente igual o número é 48,5%.
+
+**4. `context` melhorou, NÃO está resolvido.** 26,2% → **52,4%** com o prompt + janela, contra 66,7%
+do retrieval sobre o cru — ainda 14 pp abaixo. ⇒ não declarar o `context` consertado. O **teto de 10
+itens** e a blocagem **sem overlap** seguem não testados como causa, e são os próximos candidatos.
+
+**5. A mudança de prompt é UM parágrafo, e o teto de 10 itens ficou fixo de propósito.** Uma variável
+por corrida: blocagem, modelo, temperatura, `responseMimeType` e o filtro de importância intactos.
+
+**6. O controle que autoriza ler tudo isso:** C_visible — meu pipeline, prompt antigo, entrada
+visível — reproduz **42,4%** de acerto e **7,1%** de contradição, os números do B real
+**exatamente**. ⚠️ E duas células em que ele **não** é fiel, a declarar junto: `context` 16,7% contra
+26,2% de B, e D_visible a 14,3% na faixa 50–200k contra 42,9% (n=7). Falta o dedup por embedding. ⇒
+**diferença per-célula desse tamanho está no ruído; o agregado e a faixa 200k–1M não.**
+
+**7. NÃO afirmamos dano, quarto dia.** D_full contradiz em 12,1%, abaixo do piso de 17,2% do braço A.
+
+---
+
 ### 2026-10-27 (tarde) — o gap é EXTRAÇÃO: o see-once explica 8,7% dele; e a alavanca do `context` é o PROMPT
 
 `audits/2026-10-27-the-gap-is-extraction-not-the-window.md` +
