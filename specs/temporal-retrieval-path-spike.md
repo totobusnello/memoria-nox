@@ -105,6 +105,7 @@ Q70+Q71 (curadas) e Q87+Q88 (vazias — precisam ser curadas antes do gate). Fil
 - **Anchor recall:** % queries temporais onde anchor parseado com sucesso.
 
 ### 5.4 Ablation matrix (Q1 Lab)
+
 | Run | Path | Detector | Anchor | Expectativa |
 |---|---|---|---|---|
 | T0 | off | — | — | baseline (G5 atual) |

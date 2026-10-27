@@ -62,6 +62,7 @@ Em `buildBrief`, após `calculateSalience` e antes do sort/`tryPick` final:
 - Preenchidos via o mesmo `tryPick` (dedup-safe), após os slots de salience.
 
 ### 4c. Parâmetros (env, default conservador)
+
 | Param | Default | Papel |
 |---|---|---|
 | `NOX_BRIEF_DIVERSITY` | `off` | `off`\|`shadow`\|`active` |

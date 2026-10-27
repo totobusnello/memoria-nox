@@ -60,3 +60,24 @@ MD053: false   # link-image-reference-definitions
 MD054: false   # link-image-style
 MD055: false   # table-pipe-style
 MD056: false   # table-column-count
+
+# --- Added 2026-10-27: rules that arrived with a newer markdownlint ---
+# The workflow pins `markdownlint-cli2-action@v16`, a floating MAJOR tag, so new
+# rules land without notice. These two did, and they broke the main branch on a
+# push — 7,358 + 23 violations across files dating back to April, none of them
+# introduced by the commit that failed.
+#
+# Both are stylistic, which is the class this file exists to disable (see the
+# header: "structural sanity only, all stylistic rules disabled").
+MD060: false   # table-column-style — whitespace around table pipes. 7,358 hits
+               # repo-wide; `--fix` reformats every table in every audit, which
+               # is churn across months of history for a cosmetic property.
+MD007: false   # ul-indent — list indentation. Every hit was inside
+               # audits/2026-10-27-kimi-challenge-medicoes.md, which is a
+               # BYTE-FOR-BYTE copy of an adversarial parecer. Editing it to
+               # satisfy a style rule would destroy the one property that makes
+               # it evidence, so the rule goes rather than the fidelity.
+#
+# MD058 (blanks-around-tables) is deliberately NOT disabled: a table without a
+# blank line before it can fail to render, so that one is a real defect and the
+# 23 occurrences were fixed instead.
