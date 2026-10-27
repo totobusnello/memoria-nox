@@ -31,11 +31,39 @@ const { answer } = await import(`${DIST}/lib/answer/index.js`);
 // que a escreva. O predicado fica como esta porque e o que produziu o numero
 // publicado. Ver audits/2026-10-26-abstention-judge.md.
 const CANON = "i have no memory matches for this question";
-const abstained = (t) => {
+
+// `abstainedSubstr` is the predicate that produced the PUBLISHED 0.6957/0.2000.
+// It is kept byte-identical so that number stays reproducible; do not extend the
+// list — adding inflections repeats the defect one step further out.
+const abstainedSubstr = (t) => {
   const s = (t || "").toLowerCase();
   return s.includes(CANON) || s.includes("não tenho") || s.includes("nao tenho")
       || s.includes("não há informação") || s.includes("nao ha informacao");
 };
+
+// STRUCTURAL predicate, added 2026-10-27 and measured before being adopted. The
+// serving prompt requires EVERY factual claim to carry a [chunk_N] marker, so an
+// answer with no citation has nothing anchored in the context. Against the
+// bounded judge over the same 48 items:
+//
+//   five substrings   TP=21 FP=0 FN=5  kappa 0.7938
+//   citations === 0   TP=23 FP=0 FN=3  kappa 0.8754   <- strictly better
+//   either            TP=23 FP=0 FN=3  kappa 0.8754
+//
+// Neither over-marks (FP=0 for both), which matters more than recall here: a
+// detector that turns a useful answer into a refusal is worse than one that
+// misses a refusal. See audits/2026-10-27-abstention-structural-predicate.py.
+//
+// ⚠️ It does NOT close the gap, and the three it still misses say why: on
+// `tier_decay`, `reflect_quota` and Q57 the model cites a chunk AND declares the
+// context does not explain the thing — citing the neighbour while refusing. No
+// surface predicate over the answer text can separate that, because the answer
+// is genuinely both. The durable fix is a structured signal from serving, not a
+// better reader of its prose; the design is in
+// audits/2026-10-27-abstention-the-durable-fix.md.
+const abstainedStructural = (r) => (r?.citations?.length ?? 0) === 0;
+
+const abstained = (txt, r) => abstainedSubstr(txt) || abstainedStructural(r);
 
 const negs = JSON.parse(readFileSync(NEG, "utf8")).filter((c) => c.clean)
   .map((c) => ({ kind: "negative", id: c.token, query: c.query }));
@@ -55,7 +83,9 @@ for (const t of all) {
   const txt = r?.answer ?? "";
   const row = {
     kind: t.kind, id: t.id, query: t.query,
-    abstained: abstained(txt),
+    abstained: abstained(txt, r),
+    abstained_substr: abstainedSubstr(txt),
+    abstained_structural: abstainedStructural(r),
     retrieval_count: r?.metadata?.retrieval_count ?? 0,
     failed_reason: r?.metadata?.failed_reason ?? null,
     citations: (r?.citations ?? []).length,
