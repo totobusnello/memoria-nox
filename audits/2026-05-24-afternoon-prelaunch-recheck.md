@@ -18,6 +18,7 @@ bash scripts/check-pre-launch.sh
 **VERDICT:** ⚠️ GO-WITH-WARNINGS
 
 **Status breakdown:**
+
 | Check | Result | Note |
 |-------|--------|------|
 | Repo state | ⚠️ | main clean, tag v1.0.0-rc1 MISSING, 20+ commits |

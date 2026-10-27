@@ -231,6 +231,7 @@ Exit 0 (ready) / exit 1 (blocked).
 - **Pre-registration:** `eval/golden-queries.jsonl` (60 queries, SHA-256 9bff8ee7..., commit f75d186)
 
 ### Métricas headline
+
 | Sistema | nDCG@10 | n | Notas |
 |---|---|---|---|
 | FTS5 vanilla (BM25) | 0.0123 | 60 | golden corpus |
@@ -274,6 +275,7 @@ Tag aplicada: **`v1.0.0-paper-draft`** (sincroniza com CITATION.cff version fiel
 ## Critic issues — status final
 
 ### CRITICAL (7)
+
 | ID | Concern | Status | Resolução |
 |---|---|---|---|
 | C1 | Pain ablation real | ✅ | E10 hybrid + FTS-only + calibration test (todos NOT_SIGNIFICANT, refuted hypotheses) |
@@ -285,6 +287,7 @@ Tag aplicada: **`v1.0.0-paper-draft`** (sincroniza com CITATION.cff version fiel
 | C7 | Other | ✅ | (per critic-review-report.md) |
 
 ### HIGH (6)
+
 | ID | Concern | Status |
 |---|---|---|
 | H1 | Pre-registration timestamp | ✅ §3.8 + git hash |

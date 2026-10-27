@@ -94,6 +94,7 @@ Sessão Claude Code (Mac)
 - Max 5 regras por run (auto-limitação contra drift)
 
 **Onde escreve:**
+
 | Tipo de regra | Destino |
 |---------------|---------|
 | Universal (todo agente) | `.claude/learning/global.md` |

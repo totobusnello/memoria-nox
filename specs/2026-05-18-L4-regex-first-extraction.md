@@ -438,6 +438,7 @@ Quando entity file é editado (detected via watcher mtime change):
 - **Sample**: 1000 chunks aleatórios stratified por section (250 compiled, 250 timeline, 250 prose, 250 daily/conversation)
 
 ### Métricas
+
 | Métrica | Acceptance |
 |---|---|
 | **Precision regex** (% regex relations corretas vs Gemini ground-truth) | ≥95% (DoD #1) |

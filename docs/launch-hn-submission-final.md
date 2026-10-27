@@ -127,6 +127,7 @@ Paper (full methodology + ablations): [arXiv link]
 06:15 ET is **weak** — East Coast is commuting, West Coast is asleep or just waking. Posts at 06:15 ET that don't immediately accumulate votes can slip off the "new" queue before the HN peak audience sees them. Show HN has a separate "new" feed, but velocity in the first 30–60 minutes still matters for front page placement.
 
 ### Channel sequencing constraint
+
 | Time BRT | Channel | Notes |
 |---|---|---|
 | 05:01 | Product Hunt live | Votes count from 00:01 PST; 06:00 BRT is critical window |
