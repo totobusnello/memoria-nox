@@ -1,3 +1,90 @@
+## ▶ Terça 27/10, 08h00 BRT — o VALOR LÍQUIDO da memória é NEGATIVO, e o mecanismo é see-once
+
+Audit `audits/2026-10-27-net-value-and-see-once.md`. Custo medido **US$ 0,25** (respostas 0,2187 ·
+juiz 0,0318 · smokes ~0,015; embeddings não passam pelo `tracked`, ~665k tokens não medidos).
+
+**O número que o campo pede, e que ontem não podíamos dar.** As mesmas 99 perguntas, mesmo juiz,
+mesmo `ANSWER_SYSTEM`. O braço B recebe **todas** as unidades de memória sem retrieval; os braços de
+RAG recebem chunks do transcript cru recuperados pela pergunta, **truncados ao mesmo número de
+caracteres que o B recebeu**.
+
+| braço | acerta | vs B | calado | contradiz |
+|---|---|---|---|---|
+| A — janela oráculo no cru *(não é resultado)* | 88,9% | — | 0,0% | 17,2% |
+| **B — memória, todas as unidades** | **42,4%** | — | **49,5%** | 7,1% |
+| bm25_iso — cru, orçamento igual | **63,6%** | **+21,2 pp** | 24,2% | 15,2% |
+| dense_iso — cru, orçamento igual | **64,6%** | **+22,2 pp** | 18,2% | 20,2% |
+| bm25_k10 — cru, ~15k chars | 78,8% | +36,4 pp | 10,1% | 17,2% |
+| dense_k10 — cru, ~15k chars | 79,8% | +37,4 pp | 4,0% | 20,2% |
+
+🔑 **Valor líquido da memória: −21,2 pp contra BM25 e −22,2 pp contra denso, a custo de contexto
+idêntico.** É o achado central do Memory Tax (*"many dedicated memory systems underperform naive RAG
+… negative net value"*) reproduzido em **produção**, que é a lacuna que nenhum paper do lote de 26/10
+pode fechar. O controle de orçamento é imposto em código e tem `assert`: agregado
+`retrieved/memory` = **0,954**, e o primeiro smoke dava **3,56×** ao braço de RAG — reportar isso
+seria reportar o orçamento.
+
+**E piora monotonicamente com o tamanho da sessão**, com o oráculo parado em ~90%:
+
+| prosa final | n | A | B | bm25_iso | valor líquido |
+|---|---|---|---|---|---|
+| < 50k | 52 | 90,4% | 53,8% | 63,5% | **−9,7 pp** |
+| 50–200k | 7 | 71,4% | 42,9% | 71,4% | −28,5 pp |
+| 200k–1M | 40 | 90,0% | **27,5%** | 62,5% | **−35,0 pp** |
+
+**O mecanismo: `session-distill.ts:141-144`.** `SELECT id FROM session_distill_log WHERE
+session_key = ?` → `continue`. A sessão é destilada na primeira vez que o cron a alcança, com o que
+tinha naquele instante, e **nunca é revisitada**. Medido sobre as 684 sessões com os dois lados,
+partindo a prosa pelo timestamp do turno em `processed_at`: fração vista mediana **100%** até 50k,
+**72,1%** em 50–200k e **24,0%** em 200k–1M. 52 de 684 (7,6%) foram destiladas ainda crescendo. É
+tax **operacional**, mesma família dos 259 nunca logados — invisível em bancada, onde o construtor
+recebe o corpus uma vez, inteiro.
+
+**Logo o 52,3% de ontem era piso CONTAMINADO por isso.** Separando as perguntas pela citação
+verbatim estar ou não no prefixo visível ao construtor: 77 visíveis dão **A 89,6% → B 53,2% = tax de
+40,6%**, e as 8 cuja evidência chegou depois dão **B 0,0%**. ⇒ **o tax de faithfulness honesto é
+40,6%**, e o valor líquido nessa população limpa é **−13,0 pp**. ⚠️ O controle não é limpo: o braço A
+difere 14,6 pp entre as duas populações, com n=8 — dois casos.
+
+**A assimetria por categoria sobrevive e fica mais nítida** (população visível): `context` 90,0% →
+**33,3%** (tax 63,0%) contra `decision` 26,3% e `lesson` 26,1%. E `context` é a **única** categoria
+em que o retrieval sobre o cru ganha da memória de forma aberta — 70,0% contra 33,3%. Nas outras
+duas empatam.
+
+**A variação de 23× era minha, em dois lugares.** Hipótese de falha silenciosa de API **refutada**:
+`provider_telemetry` tem **495 chamadas do destilador, 0 falhas**, `tokens_src='api'` em 100%. E
+`9c75f331` não tinha 316 blocos (o loop **não quebra linha**, logo turno longo = um bloco grande):
+tinha **84**, dos quais o destilador viu **4** — 18.999 de 631.998 chars = **3,01%**. Os 19 chunks
+saíram de 4 blocos = **4,75/bloco**, contra a mediana do sistema de 5,0. O spread real é **3,8×**.
+A reimplementação da blocagem é validada por fora: **469** blocos computados contra **495** chamadas
+registradas pelo provider na mesma janela, razão 0,95.
+
+Dois mecanismos descartados de graça: o **filtro de ruído** não pode ser (regra 2 devolve `false`
+para texto ≥ 500 chars, e os 240 protótipos aprendidos somam **4 hits**); e o **fallback do Groq é
+rota morta** — `session-distill.groq` tem **13 chamadas, 13 falhas (100%)** com a chave presente, e
+`distillBlock` o escolhe por `geminiResult.length > 0`, que colapsa cinco causas de `[]` (sem chave,
+non-2xx, sem texto, JSON inválido, **e o modelo corretamente não achou nada**) num só sinal.
+
+**O predicado de dano segue reprovado pelo próprio controle**, segundo dia: o piso de falso positivo
+do braço A é **17,2%** (ele leu a janela de onde a referência saiu, logo não pode contradizê-la); B
+está em 7,1%, bm25 em 15,2–17,2%, denso em 20,2% — 3 pp acima de um piso medido com n=99, e 9 dos 17
+flags de A trazem `contem` **e** `contradiz` juntos. **Nenhum braço é afirmado como respondendo
+errado.**
+
+**Controles que dispararam:** a prosa reconstruída batia 0/20 contra o `prose_chars` do replay-build
+(o original junta turnos com `\n\n`, eu usei `\n`) → corrigido ao separador verbatim, 20/20 exato;
+o orçamento a 3,56×; a partição deixando 502 de 1.186 sessões em bucket nenhum; e o **rótulo** que eu
+dei a essa classe ("sem prosa") recusado pelo próprio controle, que contou 3.248 eventos de prosa —
+são sessões de **cron**, excluídas com razão e nomeadas errado.
+
+**Limites:** 20 sessões / 99 perguntas; `preference` continua sem gerar pergunta nenhuma, segundo
+dia; os braços de RAG **não são o produto** (o sistema vivo não alcança o transcript cru — prune de
+7 dias, só o archive guarda o passado), logo o que fica estabelecido é que a informação **sobreviveu
+no texto cru**, não que um retriever implantável a alcance; e na faixa 200k–1M até o `k10` só traz a
+evidência verbatim em 85,0–87,5%, logo parte do tax dele é recall próprio.
+
+---
+
 ## ▶ Segunda 26/10, 22h40 BRT — frente 2 FECHADA: tax de faithfulness 52,3%, e concentrado em `context`
 
 Replay do QA rodado. Audit `audits/2026-10-26-faithfulness-replay.md`. Custo total **US$ 0,13**.
