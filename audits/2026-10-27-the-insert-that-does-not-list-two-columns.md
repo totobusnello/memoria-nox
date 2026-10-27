@@ -81,3 +81,38 @@ Also recorded from the same investigation: **`preference` is absent from the gen
 because the generator found no preference fact in the sampled prose windows**, not because the
 builder drops the category. The distilled corpus cannot be checked for it by column — the label only
 exists in `metadata` and in the text prefix.
+
+---
+
+## Addendum, same day — the retention decision, measured instead of argued
+
+`audits/2026-10-27-retention-days-impact.py`, read-only, free. `NOX_SALIENCE_MODE` was read from the
+serving process's own environment (`/proc/<pid>/environ`, found via the listening socket on :18802,
+not by `pgrep -f`, which matched the probe's own command line) and is **`active`** — so salience does
+move the ranking and the question is not academic.
+
+**Control that could fail:** under the NULL scenario every distilled chunk must come out at recency
+exactly 1.0, or the replica of `salience.ts` is wrong. 0 of 6,898 violated it.
+
+| | NULL (today) | 90 days | change |
+|---|---|---|---|
+| median salience of a distilled chunk | 0.555 | 0.496 | **−0.082** |
+| its percentile against the other 55,542 chunks | **97.7%** | **93.7%** | −4.0 pp |
+| `promote` | 128 | 28 | −100 |
+| `retain` | 6,770 | 6,016 | −754 |
+| `review` | 0 | 854 | +854 |
+| `archive` | **0** | **0** | **0** |
+
+954 of 6,898 chunks (**13.8%**) cross a class boundary, and the mean change in the delta the search
+path adds is **0.0706** on a scale that spans 1.0.
+
+**So the effect is real and modest, and nothing is archived under either rule.** A distilled chunk
+stays above 93% of the corpus whichever way it goes.
+
+🔑 **Recommendation: do not change the behaviour — make it explicit, and remove the contradiction.**
+Write `retention_days = NULL` in the INSERT with a comment saying never-decay is chosen, and drop
+`distilled` from the `ELSE 90` branch of the `db.ts` backfill. Rationale: the measured gain from
+switching to 90 days does not justify moving a served ranking, but two readable intentions that
+disagree is what produces accidental behaviour — and the next person to open a **fresh** database
+gets the backfill's 90 days, i.e. a system that behaves differently from production for a reason
+nobody chose. Making it explicit costs one line and one comment and ends the divergence.
