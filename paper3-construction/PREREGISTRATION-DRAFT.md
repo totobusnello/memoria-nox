@@ -1,6 +1,6 @@
 # Pre-registration plan — the construction interaction. DRAFT for approval, not deposited.
 
-> 🔴 **NOT DEPOSITABLE — §4 blocked 2026-10-27, §11 at rc2 after an adversarial pass.** §11 supersedes §4 as the design; the Codex pass (`audits/2026-10-27-codex-challenge-s11.md`) then found two literal errors in §11 — the dose in the wrong unit and the truncation direction inverted — plus a power calculation that does not cover its own estimand, decision labels contradicting their intervals, two controls a constant `NAO SEI` would pass, and four claims asserted rather than derived. All are addressed; what still blocks deposit is listed in §11.7.
+> 🔴 **NOT DEPOSITABLE — §4 blocked 2026-10-27, §11 at rc2 after an adversarial pass.** §11 supersedes §4 as the design; the Codex pass (`audits/2026-10-27-codex-challenge-s11.md`) then found two literal errors in §11 — the dose in the wrong unit and the truncation direction inverted — plus a power calculation that does not cover its own estimand, decision labels contradicting their intervals, two controls a constant `NAO SEI` would pass, and four claims asserted rather than derived. All are addressed, and the two items §11.7 had left open were closed the same day — both making the study harder: **n=193 rather than 52** for production's own effect size, and the dose demoted from a point to a three-level factor because its median rests on **six** sessions spanning [0.020 .. 0.894].
 >
 > 🔴 **On §4 as written — blocked 2026-10-27.** Writing the sampling code revealed that the
 > corpus cannot support §4. The window factor has variance in **12 of 194** eligible sessions and
@@ -320,9 +320,27 @@ updates and redundancy together. A positive interaction under it is causal **for
 attributing it to production's window needs the sensitivity arms of §11.5 to agree, and if they do
 not, the finding is about our cut.
 
-⚠️ **The denominator of the 0.240 is not yet stated and must be before deposit**: it is a median over
-the production sessions in that band, and §4's failure was exactly a statistic resting on fewer units
-than it appeared to. Its n and spread go in the final text.
+🔴 **The denominator is 6, and it dissolves the point anchor** (measured 2026-10-27,
+`see-once-denominator.py`). Every seen-fraction in the 200k–1M band:
+
+| session | total chars | visible | fraction |
+|---|---|---|---|
+| ea80140b | 248,614 | 4,867 | **0.020** |
+| 9c75f331 | 631,998 | 18,999 | **0.030** |
+| d37a5964 | 344,003 | 62,954 | 0.183 |
+| 5a944bec | 268,055 | 79,625 | 0.297 |
+| 1a5d8840 | 625,030 | 263,634 | 0.422 |
+| a35348df | 349,560 | 312,441 | **0.894** |
+
+**n = 6. min 0.020, max 0.894, spread 0.874** — nearly the whole of [0,1]. And **0.240 corresponds to
+no observation at all**: it is the interpolation between 0.183 and 0.297. The neighbouring 50–200k
+band is n=3 at [0.392, 0.721, 1.000].
+
+⇒ **W becomes a three-level factor at the observed order statistics — 0.020 / 0.240 / 0.894 — not a
+point.** The ends are where half the band sits, and the sensitivity arms I had pre-specified (0.12 and
+0.48) sat *inside* the observed range and would have missed both. This is the §4 failure caught one
+step earlier: a statistic resting on fewer units than it appeared to, used to parameterise something
+much larger.
 
 **Response:** was the generated answer correct, judged by the bounded judge (Decisions API, no
 free-text field, so the prose-contradicts-the-field failure cannot occur). ⚠️ Not GPT-4o, which is
@@ -399,10 +417,42 @@ Three further defects in that table, all real:
   intent was to adapt on the observed *effect*, that is a different rule and has to be written as
   one.
 
-⇒ **Before deposit**, the sizing is redone over plausible joint distributions of the four responses,
-for the additive estimand, under the two-stage procedure, with a cluster-robust SE over
-answer-session groups (§11.2). The n column above is therefore **provisional** and the corpus ceiling
-of 500 is a hard constraint on what any of it can detect.
+### Resized, 2026-10-27 (`power-additive.py`)
+
+`Var(D)` is computed from the cell means the production replay measured — B 0.424, C 0.465, D 0.465,
+D_full 0.636, implying an additive interaction of **+13.0 pp** — under an exchangeable
+within-instance correlation ρ, and the **worst case over ρ ∈ [0, 0.6] is used for sizing**, which is
+what "conservative" has to mean:
+
+| ρ | 0.0 | 0.2 | 0.4 | 0.6 |
+|---|---|---|---|---|
+| `Var(D)` | **0.973** | 0.779 | 0.584 | 0.390 |
+
+| effect to detect | α=0.05 | **α=0.03** (stage 1) | α=0.02 |
+|---|---|---|---|
+| **21.4 pp** — production's measured interaction | 167 | **193** | 214 |
+| 15 pp | 340 | 393 | 435 |
+| 10 pp | 764 | **883 — exceeds the corpus** | 977 |
+| 8 pp | 1,194 | 1,380 | 1,527 |
+
+🔴 **The old table said n=52 for 21.4 pp. It is 193** — 3.7× larger — and the n=60 stage 1 I had
+pre-registered was **gravely underpowered**. Worse: **10 pp is not detectable in this corpus at all**,
+because 883 > 500. The honest ceiling of what 500 instances can resolve is ≈13 pp.
+
+**Cost, with W at three levels × C at two = six cells:** 565 distiller blocks per instance, **US$
+0.355** per instance (the old four-cell design was 0.380 — fewer blocks, because two of the three
+doses are cheaper than the full window).
+
+| n | cost | distiller calls | wall-clock at 8 concurrent |
+|---|---|---|---|
+| 100 | US$ 35 | 56.5k | ~3.9 h |
+| **193** | **US$ 68** | 109k | ~7.6 h |
+| 240 | US$ 85 | 136k | ~9.4 h |
+| 500 (whole corpus) | US$ 177 | 283k | ~19.6 h |
+
+⚠️ **ρ is unknown and it matters by a factor of 2.5** (0.973 vs 0.390). Stage 1 estimates it, and if
+it comes in near 0.6 the n for 21.4 pp falls to ~77 — but a pre-registration cannot bank on that, so
+the plan sizes on ρ=0 and says so.
 
 ⚠️ And the 240 ceiling of stage 2 does not deliver the 8 pp power the table itself quotes for 368 —
 that inconsistency is resolved in the same pass.
@@ -412,9 +462,18 @@ confirmation:
 
 - **Stage 1: n = 60** (52 plus attrition margin), sampled by seed from the 500, stratified by
   question category. US$ 23.
-- **Stop at stage 1** if the CI's lower bound exceeds 8 pp.
-- **Go to stage 2** (n = 240 total, +US$ 68) if the CI contains 8 pp.
-- **Stop** if the CI's upper bound falls below 8 pp.
+Redesigned for the resized n, because a rule built on an n that cannot detect the effect is not a
+rule:
+
+- **Stage 1: n = 200**, sampled by seed, stratified by question category. **US$ 71.**
+- **Stop at stage 1** if the CI excludes 0 — the interaction is established and §11.4's table says
+  what magnitude it is consistent with.
+- **Go to stage 2** (all 500, +US$ 107) if the CI contains 0 **and** its width leaves 13 pp
+  detectable — i.e. the observed ρ makes the extra 300 instances worth their cost.
+- **Stop and report the interval** if the CI contains 0 and ρ came in low enough that 500 still
+  cannot resolve the effect. That is a finding about the corpus's resolving power, reported as one.
+- ⚠️ **8 pp no longer appears in the rule.** It was a power target masquerading as a confirmation
+  boundary, and at the resized n it is unreachable anyway (1,380 > 500).
 - α is split 0.03 / 0.02 across the two stages. No third stage, whatever stage 2 returns.
 
 🔴 **The partition is exhaustive — the adversarial pass confirmed that and I had asked about it — but
@@ -498,14 +557,23 @@ place; two need work that is not textual.
 | 5 | both controls pass for a constant `NAO SEI` | ✅ **two legs added** (§11.3); quantitative floor and margin still owed |
 | 6 | independence asserted; four claims not derived | ✅ **measured** (§11.2: 2.0% evidence-coupled ⇒ cluster-robust SE) and the four claims withdrawn or narrowed (§11.5) |
 
-**Two blocking items, both mine and neither expensive:**
+**Both blocking items are now closed, 2026-10-27, and each changed the design:**
 
-1. **Resize the study** for the additive estimand `D_i = Y_11 − Y_10 − Y_01 + Y_00` under the
-   two-stage procedure, with a cluster-robust SE over answer-session groups. Until then **no n in
-   §11.4 is pre-registerable.**
-2. **State the 0.240's denominator** — how many production sessions in the 200k–1M band the median
-   rests on, and its spread. §4 died from a statistic resting on fewer units than it appeared to, and
-   this is the same statistic class.
+1. ✅ **Resized** (`power-additive.py`). For the additive estimand under worst-case `Var(D)=0.973` at
+   the α stage 1 actually spends, **n = 193 for 21.4 pp, not 52** — 3.7× larger, and the n=60 stage 1
+   was gravely underpowered. **10 pp is not detectable in this corpus** (883 > 500). The stopping rule
+   was rebuilt around n=200 → 500 and the 8 pp threshold removed, because it was a power target
+   dressed as a confirmation boundary.
+2. ✅ **Denominator stated** (`see-once-denominator.py`) — and it **dissolved the point anchor**:
+   **n = 6**, fractions [0.020, 0.030, 0.183, 0.297, 0.422, 0.894], and **0.240 corresponds to no
+   observation**, being the interpolation of the two middle ones. W is now a **three-level factor**
+   at the observed order statistics. The sensitivity arms I had pre-specified (0.12 / 0.48) sat
+   *inside* the observed range and would have missed both ends, where half the band lives.
+
+🔑 **Both closures made the study harder, not easier** — 3.7× the n and six cells instead of four.
+That is the expected direction when a design is checked rather than defended, and it is the second
+time today this document has moved that way: §4 was blocked by its own sampling code, §11 by a voice
+and then by the two measurements the voice demanded.
 
 🔑 **And the finding that is about me rather than the plan:** §11 was written *after* §4 was found
 unexecutable, with that failure explicitly in view, and it still shipped a dose in the wrong unit and
