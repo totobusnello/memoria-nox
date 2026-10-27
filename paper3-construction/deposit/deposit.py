@@ -48,6 +48,10 @@ PUB_DATE = "2026-10-27"
 REPO_TAG = "paper3-prereg-v1.0"
 CODE_FILES = ["lme-census.py", "lme-independence.py", "lme-answer-overlap.py",
               "power-additive.py", "see-once-denominator.py",
+              # estimand-and-power.py supersedes power-additive.py: it computes every
+              # number §11.4 cites and exits non-zero if the document and the arithmetic
+              # disagree. Both ship — the superseded one is the record of the half-fix.
+              "estimand-and-power.py",
               "pdf-build/build-pdf.sh", "pdf-build/preamble-prereg.tex",
               "deposit/deposit.py", "README.md"]
 SUBJECTS = ["pre-registration", "agent memory", "memory construction", "write path",
@@ -68,7 +72,8 @@ EDITS = [
 EMOJI = {"\U0001F534": "[defect] ", "⚠️": "[limit] ", "⚠": "[limit] ",
          "✅": "[closed] ", "\U0001F511": "[key] ", "\U0001F4CC": "[status] ",
          "\U0001F525": "[result] ", "⏸️": "[held] ", "⏸": "[held] ",
-         "⛔": "[never] ", "ℹ️": "[note] ", "ⓘ": "[note] "}
+         "⛔": "[never] ", "ℹ️": "[note] ", "ⓘ": "[note] ",
+         "\U0001F535": "[scope] "}
 
 # Privacy gate. Path and host patterns are assembled from pieces, and private words are matched
 # by hash, so that this file (which ships in the code zip) does not contain what it looks for.

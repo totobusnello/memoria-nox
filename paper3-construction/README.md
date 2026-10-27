@@ -81,10 +81,27 @@ better search over the raw record. Our measurement says something they could not
 > asks for** survives, and that is steerable at a sixth of full retention. The window is a property
 > only production has; the criterion is one every published study held at its default.
 
-That is a constructive refutation of a conclusion four papers share, and it answers
-`2609.34227`'s title — *When Does Selection Replace Extraction?* — from the other side: selection
-replaced extraction because the extraction was misconfigured, not because selection is better in
-principle.
+🔴 **Scoped down on 2026-10-27, by two adversarial voices from different families**
+(`audits/2026-10-27-codex-and-deepseek-on-the-prereg.md`). Three sentences of that claim are **not
+what the pre-registered plan can confirm**, and the plan was changed rather than the claim being
+softened with a caveat:
+
+| the claim above | what §11 can now support |
+|---|---|
+| the two repairs interact **superadditively** | confirmatory: the **total** effect of repairing both. The interaction is a pre-registered **secondary**, underpowered at every n this corpus allows (78.1% at the full 500) |
+| what governs is whether the **identifier** survives | **not** a confirmatory claim of this leg. H3 probes it descriptively |
+| a constructive **refutation** of a conclusion four papers share | an **estimate that is inconsistent with** that conclusion on this corpus, which is a weaker and defensible thing to say |
+
+The reason is not timidity. A two-stage system — the window deciding whether evidence arrives, the
+prompt deciding whether it is used — produces a positive additive interaction **with no joint
+mechanism at all**, so "interaction > 0" never identified the mechanism. §11.4 turns that into the
+plan's substantive null and the measurement survives it: serial chaining predicts **+0.4 pp** from
+our own three other cells, against the **+13.0 pp** measured — 33×. That comparison is the sharpest
+thing here, and it is a thing the benchmark can **refute**, which the earlier framing was not.
+
+It still answers `2609.34227`'s title — *When Does Selection Replace Extraction?* — from the other
+side: on this corpus, selection replaced extraction because the extraction was misconfigured, not
+because selection is better in principle.
 
 ### Numbers it rests on (all measured, all in `audits/2026-10-27-*`)
 
@@ -140,5 +157,6 @@ superiority over a registered study. `2610.29823` shows the format is publishabl
 **What reading it changed.** The faithfulness half is no longer a contribution — An has it with a
 controlled ablation, six confound controls and a write-time/query-time split (69%/31%). What it
 bought instead is better: a **named, published prediction** to test, and a sharper mechanism
-(identifier survival, not text survival). This is why it was read before depositing the plan; H2 and
+**hypothesis** (identifier survival, not text survival) — which §11.5 item 9 keeps out of the
+confirmatory claims, because this design cannot identify it. This is why it was read before depositing the plan; H2 and
 H3 below were rewritten because of it.
