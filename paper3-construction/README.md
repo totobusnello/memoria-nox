@@ -15,6 +15,9 @@ measured on 2026-10-27, and one of them is **pre-registered**.
 | the **context budget** decides who wins | **yes** | `2609.34227` — reranking adds 17.4 pts at a tight budget, 1.5 at a generous one, and it says this is why the literature disagrees |
 | the **writer** sets a ceiling the reader cannot recover | **yes** | `2610.29823` §4 — *"a stronger reader does not recover what a weaker writer left out"*, Zep's gpt-4o-mini graph reads 43/43/45% across three readers |
 | **construction order** discards different evidence | **yes** | `2609.34160` RoutePrism — restoring one displaced record recovers >60 pp |
+| the mechanism is **lossy distillation**, and accuracy tracks how much source text survives | **yes** | `2601.00821` *Fidelity before Structure* — controlled ablation, one fixed pipeline, six confound controls |
+| what is lost is the **literal detail** | **yes** | `2601.00821` — summarization turns *"use type hints **everywhere**"* into *"the user prefers type hints"*, deleting the quantifier: 14.0% against 91.0% |
+| write-time loss against query-time loss, quantified | **yes** | `2601.00821` — of diagnosable failures, **69.0%** are facts the extractor never wrote down, 31.0% are retrieval misses |
 | build cost exceeds the whole rollout it saves | **yes** | `2610.29823` §3 — Mem0's build $0.56 against full context's $0.43 |
 
 ⛔ **So "agent memory has negative net value against naive RAG" is not ours to claim.** Three papers
@@ -30,6 +33,37 @@ our contribution would be entering a crowded room with a weaker instrument.
 | **the factorial** — window × criterion, and their **interaction** | `factorial` appears 0 times in RoutePrism, which is the most intervention-minded of the four. All four vary **one** thing: the reader, the budget, the order, the method |
 | **the repair** — fixing both brings extraction level with selection (net value −21.2 pp → **0.0 pp**) | all four treat extraction as a black box at its defaults. `2610.29823` states it: *"Mem0 and Zep run with their default extraction and retrieval, and other settings may do better"* |
 | **a production multi-agent corpus** — 1,610 transcripts, 6 agents, 2.66M chars of real human prose | all four use LoCoMo / LongMemEval / PersonaMem. `2609.34227` declares it: *"LoCoMo, whose dialogues are LLM-generated"*; `2610.29823` runs **one** conversation |
+
+### And `2601.00821` hands us a named prediction to test
+
+Read in full on 2026-10-27, after the first collision pass. It is the closest prior statement of our
+faithfulness half — and it leaves our intervention explicitly undone, twice:
+
+> *"These patterns suggest that extraction prompts **could be improved** by explicitly instructing the
+> LLM to attend to implicit attributes, emotional states, and negative constraints."*
+
+> *"**Better extraction prompts** — explicit date/time targeting, temporal attribute modeling — could
+> shrink this class, **but cannot reach the unconditional retention of a verbatim store.**"*
+
+Its only prompt variation is a **contamination control** (few-shot examples swapped so they stop
+favouring the artifact pipeline), not an intervention; and its *gleaning pass* — a second extraction
+scan — is reported as contributing "negligibly". So improving the criterion is conjectured, not
+tested, and the one thing resembling it that was tested did not work.
+
+🔑 **Our arm D is that prediction, run.** And our result splits it in a way that is more informative
+than either outcome alone:
+
+| the prediction, on | verdict |
+|---|---|
+| **retention** | **holds, and trivially.** Identifier survival went 6.6% → 12.9%. A verbatim store retains 100%. 12.9% is not unconditional |
+| **accuracy, at equal context budget** | **holds.** 48.5% against naive RAG's 63.6% |
+| **accuracy, at the budget a repaired builder naturally produces** | **fails.** 63.6% against 63.6% — level; and 67.5% against 62.5% in the 200k–1M band, where memory overtakes |
+
+That refines their law rather than contradicting it. *"Accuracy tracks how much source text
+survives"* is a statement about text in general. Ours is that what governs is the survival of the
+**identifier the question asks for**, that this is steerable by the criterion, and that it does **not
+have to reach 100%** for accuracy to draw level: a 6 pp gain in identifier retention bought 21 pp of
+accuracy. A sixth of the retention, all of the accuracy.
 | **the asymmetry by fact type** — `context` 26.2% against `lesson` 60.7%, and only `context` fails to move when the window is fixed | `2609.34227` decomposes by category, but of the **selection** bottleneck (shortlist misses 11.5%, rerank drops 9.2%), not of what construction destroys |
 
 ## The claim that survives, and it is the inverse of theirs
@@ -37,12 +71,15 @@ our contribution would be entering a crowded room with a weaker instrument.
 All four conclude, in their own words, that the answer is to stop designing memory and give the model
 better search over the raw record. Our measurement says something they could not test:
 
-> **Extraction is not inferior to selection. *This* extraction was.** Two properties of the
+> **Extraction is not inferior to selection. *This* extraction was.** `2601.00821` predicts that a
+> better extraction criterion *"cannot reach the unconditional retention of a verbatim store"*. On
+> retention it is right and trivially so. On **accuracy** it fails: two properties of the
 > construction step — how much of the conversation the builder is shown, and whether its criterion
-> requires identifiers verbatim — interact **superadditively**: each alone recovers 8.7% of the gap
-> to an oracle, both together recover 45.7%. Repaired, the extracted memory draws level with naive
-> retrieval over the raw text. The window is a property only production has; the criterion is one
-> every published study held at its default.
+> requires identifiers verbatim — interact **superadditively**, each alone recovering 8.7% of the gap
+> to an oracle and both together 45.7%, and the repaired memory draws level with naive retrieval over
+> the raw text. What governs is not how much text survives but whether the **identifier the question
+> asks for** survives, and that is steerable at a sixth of full retention. The window is a property
+> only production has; the criterion is one every published study held at its default.
 
 That is a constructive refutation of a conclusion four papers share, and it answers
 `2609.34227`'s title — *When Does Selection Replace Extraction?* — from the other side: selection
@@ -98,6 +135,10 @@ superiority over a registered study. `2610.29823` shows the format is publishabl
 | `2609.34160` | RoutePrism: Tracing Construction Order Effects in Agent Memory | abstract + term census. Varies order, not window; `factorial` = 0 hits |
 | `2610.agent-memory-net-value-tax` | Memory Tax: Dissecting the Net Value of Agent Memory | read 2026-10-26; source of the faithfulness/accessibility/robustness split |
 
-⚠️ `2601.00821` *Fidelity before Structure* (An, 2026) is cited by `2610.29823` as finding that
-verbatim chunks beat lossy extraction on long conversations. **Not yet read**, and it is the closest
-prior statement of our faithfulness half. Read before drafting.
+| `2601.00821` | Fidelity before Structure: Verbatim Chunks Beat Lossy Artifact Extraction | **read in full 2026-10-27**. The closest prior work, and the source of the prediction arm D tests. Takes our faithfulness half; leaves the criterion intervention undone |
+
+**What reading it changed.** The faithfulness half is no longer a contribution — An has it with a
+controlled ablation, six confound controls and a write-time/query-time split (69%/31%). What it
+bought instead is better: a **named, published prediction** to test, and a sharper mechanism
+(identifier survival, not text survival). This is why it was read before depositing the plan; H2 and
+H3 below were rewritten because of it.
