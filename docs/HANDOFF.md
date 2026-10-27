@@ -1,3 +1,69 @@
+## ▶ Terça 27/10, 11h05 BRT — régua PT-BR: o gate era vermelho PARA SEMPRE, e 9 queries estavam fora na direção que nos favorece
+
+Audit `audits/2026-10-27-ptbr-ruler-the-gate-and-the-eleven.md`. Custo **zero** (tudo read-only; nenhuma
+chamada ao caminho de busca ⇒ nenhuma linha de telemetria, nenhum bump de `access_count`).
+
+🔴 **Primeiro, correção do meu próprio relato.** Toda lista de próximos passos desde 22/10 dizia que a
+régua tinha **«43 de 97 do gold confirmados»**. **Esse número não existe em audit, artefato nem
+medição nenhuma.** O estado real: **55 de 66 queries aceitas**, **91 de 95** entradas de gold
+resolvendo hoje, 23 negativas. 43/97 lê-se como régua quebrada; 55/66 com 91/95 resolvendo é régua
+saudável. Usei o número inventado para argumentar prioridade em quatro listas.
+
+**A decisão de chavear por âncora foi paga por um evento.** O resolvedor deu **0 não resolvidas** e os
+ids dos entity files **mudaram** (o gold grava `chunk_id` 116814; hoje os chunks de lá são 227xxx) ⇒
+houve re-ingest, e a chave da v1 teria morrido nele enquanto a âncora sobreviveu.
+
+🔴 **Mas o gate saía 1, e sairia para sempre.** As 4 ambiguidades são todas `frontmatter`+`compiled` do
+mesmo arquivo de entity — `ingestEntityFile()` emite exatamente um de cada e os textos se sobrepõem
+**por construção** (invariante no CLAUDE.md §6). Não é decadência e nunca vai passar. O resolvedor
+tratava isso igual a âncora morta ⇒ gate permanentemente vermelho, e gate sempre vermelho por motivo
+conhecido é gate que se aprende a pular.
+
+**Conserto: partir a ambiguidade por predicado COMPORTAMENTAL — a coluna `section`, não o caminho.**
+`ambiguous_structural` (exatamente 2 hits, sections exatamente `{frontmatter, compiled}`) ⇒ **todos**
+os hits entram como gold e **não** falha; qualquer outra ambiguidade e `unresolved` continuam fatais;
+`moved` nunca falha (é a âncora funcionando). Guardar os dois em vez de escolher é deliberado: quem
+devolve qualquer metade achou a informação, e punir por qual metade é o mesmo erro do check de 8
+palavras, retirado em 26/10.
+
+⭐ **E o gate afrouxado tem prova de que ainda morde.** `--selftest` injeta duas mutações e exige exit
+!=0: âncora morta → `unresolved=1` **PASS**; ambiguidade não-estrutural (897 hits num arquivo) →
+`ambiguous` **PASS**. Guarda afrouxada sem teste de mutação é indistinguível de guarda removida.
+Hoje: **exit 0**, com os 4 casos estruturais nomeados na saída.
+
+🔴 **Segundo achado: as 11 queries sem gold estão fora na direção que nos favorece.** Todas têm
+`gold = []` — nunca receberam gold. Mas o motivo as divide, e dá para testar sem modelo: perguntando
+se o corpus cobre o termo distintivo de cada uma, **9 das 11 são sobre tópicos que o corpus TEM**
+(`cross-search` 11 chunks · `kg-build` 17 · `Cipher` 2.762 · `rotacion` 30 · `graphify` 24 ·
+`reindex` 128 · `OpenClaw` 2.278 · `triplic` 32) e o pool profundo (BM25 top-40 ∪ KNN top-40) não
+trouxe nada que o oráculo aceitasse. **Descartá-las remove justamente onde o retrieval falhou mais
+feio.**
+
+| | publicado (n=55) | as 9 como zero-hit (n=64) |
+|---|---|---|
+| nDCG@10 estrito | 0,2428 | **0,2087** (−14,1%) |
+| nDCG@10 pooled | 0,5114 | **0,4395** (−14,1%) |
+| zero-hit | 29/55 = 52,7% | 38/64 = **59,4%** |
+
+⚠️ **É limite, não correção**: cobertura de tópico não é cobertura de resposta — 2.762 chunks com
+«Cipher» não significa que algum responda *como Lex e Cipher se complementam em incidents*. A leitura
+honesta é que **as duas pontas do intervalo publicado são até 14% otimistas**, e um passe de oráculo
+sobre as 9 (construir gold onde houver resposta, promover a negativa onde não) resolve. ~US$ 0,05.
+
+**Entregue: as 2 não cobertas viraram negativas.** Q93 `kg-reclassify` e Q94
+`RELATION_TYPE_TO_REASON` passam o critério do `golden-negatives-v1` verificado de três formas com
+controle positivo — raw=0, FTS5=0, kg_entities=0, e os controles `kg-build` (17/19) e `reindex`
+(128/126) corretamente **recusados** como negativas. E os radicais existem (`reclassify` em 10
+chunks, `RELATION_TYPE` em 7) ⇒ são a negativa **provocadora**, com vizinho plausível puxando, que é
+o caso `recusa_com_vizinho`. `eval/golden-negatives-v2.jsonl`, 25 entradas. **v1 não foi tocada** — é
+o artefato em que a linha de base de abstenção do item 8 (0,7826 / 0,3200) foi medida.
+
+**Fica aberto:** o passe de oráculo sobre as 9 (decide se o −14,1% é real); a concordância
+juiz-contra-humano numa amostra, que é o passe do artifact e só o Toto pode fazer; e as 4
+`quote_unverified`, que o mesmo passe resolveria.
+
+---
+
 ## ▶ Terça 27/10, 10h40 BRT — 🔴 CORREÇÃO: o fator janela não tem variância em 182 de 194 sessões
 
 `audits/2026-10-27-window-variance-correction.py` + adendo em
