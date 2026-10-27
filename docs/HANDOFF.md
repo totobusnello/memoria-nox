@@ -1,5 +1,78 @@
 # nox-mem HANDOFF — estado vivo
 
+## ▶ Segunda 26/10, 22h BRT — frente 2: onde o nosso tax de construção está (e dois números meus retirados)
+
+Sondagem de viabilidade da frente 2 (medir o nosso memory tax pelo método de *faithfulness* do
+paper de 26/10), toda **read-only** e de custo zero. Audit:
+`audits/2026-10-26-construction-tax-probe.md`.
+
+⚠️ **Dois números que eu reportei há poucas horas estão retirados, os dois por defeito de chave de
+junção, os dois inflando a perda.**
+
+**1. «O log é por sessão» era falso.** `session_distill_log` é indexado por `<agente>:<uuid>`:
+2.498 linhas para **1.931 uuids distintos**, 567 colisões, 453 sessões registradas sob mais de um
+agente — e em **63** delas os agentes **discordam** (um extraiu chunks, outro gravou zero). Um dict
+chaveado por uuid deixa a última linha lida vencer. Agregando por sessão com `max`:
+**114 → 45** sessões não-triviais com zero chunks, e o maior `message_count` entre elas cai de
+**2.097 para 393**. A sessão de 2.097 mensagens **deixou memória**, sob outro agente.
+
+**2. Das 45, só 5 são auditáveis** — as outras 40 tiveram o transcript podado antes de o archive
+existir. Lendo as 5: a prosa real de user/assistant vai de **192 a 3.500 caracteres**, em arquivos
+de 55 a 541 KB. O peso é tool output e envelope de reminder, não diálogo. 🔑 `message_count` é
+gravado **antes** do filtro de ruído (linha 384 contra 478), logo conta heartbeat e turno de tool
+como mensagem — ler esse campo como medida de conteúdo foi o que produziu «75 sessões com 100+
+mensagens perdidas». **Tax por «o LLM descartou sessão substantiva» não está estabelecido** por esta
+sondagem (nem refutado: 40 casos são inauditáveis).
+
+### O que fica, e é melhor: 259 transcripts que o destilador nunca viu
+
+Dos 1.610 transcripts do archive, **54 estão fora de alcance por desenho** (4 diretórios que nunca
+produziram linha de log nem chunk — sessões iniciadas de outro cwd). Sobram **1.556 ao alcance**,
+particionados de forma exaustiva:
+
+| desfecho | n | mediana | > 1 MB |
+|---|---|---|---|
+| **nunca entrou no log** | **371** | 105 KB | 16 |
+| entrou e deu zero | 991 | 241 KB | 1 |
+| entrou e produziu chunks | 194 | 675 KB | 37 |
+
+**259 dos 371 (69,8%) contêm ≥ 2.000 caracteres de prosa real** — 4.489.370 caracteres ao todo. Os
+**16** acima de 1 MB têm prosa **todos**; o maior é 2,57 MB com **978.624 caracteres** de diálogo em
+102 turnos, e o destilador nunca o listou.
+
+A separação entre «nunca alcançada» e «100% ruído» sai do **código**: quando o filtro zera a
+conversa, a linha 397 faz `continue` **sem escrever** no log; em todo outro caminho escreve. Sem
+linha **e** com prosa ⇒ nunca foi listada ⇒ componente **operacional** (prune de 7 dias nos
+diretórios vivos × `lookbackDays = 30` × `maxSessionsPerRun = 50`, e o destilador lê os diretórios
+vivos, nunca o archive). **Isso tira da lista rodar `isNoise` contra uma cópia** — contar a prosa
+responde a mesma pergunta de graça.
+
+**E o modo de falha difere por agente**, o que um agregado esconde: **boris** perde por **não entrar
+no log** (162 de 298, e detém 41 dos arquivos grandes do archive); **nox** perde **depois de
+entrar** (77 de 111 logados e vazios). Conserto mirado num não faz nada pelo outro.
+
+**Tamanho prediz sobrevivência, monotonicamente**: 0-50 KB 1,1% · 50-200 KB 1,6% · 200 KB-1 MB
+17,4% · 1-5 MB 66,7% · >5 MB 100%. Quatro ordens de magnitude de monotonia é assinatura de limite
+de **capacidade**, não de juízo de conteúdo — e na direção errada: sobrevive a sessão longa, que é
+a que mais precisa de resumo, e a perda operacional cai sobre todo o resto.
+
+### Janela medível para o replay
+
+**194 sessões com os dois lados**, 2.266 chunks = **32,9%** dos 6.898 distilled. As outras 120
+construídas (4.632 chunks) tiveram o cru podado antes do archive — não são medíveis. Controle:
+zero sessões têm chunk com linha de log dizendo zero.
+
+### Próximo passo da frente 2
+
+O **replay do QA** é a perna que falta e a primeira que custa dinheiro: gerar perguntas do lado
+**cru** das 194 (nunca do golden set, que foi ancorado no que sobreviveu e fabricaria nulo por
+seleção) e responder com *raw turns* contra *memory units*. Perda de unidade não é perda de
+resposta; o replay é o que converte uma na outra. Duas decisões de desenho em aberto: quantas
+queries por sessão, e juiz pela Decisions API (determinismo provado: 540 pares, 0 mudanças de
+rótulo) ou por prosa.
+
+---
+
 ## ▶ Segunda 26/10, 16h BRT — o check de 8 palavras aposentado, a abstenção fechada, e o denominador era meu
 
 **PR #588 mergeado.** Três entregas depois dele, nesta ordem de importância:
