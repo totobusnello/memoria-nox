@@ -98,3 +98,18 @@ probability rests on.
 **Artifacts.** `audits/2026-10-27-does-the-recorded-gold-answer-the-question.py`,
 `audits/2026-10-27-inspect-rejected-gold.py`. Labels stay on the host
 (`/root/medicoes/gold-audit-2026-10-27.json`).
+
+
+---
+
+## ⚠️ ADDENDUM — the +25 to +37.5% claim in this audit is REFUTED, same day
+
+v3 was built and scored: **0.2428 → 0.2567, +5.7%**, not +25 to +37.5%. The prediction here was
+`0.2428 × 55/40`, which assumed the 15 queries with invalid gold were being *unfairly* zeroed.
+Repairing them shows they were not — they score **0.1679** against 0.2856 for the rest, 10 of 14
+still at zero, and the zero-hit rate **rose** from 52.7% to 56.1%.
+
+The measured facts in this audit stand (60.0% of gold entries do not answer their question; 15 of 55
+queries had none valid; the three judge failure modes; the category split). **The inference about the
+score does not.** See `2026-10-27-v3-scored-and-my-prediction-refuted.md`. The title of this file is
+wrong and is kept as written, because the record of the error is the point.
