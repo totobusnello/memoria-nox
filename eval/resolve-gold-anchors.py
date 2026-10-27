@@ -66,8 +66,26 @@ if not HAS_SECTION:
 
 ENTITY_PAIR = {"frontmatter", "compiled"}
 
-def classify(source_file, hits, recorded):
-    """State of one gold entry. hits is [(id, section), ...]."""
+def classify(source_file, hits, recorded, texts=None):
+    """State of one gold entry. hits is [(id, section), ...].
+
+    Two ambiguities are structural, and both for the same reason: the system
+    cannot be punished for WHICH of two indistinguishable chunks it returned.
+
+      entity pair   exactly {frontmatter, compiled} of one entity file, whose
+                    texts overlap because ingestEntityFile() emits them that way
+      exact dupes   every hit has byte-identical chunk_text. Measured 2026-10-27
+                    on Q71: ids 316535 and 316569 share sha1 721d225e2539c37e,
+                    and memory/2026-04-05.md holds 93 chunks with 46 distinct
+                    texts — 47 exact duplicates. NO anchor can separate them,
+                    so demanding one is demanding the impossible, and a gate
+                    that demands the impossible stops protecting (the lesson
+                    this resolver was already rewritten for once today).
+
+    `texts` is the hit texts, needed only for the duplicate predicate; when it
+    is absent the predicate cannot be evaluated and the ambiguity stays fatal,
+    the same way a missing `section` column keeps the entity-pair one fatal.
+    """
     if not hits:
         return "unresolved"
     if len(hits) == 1:
@@ -75,21 +93,24 @@ def classify(source_file, hits, recorded):
     secs = {h[1] for h in hits}
     if HAS_SECTION and len(hits) == 2 and secs == ENTITY_PAIR:
         return "ambiguous_structural"
+    if texts and len(set(texts)) == 1:
+        return "ambiguous_duplicate"
     return "ambiguous"
 
 def run(rows, db=con):
     tally = {k: 0 for k in ("resolved", "moved", "ambiguous_structural",
-                            "ambiguous", "unresolved")}
+                            "ambiguous_duplicate", "ambiguous", "unresolved")}
     report = []
     for r in rows:
         for g in r.get("gold", []):
             needle = norm(g["anchor"])[:PREFIX]
             col = "section" if HAS_SECTION else "NULL AS section"
-            hits = [(cid, sec) for (cid, sec, txt) in db.execute(
+            hits = [(cid, sec, txt) for (cid, sec, txt) in db.execute(
                         f"SELECT id, {col}, chunk_text FROM chunks WHERE source_file = ?",
                         (g["source_file"],)).fetchall()
                     if needle and needle in norm(txt)]
-            state = classify(g["source_file"], hits, g.get("chunk_id"))
+            state = classify(g["source_file"], hits, g.get("chunk_id"),
+                             texts=[h[2] for h in hits])
             tally[state] += 1
             report.append({"query_id": r["query_id"], "source_file": g["source_file"],
                            "state": state, "recorded_id": g.get("chunk_id"),
@@ -102,9 +123,11 @@ rows = [json.loads(l) for l in open(GOLD, encoding="utf-8") if l.strip()]
 tally, report = run(rows)
 
 print(f"gold entries: {sum(tally.values())}")
-for k in ("resolved", "moved", "ambiguous_structural", "ambiguous", "unresolved"):
+for k in ("resolved", "moved", "ambiguous_structural", "ambiguous_duplicate",
+          "ambiguous", "unresolved"):
     note = {"moved": "   (the anchor did its job)",
             "ambiguous_structural": "   (entity frontmatter+compiled; all hits kept as gold)",
+            "ambiguous_duplicate": "   (byte-identical chunks; no anchor can separate them)",
             }.get(k, "")
     print(f"  {k:21s} {tally[k]:3d}{note}")
 
@@ -157,6 +180,32 @@ if SELFTEST:
         else:
             print("  wide ambiguity   -> SKIPPED (no shared span found); "
                   "the structural exemption is then UNTESTED")
+            ok = False
+    # 3. the duplicate exemption must NOT swallow a real ambiguity: two hits with
+    # DIFFERENT text must stay fatal even when they are only two.
+    pair = con.execute(
+        "SELECT source_file FROM chunks GROUP BY source_file "
+        "HAVING COUNT(*) > COUNT(DISTINCT chunk_text) LIMIT 1").fetchone()
+    if pair:
+        sf2 = pair[0]
+        rs = con.execute("SELECT id, chunk_text FROM chunks WHERE source_file = ?",
+                         (sf2,)).fetchall()
+        seen2, dup_anchor = {}, None
+        for cid, t in rs:
+            if t in seen2:
+                dup_anchor = t[:160]
+                break
+            seen2[t] = cid
+        if dup_anchor:
+            t3, r3 = run([{"query_id": -3, "gold": [
+                {"source_file": sf2, "anchor": dup_anchor, "chunk_id": 0}]}])
+            print(f"  exact duplicate  -> state={r3[0]['state']} on "
+                  f"{len(r3[0]['resolved_ids'])} hits "
+                  f"{'PASS' if t3['ambiguous_duplicate'] >= 1 else 'FAIL'}")
+            ok &= t3["ambiguous_duplicate"] >= 1
+        else:
+            print("  exact duplicate  -> SKIPPED (no duplicate pair found); "
+                  "the duplicate exemption is UNTESTED")
             ok = False
     print(f"  selftest: {'PASS' if ok else 'FAIL'}")
     if not ok:
