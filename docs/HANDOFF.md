@@ -1,3 +1,78 @@
+## ▶ Terça 27/10, 10h15 BRT — braço D: NENHUMA causa explica sozinha, e as duas FECHAM o valor líquido
+
+Audit `audits/2026-10-27-neither-cause-explains-it-alone.md`. Custo ~**US$ 0,48**.
+
+**Isto corrige as duas leituras de hoje.** A da manhã chamou o see-once de mecanismo; a da tarde
+chamou o critério de extração de mecanismo e a janela de questão de produto. Medido junto: **cada uma
+explica 8,7% do gap e as duas juntas explicam 45,7%.** Não existe mecanismo único — existe
+**interação**, e as duas atribuições anteriores davam a uma causa um efeito que exige as duas.
+
+**O A/B:** `DISTILL_SYSTEM_V2` é o prompt do construtor com **um parágrafo** inserido, exigindo que
+todo identificador da conversa seja copiado **letra por letra** (nome de arquivo, caminho, comando,
+tabela/coluna, chave de config, porta, URL, canal, versão, valor) e dizendo que memória sem o
+identificador não vale ser extraída. Blocagem, modelo, temperatura, filtro de importância e o **teto
+de 10 itens** intactos — o teto é candidato próprio e fica fixo para o que mover ser atribuível.
+
+| braço | entrada / prompt | acerta | calado | contradiz |
+|---|---|---|---|---|
+| A — oráculo *(controle)* | janela crua / — | 88,9% | 0,0% | 17,2% |
+| **B — a memória real** | visível / ANTIGO | **42,4%** | 49,5% | 7,1% |
+| C_visible — minha reimplementação | visível / ANTIGO | **42,4%** | 47,5% | 7,1% |
+| D_visible | visível / **NOVO** | 46,5% | 39,4% | 13,1% |
+| C_all | inteira / ANTIGO | 46,5% | 39,4% | 17,2% |
+| **D_full** | inteira / **NOVO** | **63,6%** | 25,3% | 12,1% |
+| D_iso — D_full no orçamento de B | inteira / NOVO | 48,5% | 43,4% | 7,1% |
+| bm25_iso — RAG naive no orçamento de B | chunks crus | 63,6% | 24,2% | 15,2% |
+
+**A interação é superaditiva, e é esse o achado:**
+
+| o que muda | acerta | recupera | do gap de 46,5 pp |
+|---|---|---|---|
+| só a janela (C_all) | 46,5% | +4,0 pp | 8,7% |
+| só o prompt (D_visible) | 46,5% | +4,0 pp | 8,7% |
+| **as duas (D_full)** | **63,6%** | **+21,2 pp** | **45,7%** |
+
+4,0 + 4,0 = 8,0 e juntas dão 21,2 — **interação de 13,2 pp**, maior que qualquer efeito principal. O
+mecanismo é legível: instrução de carregar identificador só age sobre identificador que **está** no
+bloco mostrado, e bloco que contém o identificador não serve se o critério o descarta. Cada conserto
+é quase inerte sem o outro.
+
+🔑 **E fecha a reivindicação de valor líquido.** Contra o RAG naive em 63,6%: B **−21,2 pp** ·
+D_iso −15,2 pp · **D_full 0,0 pp**. ⇒ **o valor líquido negativo NÃO é propriedade de memória de
+agente; é propriedade desta construção**, e dois ajustes — nenhum deles ideia nova — a empatam com
+RAG naive sobre o texto cru. ⚠️ D_full recebe **2,41×** os caracteres de B (construtor que volta
+produz mais memória; o braço B também recebeu todas as suas unidades). No orçamento estritamente
+igual são **48,5%**, −15,2 pp. **Nunca citar o 0,0 pp sem o 2,4×.**
+
+**A célula para a qual o prompt foi escrito moveu:** `context` **26,2% → 52,4%** (dobrou) e
+`decision` 48,3% → 65,5% (passa o RAG). `lesson` 60,7% → 78,6%. `context` ainda fica 14 pp abaixo do
+retrieval sobre o cru ⇒ critério **melhor, não resolvido**. Na faixa 200k–1M a memória vai de 27,5% a
+**67,5%** e **ultrapassa** o RAG naive (62,5%).
+
+**Controles:** ⭐ **fidelidade agora em acurácia** — C_visible (mesmo prompt, mesma entrada que o
+construtor real teve) dá **42,4%** de acerto e **7,1%** de contradição, os números de B **exatamente**;
+é isso que torna C e D legíveis, e a corrida anterior só podia mostrar volume (razão 1,17). **Controle
+mecânico sem juiz**: identificadores sobrevivendo verbatim passam de **10,1% → 16,5%** (visível) e
+**6,6% → 12,9%** (inteira) — a afirmação do prompt é de casamento de string e foi testada como tal,
+antes de perguntar a modelo nenhum. Volume não colapsou (+8,5% de unidades). 0 de 563 blocos
+falharam. D_full contradiz em 12,1%, **abaixo** do piso de 17,2% do braço A — **quarto dia sem
+afirmar dano**.
+
+⚠️ **Duas células em que a minha reimplementação não é fiel, declaradas em vez de alisadas:**
+C_visible bate B no agregado e na contradição exatamente, mas dá 16,7% em `context` contra 26,2% de
+B; e D_visible cai a 14,3% na faixa 50–200k contra 42,9% de B (n=7, três casos). A falta do dedup por
+embedding é a causa provável. **Diferença per-célula desse tamanho está dentro do instrumento; o
+agregado e a faixa 200k–1M não estão.**
+
+**O que isto muda:** a tese do paper troca de forma e fica **mais forte** — não "memória de agente tem
+valor líquido negativo", mas "**esta construção** tem, a causa é uma interação de janela e critério, e
+consertar as duas empata". Resultado com mecanismo e remédio, em dado de produção. **Entregar as duas
+ou nenhuma:** cada conserto isolado compra 4 pp e se leria como intervenção fracassada. E os números
+dos dois audits anteriores de hoje **continuam válidos** — muda a **atribuição**, que nenhum deles
+podia ver sem o outro braço.
+
+---
+
 ## ▶ Terça 27/10, 09h30 BRT — braço C: o gap é EXTRAÇÃO, não a janela
 
 Audits `audits/2026-10-27-the-gap-is-extraction-not-the-window.md` e
