@@ -112,3 +112,79 @@ and labelled as one. **~US$ 0.48.**
 
 **Artifacts.** `audits/2026-10-27-arm-d-verbatim-identifiers-{build,answer}.py`. Units, answers and
 judge keys stay on the host (`/root/medicoes/2026-10-26-memory-tax/`).
+
+---
+
+## Correction, same day — the window factor has no variance in most of the sample
+
+Found while writing the pre-registration code rather than the plan, which is the only reason it was
+found before a DOI existed. `audits/2026-10-27-window-variance-correction.py`, free, no API calls.
+
+**The window factor is the fraction of the session the builder saw. On 182 of the 194 eligible
+sessions that fraction is ≥ 0.95** — the builder saw essentially everything, so W0 and W1 are the
+same arm and the factor is inestimable there by construction. In this sample, 43 of the 99 pairs sit
+in that condition and were averaged in regardless.
+
+That cuts both ways, and the limit is the more important half.
+
+**The limit.** The figures above rest on fewer sessions than the pair counts suggest:
+
+| figure | pairs | **sessions** |
+|---|---|---|
+| the headline, all arms | 99 | **17** |
+| `<50k` band | 52 | 11 |
+| `50-200k` band | 7 | **1** |
+| `200k-1M` band | 40 | **5** |
+| **the interaction** — needs the window to vary | 56 | **8** |
+
+The audits said "20 sessions, 99 questions". The interaction rests on **eight**, the 50–200k row on
+**one**, and the unit of inference is the session, not the question. That is the same defect class as
+a severity stratum resting on one panel family, and it was not declared.
+
+**The bias, in the other direction.** 43 pairs could not show a window effect at all. Restricted to
+the 56 pairs where the window varies:
+
+| | published (all 99) | **window varies (56 pairs, 8 sessions)** |
+|---|---|---|
+| oracle | 88.9% | 89.3% |
+| **memory as built** | 42.4% | **30.4%** |
+| gap to close | 46.5 pp | **58.9 pp** |
+| window alone | +4.0 pp = 8.7% | **+10.7 pp = 18.2%** |
+| criterion alone | +4.0 pp = 8.7% | +3.6 pp = 6.1% |
+| **both** | +21.2 pp = 45.7% | **+35.7 pp = 60.6%** |
+| **interaction** | +13.2 pp | **+21.4 pp** |
+| D_full against bm25_iso | 63.6% vs 63.6% (level) | **66.1% vs 60.7% (memory ahead)** |
+
+So every published figure **understated** the effect, by averaging in a condition where one factor
+could not act. The interaction is 21.4 pp where it can occur, not 13.2 pp.
+
+⚠️ **This recomputation is post-hoc on data already seen and is not confirmation.** It is the correct
+reading of the sample we have, with n=8 sessions, and it is reported because the published numbers
+were wrong in a stated direction — not because the larger figure is preferred.
+
+**The control that makes the partition readable, and it passes.** Where the window is flat the window
+factor cannot act, so the two window levels must coincide:
+
+| | visible | whole | verdict |
+|---|---|---|---|
+| old criterion | 55.8% | 53.5% | 2.3 pp — ok |
+| new criterion | 62.8% | 60.5% | 2.3 pp — ok |
+
+Had these diverged, the partition would have been tracking something other than the window.
+
+## And it makes the pre-registration plan as drafted unexecutable
+
+`paper3-construction/PREREGISTRATION-DRAFT.md` asks for 60 sessions, 15 per stratum. Available:
+
+| stratum | eligible sessions | already used |
+|---|---|---|
+| `<50k` | 185 | 14 |
+| `50-200k` | **3** | 2 |
+| `200k-1M` | **6** | 4 |
+| `>1M` | **0** | — |
+| **window varies at all (<95% seen)** | **12** | **8** |
+
+The band where the effect lives holds **nine sessions in the whole corpus**, and the exploratory run
+already consumed most of them. A confirmatory factorial on this corpus would re-use the same sessions,
+which is not confirmation. **The plan cannot be deposited as written**, and the fix is a design
+decision, not an amendment: see the plan's own status note.

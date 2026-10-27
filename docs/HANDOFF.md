@@ -1,3 +1,63 @@
+## ▶ Terça 27/10, 10h40 BRT — 🔴 CORREÇÃO: o fator janela não tem variância em 182 de 194 sessões
+
+`audits/2026-10-27-window-variance-correction.py` + adendo em
+`audits/2026-10-27-neither-cause-explains-it-alone.md`. Custo zero (recomputa de rótulos salvos).
+
+**Achado ao escrever o CÓDIGO do pré-registro, não o plano** — e é a única razão de ter aparecido
+antes de existir um DOI. O fator janela é a fração da sessão que o construtor viu. **Em 182 das 194
+sessões elegíveis essa fração é ≥ 0,95**: o construtor viu praticamente tudo, logo W0 e W1 são o
+**mesmo braço** e o fator é inestimável ali por construção. Dos 99 pares da corrida, **43** estão
+nessa condição e entraram na média de todo modo.
+
+**O limite, que é a metade mais importante.** A unidade de inferência é a **sessão**, não a pergunta:
+
+| figura | pares | **sessões** |
+|---|---|---|
+| headline, todos os braços | 99 | **17** |
+| faixa `50-200k` | 7 | **1** |
+| faixa `200k-1M` | 40 | **5** |
+| **a interação** (exige a janela variar) | 56 | **8** |
+
+Os audits diziam "20 sessões, 99 perguntas". A interação repousa em **oito**, e a linha de 50–200k em
+**uma**. Mesma classe do estrato de severidade que repousava numa família do painel — e não estava
+declarada.
+
+**E o viés, na outra direção: tudo foi SUBESTIMADO.** Restrito aos 56 pares onde a janela varia:
+
+| | publicado (99) | **janela varia (56 pares, 8 sessões)** |
+|---|---|---|
+| memória como construída | 42,4% | **30,4%** |
+| gap a fechar | 46,5 pp | **58,9 pp** |
+| só a janela | +4,0 pp = 8,7% | **+10,7 pp = 18,2%** |
+| só o critério | +4,0 pp = 8,7% | +3,6 pp = 6,1% |
+| **as duas** | +21,2 pp = 45,7% | **+35,7 pp = 60,6%** |
+| **interação** | +13,2 pp | **+21,4 pp** |
+| D_full vs bm25_iso | 63,6% vs 63,6% (empate) | **66,1% vs 60,7% (memória à frente)** |
+
+⚠️ Recomputação **post-hoc sobre dado já visto, não é confirmação** — é a leitura correta da amostra
+que temos, com n=8 sessões, e entra porque os números publicados estavam errados numa direção
+declarada, não porque o número maior seja preferível.
+
+**O controle que torna a partição legível, e passa:** onde a janela é plana, os dois níveis têm de
+coincidir — critério antigo 55,8% vs 53,5%, critério novo 62,8% vs 60,5%, 2,3 pp nos dois. Se
+tivessem divergido, a partição estaria medindo outra coisa.
+
+🔴 **E o plano de pré-registro fica NÃO DEPOSITÁVEL.** O §4 pede 60 sessões, 15 por estrato.
+Disponível: `<50k` 185 · `50-200k` **3** · `200k-1M` **6** · `>1M` **0**; e **janela varia em 12**,
+das quais **8 já foram usadas**. A faixa onde o efeito vive tem **nove sessões no corpus inteiro**.
+Corrida confirmatória aqui reusaria as sessões que geraram a hipótese.
+
+**Redesenho proposto, §10 do plano — decisão do Toto.** Recomendação: **duas pernas.** A existência e
+a magnitude da janela são fato sobre **produção** e só lá se mostram (observacional, 12 sessões,
+resultado de existência). A **interação** é claim quantitativo e precisa de n e de fator
+**manipulado**: estimá-la num corpus **público** com a janela truncada sob nosso controle — o que dá
+n, dá fator manipulado e dá **reprodutibilidade por terceiros**, resolvendo junto o problema de
+release. ⚠️ Com a ressalva de declarar que a janela truncada é **nossa** truncagem: a de produção vem
+de prune de 7 dias × lookback de 30 × teto de 50 sessões por corrida, e reproduzir essa forma em
+bancada é escolha de modelagem, não detalhe.
+
+---
+
 ## ▶ Terça 27/10, 10h15 BRT — braço D: NENHUMA causa explica sozinha, e as duas FECHAM o valor líquido
 
 Audit `audits/2026-10-27-neither-cause-explains-it-alone.md`. Custo ~**US$ 0,48**.
