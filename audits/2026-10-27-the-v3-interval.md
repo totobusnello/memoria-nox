@@ -60,3 +60,22 @@ guess.**
 
 **Artifacts.** `audits/2026-10-27-v3-rescore.py`. Labels and per-query rows stay on the host under
 `/var/tmp/score-v3-161128/`.
+
+
+---
+
+## ⚠️ ADDENDUM — an adversarial pass moved two claims in this file, same day
+
+See `2026-10-27-the-adversarial-pass-and-what-it-moved.md`.
+
+1. 🔴 **The ceiling is not a four-decimal number.** The judge flips **20.0%** of labels (12 of 60,
+   stratified) on a second independent reading of the same pair, and re-reading 9.7% of the labels
+   moves pooled **0.4394 → 0.4315**. The honest form is **[0.26 · 0.44] with ~±0.01 of labelling
+   noise on the ceiling**. The threshold robustness reported above does not cover this: it varies the
+   cut on one reading, not the reading.
+2. ✅ **The coverage attribution survives, but not by the reasoning given here.** The v2→v3 contrast
+   confounds four changes; the controlled contrast (v2's own rankings and gold under full labels)
+   gives **0.5114 → 0.4412**, so coverage accounts for **97%** of the drop, with −0.0018 residual.
+3. ⚠️ **"Reproducing strict" was a weak control** — strict is unchanged by definition when labels
+   change. A perturbation control replaces it, and flipping all 113 in-ranking labels collapses
+   pooled onto strict exactly.

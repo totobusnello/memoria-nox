@@ -76,3 +76,19 @@ the aggregate silently would make the number depend on a judgement the number do
 
 **Artifacts.** `audits/2026-10-27-score-v3.sh`, `audits/2026-10-27-why-not-37-percent.py`, and
 `eval/run-gold-eval.mjs`. Per-query rows stay on the host under `/var/tmp/score-v3-161128/out.json`.
+
+
+---
+
+## ⚠️ ADDENDUM — the causal claim here is narrowed
+
+See `2026-10-27-the-adversarial-pass-and-what-it-moved.md`, finding 2. The statement that the invalid
+gold *"was measuring the wrong thing, not depressing a score the system deserved"* is **too
+categorical**: a query can have had gold that zeroed it unfairly **and** a true answer the retriever
+also misses, and a low score after repair does not decompose the earlier error. There is also
+**selection** — the 21 answers found outside their original file are evidence of a localisation
+problem that plausibly correlates with harder retrieval, and comparing group means does not remove it.
+
+**What survives:** the +37.5% prediction did not materialise, and the repaired queries still fail at
+retrieval. **What does not:** that no deserved point was ever depressed. And the zero-hit rise
+52.7% → 56.1% is not independent evidence — same run, changed denominator.
