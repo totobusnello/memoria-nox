@@ -1,6 +1,8 @@
 # Pre-registration plan — the construction interaction. DRAFT for approval, not deposited.
 
-> 🔴 **NOT DEPOSITABLE AS WRITTEN — blocked 2026-10-27.** Writing the sampling code revealed that the
+> 🔴 **NOT DEPOSITABLE — §4 blocked 2026-10-27, §11 at rc2 after an adversarial pass.** §11 supersedes §4 as the design; the Codex pass (`audits/2026-10-27-codex-challenge-s11.md`) then found two literal errors in §11 — the dose in the wrong unit and the truncation direction inverted — plus a power calculation that does not cover its own estimand, decision labels contradicting their intervals, two controls a constant `NAO SEI` would pass, and four claims asserted rather than derived. All are addressed; what still blocks deposit is listed in §11.7.
+>
+> 🔴 **On §4 as written — blocked 2026-10-27.** Writing the sampling code revealed that the
 > corpus cannot support §4. The window factor has variance in **12 of 194** eligible sessions and
 > **8 of those 12 were already used** in the exploratory run; the `>1M` stratum holds **zero**
 > sessions and `50-200k` holds **three**. §4 asks for 60 sessions, 15 per stratum. A confirmatory run
@@ -266,21 +268,61 @@ this leg cannot carry an abstention claim, and nothing here is planned on one.
 
 ### 11.2 Unit, design, factors
 
-**Unit of inference: the instance.** 500 of them, no shared haystacks, so n is n.
+**Unit of inference: the instance** — with the coupling measured, not asserted.
+
+🔴 The first draft said *"500 of them, no shared haystacks, so n is n"*. That compared the sorted
+tuple of `haystack_session_ids`, which only detects haystacks identical **as a whole**; the
+adversarial pass (finding 6) pointed out that instances can share **component** sessions. Measured
+(`lme-independence.py`, `lme-answer-overlap.py`):
+
+| coupling | measured |
+|---|---|
+| session ids appearing in more than one instance | **20.5%** of 19,195 distinct |
+| instances with zero shared sessions | **0 of 500** — median 36.0% of a haystack is non-exclusive |
+| pairs sharing ≥1 session | 4.30% · **max 3** of ~48, median 1 · **0 pairs** share ≥10 |
+| **pairs sharing an ANSWER session** | **5 of 124,750 = 0.004%** |
+| instances in an evidence-coupled pair | **10 of 500 = 2.0%** |
+| answer sessions that are a distractor elsewhere | **0 of 940** |
+
+⇒ **"n is n" is withdrawn.** But the coupling that can propagate into the estimate runs through
+*evidence*, and it touches **2.0% of instances in 5 pairs** — not the structure that killed §4, where
+12 units carried 400 observations. The consequence is procedural, not fatal: **the standard error is
+cluster-robust over answer-session groups**, pre-specified here, and the 5 coupled pairs are listed
+in the final text so a reader can drop them. Distractor-level sharing is left in deliberately: it
+changes the haystack both instances must search, which is a property of the corpus, not a dependence
+between outcomes.
 
 **2×2 within-instance** — every instance passes through all four cells, the contrast is paired, and
 between-instance variance drops out of the interaction estimate.
 
 | factor | level 0 | level 1 |
 |---|---|---|
-| **W** — window | **truncated**: the distiller sees the first `ceil(0.240 × n_sessions)` sessions in date order | **full**: all 38–62 sessions |
+| **W** — window | **truncated**: the distiller sees the **most recent** sessions whose cumulative prose reaches 0.240 of the haystack's characters | **full**: all 38–62 sessions |
 | **C** — criterion | `DISTILL_SYSTEM` v1, verbatim as production ran it | `DISTILL_SYSTEM_V2`, v1 plus the verbatim-identifier paragraph |
 
-**The 0.240 is production's measured median seen-fraction in the 200k–1M band**, not a round number,
-and it is the one modelling choice that has to be declared loudly: production's window is set by a
-7-day prune crossed with a 30-day lookback and a 50-session-per-run ceiling, and reproducing that
-shape as a leading-prefix truncation is an *approximation of the mechanism*, not the mechanism.
-Sensitivity to it is pre-specified in §11.5.
+🔴 **Both halves of that cell were wrong in the first draft, and the adversarial pass caught them
+(`audits/2026-10-27-codex-challenge-s11.md`, finding 1).**
+
+- **The unit was wrong.** Production's 0.240 is a fraction of **prose characters**; the draft kept
+  0.240 of the **number of sessions**, with a ceiling. Sessions are not equal in length, so that does
+  not preserve even the nominal dose. It is now a cumulative-character cut.
+- **The direction was inverted.** The draft said *"production's prune removes the oldest sessions, so
+  a leading prefix is the right shape"* — but if the prune removes the oldest, what the distiller
+  sees is the **most recent**, and a leading prefix keeps precisely what the prune discarded. The
+  truncation now takes the recent tail.
+
+**The 0.240 is production's measured median seen-fraction in the 200k–1M band**, and it remains an
+*approximation of the mechanism*, not the mechanism: production's window is a 7-day prune crossed
+with a 30-day lookback and a 50-session-per-run ceiling, and it cuts mid-session at `processed_at`
+rather than at a session boundary. ⚠️ **What this approximation cannot separate** is unavailability
+from recency and from context composition: a recency-tail cut removes old evidence, contradictory
+updates and redundancy together. A positive interaction under it is causal **for this truncation**;
+attributing it to production's window needs the sensitivity arms of §11.5 to agree, and if they do
+not, the finding is about our cut.
+
+⚠️ **The denominator of the 0.240 is not yet stated and must be before deposit**: it is a median over
+the production sessions in that band, and §4's failure was exactly a statistic resting on fewer units
+than it appeared to. Its n and spread go in the final text.
 
 **Response:** was the generated answer correct, judged by the bounded judge (Decisions API, no
 free-text field, so the prose-contradicts-the-field failure cannot occur). ⚠️ Not GPT-4o, which is
@@ -296,7 +338,28 @@ four cells, which is what the interaction needs.
 | **negative** | truncation that drops only non-answer sessions, keeping all evidence | accuracy ≈ the full-window cell. A drop here means truncation hurts through something other than losing evidence, and the interaction estimate is contaminated |
 | **fidelity** | the W1C1 cell re-run against our own replay harness | must reproduce the arm-C/D numbers on our prose, as C_visible reproduced B's 42.4%/7.1% exactly |
 
-The positive control is free, which is why this corpus was chosen over manufacturing one.
+🔴 **Both controls can pass with a broken pipeline, and the adversarial pass gave the
+counterexample (finding 5): a system that always answers `NAO SEI`.** It sits at the floor in the
+positive control — pass — and keeps the full-window accuracy in the negative one — pass. So the
+required results are necessary and **not** sufficient, and two more legs are added:
+
+| control | construction | required |
+|---|---|---|
+| **answerable floor** | the full-window cell on the same instances | accuracy **above** a pre-set minimum. A pipeline that cannot answer *with* the evidence makes the other controls vacuous |
+| **paired diagnosis** | per-item, not aggregate | the negative control's equality must hold **item-wise within a margin**, because aggregate equality hides compensating losses and gains |
+
+And two asymmetries to state rather than assume:
+
+- in the positive control, low accuracy can also come from a failing reader or judge, so it is
+  diagnostic only once the answerable floor passes;
+- answering **without** the annotated evidence does not prove improper access — prior knowledge,
+  cues in the question, unannotated redundancy and judge false positives all produce it. *"No marked
+  session"* is not demonstrably *"no usable information"*, and the completeness of the evidence
+  annotation is itself unverified. The final text states a quantitative floor and an equivalence
+  margin instead of the words "floor" and "≈".
+
+The positive control is cheap to construct, which is why this corpus was chosen over manufacturing
+one — but cheap to construct is not the same as sufficient to validate.
 
 ### 11.4 Power, cost, and a declared stopping rule
 
@@ -312,21 +375,71 @@ US$ 0.35) and US$ 6.4e-5 per judge call (152 calls for US$ 0.0098). Blocks per i
 | 8 pp | 368 | US$ 140 | 224k | ~16 h |
 | 5 pp | 942 | — | — | **exceeds the corpus** |
 
-(α 0.05, power 0.80, paired, discordance 0.30 assumed conservatively; the discordance is itself
-estimated from the first stage and the plan is revised **up** if it comes in lower.)
+🔴 **This table does not yet power the primary contrast, and the adversarial pass showed why
+(finding 3).** The estimand is the additive interaction
+
+> `D_i = Y_11,i − Y_10,i − Y_01,i + Y_00,i`, with `D_i ∈ {−2,−1,0,1,2}` and target `E[D_i]` in
+> percentage points.
+
+Its standard error depends on `Var(D_i) = Var(A) + Var(B) − 2·Cov(A,B)` with `A = Y_11 − Y_10` and
+`B = Y_01 − Y_00`. **A single "discordance of 0.30" does not specify that distribution**: it fixes
+each pair's discordance and says nothing about the covariance **between** the two contrasts, and the
+arithmetic above silently treated 0.30 as `Var(D)` itself. Pairing removes some between-instance
+variance, not all of it.
+
+Three further defects in that table, all real:
+
+- **α mismatch.** It uses α = 0.05; the stopping rule below spends 0.03 / 0.02. The power must be
+  computed for the procedure actually run, including the two-stage structure.
+- **Scale mismatch.** §3 prescribes a logistic interaction coefficient, which is interaction in
+  **log-odds**, not superadditivity in percentage points. The two can disagree in sign of
+  significance; the estimand is now fixed as the **additive** one, and §3 is amended to match.
+- **An inverted sentence.** The draft said the plan is *"revised up if the discordance comes in
+  lower"*. Holding the effect fixed, **lower variance needs fewer observations, not more.** If the
+  intent was to adapt on the observed *effect*, that is a different rule and has to be written as
+  one.
+
+⇒ **Before deposit**, the sizing is redone over plausible joint distributions of the four responses,
+for the additive estimand, under the two-stage procedure, with a cluster-robust SE over
+answer-session groups (§11.2). The n column above is therefore **provisional** and the corpus ceiling
+of 500 is a hard constraint on what any of it can detect.
+
+⚠️ And the 240 ceiling of stage 2 does not deliver the 8 pp power the table itself quotes for 368 —
+that inconsistency is resolved in the same pass.
 
 **Two-stage, with the rule fixed in advance** — because running until something appears is not a
 confirmation:
 
 - **Stage 1: n = 60** (52 plus attrition margin), sampled by seed from the 500, stratified by
   question category. US$ 23.
-- **Stop at stage 1** if the interaction's 95% CI excludes 0 *and* excludes 8 pp from below ⇒
-  production's magnitude is confirmed at this corpus.
-- **Go to stage 2** (n = 240 total, +US$ 68) only if stage 1's CI **contains** 8 pp ⇒ underpowered
-  for the smaller effect that stage 1 would then be suggesting.
-- **Stop and report a null** if stage 1's CI excludes 8 pp from **above** ⇒ the effect is smaller
-  than production claims, and that is the finding, reported as such.
+- **Stop at stage 1** if the CI's lower bound exceeds 8 pp.
+- **Go to stage 2** (n = 240 total, +US$ 68) if the CI contains 8 pp.
+- **Stop** if the CI's upper bound falls below 8 pp.
 - α is split 0.03 / 0.02 across the two stages. No third stage, whatever stage 2 returns.
+
+🔴 **The partition is exhaustive — the adversarial pass confirmed that and I had asked about it — but
+the CONCLUSIONS attached to it were wrong (finding 4), and that is the worse defect:**
+
+| CI | the draft's label | why it fails |
+|---|---|---|
+| [1, 7] pp | "null" | it **excludes zero**; there is a positive interaction, merely a small one |
+| [9, 15] pp | "confirms production's magnitude" | it **excludes 21.4 pp**, which *is* production's magnitude |
+| [−20, 40] pp | "suggests a smaller effect" | it suggests **wide uncertainty**, not a smaller effect |
+
+So the labels are rewritten as what each interval licenses, and the 8 pp threshold is demoted from
+"confirmation boundary" to what it always was — a **power target**:
+
+| CI relative to 0 and to 21.4 pp | conclusion |
+|---|---|
+| excludes 0, contains 21.4 | interaction present, **consistent** with production's magnitude |
+| excludes 0, excludes 21.4 from below | interaction present and **smaller** than production's |
+| contains 0 | **no interaction demonstrated at this n**; report the interval, not a null |
+
+⚠️ And two states still had no action, both now specified: **no valid CI obtainable** (separation or
+non-convergence ⇒ report the estimate with a bootstrap interval and say so) and **the stage-2
+classification criteria**, which were left implicit. Two-sided 95% CIs also do not by themselves
+implement α = 0.03 / 0.02; the intervals used for the decisions are adjusted to the spent alpha, or
+the alpha split is dropped. That choice goes in the final text, not here.
 
 ### 11.5 Pre-specified sensitivity and threats
 
@@ -341,6 +454,26 @@ confirmation:
    what it would be in production, and the paper must say so.
 4. **No `_abs` variants** ⇒ no abstention claim from this leg (§11.1).
 5. **Not the paper's judge** ⇒ no leaderboard comparison (§11.2).
+6. 🔴 **The "lower bound" claim about the criterion effect is withdrawn.** The draft argued that
+   because this corpus has lower identifier density than our prose, the criterion's main effect here
+   is a **floor** on what it would be in production. That ordering was asserted, not derived:
+   transportability also depends on difficulty, redundancy, question mix and competition for
+   capacity, and higher identifier density could as easily **saturate** the store and reduce the
+   gain. Without a stated additional assumption there is no demonstrated ordering between the two
+   corpora, so the effect here is **an estimate on this corpus** and nothing more.
+7. 🔴 **A constant judge is not a constant error.** Holding the judge identical across cells removes
+   one source of variance; it does not validate the labels. The identifier prompt plausibly produces
+   more **literal** answers, which a judge may reward without an equal gain in correctness — so the
+   risk is to the **internal** interaction estimate, not only to leaderboard comparability. ⇒ the
+   human validation in §7 must reach the **primary contrast**, not only H2.
+8. 🔴 **The factorial does not identify the mechanism.** The prompt changes identifier survival *and*
+   unit count, length, selection and retrievability together. A positive interaction does not
+   establish that identifier survival governs the effect, so the mechanism claim is not among the
+   confirmatory conclusions.
+9. 🔴 **Pointwise equality of accuracy does not refute a retention claim.** The README notes this and
+   then presents the result as a refutation of `2601.00821`'s prediction anyway. The defensible claim
+   is narrower: our intervention closes the *accuracy* gap under native budget on our corpus, while
+   verbatim retention remains unreached (12.9% ≠ 100%).
 
 ### 11.6 What the production leg carries, and only it
 
@@ -349,3 +482,39 @@ its magnitude.** Observational, 12 sessions with window variance of which 8 are 
 existence result with a magnitude (+21.4 pp interaction on 56 pairs) and with its limits stated —
 exactly what 12 sessions can carry and no more. The confirmatory claim lives in §11.4, on data anyone
 can download.
+
+### 11.7 What remains before this can be deposited
+
+The adversarial pass (Codex, `gpt-6-astra`, `exit: 0`, 155 s, full parecer in
+`audits/2026-10-27-codex-challenge-s11.md`) raised six findings. Four were measured or corrected in
+place; two need work that is not textual.
+
+| # | finding | state |
+|---|---|---|
+| 1 | manipulated factor changed meaning — dose in sessions not characters, truncation inverted | ✅ **corrected** (§11.2); the mechanism-vs-truncation gap now declared, not hidden |
+| 2 | a production statistic parameterises the public leg ⇒ legs not independent in the broad sense | ✅ **declared**; the 0.240's denominator and spread still owed |
+| 3 | power not demonstrated for the additive contrast; α and scale mismatched; one inverted sentence | ⚠️ **OPEN** — the n column is provisional until resized |
+| 4 | decision labels contradicted their own intervals | ✅ **rewritten** (§11.4); 8 pp demoted to a power target |
+| 5 | both controls pass for a constant `NAO SEI` | ✅ **two legs added** (§11.3); quantitative floor and margin still owed |
+| 6 | independence asserted; four claims not derived | ✅ **measured** (§11.2: 2.0% evidence-coupled ⇒ cluster-robust SE) and the four claims withdrawn or narrowed (§11.5) |
+
+**Two blocking items, both mine and neither expensive:**
+
+1. **Resize the study** for the additive estimand `D_i = Y_11 − Y_10 − Y_01 + Y_00` under the
+   two-stage procedure, with a cluster-robust SE over answer-session groups. Until then **no n in
+   §11.4 is pre-registerable.**
+2. **State the 0.240's denominator** — how many production sessions in the 200k–1M band the median
+   rests on, and its spread. §4 died from a statistic resting on fewer units than it appeared to, and
+   this is the same statistic class.
+
+🔑 **And the finding that is about me rather than the plan:** §11 was written *after* §4 was found
+unexecutable, with that failure explicitly in view, and it still shipped a dose in the wrong unit and
+a truncation pointing the wrong way. Pricing and powering a design before writing it — which §11 did,
+and which was the lesson from §4 — does not catch an intervention that means something other than
+what it is named. **Adversarial review and mechanical checks catch disjoint defects:** every
+mechanical gate I ran on this document passed.
+
+⚠️ A second process note, from the same hour. The commit that first marked this document superseded
+used `if old in s: s = s.replace(...)` instead of an assert — a silent conditional that applied
+nothing and reported nothing, so the header kept saying something untrue for two commits. Every
+substitution in this file now asserts its anchor.
