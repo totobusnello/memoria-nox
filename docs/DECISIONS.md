@@ -5,6 +5,38 @@
 
 ---
 
+## 2026-10-27 — step 7b LIVE em produção, e as cinco decisões do dia
+
+**Decidido pelo Toto em 27/10 ("seguiremos suas recomendações"):**
+
+| # | decisão | estado |
+|---|---|---|
+| 1 | Pré-registro do fatorial → **opção (c)**: produção para existência e magnitude, corpus público para a interação | desenho a escrever |
+| 2 | **v3 da régua** — aceitar Q108/Q72 (+Q52 marginal) e recortar as 38 âncoras rejeitadas por regra semântica | depois do 1 |
+| 3 | **`retention_days`** — não mudar o comportamento; escrever `NULL` explícito na INSERT e tirar `distilled` do `ELSE 90` de `db.ts:437-452` | ⏸️ **executa junto com o 5** — mesmo arquivo, mesmo deploy |
+| 4 | Grading humano de 60 itens | do Toto |
+| 5 | Conserto do destilador (see-once + parágrafo do prompt), as duas juntas, só para frente | **depois** da corrida registrada |
+
+**`model_abstained` em serving — APLICADO 2026-10-27 15:04 UTC.** `staged/abstention-canonical/`,
+PR #603. Resposta sem `[chunk_N]` passa a devolver `CANONICAL_EMPTY_ANSWER` com
+`failed_reason: "model_abstained"`. Alcance provado contra a API viva: negativa devolve o CANON com
+`retrieval_count: 8` — o caso que `retrieval_empty` nunca pegou, porque a busca sempre traz
+candidatos. Backup em `/var/backups/nox-mem/pre-step7b-20261027T150444Z`.
+
+🔴 **A linha de base do item 8 passa a descrever o sistema PRÉ-conserto.** Negativas 0,6957,
+positivas 0,2000, gap +0,4957 foram medidos por este mesmo `answer()`. Re-rodar depois do step 7b
+não é comparável a eles. `abstainedSubstr` fica byte-idêntico no harness para o predicado antigo
+continuar computável, mas o **sistema** que ele lê mudou: toda comparação futura tem de dizer de que
+lado desta mudança está.
+
+🔴 **E `npm test` em produção já estava vermelho**: 14 falhas com o código original, todas em
+migrations e fixtures `.sql` (v21, v20-viewer-telemetry, streaming-memory, confidence/eval,
+regex-extract/eval-harness), nenhuma em `answer`. São `.js` deixados em `dist/` cujo `.ts` não existe
+mais em `src/`. Por isso o gate de aplicação é **diferencial** — o conjunto de nomes falhos não pode
+crescer — e não `fail == 0`, que esta árvore nunca satisfez.
+
+---
+
 ## 1. NÃO FAZEMOS — inventário consolidado
 
 **Adicionados 2026-06-04 (Session Priming Loop):**
