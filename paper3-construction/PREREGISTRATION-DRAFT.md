@@ -1,6 +1,8 @@
 # Pre-registration plan — the construction interaction. DRAFT for approval, not deposited.
 
-> 🔴 **NOT DEPOSITABLE AS WRITTEN — blocked 2026-10-27.** Writing the sampling code revealed that the
+> 🔴 **NOT DEPOSITABLE — §4 blocked 2026-10-27, §11 at rc2 after an adversarial pass.** §11 supersedes §4 as the design; the Codex pass (`audits/2026-10-27-codex-challenge-s11.md`) then found two literal errors in §11 — the dose in the wrong unit and the truncation direction inverted — plus a power calculation that does not cover its own estimand, decision labels contradicting their intervals, two controls a constant `NAO SEI` would pass, and four claims asserted rather than derived. All are addressed; what still blocks deposit is listed in §11.7.
+>
+> 🔴 **On §4 as written — blocked 2026-10-27.** Writing the sampling code revealed that the
 > corpus cannot support §4. The window factor has variance in **12 of 194** eligible sessions and
 > **8 of those 12 were already used** in the exploratory run; the `>1M` stratum holds **zero**
 > sessions and `50-200k` holds **three**. §4 asks for 60 sessions, 15 per stratum. A confirmatory run
@@ -452,6 +454,26 @@ the alpha split is dropped. That choice goes in the final text, not here.
    what it would be in production, and the paper must say so.
 4. **No `_abs` variants** ⇒ no abstention claim from this leg (§11.1).
 5. **Not the paper's judge** ⇒ no leaderboard comparison (§11.2).
+6. 🔴 **The "lower bound" claim about the criterion effect is withdrawn.** The draft argued that
+   because this corpus has lower identifier density than our prose, the criterion's main effect here
+   is a **floor** on what it would be in production. That ordering was asserted, not derived:
+   transportability also depends on difficulty, redundancy, question mix and competition for
+   capacity, and higher identifier density could as easily **saturate** the store and reduce the
+   gain. Without a stated additional assumption there is no demonstrated ordering between the two
+   corpora, so the effect here is **an estimate on this corpus** and nothing more.
+7. 🔴 **A constant judge is not a constant error.** Holding the judge identical across cells removes
+   one source of variance; it does not validate the labels. The identifier prompt plausibly produces
+   more **literal** answers, which a judge may reward without an equal gain in correctness — so the
+   risk is to the **internal** interaction estimate, not only to leaderboard comparability. ⇒ the
+   human validation in §7 must reach the **primary contrast**, not only H2.
+8. 🔴 **The factorial does not identify the mechanism.** The prompt changes identifier survival *and*
+   unit count, length, selection and retrievability together. A positive interaction does not
+   establish that identifier survival governs the effect, so the mechanism claim is not among the
+   confirmatory conclusions.
+9. 🔴 **Pointwise equality of accuracy does not refute a retention claim.** The README notes this and
+   then presents the result as a refutation of `2601.00821`'s prediction anyway. The defensible claim
+   is narrower: our intervention closes the *accuracy* gap under native budget on our corpus, while
+   verbatim retention remains unreached (12.9% ≠ 100%).
 
 ### 11.6 What the production leg carries, and only it
 
@@ -460,3 +482,39 @@ its magnitude.** Observational, 12 sessions with window variance of which 8 are 
 existence result with a magnitude (+21.4 pp interaction on 56 pairs) and with its limits stated —
 exactly what 12 sessions can carry and no more. The confirmatory claim lives in §11.4, on data anyone
 can download.
+
+### 11.7 What remains before this can be deposited
+
+The adversarial pass (Codex, `gpt-6-astra`, `exit: 0`, 155 s, full parecer in
+`audits/2026-10-27-codex-challenge-s11.md`) raised six findings. Four were measured or corrected in
+place; two need work that is not textual.
+
+| # | finding | state |
+|---|---|---|
+| 1 | manipulated factor changed meaning — dose in sessions not characters, truncation inverted | ✅ **corrected** (§11.2); the mechanism-vs-truncation gap now declared, not hidden |
+| 2 | a production statistic parameterises the public leg ⇒ legs not independent in the broad sense | ✅ **declared**; the 0.240's denominator and spread still owed |
+| 3 | power not demonstrated for the additive contrast; α and scale mismatched; one inverted sentence | ⚠️ **OPEN** — the n column is provisional until resized |
+| 4 | decision labels contradicted their own intervals | ✅ **rewritten** (§11.4); 8 pp demoted to a power target |
+| 5 | both controls pass for a constant `NAO SEI` | ✅ **two legs added** (§11.3); quantitative floor and margin still owed |
+| 6 | independence asserted; four claims not derived | ✅ **measured** (§11.2: 2.0% evidence-coupled ⇒ cluster-robust SE) and the four claims withdrawn or narrowed (§11.5) |
+
+**Two blocking items, both mine and neither expensive:**
+
+1. **Resize the study** for the additive estimand `D_i = Y_11 − Y_10 − Y_01 + Y_00` under the
+   two-stage procedure, with a cluster-robust SE over answer-session groups. Until then **no n in
+   §11.4 is pre-registerable.**
+2. **State the 0.240's denominator** — how many production sessions in the 200k–1M band the median
+   rests on, and its spread. §4 died from a statistic resting on fewer units than it appeared to, and
+   this is the same statistic class.
+
+🔑 **And the finding that is about me rather than the plan:** §11 was written *after* §4 was found
+unexecutable, with that failure explicitly in view, and it still shipped a dose in the wrong unit and
+a truncation pointing the wrong way. Pricing and powering a design before writing it — which §11 did,
+and which was the lesson from §4 — does not catch an intervention that means something other than
+what it is named. **Adversarial review and mechanical checks catch disjoint defects:** every
+mechanical gate I ran on this document passed.
+
+⚠️ A second process note, from the same hour. The commit that first marked this document superseded
+used `if old in s: s = s.replace(...)` instead of an assert — a silent conditional that applied
+nothing and reported nothing, so the header kept saying something untrue for two commits. Every
+substitution in this file now asserts its anchor.
