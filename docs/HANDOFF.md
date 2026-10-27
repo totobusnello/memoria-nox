@@ -1,4 +1,60 @@
-# nox-mem HANDOFF — estado vivo
+## ▶ Segunda 26/10, 22h40 BRT — frente 2 FECHADA: tax de faithfulness 52,3%, e concentrado em `context`
+
+Replay do QA rodado. Audit `audits/2026-10-26-faithfulness-replay.md`. Custo total **US$ 0,13**.
+
+**O número.** Sobre **99** perguntas cuja resposta o transcript cru comprovadamente contém, a
+memória destilada responde **42,4%** contra **88,9%** do lado cru — tax de faithfulness de
+**52,3% relativo**. É **piso** (ver limites).
+
+**O achado acionável não é o agregado, é a assimetria por categoria** — e as categorias são as
+quatro que o próprio destilador declara guardar (critério copiado verbatim do `DISTILL_SYSTEM`):
+
+| categoria | n | A cru | B memória | tax | B calado |
+|---|---|---|---|---|---|
+| `lesson` | 28 | 92,9% | 60,7% | **34,6%** | 25,0% |
+| `decision` | 29 | 82,8% | 48,3% | 41,7% | 37,9% |
+| **`context`** | 42 | 90,5% | **26,2%** | **71,1%** | **71,4%** |
+
+🔑 **O destilador guarda lição e perde detalhe de projeto.** Dos 42 casos em que o cru responde e a
+memória fica calada, **27 são `context`** — nome de arquivo, caminho, comando, canal proibido. Uma
+lição é autocontida e se lê como insight, logo sobrevive à extração; `active-tasks.md` e
+`session-context.json` não.
+
+Isso **explica mecanicamente** dois nulos que já tínhamos: os agentes não buscam no nox-mem (100%
+das buscas canárias) e o brief não guia a 1ª ação (3 de 28, 0 de 10 nos decisivos). Memória com
+insight e sem caminho de arquivo não guia ação nem se alguém a lesse.
+
+**Duas previsões minhas que os dados recusaram**, e as duas vale registrar:
+- **O bloco de 2.000 chars NÃO é o mecanismo.** `BLOCK_SIZE = 2000` sem overlap faria prever perda
+  maior em evidência com span largo. Span 2.000-4.000 tem tax **37,5%** contra 52,6% do span
+  <2.000 — direção oposta. A faixa >4.000 tem n=4 e o braço A em 50%, logo não sustenta leitura.
+  Hipótese **não sustentada**, não refutada.
+- **Evidência distribuída vai MELHOR**: tax 41,4% contra 57,6% da local. Também o oposto.
+
+**O predicado de dano foi REPROVADO por controle dentro da própria corrida.** O braço A respondeu
+lendo a janela de onde a referência saiu, logo **não pode contradizê-la** — e o juiz marcou A como
+contraditório em **17,2%**. B marcou 7,1%, **abaixo do ruído do próprio predicado** ⇒ **nenhuma
+evidência de que a memória minta**. E 9 dos 17 flags de A trazem `contem` **e** `contradiz` juntos:
+os predicados não são exclusivos e o flag dispara por diferença de detalhe. A pergunta que mais
+me interessava — silêncio ou erro? — volta **sem resposta**, porque o instrumento não serve.
+
+**Quatro defeitos meus, todos pegos por controle e nenhum por inspeção:** extrator de prosa
+rejeitando o turno inteiro em vez de cortar o envelope (perdeu 315.527 de 361.603 chars numa
+sessão, e o controle foi compressão > 100%, impossível); janelas `start` e `middle` idênticas em
+sessão < 20k; teto de output lido como «a janela não rendeu fato»; e a chave do envelope do juiz
+(`answers`, não `questions`), que fez o primeiro smoke imprimir **braço A com 0,0% de acerto** —
+tax perfeito produzido por bug de parser, pego porque A é impossível de falhar.
+
+**Limite principal:** o braço A é **oráculo**, recebe a janela da evidência, logo é teto do que um
+RAG naive sobre o cru alcançaria. Contra um retriever real o gap seria menor — é por isso que o
+tax é piso. E pergunta, referência e as duas respostas vêm da mesma família (`flash-lite`); o juiz
+é de outra (`gpt-6-luna`), que é a perna que mais importa.
+
+**Os dois componentes do tax agora têm número, de instrumentos diferentes:** **operacional** — 259
+transcripts com 4,5M chars de prosa nunca oferecidos ao construtor — e **faithfulness** — 52,3%
+do que o cru responde, perdido na extração.
+
+---
 
 ## ▶ Segunda 26/10, 22h BRT — frente 2: onde o nosso tax de construção está (e dois números meus retirados)
 

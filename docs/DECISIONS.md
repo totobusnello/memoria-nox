@@ -3119,3 +3119,47 @@ sobreviveu e fabricaria nulo por seleção.
 
 `audits/2026-10-26-construction-tax-probe.{md,py}`,
 `audits/2026-10-26-{never-logged-prose,nontrivial-zeros-audit}.py`.
+
+---
+
+### 2026-10-26 — o tax de faithfulness é 52,3% e mora em `context`; e NÃO afirmamos que a memória mente
+
+**Contexto.** Replay do QA pelo método do paper Memory Tax, sobre o nosso corpus de produção.
+Audit `audits/2026-10-26-faithfulness-replay.md`. US$ 0,13.
+
+**Decisão 1 — o número a citar é 52,3% relativo, e sempre como piso.** 99 perguntas geradas do
+lado **cru** (nunca do golden set), com o critério de extração copiado verbatim do
+`DISTILL_SYSTEM` do destilador. Braço A (turnos crus) responde 88,9%, braço B (unidades de
+memória, **todas**, sem retrieval) responde 42,4%. O braço A é **oráculo** — recebe a janela da
+evidência —, logo é teto do que um RAG naive alcançaria, e é por isso que o tax é piso e não
+estimativa. O braço B receber 100% das unidades sem busca é deliberado: remove tax de
+acessibilidade por construção, deixando só o de construção.
+
+**Decisão 2 — a intervenção é em `context`, não no agregado.** `lesson` tem tax de 34,6%,
+`decision` 41,7% e **`context` 71,1%, com 71,4% de silêncio**. Dos 42 casos em que o cru responde
+e a memória se cala, **27 são `context`** — nome de arquivo, caminho, comando, canal proibido. O
+destilador guarda o que se lê como insight e descarta o detalhe factual, que é precisamente o que
+um agente precisa para **agir**. Isso dá mecanismo a dois nulos já medidos: agentes não buscam no
+nox-mem, e o brief não guia a primeira ação.
+
+**Decisão 3 — NÃO afirmar que a memória fabrica ou contradiz.** O predicado `contradiz` foi
+construído, rodado e **reprovado pelo controle negativo da própria corrida**: o braço A leu a
+janela de onde a referência saiu e portanto não pode contradizê-la, e o juiz o marcou como
+contraditório em **17,2%** contra 7,1% do braço B. B está **abaixo do ruído do predicado**. Além
+disso 9 dos 17 flags de A trazem `contem` e `contradiz` simultaneamente — os predicados não são
+exclusivos e o flag dispara por diferença de detalhe. A pergunta «silêncio ou erro?» fica **sem
+resposta medida**, e dizer o contrário seria reportar um fato sobre o instrumento.
+
+**Decisão 4 — a hipótese do `BLOCK_SIZE` fica registrada como NÃO SUSTENTADA.** `BLOCK_SIZE = 2000`
+sem sobreposição (`session-distill.ts:375, 402-413`) prevê perda maior onde a evidência tem span
+largo. Medido: span 2.000–4.000 tem tax **37,5%**, contra 52,6% do span < 2.000 — direção oposta;
+e a faixa > 4.000 tem n=4 com o braço A em 50%, insuficiente nas duas direções. Evidência
+**distribuída** também vai melhor que local (41,4% contra 57,6%). Não mexer no `BLOCK_SIZE` com
+base nesta medição: as células que o testariam têm 8 e 4 itens.
+
+**Em aberto.** Um braço com **retrieval real** sobre o cru, que é o que torna o número comparável
+aos do paper; `preference` não gerou pergunta nenhuma e está sem teste; e as sessões de 600k+
+caracteres são amostradas por duas janelas de 20k, logo o tax delas é medido sobre pouca coisa.
+
+`audits/2026-10-26-faithfulness-replay.md`,
+`audits/2026-10-26-replay-{build,generate,answer,judge,report}.py`.
