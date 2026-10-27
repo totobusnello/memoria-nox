@@ -2995,6 +2995,50 @@ grafo 0,900 fiel ao corpus errado continua sendo o corpus errado.
 
 ---
 
+### 2026-10-27 (tarde) — o gap é EXTRAÇÃO: o see-once explica 8,7% dele; e a alavanca do `context` é o PROMPT
+
+`audits/2026-10-27-the-gap-is-extraction-not-the-window.md` +
+`audits/2026-10-27-the-insert-that-does-not-list-two-columns.md`. Custo medido US$ 0,35.
+
+**1. O achado de valor líquido é DO CAMPO, não defeito nosso de implementação.** Braço C — as mesmas
+20 sessões re-destiladas da prosa **completa**, com o prompt, blocagem, modelo, temperatura e filtro
+de importância do próprio construtor — rende **46,5%** contra os 42,4% de B. Recupera **+4,0 pp de um
+gap de 46,5 pp = 8,7%**, e o valor líquido contra BM25 fica em **−17,2 pp**. ⇒ podemos publicar o
+negativo sem o reparo de que é um `continue` nosso.
+
+**2. E a nossa leitura da manhã errou na ênfase, na direção que nos favorecia.** O see-once parecia o
+mecanismo porque o valor líquido acompanha o tamanho da sessão — e acompanha, C_all ganha **+15,0 pp**
+na faixa 200k–1M. Mas a dependência de tamanho é majoritariamente outra coisa. Registrar as duas
+coisas: a janela custa memória real nas sessões grandes **e** não é a explicação.
+
+**3. Consertar o see-once é decisão de PRODUTO, não de paper.** 15 pp nas sessões grandes valem ter;
+8,7% do gap não é resultado. Não foi feito, e quando for é escrita em produção (precisa de desenho,
+não de patch).
+
+**4. A alavanca do `context` é o PROMPT, não a janela.** Com a conversa inteira, `context` fica em
+**26,2% dos dois lados** — nem um ponto — e `decision` em 48,3% dos dois; só `lesson` move (+14,3 pp).
+O construtor **lê** o turno e não guarda o nome do arquivo. ⇒ o próximo braço a medir é um
+`DISTILL_SYSTEM` obrigado a carregar identificadores verbatim. É o único ainda não tentado.
+
+**5. NÃO afirmamos dano, terceiro dia.** C_all contradiz em exatamente **17,2%** — o piso de falso
+positivo do braço A. Mais memória não produziu mais dano detectável.
+
+**6. Limite de leitura deste instrumento, declarado:** o controle de fidelidade dá mediana **1,17**
+(sem o dedup por embedding, que precisa do banco vivo), e C_all fica 1,9 pp **abaixo** de B na faixa
+<50k onde deviam ser idênticos. ⇒ **diferença de dois pontos está no ruído; o +4,0 pp do headline
+está perto da borda** e o +15,0 pp da faixa grande não está. Não citar o 8,7% sem esta frase.
+
+**7. A `INSERT` do destilador não lista `memory_type` nem `retention_days` — e isso é decisão por
+omissão.** NULL em **6.898 de 6.898**. A categoria é recuperável (`metadata` JSON + prefixo do texto)
+e `memory_type` **não tem leitor** no `src/`, logo a perda não tem sintoma hoje. Mas
+`retention_days` NULL ⇒ recência **fixada em 1,0 para sempre** em 100% da memória destilada, e
+`db.ts:437-452` carrega a decisão **oposta** (`ELSE 90`) guardada por `WHERE retention_days IS NULL`,
+que nunca alcança linha nova. ⇒ **o comportamento efetivo é acidental.** Escolher qual regra vale é
+decisão aberta; o que não se faz é aplicar patch sem escolher. E **não** escrever `memory_type` antes
+de existir um leitor — coluna escrita sem leitor é o que produziu esta entrada.
+
+---
+
 ### 2026-10-27 — reivindicamos VALOR LÍQUIDO NEGATIVO em produção; o tax de faithfulness honesto é 40,6%, não 52,3%
 
 `audits/2026-10-27-net-value-and-see-once.md`. Custo medido US$ 0,25.
