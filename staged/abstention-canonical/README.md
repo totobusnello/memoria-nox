@@ -75,3 +75,46 @@ through this same `answer()`. Once step 7b is live, those numbers describe the *
 a re-run is not comparable to them. The harness keeps `abstainedSubstr` byte-identical so the old
 predicate can still be computed, but the system it reads has changed. Any future comparison must say
 which side of this change it is on.
+
+---
+
+## ✅ APPLIED to the serving tree — 2026-10-27 15:04 UTC
+
+Backup: `/var/backups/nox-mem/pre-step7b-20261027T150444Z` (the three originals, `dist-before/`, and
+both suite logs). Revert is `cp` of the three files plus restoring `dist-before/` and a restart.
+
+**It took three attempts, and the first two failures are worth more than the apply.**
+
+**(1) The gate was `fail == 0`, and the serving tree has never satisfied it.** With the ORIGINAL code
+it reports **14 failures** — all in migration and SQL-fixture tests (v21, v20-viewer-telemetry,
+streaming-memory, confidence/eval, regex-extract/eval-harness), **none in `answer`**. They come from
+`.js` files left in `dist/` whose `.ts` no longer exists in `src/`, which a clean `tsc` in a copy
+never regenerates. That is also why the copy counted 1770 tests and this tree counts 1813: **the copy
+was the incomplete tree, and I measured the baseline in it.** So the honest predicate is
+DIFFERENTIAL — the SET of failing names must not grow:
+
+| | tests | pass | fail |
+|---|---|---|---|
+| before | 1813 | 1795 | **14** |
+| after | 1816 | 1798 | **14** — identical set |
+
+**(2) The second attempt died before touching anything, on `set -euo pipefail`.** `node --test`
+exits non-zero when any test fails, so `node --test | grep` fails the whole pipeline. The runner's
+exit code is the thing being measured, so it must be captured, not trusted. It reverted nothing
+because it died before the first copy — the only harmless way for that bug to show up.
+
+## Reach, measured against the live API
+
+A feature can exist on three surfaces and be reachable on none, so existence was not accepted:
+
+| question | answer | cites | `failed_reason` | retrieved |
+|---|---|---|---|---|
+| a verified negative | `I have no memory matches for this question.` | 0 | **`model_abstained`** | **8** |
+| a positive | prose with `[chunk_1]`, untouched | 1 | `None` | 8 |
+
+`retrieval_count: 8` is the proof this is the case `retrieval_empty` never reached: search returned
+eight chunks and the model declined them.
+
+⚠️ And the positive shows the limit exactly. It answered *"Gemini não é modelo de cron [chunk_1]"* to
+a question about the default Gemini model — wrong, but **cited**, so step 7b leaves it alone. The
+guard protects anchoring, not correctness. Fixing that is a different problem.
