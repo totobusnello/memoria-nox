@@ -1,5 +1,15 @@
 # Pre-registration plan — the construction interaction. DRAFT for approval, not deposited.
 
+> 🔴 **NOT DEPOSITABLE AS WRITTEN — blocked 2026-10-27.** Writing the sampling code revealed that the
+> corpus cannot support §4. The window factor has variance in **12 of 194** eligible sessions and
+> **8 of those 12 were already used** in the exploratory run; the `>1M` stratum holds **zero**
+> sessions and `50-200k` holds **three**. §4 asks for 60 sessions, 15 per stratum. A confirmatory run
+> here would re-use the sessions that generated the hypothesis.
+>
+> The correction is in `audits/2026-10-27-neither-cause-explains-it-alone.md`, and the choice of
+> redesign is Toto's — see **§10**. Everything below §4 stands as written and is reusable; §4 is the
+> part that broke.
+>
 > **Status.** Written 2026-10-27 after the collision check (`README.md`), and **revised the same day
 > after reading `2601.00821` in full** — which took the faithfulness half off our side of the ledger
 > and replaced it with a named prediction to test. H2 and H3 are the revision. **Nothing has been run
@@ -183,3 +193,33 @@ and why.
 
 Anchored on measured costs from 2026-10-27, not on list prices: 563 blocks cost US$ 0.2436, 99 pairs
 over 4 arms cost US$ 0.1082, 396 judgements cost US$ 0.0318.
+
+
+## 10. The redesign the corpus forces — three options, one recommendation
+
+Added 2026-10-27 after §4 was found unexecutable.
+
+**The binding constraint is sessions, not questions.** The unit of inference is the session: questions
+from one session share its prose, its builder window and its memory. n=400 questions over 12 sessions
+is not n=400. And the window factor — the one production has and benchmarks do not — varies in only
+those 12.
+
+| option | what it buys | what it costs |
+|---|---|---|
+| **(a) publish the exploratory run as exploratory** | honest, cheap, available today; `2610.29823` publishes on one conversation and says so | no confirmation of anything, and the interaction rests on 8 sessions |
+| **(b) manipulate the window experimentally on this corpus** — truncate the prose artificially instead of using the window the builder happened to have | gives the factor variance in all 194 sessions, and makes it a manipulated variable rather than one confounded with session size | only **28** sessions hold ≥2 blocks of prose and **16** are unused; the truncated window is not the window production produces |
+| **(c) two legs: production for existence, a public corpus for the estimate** | the interaction is estimated on LoCoMo/LongMemEval with the window truncated under our control — large n, reproducible **by third parties**, which also answers the release problem — while production supplies what no benchmark can: that the window occurs naturally, and its magnitude (median 24.0% seen in the 200k–1M band) | two instruments to build and validate; the public-corpus leg inherits the criticism we make of benchmarks |
+
+🔑 **Recommendation: (c), with (a) as its production leg.** It separates the two claims by the
+evidence each needs. *That the window exists and bites* is a fact about production and can only be
+shown there — observationally, on 12 sessions, as an existence result with a magnitude, which is
+exactly what 12 sessions can carry. *That window and criterion interact* is a quantitative claim that
+needs n and a manipulated factor, and a public corpus gives both plus third-party reproducibility.
+
+It also fixes the release problem from `README.md` §Open decisions: the confirmatory numbers would
+rest on data anyone can download, and the production leg would be cited for existence, where the
+unreleasable prose matters least.
+
+⚠️ And it keeps us honest about something (b) would hide: a truncated window is **our** truncation.
+Production's window is set by a 7-day prune crossed with a 30-day lookback and a 50-session-per-run
+ceiling, and reproducing that shape on a benchmark is a modelling choice to declare, not a detail.
