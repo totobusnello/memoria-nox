@@ -55,6 +55,7 @@ No change — `datePublished: "[PENDENTE 2026-06-03]"` is acceptable placeholder
 #### Breakdown by Category
 
 **Category A: Benchmark history metadata (5 findings)**
+
 | File | Rule | Details |
 |---|---|---|
 | `benchmark/history/2026-05-23.json` | `generic-api-key` | Metric key `"A2.roundtrip_integrity.byte_loss"` — NOT API key |
@@ -68,6 +69,7 @@ No change — `datePublished: "[PENDENTE 2026-06-03]"` is acceptable placeholder
 ---
 
 **Category B: Browser extension test data (4 findings)**
+
 | File | Rule | Details |
 |---|---|---|
 | `staged/P7-browser-extension/extension/src/lib/privacy/__tests__/redact.test.mjs` | `gcp-api-key` | `AIzaSyEXAMPLEKEY1234567890...` — EXAMPLE key in test |
@@ -80,6 +82,7 @@ No change — `datePublished: "[PENDENTE 2026-06-03]"` is acceptable placeholder
 ---
 
 **Category C: Documentation & archived files (2 findings)**
+
 | File | Rule | Details |
 |---|---|---|
 | `staged/P7-browser-extension/extension/src/options/options.html` | `generic-api-key` | Documentation comment: "keys, AWS/GCP/Anthropic/..." |

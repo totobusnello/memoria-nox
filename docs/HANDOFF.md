@@ -3820,6 +3820,7 @@ Ao derivar a taxonomia do `sig()`, descobri que **o OpenClaw não persiste tool 
 ⏳ **E um cron apagava isso** (`-mtime +7` **e** qualquer arquivo pequeno com >12h). **Arquivamento vivo desde 26/07 19:08 UTC**: `nox-archive-transcripts.sh`, cron `40 3,9,15,21`, `rsync` **sem `--delete`**.
 
 ### §9 do pré-registro — o que fechou hoje
+
 | Item | Estado |
 |---|---|
 | 0 (stream de ações) | ✅ resolvido + arquivado |
@@ -3981,6 +3982,7 @@ Dual SOTA em multi-hop QA clássico **sem fine-tuning**. LongMemEval cross-bench
 > O `[VERDICT pending]` do PR #415 (HyDE cross-bench, deferred por "infra pesada demais / GPU não rodou") foi resolvido: rodamos num RunPod **CPU** pod — HyDE é **API-bound**, não CPU-bound, então GPU era a dimensão errada. Verdict: **não-ship**.
 
 ### HyDE — measured REJECT (EverMemBench-Dynamic `groupchat_004`, single-batch n=626)
+
 | Tipo | Baseline | HyDE | Δ |
 |---|---:|---:|---:|
 | multiple_choice (n=389) | 25.19% | 27.51% | +2.31 pp |
@@ -4007,6 +4009,7 @@ Dual SOTA em multi-hop QA clássico **sem fine-tuning**. LongMemEval cross-bench
 > O número definitivo do §3.5 saiu. Gate active de 24h 100% pós-deploy do coverage-sampling, censo + 2 caminhos independentes convergindo. §3.5 reescrito com a narrativa verdadeira (3 colapsos), paper `.pdf`/`.docx` rebuildados, one-shot cron removido. Ciclo D2 encerrado.
 
 ### Número definitivo (censo, 2 caminhos convergem)
+
 | Caminho | distinct |
 |---|---|
 | `d2-gate-active-report.sh "-1 day"` (100% pós-deploy) | **190** chunks |
@@ -4017,6 +4020,7 @@ Dual SOTA em multi-hop QA clássico **sem fine-tuning**. LongMemEval cross-bench
 - Curva acumulada: **190 já em deploy+4h, flat até +24h** → varre o pool em ~4h e re-cicla por recência = rotação contínua real.
 
 ### Comparação cravada no §3.5 (3 colapsos)
+
 | Mecanismo | rotação |
 |---|---|
 | Hard-exclusion | burst 190 → **1**/dia |
@@ -4036,6 +4040,7 @@ Dual SOTA em multi-hop QA clássico **sem fine-tuning**. LongMemEval cross-bench
 > O gate de 24h que esperávamos cravar no §3.5 mostrou o oposto do previsto: o fix do PR #22 **não se sustentou**. Diagnóstico corrigido por Kimi adversarial + recheck, fix redesenhado (desenho B), deployado. Número definitivo do §3.5 ainda pendente — sai do gate 100% pós-deploy.
 
 ### O gate (cron `/var/log/nox-d2-gate-active.log*`) — rotação colapsou de novo
+
 | Run 06:10 | janela | distinct entity | regime |
 |---|---|---|---|
 | 22/06 (flip) | 21→22 | 190 | rajada |
@@ -4103,6 +4108,7 @@ Checkout dos 3 arquivos do branch no working copy + `npx tsc` + restart. Serviç
 - Working copy VPS reconciliado: `git checkout -- <2 files>` + `git pull` → Fast-forward HEAD `a262cbaa`, fix-files mod=0 (limpo). Serviço roda o fix via main.
 
 ### Gate active — número PRELIMINAR (9h pós-deploy), definitivo amanhã
+
 | | antes do fix (23/06) | depois (24/06, 9h pós-deploy) |
 |---|---|---|
 | distinct entity (rotação) | **1** | **93** |

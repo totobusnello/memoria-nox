@@ -15,7 +15,12 @@ jobs:
           persist-credentials: false
 
       - name: Run markdownlint-cli2
-        uses: DavidAnson/markdownlint-cli2-action@v16
+        # Pinned to a commit 2026-10-27. `@v16` is a floating MAJOR tag, so a newer
+        # markdownlint shipped MD060 and MD007 into it and turned the main branch
+        # red on a push: 7,358 violations across files dating back to April, none
+        # introduced by the commit that failed. A floating tag converts an upstream
+        # release into a red build on unrelated work.
+        uses: DavidAnson/markdownlint-cli2-action@b4c9feab76d8025d1e83c653fa3990936df0e6c8  # v16
         with:
           config: .markdownlint.yaml
           # Explicit canonical scope — bypass .markdownlintignore quirks

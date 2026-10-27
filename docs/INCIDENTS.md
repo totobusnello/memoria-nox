@@ -539,6 +539,7 @@ Phases 4/5/8 skip (não-Sun/Mon/1st-Sun). Phases 1, 6, 7 são intencionalmente M
 **Conclusão:** hoje à noite green com flag P0 ativo.
 
 ### Fix tiers (tasks abertas)
+
 | Task | Fix | Tipo |
 |---|---|---|
 | #20 (P1) | Safety guard em `nox-mem reindex`: abort if resolved db_path ≠ OPENCLAW_WORKSPACE-derived path | Defense layer |

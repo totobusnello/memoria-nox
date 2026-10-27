@@ -379,6 +379,7 @@ docs/SESSION-2026-05-05-FULL-LOG.md            — este documento
 **Comando único: 13 batched diagnostics em paralelo**
 
 Resultados:
+
 | Métrica | Valor | Status |
 |---|---|---|
 | Chunks total | 61.259 | ✅ estável |
@@ -415,6 +416,7 @@ Resultados:
 ## Estado final pós-sessão (2026-05-05 ~14h BRT)
 
 ### Repositórios sincronizados
+
 | Repo | HEAD | Tag | Conteúdo |
 |---|---|---|---|
 | **memoria-nox** | `704cfa1` | `v1.0.0` (canonical) + `v1.0.0-paper-draft` (legacy) | Paper, distribution, runbook |
@@ -549,6 +551,7 @@ PDF link unauth:      HTTP 404
 ## Estado FINAL FINAL pós-sessão
 
 ### Repos
+
 | Repo | HEAD | Visibilidade | Tag |
 |---|---|---|---|
 | **memoria-nox** | `4a0b8f6` | **PUBLIC** ✅ | `v1.0.0` |

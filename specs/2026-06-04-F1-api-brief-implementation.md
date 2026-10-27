@@ -89,6 +89,7 @@ GET /api/brief?scope=<string>&n=<int=10,cap25>&format=<json|text>&since=<dur>&ag
 - [x] Salience mode em prod = **`active`** (mean 0.4177, median 0.3888) — resolve divergência docs (CLAUDE.md dizia shadow)
 
 #### T0 findings — fatos de prod (2026-06-04)
+
 | Fato | Valor | Implicação |
 |---|---|---|
 | Corpus | **100.562 chunks** (docs diziam 62.9k) | bench de latência usa 100k+ |
