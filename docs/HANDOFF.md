@@ -1,3 +1,81 @@
+## ▶ Terça 27/10, 09h30 BRT — braço C: o gap é EXTRAÇÃO, não a janela
+
+Audits `audits/2026-10-27-the-gap-is-extraction-not-the-window.md` e
+`audits/2026-10-27-the-insert-that-does-not-list-two-columns.md`. Custo medido **US$ 0,35**.
+
+**A pergunta que isto fecha.** O valor líquido de −21,2 pp tinha duas causas indistinguíveis —
+**extração** (o prompt perde o fato mesmo vendo o texto ⇒ o achado é do campo) ou **janela**
+(o construtor nunca viu o texto ⇒ o achado é um defeito nosso). Publicar antes de separar seria
+vender defeito de implementação como propriedade do campo.
+
+**Braço C:** as mesmas 20 sessões re-destiladas da prosa **completa**, com o `DISTILL_SYSTEM`,
+a blocagem, o modelo, a temperatura e o filtro `importance >= 0,5` do próprio construtor; mesmas 99
+perguntas, mesmo juiz. 563 blocos, **0 falhas**. **872 unidades reais → 2.141 da prosa inteira =
+2,46×**; em `9c75f331`, 19 → **480**.
+
+| braço | acerta | calado | contradiz |
+|---|---|---|---|
+| A — oráculo *(controle)* | 88,9% | 0,0% | 17,2% |
+| **B — memória como construída** | **42,4%** | 49,5% | 7,1% |
+| C_iso — memória da sessão inteira, orçamento de B | 44,4% | 46,5% | 13,1% |
+| **C_all — memória da sessão inteira, todos os 2,41×** | **46,5%** | 39,4% | 17,2% |
+| bm25_iso — RAG naive, orçamento de B | **63,6%** | 24,2% | 15,2% |
+
+🔑 **Consertar o see-once recupera +4,0 pp de um gap de 46,5 pp = 8,7%.** O tax residual contra o
+oráculo é **47,7%** e o valor líquido contra BM25 fica em **−17,2 pp**. ⚠️ **Logo a leitura de hoje
+cedo errou na ênfase, e na direção que nos favorecia**: o see-once parecia o mecanismo porque o valor
+líquido acompanha o tamanho da sessão — e acompanha —, mas a dependência de tamanho é
+majoritariamente outra coisa. **O defeito é o critério de extração.**
+
+**Onde a sessão inteira ajuda, e onde não ajuda nada:**
+
+| categoria | n | A | B | **C_all** | bm25_iso |
+|---|---|---|---|---|---|
+| `lesson` | 28 | 92,9% | 60,7% | **75,0%** | 67,9% |
+| `decision` | 29 | 82,8% | 48,3% | **48,3%** | 55,2% |
+| **`context`** | 42 | 90,5% | 26,2% | **26,2%** | 66,7% |
+
+🔑 **Mostrar a conversa inteira melhora a lição e não melhora NADA o detalhe de projeto.** `context`
+fica em 26,2% dos dois lados — nem um ponto. Isso resolve de quem é a culpa pelo `context`: o
+construtor **lê** o turno e não guarda o nome. O `DISTILL_SYSTEM` pede *"contexto de projetos
+relevantes (nomes, status, detalhes)"* e o modelo devolve o insight, não o caminho.
+
+Na faixa 200k–1M, onde o see-once morde, C_all ganha **+15,0 pp** (27,5% → 42,5%) — a janela custa
+memória real ali. E ainda termina 20 pp abaixo do RAG naive sobre o mesmo texto.
+
+**Controles:** fidelidade (re-destilar o prefixo **visível** tem de reproduzir o B real) deu mediana
+**1,17**, min 0,58, max 1,75 — minha reimplementação corre ~17% alta, na direção declarada (sem o
+dedup por embedding); orçamento do C_iso em **0,971** com 0 pares acima; 0 de 563 blocos falharam.
+⚠️ O 1,17 e a falta de dedup são a razão provável de C_all ficar 1,9 pp **abaixo** de B na faixa
+<50k, onde os dois deviam ser idênticos por construção — e limitam a leitura: **diferença de dois
+pontos está dentro do ruído deste instrumento, e o +4,0 pp do headline está perto dessa borda.** O
++15,0 pp da faixa grande não está.
+
+**Achado lateral do outro item — a `INSERT` do destilador não lista duas colunas.** `memory_type` e
+`retention_days` são **NULL em 6.898 de 6.898** chunks destilados. A categoria não está perdida: é
+gravada no prefixo do texto e no `metadata` JSON, logo
+`UPDATE chunks SET memory_type = json_extract(metadata,'$.category')` reconstrói tudo sem modelo.
+`memory_type` **não tem leitor nenhum** no `src/` (único escritor é `consolidate.ts:490`), logo a
+perda não tem sintoma hoje — vira perda no dia em que o retrieval tipado existir. Já
+`retention_days` NULL ⇒ `resolveRetentionDays` devolve 0 ⇒ `recencyComponent` devolve **1,0**: o
+componente de recência está **fixado no máximo, para sempre**, em 100% da memória destilada. 🔴 E o
+código carrega a decisão **oposta** sobre a mesma coluna: `db.ts:437-452` faz backfill com `ELSE 90`
+e é guardado por `WHERE retention_days IS NULL` — não alcança linha inserida depois dele. O
+comportamento efetivo é **acidental**, mesma forma dos dois podadores do `pre-op`.
+
+**E o `preference`**: ausente das perguntas porque o **gerador** não achou fato de preferência nas
+janelas amostradas, não porque o construtor descarte a categoria. O corpus destilado não pode ser
+conferido por coluna — o rótulo só existe no `metadata` e no prefixo.
+
+**O que isto muda:** o achado de valor líquido é **do campo**, não defeito nosso de implementação —
+sobrevive a dar a conversa completa ao construtor. Consertar o see-once é para o **produto** (15 pp
+nas sessões grandes), não para o número. E a alavanca do `context` é o **prompt**, não a janela: um
+`DISTILL_SYSTEM` obrigado a carregar identificadores verbatim é o único braço ainda não tentado, e é
+onde todos os números apontam. **Terceiro dia sem afirmar dano:** C_all contradiz em exatamente
+17,2%, o piso de falso positivo do braço A.
+
+---
+
 ## ▶ Terça 27/10, 08h00 BRT — o VALOR LÍQUIDO da memória é NEGATIVO, e o mecanismo é see-once
 
 Audit `audits/2026-10-27-net-value-and-see-once.md`. Custo medido **US$ 0,25** (respostas 0,2187 ·
