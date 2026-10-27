@@ -3064,3 +3064,58 @@ para repetir corrida.
 `audits/2026-10-26-{bounded-judge,abstention-judge}.md`,
 `audits/2026-10-26-{abstention-judge,abstention-rescore,rescore-canonical}.py`,
 `eval/judge-relevance.py`.
+
+---
+
+### 2026-10-26 — o tax de construção a reivindicar é o OPERACIONAL; e NÃO vamos rodar `isNoise` contra uma cópia
+
+**Contexto.** O paper Memory Tax (26/10) decompõe o valor líquido de um sistema de memória contra
+RAG naive e mede *faithfulness* — o que a construção descarta antes de qualquer retrieval — em
+**bancada**: um construtor, uma passada, corpus estático. A frente 2 é portar esse método para o
+nosso corpus vivo. A sondagem de viabilidade está em
+`audits/2026-10-26-construction-tax-probe.md`.
+
+**Decisão 1 — a afirmação é sobre a componente operacional, não sobre o juízo do LLM.**
+Dos 1.556 transcripts ao alcance do destilador, **371 nunca entraram no log** e **259 deles (69,8%)
+contêm ≥2.000 caracteres de prosa real de user/assistant** — 4.489.370 caracteres ao todo, com os
+16 arquivos acima de 1 MB todos contendo prosa (o maior: 2,57 MB com 978.624 caracteres de diálogo
+em 102 turnos). A causa está nomeada no código: o destilador lê os **diretórios vivos** e nunca o
+archive, com `lookbackDays = 30` e `maxSessionsPerRun = 50`, enquanto outro cron poda esses
+diretórios a 7 dias. Nenhum paper do lote de 26/10 pode ver essa classe de perda, porque uma
+bancada não tem janela, nem prune, nem teto por corrida.
+
+**O que NÃO afirmamos**, e por quê: o tax por «o destilador viu sessão substantiva e descartou» não
+está estabelecido. O número que eu reportei primeiro (114 sessões não-triviais com zero chunks, uma
+com 2.097 mensagens) vinha de dois defeitos meus. Primeiro, `session_distill_log` é chaveado por
+`<agente>:<uuid>` — 2.498 linhas, 1.931 uuids, 567 colisões, e em **63** os agentes discordam —
+logo agrupar por uuid deixava a última linha vencer: o correto é **45**, e a sessão de 2.097
+mensagens **deixou memória** sob outro agente. Segundo, `message_count` é gravado **antes** do
+filtro de ruído (linha 384 contra 478), logo conta heartbeat e turno de tool; das 45, só **5** têm
+transcript cru, e essas 5 têm de **192 a 3.500** caracteres de prosa em arquivos de 55 a 541 KB.
+Zero chunks ali é o destilador funcionando. Fica **não medido**, não refutado — 40 dos 45 casos têm
+o cru podado.
+
+**Decisão 2 — não copiar o banco para rodar `isNoise`.** O plano era `VACUUM INTO` uma cópia de
+1,6 GB porque `isNoise()` consulta **e escreve** em `noise_prototypes` (`INSERT OR IGNORE`,
+`hit_count`), logo não pode ser invocado contra produção. É desnecessário: a separação entre «nunca
+alcançada» e «100% ruído» sai da **ordem do código**. Quando o filtro zera a conversa, a linha 397
+faz `continue` **sem escrever** no log; em todo outro caminho uma linha é escrita. Então «sem linha
+**e** com prosa substantiva» ⇒ nunca foi listada. Contar a prosa custa zero e responde o mesmo.
+Limite declarado: o contador de prosa **aproxima** o predicado do filtro (descarta tool output,
+`<system-reminder>`, `<command-name>` e turnos de uma palavra); para os 16 arquivos grandes a
+margem torna a questão irrelevante, para os pequenos o limiar de 2.000 caracteres é escolha.
+
+**Decisão 3 — o conserto, quando vier, é por agente.** O modo de falha não é uniforme e um
+agregado o esconde: **boris** perde por não entrar no log (162 de 298, e detém 41 dos arquivos
+grandes do archive), **nox** perde depois de entrar (77 de 111 logados e vazios). E o tamanho
+prediz sobrevivência monotonicamente em quatro ordens de magnitude (1,1% → 1,6% → 17,4% → 66,7% →
+100%), assinatura de limite de **capacidade** e não de juízo de conteúdo — na direção errada, já
+que sobrevive a sessão longa, que é a que mais precisaria de resumo.
+
+**Em aberto.** O replay do QA sobre as **194** sessões com os dois lados (2.266 chunks = 32,9% dos
+6.898 distilled) é a perna que converte unidade perdida em resposta perdida, e a primeira que custa
+dinheiro. As queries têm de ser geradas do lado **cru**: o golden set foi ancorado no que
+sobreviveu e fabricaria nulo por seleção.
+
+`audits/2026-10-26-construction-tax-probe.{md,py}`,
+`audits/2026-10-26-{never-logged-prose,nontrivial-zeros-audit}.py`.
