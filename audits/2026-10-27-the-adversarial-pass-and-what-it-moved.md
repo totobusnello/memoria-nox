@@ -121,3 +121,33 @@ are allowed to mean.**
 **Artifacts.** `audits/2026-10-27-kimi-{3-judge-stability,3-effect,4-5,1-paired}.py`, the two pareceres
 (`-codex-challenge-s11.md`, `-kimi-challenge-medicoes.md`), receipts under
 `~/Claude/logs/adversary-receipts/`.
+
+
+---
+
+## ⚠️ ADDENDUM — the 20.0% flip rate was MY sampling artefact; the census says 4.5%
+
+Same day, full re-read of all 620 labels (`2026-10-27-judge-reread-full.py`, US$ 0.0237, 21 s).
+
+| band | real n | flips | rate |
+|---|---|---|---|
+| 0.0–0.1 | **432** | 1 | 0.2% |
+| 0.1–0.4 | 30 | 4 | 13.3% |
+| **0.4–0.6 borderline** | 17 | **8** | **47.1%** |
+| **0.6–0.9 high** | 37 | **15** | **40.5%** |
+| 0.9–1.0 | 104 | 0 | 0% |
+| | **620** | **28** | **4.5%** |
+
+🔑 **Sampling 12 per band measures the flip rate of a population that does not exist.** The real
+population is 70% very-low band (432 of 620), which is stable; my sample gave it the same weight as
+the unstable bands, which together hold **54 of 620 = 8.7%**.
+
+⚠️ **And the sample was wrong in both directions at once:** it overstated the rate 4.4× *and*
+**understated the effect** — the ceiling moves **−1.8%** under the sample and **−2.9%** under the
+census (0.4394 → 0.4315 → **0.4267**), because the sample did not cover every pair that actually
+flips. 16 of 57 queries move; Q55 0.3066 → 0, Q57 0.2184 → 0, and Q81 **rises** 0.8175 → 1.0000.
+
+**What survives:** the instability concentrates **where the threshold works** — 23 of the 28 flips
+sit in the 0.4–0.9 bands — and threshold-sensitivity analysis cannot see it, because it varies the
+cut on one reading rather than the reading. **Ceiling in [0.427 · 0.439]** ⇒ **[0.26 · 0.44] stands
+and the fourth decimal does not.**
