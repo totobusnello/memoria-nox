@@ -2995,6 +2995,49 @@ grafo 0,900 fiel ao corpus errado continua sendo o corpus errado.
 
 ---
 
+### 2026-10-27 — reivindicamos VALOR LÍQUIDO NEGATIVO em produção; o tax de faithfulness honesto é 40,6%, não 52,3%
+
+`audits/2026-10-27-net-value-and-see-once.md`. Custo medido US$ 0,25.
+
+**1. O número que publicamos é o valor líquido contra RAG naive, não o tax contra oráculo.** Com o
+orçamento de contexto igualado em código (agregado `retrieved/memory` = 0,954, com `assert`), a
+memória rende **42,4%** contra **63,6%** de BM25 e **64,6%** de denso sobre o transcript cru:
+**−21,2 e −22,2 pp de valor líquido**. É o achado central do Memory Tax reproduzido em produção, e é
+isso que nenhum paper em bancada pode mostrar. O tax contra o oráculo (52,3% ontem, 40,6% corrigido)
+é número **interno** — o braço A recebe a janela da evidência e não é resultado.
+
+**2. O 52,3% de ontem sai de circulação; o número é 40,6%.** Separando as perguntas pela citação
+verbatim estar ou não no prefixo que o construtor viu: 77 visíveis dão tax **40,6%**; as 8 cuja
+evidência chegou depois dão B em 0,0% e eram tax **operacional** cobrado da construção. Quem citar
+52,3% está citando as duas coisas somadas. ⚠️ Declarar sempre que o controle não é limpo: o braço A
+difere 14,6 pp entre as populações, com n=8.
+
+**3. O mecanismo é see-once, e é operacional.** `session-distill.ts:141-144` salta qualquer sessão já
+no log. Fração vista mediana: 100% até 50k de prosa, 72,1% em 50–200k, **24,0% em 200k–1M**. O valor
+líquido piora monotonicamente na mesma direção (−9,7 → −35,0 pp) com o oráculo parado em ~90%. ⇒ a
+tese a defender continua sendo **produção**, e agora com dois mecanismos nomeados: nunca alcançado
+(259 transcripts) e alcançado uma vez só (24% das grandes).
+
+**4. NÃO afirmamos que a variação de produtividade do destilador é falha de API.** Refutado:
+`provider_telemetry` tem 495 chamadas do destilador com **0 falhas**, `tokens_src='api'` em 100%. Os
+23× eram erro meu em dois lugares — divisor por `chars/2000` quando o loop **não quebra linha** (316
+blocos contra 84 reais), e denominador sobre o transcript final quando o construtor viu 3,01% dele.
+Spread real **3,8×**. Blocagem validada por fora: 469 blocos computados contra 495 chamadas do
+provider, razão 0,95. ⇒ **nenhuma reivindicação sobre juízo de conteúdo do LLM** nesta frente.
+
+**5. NÃO afirmamos dano (resposta errada) em braço nenhum, segundo dia.** O piso de falso positivo do
+predicado é **17,2%** (braço A, impossível por construção). B 7,1%, bm25 15,2–17,2%, denso 20,2% — e
+9 dos 17 flags de A trazem `contem` e `contradiz` juntos. A pergunta silêncio-ou-erro continua sem
+resposta medida, e pedir outra rodada do mesmo predicado é pagar pelo mesmo não-resultado.
+
+**6. O fallback do Groq no destilador é rota morta, e o seletor é cego.** `session-distill.groq`: 13
+chamadas, 13 falhas (100%), com `GROQ_API_KEY` presente. E `distillBlock` escolhe o fallback por
+`geminiResult.length > 0`, que colapsa cinco causas de `[]` — sem chave, non-2xx, sem texto, JSON
+inválido e **o modelo corretamente não achou nada** — num sinal só. Registrado como defeito; o
+conserto é em serving e não foi feito.
+
+---
+
 ### 2026-10-26 — o check de 8 palavras sai como porta de relevância; e o denominador do nDCG também era meu
 
 **Decidido.** O rótulo `relevante = trecho_responde AND citacao_confere` **não** é mais o contrato
