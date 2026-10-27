@@ -1,4 +1,4 @@
-// First scoring of the PT-BR golden set v2 against the real hybrid search.
+// Scoring of the PT-BR golden set against the real hybrid search (v2, then v3).
 //
 // Runs the PRODUCTION code path (searchHybrid from dist/), not a reimplementation:
 // an ad-hoc reimplementation of BM25 -> KNN -> RRF would be a second implementation
@@ -29,7 +29,12 @@ const dcg = (rels) => rels.reduce((s, r, i) => s + r / Math.log2(i + 2), 0);
 
 const rows = [];
 for (const g of gold) {
-  if (g.status !== "accepted") continue;
+  if (g.status !== "accepted" && g.status !== "accepted_marginal") continue;
+  // v3 adds one accepted_marginal (Q52), whose gold answers only partly.
+  // It is scored but tagged, and the summary reports with and without it:
+  // folding a declaredly weak gold into the aggregate silently would make
+  // the number depend on a judgement the number does not disclose.
+  const marginal = g.status === "accepted_marginal";
   const want = new Set(resolved[String(g.query_id)] || []);
   if (!want.size) { rows.push({ query_id: g.query_id, skipped: "gold nao resolveu no banco de avaliacao" }); continue; }
   const t0 = Date.now();
@@ -43,6 +48,7 @@ for (const g of gold) {
   const ideal = Array(Math.min(want.size, K)).fill(1);
   rows.push({
     query_id: g.query_id, query: g.query, category: g.category, difficulty: g.difficulty,
+    marginal,
     gold_ids: [...want], ranked: ids, hit_ranks: rels.map((r, i) => (r ? i + 1 : 0)).filter(Boolean),
     ndcg: ideal.length ? +(dcg(rels) / dcg(ideal)).toFixed(4) : null,
     recall: want.size ? +(rels.reduce((a, b) => a + b, 0) / Math.min(want.size, K)).toFixed(4) : null,
@@ -55,8 +61,11 @@ for (const g of gold) {
 
 const ok = rows.filter((r) => r.ndcg != null && !r.error);
 const mean = (f) => +(ok.reduce((s, r) => s + f(r), 0) / ok.length).toFixed(4);
+const strict = ok.filter((r) => !r.marginal);
 const summary = {
-  n_scored: ok.length, n_skipped: rows.length - ok.length,
+  n_scored: ok.length, n_strict: strict.length, n_marginal: ok.length - strict.length,
+  ndcg_at_10_without_marginal: strict.length
+    ? +(strict.reduce((s, r) => s + r.ndcg, 0) / strict.length).toFixed(4) : null, n_skipped: rows.length - ok.length,
   ndcg_at_10: mean((r) => r.ndcg), recall_at_10: mean((r) => r.recall), mrr: mean((r) => r.mrr),
   zero_hit_queries: ok.filter((r) => r.mrr === 0).map((r) => r.query_id),
   median_latency_ms: (() => { const a = ok.map((r) => r.latency_ms).sort((x, y) => x - y); return a[Math.floor(a.length / 2)]; })(),
