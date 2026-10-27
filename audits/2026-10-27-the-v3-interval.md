@@ -68,11 +68,13 @@ guess.**
 
 See `2026-10-27-the-adversarial-pass-and-what-it-moved.md`.
 
-1. 🔴 **The ceiling is not a four-decimal number.** The judge flips **20.0%** of labels (12 of 60,
-   stratified) on a second independent reading of the same pair, and re-reading 9.7% of the labels
-   moves pooled **0.4394 → 0.4315**. The honest form is **[0.26 · 0.44] with ~±0.01 of labelling
-   noise on the ceiling**. The threshold robustness reported above does not cover this: it varies the
-   cut on one reading, not the reading.
+1. 🔴 **The ceiling is not a four-decimal number.** A full re-read of all 620 labels flips **4.5%**
+   of them (28 of 620) and moves pooled **0.4394 → 0.4267**. ⚠️ A stratified sample of 60 had given
+   **20.0%**, which was a sampling artefact — 12 per band over-weights the unstable bands, which hold
+   only 54 of 620 pairs — and it also **understated** the effect (−1.8% vs −2.9%). The instability
+   concentrates where the threshold works: 23 of 28 flips in the 0.4–0.9 bands. **Ceiling in
+   [0.427 · 0.439]** ⇒ the honest form is **[0.26 · 0.44]**, and the threshold robustness reported
+   above does not cover this at all: it varies the cut on one reading, not the reading.
 2. ✅ **The coverage attribution survives, but not by the reasoning given here.** The v2→v3 contrast
    confounds four changes; the controlled contrast (v2's own rankings and gold under full labels)
    gives **0.5114 → 0.4412**, so coverage accounts for **97%** of the drop, with −0.0018 residual.
