@@ -1,0 +1,103 @@
+# Paper 3 — the construction step. Collision check first, then the claim that survives it.
+
+> Status **2026-10-27**: collision check done, four neighbours read, claim narrowed. **No text
+> written.** The scope below needs Toto's approval before drafting, because the obvious claim is
+> already taken and the one that survives is narrower than what Monday's measurements suggested.
+
+## The collision check, and it is substantial
+
+Four neighbours were read, not skimmed from the index. The first three overlap with the result we
+measured on 2026-10-27, and one of them is **pre-registered**.
+
+| our finding | already published? | by whom |
+|---|---|---|
+| LLM-extracted memory loses to raw/verbatim turns | **yes, three times** | `2601.00821` *Fidelity before Structure* (verbatim chunks beat lossy artifact extraction); `2609.34227`; `2610.29823` |
+| the **context budget** decides who wins | **yes** | `2609.34227` — reranking adds 17.4 pts at a tight budget, 1.5 at a generous one, and it says this is why the literature disagrees |
+| the **writer** sets a ceiling the reader cannot recover | **yes** | `2610.29823` §4 — *"a stronger reader does not recover what a weaker writer left out"*, Zep's gpt-4o-mini graph reads 43/43/45% across three readers |
+| **construction order** discards different evidence | **yes** | `2609.34160` RoutePrism — restoring one displaced record recovers >60 pp |
+| build cost exceeds the whole rollout it saves | **yes** | `2610.29823` §3 — Mem0's build $0.56 against full context's $0.43 |
+
+⛔ **So "agent memory has negative net value against naive RAG" is not ours to claim.** Three papers
+hold it, `2609.34227` holds it with a registered plan, a non-inferiority margin and blind human
+grading, and `2610.29823` holds it with a cost frontier across three model tiers. Publishing that as
+our contribution would be entering a crowded room with a weaker instrument.
+
+### What none of them has
+
+| | why they cannot have it |
+|---|---|
+| **the construction window** — `session-distill.ts:141-144` skips any session already logged, so the builder saw a median **24.0%** of the prose in the 200k–1M band | on a benchmark the builder receives the corpus once, complete, with no window, no prune and no per-run ceiling. The variable does not exist there |
+| **the factorial** — window × criterion, and their **interaction** | `factorial` appears 0 times in RoutePrism, which is the most intervention-minded of the four. All four vary **one** thing: the reader, the budget, the order, the method |
+| **the repair** — fixing both brings extraction level with selection (net value −21.2 pp → **0.0 pp**) | all four treat extraction as a black box at its defaults. `2610.29823` states it: *"Mem0 and Zep run with their default extraction and retrieval, and other settings may do better"* |
+| **a production multi-agent corpus** — 1,610 transcripts, 6 agents, 2.66M chars of real human prose | all four use LoCoMo / LongMemEval / PersonaMem. `2609.34227` declares it: *"LoCoMo, whose dialogues are LLM-generated"*; `2610.29823` runs **one** conversation |
+| **the asymmetry by fact type** — `context` 26.2% against `lesson` 60.7%, and only `context` fails to move when the window is fixed | `2609.34227` decomposes by category, but of the **selection** bottleneck (shortlist misses 11.5%, rerank drops 9.2%), not of what construction destroys |
+
+## The claim that survives, and it is the inverse of theirs
+
+All four conclude, in their own words, that the answer is to stop designing memory and give the model
+better search over the raw record. Our measurement says something they could not test:
+
+> **Extraction is not inferior to selection. *This* extraction was.** Two properties of the
+> construction step — how much of the conversation the builder is shown, and whether its criterion
+> requires identifiers verbatim — interact **superadditively**: each alone recovers 8.7% of the gap
+> to an oracle, both together recover 45.7%. Repaired, the extracted memory draws level with naive
+> retrieval over the raw text. The window is a property only production has; the criterion is one
+> every published study held at its default.
+
+That is a constructive refutation of a conclusion four papers share, and it answers
+`2609.34227`'s title — *When Does Selection Replace Extraction?* — from the other side: selection
+replaced extraction because the extraction was misconfigured, not because selection is better in
+principle.
+
+### Numbers it rests on (all measured, all in `audits/2026-10-27-*`)
+
+| | |
+|---|---|
+| gap to oracle | A 88.9% vs B 42.4% = 46.5 pp |
+| window alone | 46.5% → +4.0 pp, 8.7% of the gap |
+| criterion alone | 46.5% → +4.0 pp, 8.7% |
+| **both** | **63.6% → +21.2 pp, 45.7%** — interaction **13.2 pp**, larger than either main effect |
+| net value vs BM25 at equal budget | B −21.2 pp · repaired, equal budget −15.2 pp · repaired, its own 2.41× context **0.0 pp** |
+| `context` | 26.2% → 52.4%, still 14 pp under retrieval ⇒ improved, not solved |
+| 200k–1M band | 27.5% → 67.5%, **overtakes** naive RAG |
+| see-once in production | median visible fraction 100% / 72.1% / **24.0%** by size band; 7.6% of sessions distilled while still growing |
+
+## Where we are weaker than `2609.34227`, and it must be said in the paper
+
+- **No pre-registration.** They registered a plan, a primary test and a non-inferiority margin before
+  the held-out run. We did not; every arm here was designed after seeing the previous one.
+- **No human grading.** They graded blind and reported that it narrows the margin. Our labels are one
+  model's, with the arm-A false-positive floor as the only calibration.
+- **n.** 99 questions over 20 sessions against their 778 over five conversations.
+- **One judge family.** Deterministic (540 pairs, 0 label changes) but single.
+- **Two cells where our own re-implementation is unfaithful**, stated in
+  `2026-10-27-neither-cause-explains-it-alone.md`: `context` 16.7% against the real 26.2%, and the
+  50–200k band.
+
+⇒ The honest shape is **a short empirical paper with a registered follow-up**, not a claim of
+superiority over a registered study. `2610.29823` shows the format is publishable: it calls itself
+*"a short empirical study, with one conversation and one run per cell"* and lists its limits.
+
+## Open decisions — Toto's
+
+1. **Scope.** Short empirical note on the interaction (what the data supports today), or hold and
+   pre-register the factorial on a bigger sample first?
+2. **Cite or compete.** The claim above cites all four as motivation. Confirm that is the posture.
+3. **Corpus release.** The numbers rest on a private multi-agent corpus. Nothing is releasable as
+   text; what can be released is the code, the question set in redacted form, and the judge keys.
+   Without some release we are the only ones who can check it — which is what we criticise elsewhere.
+4. **The repair ships or not**, independently of the paper: `session-distill.ts:141-144` plus the
+   identifier paragraph, both or neither (each alone buys 4 pp and reads as a failed intervention).
+
+## Read, with what each was read for
+
+| id | title | read for |
+|---|---|---|
+| `2609.34227` | When Does Selection Replace Extraction? A Pre-Registered Test… | the declared collision candidate. Full text + limitations |
+| `2610.29823` | MemoryTax: The Bitter Lesson of Agent Memory | full text. **The most dangerous**: 13 votes, same question, cost frontier |
+| `2609.34160` | RoutePrism: Tracing Construction Order Effects in Agent Memory | abstract + term census. Varies order, not window; `factorial` = 0 hits |
+| `2610.agent-memory-net-value-tax` | Memory Tax: Dissecting the Net Value of Agent Memory | read 2026-10-26; source of the faithfulness/accessibility/robustness split |
+
+⚠️ `2601.00821` *Fidelity before Structure* (An, 2026) is cited by `2610.29823` as finding that
+verbatim chunks beat lossy extraction on long conversations. **Not yet read**, and it is the closest
+prior statement of our faithfulness half. Read before drafting.
