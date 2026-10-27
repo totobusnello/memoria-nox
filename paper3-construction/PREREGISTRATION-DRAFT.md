@@ -223,3 +223,129 @@ unreleasable prose matters least.
 ⚠️ And it keeps us honest about something (b) would hide: a truncated window is **our** truncation.
 Production's window is set by a 7-day prune crossed with a 30-day lookback and a 50-session-per-run
 ceiling, and reproducing that shape on a benchmark is a modelling choice to declare, not a detail.
+
+---
+
+## 11. Option (c), designed — the public-corpus leg
+
+Written 2026-10-27, after §10's recommendation was approved. §4 was written and *then* found
+unexecutable, so this section prices and powers the design **first** and lets the arithmetic choose
+n. Every number below comes from a census of the downloaded data
+(`paper3-construction/lme-census.py`), not from a README — this repository's ROADMAP said SHIPPED for
+features the product did not have.
+
+### 11.1 The corpus, and why not the other one
+
+**LongMemEval `s_cleaned`**, revision `98d7416c24c778c2fee6e6f3006e7a073259d48f`, 277.4 MB,
+sha256 prefix `d6f21ea9d60a0d56`. MIT.
+
+| | LoCoMo | **LongMemEval s_cleaned** |
+|---|---|---|
+| independent units | 1,986 questions over **`list[10]` conversations** | **500 instances, 0 sharing a haystack** |
+| sessions per unit | 19 per conversation | 38–62, median 48 |
+| chars per unit | — | 454,980–513,953, median 489,763 |
+| units ≥ 200k chars | — | **500 of 500** |
+| licence | CC BY-NC 4.0 (**non-commercial**) | **MIT** |
+
+🔴 **LoCoMo would repeat exactly the defect that killed §4.** Ten conversations is fewer units than
+production's twelve, and the unit of inference is the conversation, not the question.
+
+And two properties of `s_cleaned` that matter more than its size:
+
+1. **Every instance sits in the 200k–1M band**, which is where production showed the damage: −35.0 pp
+   against naive RAG, median seen-fraction 24.0%. The benchmark is not easier than the case of
+   interest; it is entirely inside it.
+2. **The char distribution is narrow** — 455k to 514k, a 13% spread. In production the window is
+   *confounded* with session size (a longer session means a smaller seen-fraction). Here size is
+   near-constant and the window is manipulated, so **the factor is unconfounded**. That is the one
+   thing a benchmark can give us that production cannot.
+
+⚠️ **Against the README: there are no `_abs` abstention variants.** It lists them for seven
+categories; the census finds **0 of 500** in both `oracle` and `s_cleaned`, across 6 categories. So
+this leg cannot carry an abstention claim, and nothing here is planned on one.
+
+### 11.2 Unit, design, factors
+
+**Unit of inference: the instance.** 500 of them, no shared haystacks, so n is n.
+
+**2×2 within-instance** — every instance passes through all four cells, the contrast is paired, and
+between-instance variance drops out of the interaction estimate.
+
+| factor | level 0 | level 1 |
+|---|---|---|
+| **W** — window | **truncated**: the distiller sees the first `ceil(0.240 × n_sessions)` sessions in date order | **full**: all 38–62 sessions |
+| **C** — criterion | `DISTILL_SYSTEM` v1, verbatim as production ran it | `DISTILL_SYSTEM_V2`, v1 plus the verbatim-identifier paragraph |
+
+**The 0.240 is production's measured median seen-fraction in the 200k–1M band**, not a round number,
+and it is the one modelling choice that has to be declared loudly: production's window is set by a
+7-day prune crossed with a 30-day lookback and a 50-session-per-run ceiling, and reproducing that
+shape as a leading-prefix truncation is an *approximation of the mechanism*, not the mechanism.
+Sensitivity to it is pre-specified in §11.5.
+
+**Response:** was the generated answer correct, judged by the bounded judge (Decisions API, no
+free-text field, so the prose-contradicts-the-field failure cannot occur). ⚠️ Not GPT-4o, which is
+the LongMemEval paper standard — so **our numbers are not comparable to the published leaderboard**,
+and the paper must say so rather than invite the comparison. The judge is held identical across all
+four cells, which is what the interaction needs.
+
+### 11.3 Controls
+
+| control | construction | required result |
+|---|---|---|
+| **positive** | truncate so that **every** answer-bearing session is dropped (evidence is session-level; median 2 answer sessions, **0 instances with none**, so this is always constructible) | accuracy at floor. If a cell with no evidence still answers, the pipeline is reading something it should not |
+| **negative** | truncation that drops only non-answer sessions, keeping all evidence | accuracy ≈ the full-window cell. A drop here means truncation hurts through something other than losing evidence, and the interaction estimate is contaminated |
+| **fidelity** | the W1C1 cell re-run against our own replay harness | must reproduce the arm-C/D numbers on our prose, as C_visible reproduced B's 42.4%/7.1% exactly |
+
+The positive control is free, which is why this corpus was chosen over manufacturing one.
+
+### 11.4 Power, cost, and a declared stopping rule
+
+Unit costs are **measured, not assumed**: US$ 6.22e-4 per distiller block (arm C: 563 blocks for
+US$ 0.35) and US$ 6.4e-5 per judge call (152 calls for US$ 0.0098). Blocks per instance: 245 full,
+59 truncated. **US$ 0.380 per instance for all four cells.**
+
+| interaction to detect | paired n | cost | distiller calls | wall-clock at 8 concurrent |
+|---|---|---|---|---|
+| **21.4 pp** — what production measured | **52** | **US$ 20** | 31.6k | ~2.2 h |
+| 15 pp | 105 | US$ 40 | 63.8k | ~4.4 h |
+| 10 pp | 236 | US$ 90 | 143k | ~10 h |
+| 8 pp | 368 | US$ 140 | 224k | ~16 h |
+| 5 pp | 942 | — | — | **exceeds the corpus** |
+
+(α 0.05, power 0.80, paired, discordance 0.30 assumed conservatively; the discordance is itself
+estimated from the first stage and the plan is revised **up** if it comes in lower.)
+
+**Two-stage, with the rule fixed in advance** — because running until something appears is not a
+confirmation:
+
+- **Stage 1: n = 60** (52 plus attrition margin), sampled by seed from the 500, stratified by
+  question category. US$ 23.
+- **Stop at stage 1** if the interaction's 95% CI excludes 0 *and* excludes 8 pp from below ⇒
+  production's magnitude is confirmed at this corpus.
+- **Go to stage 2** (n = 240 total, +US$ 68) only if stage 1's CI **contains** 8 pp ⇒ underpowered
+  for the smaller effect that stage 1 would then be suggesting.
+- **Stop and report a null** if stage 1's CI excludes 8 pp from **above** ⇒ the effect is smaller
+  than production claims, and that is the finding, reported as such.
+- α is split 0.03 / 0.02 across the two stages. No third stage, whatever stage 2 returns.
+
+### 11.5 Pre-specified sensitivity and threats
+
+1. **The 0.240.** Repeat at 0.12 and 0.48 on stage 1's sample. If the interaction's sign flips inside
+   that range, the result is about our truncation and not about windows, and must be reported that way.
+2. **Leading prefix vs scattered.** Production's prune removes the *oldest* sessions, so a leading
+   prefix is the right shape — but `haystack_dates[]` lets a scattered truncation be built, and one
+   arm of stage 1 does, as a shape check.
+3. **The benchmark inherits the criticism we make of benchmarks.** LongMemEval sessions are
+   synthesised dialogue, not an agent working; identifier density is lower than in our prose, and the
+   criterion factor acts precisely on identifiers. ⇒ **the C main effect here is a lower bound** on
+   what it would be in production, and the paper must say so.
+4. **No `_abs` variants** ⇒ no abstention claim from this leg (§11.1).
+5. **Not the paper's judge** ⇒ no leaderboard comparison (§11.2).
+
+### 11.6 What the production leg carries, and only it
+
+Unchanged from §10's recommendation, and deliberately modest: **that the window occurs naturally, and
+its magnitude.** Observational, 12 sessions with window variance of which 8 are used, reported as an
+existence result with a magnitude (+21.4 pp interaction on 56 pairs) and with its limits stated —
+exactly what 12 sessions can carry and no more. The confirmatory claim lives in §11.4, on data anyone
+can download.
