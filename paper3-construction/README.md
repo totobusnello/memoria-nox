@@ -1,8 +1,19 @@
 # Paper 3 — the construction step. Collision check first, then the claim that survives it.
 
-> Status **2026-10-27**: collision check done, four neighbours read, claim narrowed. **No text
-> written.** The scope below needs Toto's approval before drafting, because the obvious claim is
-> already taken and the one that survives is narrower than what Monday's measurements suggested.
+> ✅ **DEPOSITED AND PUBLISHED 2026-10-27** — [`10.5281/zenodo.23716613`](https://doi.org/10.5281/zenodo.23716613)
+> (concept [`10.5281/zenodo.23716612`](https://doi.org/10.5281/zenodo.23716612), always the latest
+> version). The plan is frozen: PDF, the Markdown it was built from, the code zip and `SHA256SUMS`,
+> under tag [`paper3-prereg-v1.0`](https://github.com/totobusnello/memoria-nox/tree/paper3-prereg-v1.0/paper3-construction),
+> whose bytes match the deposit. Card at [labf.bio](https://www.labf.bio/papers/construction-before-search).
+>
+> **Published before any arm ran, which is what makes it a pre-registration** rather than a report
+> written afterwards. Nothing has been run under this plan. The next step is stage 1: n=200 at
+> US$ 108, up to US$ 297 if stage 2 runs.
+>
+> Earlier status, kept because it is why the document has the shape it has: *"collision check done,
+> four neighbours read, claim narrowed. No text written. The scope below needs Toto's approval
+> before drafting, because the obvious claim is already taken and the one that survives is narrower
+> than what Monday's measurements suggested."*
 
 ## The collision check, and it is substantial
 
