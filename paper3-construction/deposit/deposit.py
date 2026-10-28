@@ -306,13 +306,37 @@ def fill():
     return 0
 
 
+def agrees(want, got):
+    """Zenodo may ENRICH what we sent; it may not CHANGE or drop it.
+
+    InvenioRDM expands every vocabulary entry server-side — we send
+    {"id": "cc-by-4.0"} and it returns that id plus title, description, icon and
+    props — and it strips the trailing newline from the description. Strict
+    equality therefore reported five divergent fields on a deposit whose every
+    sent value was stored verbatim (measured 2026-10-27 on draft 23716613), and a
+    gate that fails on a correct deposit cannot tell one from a broken one.
+
+    So: a dict is compared only on the keys WE sent, a list must keep our length
+    and order (an added or dropped element is divergence, not enrichment), and a
+    string is compared stripped. Anything else is strict equality.
+    """
+    if isinstance(want, dict):
+        return isinstance(got, dict) and all(agrees(v, got.get(k)) for k, v in want.items())
+    if isinstance(want, list):
+        return (isinstance(got, list) and len(want) == len(got)
+                and all(agrees(w, g) for w, g in zip(want, got)))
+    if isinstance(want, str):
+        return isinstance(got, str) and want.strip() == got.strip()
+    return want == got
+
+
 def readback():
     tok, rid = token(), DRAFT_ID.read_text().strip()
     st, d = req("GET", f"/records/{rid}/draft", None, tok)
     assert st == 200, f"readback: {st}"
     want, got, bad = metadata(), d["metadata"], []
     for k, v in want.items():
-        if got.get(k) != v:
+        if not agrees(v, got.get(k)):
             bad.append(k)
     st, f = req("GET", f"/records/{rid}/draft/files", None, tok)
     remote = {e["key"]: e.get("checksum") for e in f.get("entries", [])}

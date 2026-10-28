@@ -92,6 +92,13 @@ predicates and 4-level scale already in use.
 
 ## 3. Primary endpoint and test
 
+> [scope] **Boundary — §§1–10 are the first attempt; §11 is what will run.** Everything from here to §10
+> describes the production-corpus design that §4 records as blocked, and it is kept because removing
+> it would hide why §11 has the shape it has. **It is history, not instruction.** Where §11
+> specifies something this section also specifies — the estimand, the test, the α, the sample, the
+> stopping rule, the cost — **§11 governs and this section does not.** Nothing below needs to be
+> reconciled with §11 before the run.
+
 **Endpoint.** Per (question, arm): the judge's `contem` probability thresholded at 0.5 — the
 candidate conveys the reference fact. Pre-specified; the three-cut sensitivity (0.3/0.5/0.7) is
 secondary.
@@ -147,7 +154,7 @@ Nothing else is excluded, and in particular **no item is dropped for being hard*
 
 | claim | falsified by |
 |---|---|
-| H1 | interaction term not significant, or negative |
+| H1 | *(first attempt's wording; §11 governs the leg that runs)* interaction term not significant, or negative |
 | H2a | lower bound **above** −5 pp at equal budget — i.e. An's prediction would fail where we expect it to hold |
 | H2b | lower bound below −5 pp at native budget — the prediction holds everywhere and we have no accuracy result |
 | H3a | interaction as large on `lesson`/`decision` as on `identifier` |
@@ -336,11 +343,37 @@ not, the finding is about our cut.
 no observation at all**: it is the interpolation between 0.183 and 0.297. The neighbouring 50–200k
 band is n=3 at [0.392, 0.721, 1.000].
 
-⇒ **W becomes a three-level factor at the observed order statistics — 0.020 / 0.240 / 0.894 — not a
-point.** The ends are where half the band sits, and the sensitivity arms I had pre-specified (0.12 and
-0.48) sat *inside* the observed range and would have missed both. This is the §4 failure caught one
-step earlier: a statistic resting on fewer units than it appeared to, used to parameterise something
-much larger.
+⇒ **the dose cannot be a point.** The ends are where half the band sits, and the sensitivity arms
+first pre-specified (0.12 and 0.48) sat *inside* the observed range and would have missed both. This
+is the §4 failure caught one step earlier: a statistic resting on fewer units than it appeared to,
+used to parameterise something much larger.
+
+[defect] **But promoting W to a three-level factor dissolved the design, and the second adversarial pass
+caught it** (finding 2): with W ∈ {0.020, 0.240, 0.894} the **full window disappears from the
+matrix** — while the estimand, the fidelity control and the whole notion of repair all depend on it.
+Worse, no primary contrast was named for a three-level factor, and a multi-degree-of-freedom joint
+test is not "superadditivity". The matrix is therefore fixed, once, here:
+
+| | C0 = `DISTILL_SYSTEM` v1 | C1 = v2 (+identifier paragraph) | role |
+|---|---|---|---|
+| **W = 0.240** (median seen-fraction) | cell 00 | cell 01 | **primary 2×2** |
+| **W = full** (all 38–62 sessions) | cell 10 | cell 11 | **primary 2×2** |
+| W = 0.020 (band minimum) | sens | sens | dose sensitivity |
+| W = 0.894 (band maximum) | sens | sens | dose sensitivity |
+
+**Four primary cells on every instance; four sensitivity cells on a pre-specified n=60 subsample of
+stage 1.** The primary contrast is the one §11.4 fixes — full+v2 against truncated+v1 — and the
+dose arms answer a different question (does the sign of the effect survive across the observed
+band?) at the n that question needs, not at the primary's n.
+
+**The cut rule, executable rather than described.** "Sessions whose cumulative characters reach the
+fraction" does not determine a dose on its own, and at W=0.020 a single session can overshoot it
+entirely. So, in order: sessions are taken **most-recent-first**; the running total is of
+`len(prose)` over the session's turns; the session that **crosses** the threshold is **included
+whole**; the denominator is the haystack's total prose characters, excluding the question and the
+answer. The realised fraction is **recorded per instance** and reported as a distribution, because
+with 38–62 unequal sessions the realised dose will not equal the nominal one and the paper should
+say by how much rather than claim the nominal figure.
 
 **Response:** was the generated answer correct, judged by the bounded judge (Decisions API, no
 free-text field, so the prose-contradicts-the-field failure cannot occur). [limit] Not GPT-4o, which is
@@ -376,8 +409,35 @@ And two asymmetries to state rather than assume:
   annotation is itself unverified. The final text states a quantitative floor and an equivalence
   margin instead of the words "floor" and "≈".
 
+[defect] **The added legs are still not sufficient, and the second adversarial pass exhibited the
+pipeline that beats all of them** (`audits/2026-10-27-codex-and-deepseek-on-the-prereg.md`,
+finding 7):
+
+```text
+in the benchmark loader:  keep answer_session_ids and the reference answer on the item
+when answering:           if any session marked as evidence is still present
+                              -> return the reference answer
+                          else
+                              -> return NAO SEI
+```
+
+It sits at the floor in the positive control, matches the full window in the negative one, clears
+the answerable floor, and passes the paired diagnosis **item by item** — while never reading the
+constructed context at all. Every control above tests the *outcome* of the causal path; none tests
+that the path was walked. One more leg does:
+
+| control | construction | required |
+|---|---|---|
+| **counterfactual evidence** | on a seeded 40-item subsample, rewrite the answer-bearing session so the fact itself differs (a date shifted, an identifier changed), leaving the question, the haystack size and the annotation untouched | the answer must follow the **altered** fact. A pipeline that returns the original reference answer has not read the context, and no aggregate control can see that |
+
+This is the only control here that distinguishes *answering correctly* from *answering from the
+constructed context*, and it is cheap: the benchmark ships the evidence spans, so the rewrite is
+mechanical and the expected answer is known by construction. It costs US$ 0.03 per item at the
+measured rates, so the leg adds about **US$ 1.20** to either stage.
+
 The positive control is cheap to construct, which is why this corpus was chosen over manufacturing
-one — but cheap to construct is not the same as sufficient to validate.
+one — but cheap to construct is not the same as sufficient to validate, and three rounds of this
+section have now each been defeated by a pipeline simpler than the one before.
 
 ### 11.4 Power, cost, and a declared stopping rule
 
@@ -385,9 +445,13 @@ Unit costs are **measured, not assumed**: US$ 6.22e-4 per distiller block (arm C
 US$ 0.35) and US$ 6.4e-5 per judge call (152 calls for US$ 0.0098). Blocks per instance: 245 full,
 59 truncated. **US$ 0.380 per instance for all four cells.**
 
-| interaction to detect | paired n | cost | distiller calls | wall-clock at 8 concurrent |
+[never] **Superseded twice — kept as the record of what was wrong, not as a plan.** Its $\delta$ column is
+mislabelled: 21.4 pp is production's **total** effect, not its interaction, and its `Var(D)` was the
+raw discordance. The governing numbers are in *Resized twice* below.
+
+| effect to detect *(column mislabelled "interaction" in the original)* | paired n | cost | distiller calls | wall-clock at 8 concurrent |
 |---|---|---|---|---|
-| **21.4 pp** — what production measured | **52** | **US$ 20** | 31.6k | ~2.2 h |
+| **21.4 pp** — production's **total** effect, mislabelled here as interaction | **52** | **US$ 20** | 31.6k | ~2.2 h |
 | 15 pp | 105 | US$ 40 | 63.8k | ~4.4 h |
 | 10 pp | 236 | US$ 90 | 143k | ~10 h |
 | 8 pp | 368 | US$ 140 | 224k | ~16 h |
@@ -411,94 +475,169 @@ Three further defects in that table, all real:
   computed for the procedure actually run, including the two-stage structure.
 - **Scale mismatch.** §3 prescribes a logistic interaction coefficient, which is interaction in
   **log-odds**, not superadditivity in percentage points. The two can disagree in sign of
-  significance; the estimand is now fixed as the **additive** one, and §3 is amended to match.
+  significance. The estimand for the leg that will run is fixed as the **additive** one in §11.4,
+  and §3 is **not** amended: it is the first attempt's endpoint and stays as the record of it. See
+  the boundary note at the head of §3 — a plan that says "§3 is amended to match" without carrying
+  the replacement text leaves the reader to guess which sentences still bind.
 - **An inverted sentence.** The draft said the plan is *"revised up if the discordance comes in
   lower"*. Holding the effect fixed, **lower variance needs fewer observations, not more.** If the
   intent was to adapt on the observed *effect*, that is a different rule and has to be written as
   one.
 
-### Resized, 2026-10-27 (`power-additive.py`)
+### Resized twice, 2026-10-27 — and the second pass moved the primary
 
-`Var(D)` is computed from the cell means the production replay measured — B 0.424, C 0.465, D 0.465,
-D_full 0.636, implying an additive interaction of **+13.0 pp** — under an exchangeable
-within-instance correlation ρ, and the **worst case over ρ ∈ [0, 0.6] is used for sizing**, which is
-what "conservative" has to mean:
+**The first resize fixed the variance and left the effect wrong.** It recomputed `Var(D)` properly
+and took n from 52 to 193, and it kept sizing the test of the **interaction** with the **total**
+effect as $\delta$. Two adversarial voices from different families found this independently on the same day
+(`audits/2026-10-27-codex-and-deepseek-on-the-prereg.md`), and the arithmetic is the document's own:
+
+| quantity | value |
+|---|---|
+| main effect, window alone | **+4.1 pp** |
+| main effect, criterion alone | **+4.1 pp** |
+| **interaction** | **+13.0 pp** |
+| **total** effect of repairing both | **+21.2 pp** |
+
+4.1 + 4.1 + 13.0 = 21.2. The table's row labelled *"21.4 pp — production's measured interaction"*
+was production's **total** effect wearing the interaction's name, and sizing an interaction test on
+it overstates power by the ratio of the squares. Ten lines below that row the same section already
+said *"the honest ceiling of what 500 instances can resolve is ≈13 pp"* — so the document stated the
+ceiling and then sized past it, in one page.
+
+Every number below is computed by `estimand-and-power.py`, which **exits non-zero** if the
+decomposition stops closing, if the serial null stops being beaten, or if the interaction starts
+fitting the corpus — the three facts that this design now rests on.
+
+#### The interaction does not fit, so it is not the primary
+
+| estimand | $\delta$ | n at α=0.03, Var=0.973 | n at Var=3.347 |
+|---|---|---|---|
+| **total effect** — repairing both against repairing neither | 21.2 pp | **196** | 675 |
+| interaction against 0 | 13.0 pp | 522 — **exceeds the corpus** | 1,796 |
+| interaction against the serial null (below) | 12.6 pp | 556 — **exceeds the corpus** | 1,911 |
+
+**So the primary endpoint is the total effect**, which is also the claim the README actually makes:
+repairing window *and* prompt together recovers the deficit. The interaction becomes a
+**pre-registered secondary** whose power is stated out loud rather than assumed:
+
+| n | power for the total effect | for the interaction |
+|---|---|---|
+| **200** (stage 1) | **80.8%** | **38.0%** |
+| 240 | 87.7% | 44.9% |
+| 500 (whole corpus) | 99.6% | 78.1% |
+
+[limit] **The interaction is underpowered at every n this corpus allows**, 78.1% at the full 500 against
+the 80% the plan targets. That is pre-registered as a limitation, not discovered afterwards: a
+secondary that fails to reach significance will be reported as *underpowered*, with the interval,
+and never as evidence of additivity.
+
+#### "Conservative" was false, and is withdrawn
+
+The first resize varied an exchangeable within-instance correlation ρ ∈ [0, 0.6] and called the
+maximum the worst case:
 
 | ρ | 0.0 | 0.2 | 0.4 | 0.6 |
 |---|---|---|---|---|
-| `Var(D)` | **0.973** | 0.779 | 0.584 | 0.390 |
+| `Var(D)` | 0.973 | 0.779 | 0.584 | 0.390 |
 
-| effect to detect | α=0.05 | **α=0.03** (stage 1) | α=0.02 |
-|---|---|---|---|
-| **21.4 pp** — production's measured interaction | 167 | **193** | 214 |
-| 15 pp | 340 | 393 | 435 |
-| 10 pp | 764 | **883 — exceeds the corpus** | 977 |
-| 8 pp | 1,194 | 1,380 | 1,527 |
+[defect] **That is a maximum inside a dependence family chosen by the author, not an upper bound for
+paired data with those marginals.** The adversarial pass supplied the counterexample, and
+`estimand-and-power.py` reproduces it exactly: with `U ~ Uniform(0,1)`, `Y11 = 1[U < 0.636]`,
+`Y00 = 1[U < 0.424]`, `Y10 = Y01 = 1[U > 0.535]`, all four marginals are the measured ones,
+`E[D] = 0.130` is the measured interaction, and
 
-[defect] **The old table said n=52 for 21.4 pp. It is 193** — 3.7× larger — and the n=60 stage 1 I had
-pre-registered was **gravely underpowered**. Worse: **10 pp is not detectable in this corpus at all**,
-because 883 > 500. The honest ceiling of what 500 instances can resolve is ≈13 pp.
+> `Var(D) = 3.3471` — **3.4× the number the draft called conservative.**
 
-**Cost, with W at three levels × C at two = six cells:** 565 distiller blocks per instance, **US$
-0.355** per instance (the old four-cell design was 0.380 — fewer blocks, because two of the three
-doses are cheaper than the full window).
+The word is therefore removed. The plan sizes on ρ=0 **because stage 1 measures the joint pattern**,
+not because ρ=0 bounds anything, and the second column of the table above reports what the
+counterexample would cost so that the exposure is visible before the run rather than after it.
 
-| n | cost | distiller calls | wall-clock at 8 concurrent |
-|---|---|---|---|
-| 100 | US$ 35 | 56.5k | ~3.9 h |
-| **193** | **US$ 68** | 109k | ~7.6 h |
-| 240 | US$ 85 | 136k | ~9.4 h |
-| 500 (whole corpus) | US$ 177 | 283k | ~19.6 h |
+#### The serial null — a positive interaction is not evidence of joint repair
 
-[limit] **ρ is unknown and it matters by a factor of 2.5** (0.973 vs 0.390). Stage 1 estimates it, and if
-it comes in near 0.6 the n for 21.4 pp falls to ~77 — but a pre-registration cannot bank on that, so
-the plan sizes on ρ=0 and says so.
+A two-stage system needs no joint mechanism to produce superadditivity. Let
 
-[limit] And the 240 ceiling of stage 2 does not deliver the 8 pp power the table itself quotes for 368 —
-that inconsistency is resolved in the same pass.
+> `P(correct | w,c) = e_w · q_c`
 
-**Two-stage, with the rule fixed in advance** — because running until something appears is not a
-confirmation:
+where the window governs whether the evidence arrives (`e_w`) and the prompt governs whether it is
+used once present (`q_c`). The additive interaction is then `(e₁−e₀)(q₁−q₀) > 0` whenever both
+factors help, with nothing jointly repaired: the prompt can only act on information that reached the
+system. So **"interaction > 0" does not identify the mechanism**, and this design stops claiming it
+does.
 
-- **Stage 1: n = 60** (52 plus attrition margin), sampled by seed from the 500, stratified by
-  question category. US$ 23.
-Redesigned for the resized n, because a rule built on an n that cannot detect the effect is not a
-rule:
+The model is not merely a caveat, because it is **fitted and testable**. Scale-free, three cells
+determine the fourth: `Y11 = Y01·Y10/Y00`. On our own measured cells that predicts
 
-- **Stage 1: n = 200**, sampled by seed, stratified by question category. **US$ 71.**
-- **Stop at stage 1** if the CI excludes 0 — the interaction is established and §11.4's table says
-  what magnitude it is consistent with.
-- **Go to stage 2** (all 500, +US$ 107) if the CI contains 0 **and** its width leaves 13 pp
-  detectable — i.e. the observed ρ makes the extra 300 instances worth their cost.
-- **Stop and report the interval** if the CI contains 0 and ρ came in low enough that 500 still
-  cannot resolve the effect. That is a finding about the corpus's resolving power, reported as one.
-- [limit] **8 pp no longer appears in the rule.** It was a power target masquerading as a confirmation
-  boundary, and at the resized n it is unreachable anyway (1,380 > 500).
-- α is split 0.03 / 0.02 across the two stages. No third stage, whatever stage 2 returns.
-
-[defect] **The partition is exhaustive — the adversarial pass confirmed that and I had asked about it — but
-the CONCLUSIONS attached to it were wrong (finding 4), and that is the worse defect:**
-
-| CI | the draft's label | why it fails |
+| | Y11 | implied interaction |
 |---|---|---|
-| [1, 7] pp | "null" | it **excludes zero**; there is a positive interaction, merely a small one |
-| [9, 15] pp | "confirms production's magnitude" | it **excludes 21.4 pp**, which *is* production's magnitude |
-| [−20, 40] pp | "suggests a smaller effect" | it suggests **wide uncertainty**, not a smaller effect |
+| serial chaining predicts | 0.5100 | **+0.4 pp** |
+| production measured | 0.6360 | **+13.0 pp** |
 
-So the labels are rewritten as what each interval licenses, and the 8 pp threshold is demoted from
-"confirmation boundary" to what it always was — a **power target**:
+**33× the serial prediction**, and the direct check fails in the right direction:
+`Y00·Y11 = 0.2697` against `Y01·Y10 = 0.2162`, which would be equal if chaining were the whole
+story. The secondary hypothesis is therefore stated against the serial null rather than against
+zero, which is what finally gives this leg **a refutable prediction**: if the benchmark returns an
+interaction indistinguishable from `I_serial` computed on its own three cells, the joint-repair
+thesis is **refuted**, and that is a result this design can produce.
 
-| CI relative to 0 and to 21.4 pp | conclusion |
+#### Cost
+
+[defect] **The missing full-window cell was also a missing cost.** The draft quoted 565 blocks per
+instance for "six cells" — a matrix in which W=full did not appear (§11.2). With the primary 2×2
+restored, blocks per instance are **608** for the four primary cells alone, and the honest figures
+are these, from measured unit costs (US$ 6.22e-4 per block, US$ 6.4e-5 per judge call) and blocks
+proportional to prose seen (5 / 59 / 219 / 245 at W = 0.020 / 0.240 / 0.894 / full):
+
+| component | n | blocks | cost |
+|---|---|---|---|
+| primary 2×2 | 200 | 121,600 | US$ 75.7 |
+| dose sensitivity, 4 cells | 60 | 26,880 | US$ 16.7 |
+| counterfactual-evidence control | 40 | 24,320 | US$ 15.1 |
+| **stage 1 total** | | **172,800** | **US$ 108** |
+| stage 2, primary only | 500 | 304,000 | US$ 189 |
+| **both stages, worst case** | | | **US$ 297** |
+
+[limit] **This is US$ 108 for stage 1, not the US$ 71 the draft promised**, and up to US$ 297 if stage 2
+runs. The increase is not inflation: it is the price of the cell the design needs and the controls
+that make it interpretable. Wall-clock for stage 1 is ~6 h at 8 concurrent.
+
+#### Two stages, every state with an action
+
+- **Stage 1: n = 200**, sampled by seed, stratified by question category. **US$ 108.** α = 0.03.
+- **Stage 2: all 500** (+US$ 189), α = 0.02. No third stage, whatever stage 2 returns.
+- **Stop at stage 1** if the primary CI excludes 0 **and** lies entirely above the equivalence
+  margin below. Otherwise go to stage 2. There is no futility stop on the primary: at n=200 it has
+  80.8% power, so a non-significant stage 1 is uninformative rather than negative.
+- **Equivalence margin, pre-set: 5 pp.** A primary CI contained entirely in (−5, +5) pp is
+  **evidence of absence** of a materially useful joint repair, not an inconclusive result. Without
+  this margin no outcome could refute the thesis — the defect the adversarial pass named, and the
+  reason the margin is fixed here rather than chosen on sight of the data.
+- **If no valid CI is obtainable** (separation, non-convergence): report the point estimate with a
+  percentile bootstrap over **instances** (10,000 resamples, the instance as the resampling unit),
+  and say which path produced the interval.
+- **Intervals are adjusted to the spent alpha.** The two-sided interval reported for each decision is
+  the 1−α interval at that stage's α (0.03, then 0.02) — not a 95% interval relabelled. This is
+  fixed here because leaving it to "the final text" is leaving an inferential choice until after the
+  results exist, which is the freedom a pre-registration exists to remove.
+
+**What each primary interval licenses** — the labels are what the interval supports, not what the
+author hoped:
+
+| primary CI (total effect) | conclusion |
 |---|---|
-| excludes 0, contains 21.4 | interaction present, **consistent** with production's magnitude |
-| excludes 0, excludes 21.4 from below | interaction present and **smaller** than production's |
-| contains 0 | **no interaction demonstrated at this n**; report the interval, not a null |
+| excludes 0, contains 21.2 pp | repair confirmed, **consistent** with production's magnitude |
+| excludes 0, entirely below 21.2 pp | repair confirmed and **smaller** than production's |
+| excludes 0, entirely above 21.2 pp | repair confirmed and **larger** than production's |
+| excludes 0, entirely **negative** | repairing both **hurts** on this corpus — contrary to the thesis |
+| contained in (−5, +5) pp | **no materially useful repair**; evidence of absence at the pre-set margin |
+| contains 0, wider than the margin | **underpowered or inconclusive**; report the interval, never a null |
 
-[limit] And two states still had no action, both now specified: **no valid CI obtainable** (separation or
-non-convergence ⇒ report the estimate with a bootstrap interval and say so) and **the stage-2
-classification criteria**, which were left implicit. Two-sided 95% CIs also do not by themselves
-implement α = 0.03 / 0.02; the intervals used for the decisions are adjusted to the spent alpha, or
-the alpha split is dropped. That choice goes in the final text, not here.
+And for the secondary, against the serial null:
+
+| secondary CI (interaction − `I_serial`) | conclusion |
+|---|---|
+| excludes 0 from above | joint repair beyond serial chaining — the mechanism claim survives |
+| contained in (−5, +5) pp | **serial chaining explains the effect**; joint repair **refuted** |
+| contains 0, wider | underpowered at this corpus, as §11.4 predicted in advance |
 
 ### 11.5 Pre-specified sensitivity and threats
 
@@ -509,8 +648,10 @@ the alpha split is dropped. That choice goes in the final text, not here.
    arm of stage 1 does, as a shape check.
 3. **The benchmark inherits the criticism we make of benchmarks.** LongMemEval sessions are
    synthesised dialogue, not an agent working; identifier density is lower than in our prose, and the
-   criterion factor acts precisely on identifiers. ⇒ **the C main effect here is a lower bound** on
-   what it would be in production, and the paper must say so.
+   criterion factor acts precisely on identifiers. ⇒ the criterion effect measured here is **an
+   estimate on this corpus**, with no demonstrated ordering against production — see item 6, which
+   withdraws the lower-bound reading. (This sentence asserted the floor for two revisions after item
+   6 retracted it; the second adversarial pass found the pair still contradicting each other.)
 4. **No `_abs` variants** ⇒ no abstention claim from this leg (§11.1).
 5. **Not the paper's judge** ⇒ no leaderboard comparison (§11.2).
 6. [defect] **The "lower bound" claim about the criterion effect is withdrawn.** The draft argued that
@@ -538,6 +679,31 @@ the alpha split is dropped. That choice goes in the final text, not here.
    has not earned, so +21.2 is inflated) or **severity** (family 1 rejects correct answers, so +21.2
    is truer). The asymmetry is consistent with both, and two LLM judges cannot separate them.
 
+   [defect] **And the pair does not cover the primary.** The two families were compared on `d_full − c_all`
+   — the criterion effect with the window held full — so the bracket bounds **that** contrast, not
+   the total effect this plan now tests, and not the interaction. Worse, the disagreement is
+   asymmetric **toward the cell the thesis needs**: family 2 adds 30.3% on `d_full` against 17.2% on
+   `c_all`, and `d_full` is the W1C1 corner. A judge that rewards literalness therefore inflates the
+   corner that carries both the total effect and the interaction. ⇒ **the blind human grading of
+   §7 must reach the primary contrast**, on a stratified subsample of all four primary cells, or the
+   confirmatory claim is judge-conditional and the paper says so in those words.
+
+8. [defect] **Context length is not controlled, and it is an alternative explanation for the whole
+   effect** (second adversarial pass, DeepSeek finding 4). W1C1 serves more prose than W0C0 by
+   construction, so a positive total effect is consistent with "more context helps" and needs no
+   construction story at all. Three things are therefore pre-specified: the **served context length
+   is recorded per item and reported per cell**; the primary is also estimated with served
+   length as a covariate, reported alongside the unadjusted estimate; and a **length-matched
+   reference arm** runs on the stage-1 sample, serving W0C0's selection padded to W1C1's length with
+   the same corpus's non-evidence prose. If the length-matched arm reproduces W1C1, the effect is
+   capacity, not construction, and the paper reports that instead.
+
+9. **A positive interaction does not identify the mechanism.** §11.4's serial null makes this
+   testable rather than conceded: two factors acting in series on availability and on use produce
+   superadditivity with nothing jointly repaired. The identifier-survival mechanism is **removed
+   from the confirmatory claims** of this leg — it stays a hypothesis that H3 probes descriptively.
+   This is a change to the thesis, not a caveat on it, and the README carries the same change.
+
    ⇒ **Pre-specified consequence:** the criterion effect is reported as the **bracket
    [+8.1 · +21.2] pp across judge families**, never as one family's figure, unless a human pass
    picks between them. The human validation of §7 must therefore reach the **primary contrast**, and
@@ -555,7 +721,8 @@ the alpha split is dropped. That choice goes in the final text, not here.
 
 Unchanged from §10's recommendation, and deliberately modest: **that the window occurs naturally, and
 its magnitude.** Observational, 12 sessions with window variance of which 8 are used, reported as an
-existence result with a magnitude (+21.4 pp interaction on 56 pairs) and with its limits stated —
+existence result with a magnitude (**+21.2 pp total effect** on 56 pairs, of which **+13.0 pp** is
+interaction) and with its limits stated —
 exactly what 12 sessions can carry and no more. The confirmatory claim lives in §11.4, on data anyone
 can download.
 
@@ -576,9 +743,13 @@ place; two need work that is not textual.
 
 **Both blocking items are now closed, 2026-10-27, and each changed the design:**
 
-1. [closed] **Resized** (`power-additive.py`). For the additive estimand under worst-case `Var(D)=0.973` at
-   the α stage 1 actually spends, **n = 193 for 21.4 pp, not 52** — 3.7× larger, and the n=60 stage 1
-   was gravely underpowered. **10 pp is not detectable in this corpus** (883 > 500). The stopping rule
+1. [limit] **Resized, then resized again — the first pass fixed one leg of two**
+   (`power-additive.py`, then `estimand-and-power.py`). It corrected `Var(D)` to 0.973 and took n
+   from 52 to 193, and it kept **21.4 pp — the total effect — as the $\delta$ of an interaction test**. The
+   second adversarial pass caught that (`audits/2026-10-27-codex-and-deepseek-on-the-prereg.md`):
+   the interaction is **13.0 pp**, needs **n=522** against a corpus of 500, and is therefore no
+   longer the primary. n=193 would have delivered **36.7%** power for it. The n=60 stage 1 was
+   gravely underpowered either way. **10 pp is not detectable in this corpus** (883 > 500). The stopping rule
    was rebuilt around n=200 → 500 and the 8 pp threshold removed, because it was a power target
    dressed as a confirmation boundary.
 2. [closed] **Denominator stated** (`see-once-denominator.py`) — and it **dissolved the point anchor**:
