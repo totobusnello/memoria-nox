@@ -63,8 +63,8 @@ SUBJECTS = ["pre-registration", "agent memory", "memory construction", "write pa
 #      and the build gate requires zero missing glyphs. The labels preserve the
 #      distinction the emoji carried (defect / limit / closed / key finding).
 EDITS = [
-    ("# Pre-registration plan — the construction interaction. DRAFT for approval, not deposited.",
-     "# Pre-registration plan — the construction interaction"),
+    ("# Construction before search: a pre-registered factorial test of two repairs to LLM-extracted agent memory. DRAFT for approval, not deposited.",
+     "# Construction before search: a pre-registered factorial test of two repairs to LLM-extracted agent memory"),
     ("> 📌 **DEPOSIT CANDIDATE — §11 is the active design; §4 is kept as the blocked first attempt.**",
      "> **Status.** Version 1.0. §11 is the active design; §4 is kept as the blocked first attempt. "
      "Not peer reviewed."),

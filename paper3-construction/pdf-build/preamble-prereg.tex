@@ -132,6 +132,38 @@
 % ---------------------------------------------------------------------------
 \usepackage{needspace}
 \AtBeginEnvironment{longtable}{\needspace{10\baselineskip}}
+
+% ---------------------------------------------------------------------------
+% Pagination, measured on v1.0: of 25 headings, one ("6. What would falsify each
+% claim") landed on the LAST line of page 3, with its section starting overleaf.
+% A heading is a promise that text follows it; at the foot of a page it promises
+% nothing. needspace is already loaded for tables, so the same mechanism serves
+% here: a heading demands room for itself plus a few lines of its own section,
+% or it moves to the next page with them.
+%
+% \pretocmd rather than titlesec: titlesec would also take over how the headings
+% LOOK, and the look is the one thing about this layout that already matches the
+% deposited papers. etoolbox is loaded above.
+% ---------------------------------------------------------------------------
+\pretocmd{\section}{\needspace{4\baselineskip}}{}{\PackageWarning{prereg}{section hook failed}}
+\pretocmd{\subsection}{\needspace{3.5\baselineskip}}{}{\PackageWarning{prereg}{subsection hook failed}}
+\pretocmd{\subsubsection}{\needspace{3\baselineskip}}{}{\PackageWarning{prereg}{subsubsection hook failed}}
+
+% A single line left alone at the top (widow) or foot (club) of a page. 10000 is
+% the "never" end of the scale; the emergencystretch above absorbs the slack this
+% creates, which is why it does not produce short pages here.
+\widowpenalty=10000
+\clubpenalty=10000
+\displaywidowpenalty=10000
+% Do not hyphenate the last word of a page: the reader has to turn the page to
+% finish a word.
+\brokenpenalty=10000
+
+% No microtype line here on purpose: the pandoc template already does
+% \IfFileExists{microtype.sty}{\usepackage[]{microtype}} before this header, so
+% protrusion (its default) was ALREADY on in v1.0 — loading it again with options
+% is an Option clash, which is how this was found. Font expansion is unavailable
+% under XeTeX, so there is nothing left to add.
 % Figures live next to DATA-NOTE.md, one level up from pdf-build/.
 % Let Figure 1 sit at the top of a text page instead of on a page of its own.
 \renewcommand{\topfraction}{0.85}
