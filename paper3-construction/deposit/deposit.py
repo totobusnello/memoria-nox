@@ -53,6 +53,12 @@ CODE_FILES = ["lme-census.py", "lme-independence.py", "lme-answer-overlap.py",
               # disagree. Both ship — the superseded one is the record of the half-fix.
               "estimand-and-power.py",
               "pdf-build/build-pdf.sh", "pdf-build/preamble-prereg.tex",
+              # The layout tooling ships too: table-widths.py rewrites the SOURCE
+              # (pandoc derives LaTeX column widths from the separator's dash count,
+              # so a uniform |---|---| gave one column 33% of the page for a cell one
+              # character wide), and check-layout.py is the gate that proves the
+              # result — it fails on the v1.0 PDF and passes on this one.
+              "pdf-build/table-widths.py", "pdf-build/check-layout.py",
               "deposit/deposit.py", "README.md"]
 SUBJECTS = ["pre-registration", "agent memory", "memory construction", "write path",
             "factorial design", "LongMemEval", "retrieval evaluation", "judge agreement"]
