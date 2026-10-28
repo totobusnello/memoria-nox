@@ -132,6 +132,10 @@
 % ---------------------------------------------------------------------------
 \usepackage{needspace}
 \AtBeginEnvironment{longtable}{\needspace{10\baselineskip}}
+% Rows with multi-line cells ran into each other: H3a (one line) and H3b (four)
+% read as one block, because booktabs spaces the RULES, not the rows between them.
+% \extrarowheight adds it once per ROW, not per wrapped line inside a cell.
+\AtBeginEnvironment{longtable}{\setlength{\extrarowheight}{2.5pt}}
 
 % ---------------------------------------------------------------------------
 % Pagination, measured on v1.0: of 25 headings, one ("6. What would falsify each
@@ -141,13 +145,22 @@
 % here: a heading demands room for itself plus a few lines of its own section,
 % or it moves to the next page with them.
 %
+% 13 lines, not 4, and the number was MEASURED, not chosen: four of the 25
+% headings are followed immediately by a table, and a table asks for 10 lines of
+% its own (above). At 4 the heading's demand was satisfied, the table's was not,
+% and the table left WITHOUT the heading — which is how "9. Cost" and
+% "11.3 Controls" ended up alone at the foot. Calibrated against the opposite
+% defect, pages left half empty by a demand that is too large: 4 -> 2 stranded /
+% 5 short pages, 8 -> 1 / 6, 13 -> 0 / 5, 16 -> 0 / 7. 13 is the only value that
+% clears the stranding without costing a page.
+%
 % \pretocmd rather than titlesec: titlesec would also take over how the headings
 % LOOK, and the look is the one thing about this layout that already matches the
 % deposited papers. etoolbox is loaded above.
 % ---------------------------------------------------------------------------
-\pretocmd{\section}{\needspace{4\baselineskip}}{}{\PackageWarning{prereg}{section hook failed}}
-\pretocmd{\subsection}{\needspace{3.5\baselineskip}}{}{\PackageWarning{prereg}{subsection hook failed}}
-\pretocmd{\subsubsection}{\needspace{3\baselineskip}}{}{\PackageWarning{prereg}{subsubsection hook failed}}
+\pretocmd{\section}{\needspace{13\baselineskip}}{}{\PackageWarning{prereg}{section hook failed}}
+\pretocmd{\subsection}{\needspace{12\baselineskip}}{}{\PackageWarning{prereg}{subsection hook failed}}
+\pretocmd{\subsubsection}{\needspace{11\baselineskip}}{}{\PackageWarning{prereg}{subsubsection hook failed}}
 
 % A single line left alone at the top (widow) or foot (club) of a page. 10000 is
 % the "never" end of the scale; the emergencystretch above absorbs the slack this
