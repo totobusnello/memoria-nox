@@ -88,9 +88,10 @@ softened with a caveat:
 
 | the claim above | what §11 can now support |
 |---|---|
-| the two repairs interact **superadditively** | confirmatory: the **total** effect of repairing both. The interaction is a pre-registered **secondary**, underpowered at every n this corpus allows (78.1% at the full 500) |
-| what governs is whether the **identifier** survives | **not** a confirmatory claim of this leg. H3 probes it descriptively |
-| a constructive **refutation** of a conclusion four papers share | an **estimate that is inconsistent with** that conclusion on this corpus, which is a weaker and defensible thing to say |
+| the two repairs interact **superadditively** | confirmatory: the **total** effect of repairing both. The interaction is a pre-registered **secondary**, underpowered at every n this corpus allows (78.1% at the full 500, 38.0% at the n=200 stage 1) |
+| what governs is whether the **identifier** survives | **nothing in §11 measures this.** H3 lives in §§1–10, which are history, and §11 builds no identifier-survival instrument. It is a hypothesis this study leaves open |
+| the repaired memory **draws level with naive retrieval** over the raw text | **not testable here.** §11 has no selection arm: the 2×2 is window × criterion, both inside the memory pipeline, with no BM25 or dense baseline over raw text. The 63.6/63.6 draw is from the exploratory run only |
+| a constructive **refutation** of a conclusion four papers share | an **estimate that is inconsistent with** that conclusion on this corpus — and the estimate that licenses even that comes from the production leg (12 sessions, 8 of them reused, a single judge family), not from §11 |
 
 The reason is not timidity. A two-stage system — the window deciding whether evidence arrives, the
 prompt deciding whether it is used — produces a positive additive interaction **with no joint
@@ -98,6 +99,13 @@ mechanism at all**, so "interaction > 0" never identified the mechanism. §11.4 
 plan's substantive null and the measurement survives it: serial chaining predicts **+0.4 pp** from
 our own three other cells, against the **+13.0 pp** measured — 33×. That comparison is the sharpest
 thing here, and it is a thing the benchmark can **refute**, which the earlier framing was not.
+
+🔴 **Scoped down again on 2026-10-27, by a third family** (GLM-5.3, `audits/2026-10-27-glm-on-the-
+final.md`). Two of the four rows above are new: the plan never had a selection arm, and it never had
+an identifier-survival instrument, so two claims that read as results of this study were results of
+nothing in it. The same pass found that the **equivalence margin could not be reached at any n this
+corpus allows** — so §11.4 no longer promises evidence of absence, and says in the document why it
+cannot. Three families have now read this plan; each found something the previous two did not.
 
 It still answers `2609.34227`'s title — *When Does Selection Replace Extraction?* — from the other
 side: on this corpus, selection replaced extraction because the extraction was misconfigured, not
@@ -108,9 +116,9 @@ because selection is better in principle.
 | | |
 |---|---|
 | gap to oracle | A 88.9% vs B 42.4% = 46.5 pp |
-| window alone | 46.5% → +4.0 pp, 8.7% of the gap |
-| criterion alone | 46.5% → +4.0 pp, 8.7% |
-| **both** | **63.6% → +21.2 pp, 45.7%** — interaction **13.2 pp**, larger than either main effect |
+| window alone | 46.5% → +4.1 pp, 8.8% of the gap |
+| criterion alone | 46.5% → +4.1 pp, 8.8% |
+| **both** | **63.6% → +21.2 pp, 45.6%** — interaction **13.0 pp**, larger than either main effect |
 | net value vs BM25 at equal budget | B −21.2 pp · repaired, equal budget −15.2 pp · repaired, its own 2.41× context **0.0 pp** |
 | `context` | 26.2% → 52.4%, still 14 pp under retrieval ⇒ improved, not solved |
 | 200k–1M band | 27.5% → 67.5%, **overtakes** naive RAG |
