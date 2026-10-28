@@ -70,14 +70,14 @@ and it is labelled as replication. **H3b is the new claim.**
 Every arm answers the **same** questions, so every contrast is paired.
 
 | factor | level 0 | level 1 |
-|---|---|---|
+|-----------|---------------------------------------------|--------------------------------------------|
 | **window** | the prose the builder actually saw, cut at its `processed_at` | the session's complete prose |
 | **criterion** | `DISTILL_SYSTEM` as deployed | the same, plus one paragraph requiring identifiers verbatim |
 
 Four memory arms, plus three reference arms that are **controls, not results**:
 
 | arm | role |
-|---|---|
+|---------------------------------------------|-------------------------------------------------------|
 | W0C0, W0C1, W1C0, W1C1 | the factorial |
 | **oracle** — the raw window around the evidence | positive control. A question it cannot answer is a bad question and the item is dropped **before** any memory arm is read |
 | **naive RAG** — BM25 and dense over raw 2000-char chunks, truncated to the memory arm's characters | the comparator for H2 |
@@ -153,7 +153,7 @@ Nothing else is excluded, and in particular **no item is dropped for being hard*
 ## 6. What would falsify each claim
 
 | claim | falsified by |
-|---|---|
+|-----------------|-----------------------------------------------------------------------------------|
 | H1 | *(first attempt's wording; §11 governs the leg that runs)* interaction term not significant, or negative |
 | H2a | lower bound **above** −5 pp at equal budget — i.e. An's prediction would fail where we expect it to hold |
 | H2b | lower bound below −5 pp at native budget — the prediction holds everywhere and we have no accuracy result |
@@ -193,7 +193,7 @@ and why.
 ## 9. Cost
 
 | step | estimate |
-|---|---|
+|--------------------------------------------------------------------------|--------------------------|
 | distillation, 4 cells over ~60 sessions | ~US$ 1.30 |
 | answering, 7 arms × 400 | ~US$ 0.80 |
 | judging, ~2,800 items | ~US$ 0.25 |
@@ -214,7 +214,7 @@ is not n=400. And the window factor — the one production has and benchmarks do
 those 12.
 
 | option | what it buys | what it costs |
-|---|---|---|
+|-------------------------|------------------------------------------------------|---------------------|
 | **(a) publish the exploratory run as exploratory** | honest, cheap, available today; `2610.29823` publishes on one conversation and says so | no confirmation of anything, and the interaction rests on 8 sessions |
 | **(b) manipulate the window experimentally on this corpus** — truncate the prose artificially instead of using the window the builder happened to have | gives the factor variance in all 194 sessions, and makes it a manipulated variable rather than one confounded with session size | only **28** sessions hold ≥2 blocks of prose and **16** are unused; the truncated window is not the window production produces |
 | **(c) two legs: production for existence, a public corpus for the estimate** | the interaction is estimated on LoCoMo/LongMemEval with the window truncated under our control — large n, reproducible **by third parties**, which also answers the release problem — while production supplies what no benchmark can: that the window occurs naturally, and its magnitude (median 24.0% seen in the 200k–1M band) | two instruments to build and validate; the public-corpus leg inherits the criticism we make of benchmarks |
@@ -249,7 +249,7 @@ features the product did not have.
 sha256 prefix `d6f21ea9d60a0d56`. MIT.
 
 | | LoCoMo | **LongMemEval s_cleaned** |
-|---|---|---|
+|---------------------|-----------------------------------------|--------------------------------------|
 | independent units | 1,986 questions over **`list[10]` conversations** | **500 instances, 0 sharing a haystack** |
 | sessions per unit | 19 per conversation | 38–62, median 48 |
 | chars per unit | — | 454,980–513,953, median 489,763 |
@@ -283,7 +283,7 @@ adversarial pass (finding 6) pointed out that instances can share **component** 
 (`lme-independence.py`, `lme-answer-overlap.py`):
 
 | coupling | measured |
-|---|---|
+|---------------------------------------------|-------------------------------------------------------|
 | session ids appearing in more than one instance | **20.5%** of 19,195 distinct |
 | instances with zero shared sessions | **0 of 500** — median 36.0% of a haystack is non-exclusive |
 | pairs sharing ≥1 session | 4.30% · **max 3** of ~48, median 1 · **0 pairs** share ≥10 |
@@ -303,7 +303,7 @@ between outcomes.
 between-instance variance drops out of the interaction estimate.
 
 | factor | level 0 | level 1 |
-|---|---|---|
+|-----------|------------------------------------------------------------|-----------------------------|
 | **W** — window | **truncated**: the distiller sees the **most recent** sessions whose cumulative prose reaches 0.240 of the haystack's characters | **full**: all 38–62 sessions |
 | **C** — criterion | `DISTILL_SYSTEM` v1, verbatim as production ran it | `DISTILL_SYSTEM_V2`, v1 plus the verbatim-identifier paragraph |
 
@@ -331,7 +331,7 @@ not, the finding is about our cut.
 `see-once-denominator.py`). Every seen-fraction in the 200k–1M band:
 
 | session | total chars | visible | fraction |
-|---|---|---|---|
+|--------------------------|-----------------------|-----------------------|-----------------------------|
 | ea80140b | 248,614 | 4,867 | **0.020** |
 | 9c75f331 | 631,998 | 18,999 | **0.030** |
 | d37a5964 | 344,003 | 62,954 | 0.183 |
@@ -355,7 +355,7 @@ Worse, no primary contrast was named for a three-level factor, and a multi-degre
 test is not "superadditivity". The matrix is therefore fixed, once, here:
 
 | | C0 = `DISTILL_SYSTEM` v1 | C1 = v2 (+identifier paragraph) | role |
-|---|---|---|---|
+|----------------------------------|----------------------|-----------------------------|---------------|
 | **W = 0.240** (median seen-fraction) | cell 00 | cell 01 | **primary 2×2** |
 | **W = full** (all 38–62 sessions) | cell 10 | cell 11 | **primary 2×2** |
 | W = 0.020 (band minimum) | sens | sens | dose sensitivity |
@@ -384,7 +384,7 @@ four cells, which is what the interaction needs.
 ### 11.3 Controls
 
 | control | construction | required result |
-|---|---|---|
+|----------|-----------------------------------------------|-------------------------------------------|
 | **positive** | truncate so that **every** answer-bearing session is dropped (evidence is session-level; median 2 answer sessions, **0 instances with none**, so this is always constructible) | accuracy at floor. If a cell with no evidence still answers, the pipeline is reading something it should not |
 | **negative** | truncation that drops only non-answer sessions, keeping all evidence | accuracy ≈ the full-window cell. A drop here means truncation hurts through something other than losing evidence, and the interaction estimate is contaminated |
 | **fidelity** | the W1C1 cell re-run against our own replay harness | must reproduce the arm-C/D numbers on our prose, as C_visible reproduced B's 42.4%/7.1% exactly |
@@ -395,7 +395,7 @@ positive control — pass — and keeps the full-window accuracy in the negative
 required results are necessary and **not** sufficient, and two more legs are added:
 
 | control | construction | required |
-|---|---|---|
+|-------------|----------------------|-----------------------------------------------------------------|
 | **answerable floor** | the full-window cell on the same instances | accuracy **above** a pre-set minimum. A pipeline that cannot answer *with* the evidence makes the other controls vacuous |
 | **paired diagnosis** | per-item, not aggregate | the negative control's equality must hold **item-wise within a margin**, because aggregate equality hides compensating losses and gains |
 
@@ -427,7 +427,7 @@ constructed context at all. Every control above tests the *outcome* of the causa
 that the path was walked. One more leg does:
 
 | control | construction | required |
-|---|---|---|
+|---------------|-----------------------------------------------|--------------------------------------|
 | **counterfactual evidence** | on a seeded 40-item subsample, rewrite the answer-bearing session so the fact itself differs (a date shifted, an identifier changed), leaving the question, the haystack size and the annotation untouched | the answer must follow the **altered** fact. A pipeline that returns the original reference answer has not read the context, and no aggregate control can see that |
 
 This is the only control here that distinguishes *answering correctly* from *answering from the
@@ -450,7 +450,7 @@ mislabelled: 21.4 pp is production's **total** effect, not its interaction, and 
 raw discordance. The governing numbers are in *Resized twice* below.
 
 | effect to detect *(column mislabelled "interaction" in the original)* | paired n | cost | distiller calls | wall-clock at 8 concurrent |
-|---|---|---|---|---|
+|---------------------------------------------------------|--------|------|-----------|-------------------|
 | **21.4 pp** — production's **total** effect, mislabelled here as interaction | **52** | **US$ 20** | 31.6k | ~2.2 h |
 | 15 pp | 105 | US$ 40 | 63.8k | ~4.4 h |
 | 10 pp | 236 | US$ 90 | 143k | ~10 h |
@@ -492,7 +492,7 @@ effect as $\delta$. Two adversarial voices from different families found this in
 (`audits/2026-10-27-codex-and-deepseek-on-the-prereg.md`), and the arithmetic is the document's own:
 
 | quantity | value |
-|---|---|
+|----------------------------------------------------------------------|------------------------------|
 | main effect, window alone | **+4.1 pp** |
 | main effect, criterion alone | **+4.1 pp** |
 | **interaction** | **+13.0 pp** |
@@ -511,7 +511,7 @@ fitting the corpus — the three facts that this design now rests on.
 #### The interaction does not fit, so it is not the primary
 
 | estimand | $\delta$ | n at α=0.03, Var=0.973 | n at Var=3.347 |
-|---|---|---|---|
+|----------------------------------------------------|----------|-------------------------|------------|
 | **total effect** — repairing both against repairing neither | 21.2 pp | **196** | 675 |
 | interaction against 0 | 13.0 pp | 522 — **exceeds the corpus** | 1,796 |
 | interaction against the serial null (below) | 12.6 pp | 556 — **exceeds the corpus** | 1,911 |
@@ -521,7 +521,7 @@ repairing window *and* prompt together recovers the deficit. The interaction bec
 **pre-registered secondary** whose power is stated out loud rather than assumed:
 
 | n | power for the total effect | for the interaction |
-|---|---|---|
+|-----------------------------|-----------------------------------------|------------------------------|
 | **200** (stage 1) | **80.8%** | **38.0%** |
 | 240 | 87.7% | 44.9% |
 | 500 (whole corpus) | 99.6% | 78.1% |
@@ -537,7 +537,7 @@ The first resize varied an exchangeable within-instance correlation ρ ∈ [0, 0
 maximum the worst case:
 
 | ρ | 0.0 | 0.2 | 0.4 | 0.6 |
-|---|---|---|---|---|
+|-----------------------------|------------------|------------------|------------------|------------------|
 | `Var(D)` | 0.973 | 0.779 | 0.584 | 0.390 |
 
 🔴 **That is a maximum inside a dependence family chosen by the author, not an upper bound for
@@ -568,7 +568,7 @@ The model is not merely a caveat, because it is **fitted and testable**. Scale-f
 determine the fourth: `Y11 = Y01·Y10/Y00`. On our own measured cells that predicts
 
 | | Y11 | implied interaction |
-|---|---|---|
+|-------------------------------------------------|------------|---------------------------------------|
 | serial chaining predicts | 0.5100 | **+0.4 pp** |
 | production measured | 0.6360 | **+13.0 pp** |
 
@@ -588,7 +588,7 @@ are these, from measured unit costs (US$ 6.22e-4 per block, US$ 6.4e-5 per judge
 proportional to prose seen (5 / 59 / 219 / 245 at W = 0.020 / 0.240 / 0.894 / full):
 
 | component | n | blocks | cost |
-|---|---|---|---|
+|--------------------------------------------------------|------|---------------|-----------------------|
 | primary 2×2 | 200 | 121,600 | US$ 75.7 |
 | dose sensitivity, 4 cells | 60 | 26,880 | US$ 16.7 |
 | counterfactual-evidence control | 40 | 24,320 | US$ 15.1 |
@@ -623,7 +623,7 @@ that make it interpretable. Wall-clock for stage 1 is ~6 h at 8 concurrent.
 author hoped:
 
 | primary CI (total effect) | conclusion |
-|---|---|
+|-----------------------------------|-----------------------------------------------------------------|
 | excludes 0, contains 21.2 pp | repair confirmed, **consistent** with production's magnitude |
 | excludes 0, entirely below 21.2 pp | repair confirmed and **smaller** than production's |
 | excludes 0, entirely above 21.2 pp | repair confirmed and **larger** than production's |
@@ -634,7 +634,7 @@ author hoped:
 And for the secondary, against the serial null:
 
 | secondary CI (interaction − `I_serial`) | conclusion |
-|---|---|
+|-------------------------------------|---------------------------------------------------------------|
 | excludes 0 from above | joint repair beyond serial chaining — the mechanism claim survives |
 | contained in (−5, +5) pp | **serial chaining explains the effect**; joint repair **refuted** |
 | contains 0, wider | underpowered at this corpus, as §11.4 predicted in advance |
@@ -668,7 +668,7 @@ And for the secondary, against the serial null:
    was-meant-to-remove.md`):
 
    | contrast | family 1 | family 2 | difference |
-   |---|---|---|---|
+|----------------------------------------------------------------|-----------|------------|-------------|
    | **`d_full − c_all`** — full window both sides, only the prompt differing | **+8.1 pp** | **+21.2 pp** | **13.1 pp** |
 
    **The difference between families exceeds the effect one of them reports.** The disagreement is
@@ -733,7 +733,7 @@ The adversarial pass (Codex, `gpt-6-astra`, `exit: 0`, 155 s, full parecer in
 place; two need work that is not textual.
 
 | # | finding | state |
-|---|---|---|
+|---|----------------------------------------------------|---------------------------------------------|
 | 1 | manipulated factor changed meaning — dose in sessions not characters, truncation inverted | ✅ **corrected** (§11.2); the mechanism-vs-truncation gap now declared, not hidden |
 | 2 | a production statistic parameterises the public leg ⇒ legs not independent in the broad sense | ✅ **declared**; the 0.240's denominator and spread still owed |
 | 3 | power not demonstrated for the additive contrast; α and scale mismatched; one inverted sentence | ⚠️ **OPEN** — the n column is provisional until resized |
