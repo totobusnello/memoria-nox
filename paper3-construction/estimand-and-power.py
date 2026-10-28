@@ -43,6 +43,7 @@ THREE THINGS IT ESTABLISHES, each of which changed the design:
 Pure arithmetic over the four published cell means. No network, no database,
 nothing to mutate. Run: python3 paper3-construction/estimand-and-power.py
 """
+import pathlib
 import sys
 from statistics import NormalDist
 
@@ -55,6 +56,7 @@ Y00, Y01, Y10, Y11 = 0.424, 0.465, 0.465, 0.636
 CORPUS = 500          # LongMemEval s_cleaned, after §11.1's exclusions
 POWER = 0.80
 ALPHA_STAGE1 = 0.03   # the alpha stage 1 actually spends
+ALPHA_STAGE2 = 0.02   # and stage 2's, which only the document used to carry
 
 
 def n_required(delta, var, alpha, power=POWER):
@@ -196,7 +198,45 @@ def main():
               f"{power_at(n, interaction, var_ex, ALPHA_STAGE1) * 100:13.1f}% "
               f"{power_at(n, interaction - i_serial, var_ex, ALPHA_STAGE1) * 100:11.1f}%")
 
-    print("\n=== 6. the gate ===")
+    print("\n=== 6. is an equivalence verdict reachable at all? ===")
+    # This exists because the document once pre-set a 5 pp equivalence margin and called
+    # an interval inside it "evidence of absence". No n this corpus allows produces an
+    # interval that narrow, so the state was unreachable — and nothing here noticed,
+    # because this script only ever checked POWER, which is about DETECTING an effect,
+    # not about BOUNDING one. An adversarial pass (GLM-5.3, 2026-10-27) did the
+    # arithmetic the gate was missing. A gate blind to the claim it should protect is
+    # itself the defect.
+    margin = 0.05
+    print(f"  margin {margin * 100:.0f} pp, Var(D)={var_ex:.3f}")
+    print(f"  {'n':>6}  {'SE':>8}  {'alpha':>6}  {'half-width':>11}  inside margin?")
+    reachable_in_corpus = False
+    for n in (200, CORPUS, 1000, 2000, 3000):
+        for a in (ALPHA_STAGE1, ALPHA_STAGE2):
+            se = (var_ex / n) ** 0.5
+            hw = ND.inv_cdf(1 - a / 2) * se
+            if hw < margin and n <= CORPUS:
+                reachable_in_corpus = True
+            print(f"  {n:>6}  {se * 100:>7.2f}pp  {a:>6}  {hw * 100:>10.2f}pp  "
+                  f"{'yes' if hw < margin else 'no'}")
+    n_equiv = var_ex * (ND.inv_cdf(1 - ALPHA_STAGE2 / 2) / margin) ** 2
+    print(f"  an interval inside +/-{margin * 100:.0f} pp needs n={n_equiv:.0f}, "
+          f"corpus has {CORPUS}")
+    if reachable_in_corpus:
+        print("  ! equivalence became reachable within the corpus — the decision tables "
+              "should regain an absence state, and this note be re-examined")
+        ok = False
+    else:
+        print("  -> not reachable: a CI containing 0 must be reported INCONCLUSIVE, "
+              "never as absence")
+        plan = (pathlib.Path(__file__).resolve().parent
+                / "PREREGISTRATION-DRAFT.md").read_text(encoding="utf-8")
+        for promise in ("evidence of absence at the pre-set margin",
+                        "Equivalence margin, pre-set"):
+            if promise in plan:
+                print(f"  ! the plan still promises an absence verdict: {promise!r}")
+                ok = False
+
+    print("\n=== 7. the gate ===")
     n_inter = n_required(interaction, var_ex, ALPHA_STAGE1)
     print(f"  primary (total effect) needs n={n_primary:.0f}, corpus has {CORPUS}: "
           f"{'FITS' if n_primary <= CORPUS else 'DOES NOT FIT'}")

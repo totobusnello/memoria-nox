@@ -275,6 +275,30 @@ this leg cannot carry an abstention claim, and nothing here is planned on one.
 
 ### 11.2 Unit, design, factors
 
+🔴 **The instrument, named here because §11 did not name it.** Every parameter below
+lived only in §2, and §3's boundary note declares §§1–10 *history, not instruction* — so the section
+that governs specified no model, no temperature, no thresholds, and the controls in §11.3 were
+validating a machine the plan never described. A third adversarial family named it (GLM-5.3). A
+pre-registration whose instrument is unnamed makes any implementation conforming, which is the
+freedom pre-registration exists to remove. The values are not new; they are the deployed ones,
+moved into the section that binds:
+
+| component | fixed value |
+|-----------|-------------|
+| extractor | `gemini-2.5-flash-lite`, temperature **0.1**, `responseMimeType: application/json` |
+| item ceiling | **10** per block |
+| salience cut | `importance >= 0.5` |
+| blocking | `BLOCK_SIZE = 2000`, the deployed algorithm, which never splits a line |
+| answerer | `gemini-2.5-flash-lite`, temperature **0**, deployed `ANSWER_SYSTEM`, which permits `NAO SEI` |
+| judge | `gpt-6-luna` via the Decisions API, the predicates and 4-level scale already in use |
+| criterion level 0 | `DISTILL_SYSTEM` v1, verbatim as production ran it |
+| criterion level 1 | `DISTILL_SYSTEM_V2` — v1 plus the verbatim-identifier paragraph |
+
+⚠️ **Serving is the one piece still not pinned here.** §11.5 records the served context length per
+cell, which presupposes a retrieval-and-serving procedure over the distilled units; that procedure
+is described only in §§1–10. Until it is written into this section, the per-cell length record is a
+measurement of something the plan does not define, and that limit is declared rather than hidden.
+
 **Unit of inference: the instance** — with the coupling measured, not asserted.
 
 🔴 The first draft said *"500 of them, no shared haystacks, so n is n"*. That compared the sorted
@@ -396,7 +420,7 @@ required results are necessary and **not** sufficient, and two more legs are add
 
 | control | construction | required |
 |-------------|----------------------|-----------------------------------------------------------------|
-| **answerable floor** | the full-window cell on the same instances | accuracy **above** a pre-set minimum. A pipeline that cannot answer *with* the evidence makes the other controls vacuous |
+| **answerable floor** | the full-window cell on the same instances | accuracy **at or above 50.0%**. A pipeline that cannot answer *with* the evidence makes the other controls vacuous |
 | **paired diagnosis** | per-item, not aggregate | the negative control's equality must hold **item-wise within a margin**, because aggregate equality hides compensating losses and gains |
 
 And two asymmetries to state rather than assume:
@@ -406,8 +430,18 @@ And two asymmetries to state rather than assume:
 - answering **without** the annotated evidence does not prove improper access — prior knowledge,
   cues in the question, unannotated redundancy and judge false positives all produce it. *"No marked
   session"* is not demonstrably *"no usable information"*, and the completeness of the evidence
-  annotation is itself unverified. The final text states a quantitative floor and an equivalence
-  margin instead of the words "floor" and "≈".
+  annotation is itself unverified.
+
+🔴 **The floor is 50.0%, fixed here, and here is where it comes from.** For two revisions this read
+*"a pre-set minimum"* and promised that "the final text" would state a number — which is deciding
+the pass **after** seeing the data, the exact freedom a pre-registration exists to remove. The
+number is derived, not picked: the deployed system scores **42.4%** on this corpus and the repaired
+one **63.6%**, so a full-window cell below 50.0% sits closer to the unrepaired system than to the
+repaired one while holding all the evidence, and nothing it then says about repair is interpretable.
+At n=200 the standard error of a proportion near 0.5 is 3.5 pp, so 50.0% is about 2.2 standard
+errors above 42.4% — far enough from the unrepaired accuracy to be a real test rather than a
+rounding of it. **If the floor fails, the run is reported as an instrument failure and the primary
+is not interpreted**, rather than reported as a null.
 
 🔴 **The added legs are still not sufficient, and the second adversarial pass exhibited the
 pipeline that beats all of them** (`audits/2026-10-27-codex-and-deepseek-on-the-prereg.md`,
@@ -604,13 +638,24 @@ that make it interpretable. Wall-clock for stage 1 is ~6 h at 8 concurrent.
 
 - **Stage 1: n = 200**, sampled by seed, stratified by question category. **US$ 108.** α = 0.03.
 - **Stage 2: all 500** (+US$ 189), α = 0.02. No third stage, whatever stage 2 returns.
-- **Stop at stage 1** if the primary CI excludes 0 **and** lies entirely above the equivalence
-  margin below. Otherwise go to stage 2. There is no futility stop on the primary: at n=200 it has
-  80.8% power, so a non-significant stage 1 is uninformative rather than negative.
-- **Equivalence margin, pre-set: 5 pp.** A primary CI contained entirely in (−5, +5) pp is
-  **evidence of absence** of a materially useful joint repair, not an inconclusive result. Without
-  this margin no outcome could refute the thesis — the defect the adversarial pass named, and the
-  reason the margin is fixed here rather than chosen on sight of the data.
+- **Stop at stage 1** if the primary CI excludes 0 **and** lies entirely above **+5 pp**. Otherwise
+  go to stage 2. (The earlier wording, *"lies entirely above the equivalence margin"*, read as either
+  −5 or +5 pp; under the first reading a CI of (1, 4) would have declared a confirmed repair and an
+  absent effect at the same time.) At n=200 and `Var(D)=0.973` the half-width is 15.1 pp, so this
+  stop requires an observed effect above ~20 pp — about what production showed. There is no futility
+  stop on the primary: at n=200 it has 80.8% power, so a non-significant stage 1 is uninformative
+  rather than negative.
+- 🔴 **This design cannot produce evidence of absence, and says so instead of pretending otherwise.**
+  An earlier version of this section pre-set an equivalence margin of 5 pp and treated a CI inside
+  (−5, +5) pp as evidence of absence. That state is unreachable here, and the arithmetic is the
+  plan's own: at `Var(D)=0.973` the half-width is **10.3 pp at n=500** (α=0.02) and 15.1 pp at
+  n=200, so an interval narrow enough to sit inside ±5 pp needs **n ≈ 2,106** against a corpus of
+  500. Widening the margin until it is reachable does not rescue the test: a margin above 10.3 pp
+  would swallow the whole 13.0 pp interaction, so "equivalence" there would assert nothing.
+  Therefore **a primary CI containing 0 is reported as inconclusive, never as absence** — the form
+  §4 already used for the same reason. The cost is stated plainly: **no outcome of this study
+  refutes the repair thesis by showing the repair does nothing.** What the study can refute is the
+  *mechanism* claim, through the serial null, and that leg is intact.
 - **If no valid CI is obtainable** (separation, non-convergence): report the point estimate with a
   percentile bootstrap over **instances** (10,000 resamples, the instance as the resampling unit),
   and say which path produced the interval.
@@ -624,28 +669,37 @@ author hoped:
 
 | primary CI (total effect) | conclusion |
 |-----------------------------------|-----------------------------------------------------------------|
-| excludes 0, contains 21.2 pp | repair confirmed, **consistent** with production's magnitude |
-| excludes 0, entirely below 21.2 pp | repair confirmed and **smaller** than production's |
-| excludes 0, entirely above 21.2 pp | repair confirmed and **larger** than production's |
-| excludes 0, entirely **negative** | repairing both **hurts** on this corpus — contrary to the thesis |
-| contained in (−5, +5) pp | **no materially useful repair**; evidence of absence at the pre-set margin |
-| contains 0, wider than the margin | **underpowered or inconclusive**; report the interval, never a null |
+| excludes 0, contains 21.2 pp | repair confirmed; the interval **covers** production's point estimate |
+| excludes 0, entirely below 21.2 pp | repair confirmed, and **smaller on this corpus** than production's |
+| excludes 0, entirely above 21.2 pp | repair confirmed, and **larger on this corpus** than production's |
+| excludes 0, entirely **negative** | repairing both **hurts** on this corpus, contrary to the thesis |
+| contains 0 | **inconclusive**; report the interval, never a null. See the note above on why absence is not demonstrable at this n |
 
 And for the secondary, against the serial null:
 
 | secondary CI (interaction − `I_serial`) | conclusion |
 |-------------------------------------|---------------------------------------------------------------|
-| excludes 0 from above | joint repair beyond serial chaining — the mechanism claim survives |
-| contained in (−5, +5) pp | **serial chaining explains the effect**; joint repair **refuted** |
-| contains 0, wider | underpowered at this corpus, as §11.4 predicted in advance |
+| excludes 0 from above | joint repair beyond serial chaining; the mechanism claim survives |
+| excludes 0 from **below** | the interaction is **smaller** than serial chaining predicts; the mechanism claim is **refuted** |
+| contains 0 | **inconclusive.** Equivalence to the serial null is not declarable either, for the reason above: it would need n ≈ 2,106 |
 
 ### 11.5 Pre-specified sensitivity and threats
 
-1. **The 0.240.** Repeat at 0.12 and 0.48 on stage 1's sample. If the interaction's sign flips inside
-   that range, the result is about our truncation and not about windows, and must be reported that way.
-2. **Leading prefix vs scattered.** Production's prune removes the *oldest* sessions, so a leading
-   prefix is the right shape — but `haystack_dates[]` lets a scattered truncation be built, and one
-   arm of stage 1 does, as a shape check.
+1. **The 0.240.** Repeat at **0.020 and 0.894** on stage 1's sample — the observed min and max of the
+   six sessions the median rests on, which is the matrix §11.2 fixes. If the interaction's sign flips
+   inside that range, the result is about our truncation and not about windows, and must be reported
+   that way. (This item ordered *0.12 / 0.48* for two revisions after §11.7 recorded those as the
+   corrected error: they were chosen before the order statistics were computed and sit **inside** the
+   observed range, so they would have missed both ends.)
+2. 🔴 **The cut's shape is fixed, and the shape check is NOT bought.** This item used to read
+   *"production's prune removes the oldest sessions, so a leading prefix is the right shape"* — the
+   exact sentence §11.2 quotes as **wrong**. It is wrong for the reason given there: if the prune
+   removes the oldest, what the distiller sees is the most **recent**, so a leading prefix keeps
+   precisely what the prune discarded. The cut is the **recency tail**, in §11.2 and here.
+   `haystack_dates[]` would allow a scattered truncation as a shape check, and this item used to
+   promise one arm of stage 1 would run it — **no such arm is in the cost table**, at either stage.
+   Rather than carry an unbudgeted promise into a frozen document: the shape check is **not run**,
+   and the result's sensitivity to cut shape is **unmeasured**, declared here as a limit.
 3. **The benchmark inherits the criticism we make of benchmarks.** LongMemEval sessions are
    synthesised dialogue, not an agent working; identifier density is lower than in our prose, and the
    criterion factor acts precisely on identifiers. ⇒ the criterion effect measured here is **an
@@ -708,11 +762,11 @@ And for the secondary, against the serial null:
    [+8.1 · +21.2] pp across judge families**, never as one family's figure, unless a human pass
    picks between them. The human validation of §7 must therefore reach the **primary contrast**, and
    its job is now stated precisely: collapse this bracket.
-8. 🔴 **The factorial does not identify the mechanism.** The prompt changes identifier survival *and*
+10. 🔴 **The factorial does not identify the mechanism.** The prompt changes identifier survival *and*
    unit count, length, selection and retrievability together. A positive interaction does not
    establish that identifier survival governs the effect, so the mechanism claim is not among the
    confirmatory conclusions.
-9. 🔴 **Pointwise equality of accuracy does not refute a retention claim.** The README notes this and
+11. 🔴 **Pointwise equality of accuracy does not refute a retention claim.** The README notes this and
    then presents the result as a refutation of `2601.00821`'s prediction anyway. The defensible claim
    is narrower: our intervention closes the *accuracy* gap under native budget on our corpus, while
    verbatim retention remains unreached (12.9% ≠ 100%).
@@ -735,13 +789,19 @@ place; two need work that is not textual.
 | # | finding | state |
 |---|----------------------------------------------------|---------------------------------------------|
 | 1 | manipulated factor changed meaning — dose in sessions not characters, truncation inverted | ✅ **corrected** (§11.2); the mechanism-vs-truncation gap now declared, not hidden |
-| 2 | a production statistic parameterises the public leg ⇒ legs not independent in the broad sense | ✅ **declared**; the 0.240's denominator and spread still owed |
-| 3 | power not demonstrated for the additive contrast; α and scale mismatched; one inverted sentence | ⚠️ **OPEN** — the n column is provisional until resized |
+| 2 | a production statistic parameterises the public leg ⇒ legs not independent in the broad sense | ✅ **declared**; the 0.240's denominator and spread are now in §11.2 (n=6, [0.020 .. 0.894]) |
+| 3 | power not demonstrated for the additive contrast; α and scale mismatched; one inverted sentence | ✅ **closed** — resized twice (§11.4); the primary is the total effect, the interaction a secondary that no n this corpus allows powers |
 | 4 | decision labels contradicted their own intervals | ✅ **rewritten** (§11.4); 8 pp demoted to a power target |
-| 5 | both controls pass for a constant `NAO SEI` | ✅ **two legs added** (§11.3); quantitative floor and margin still owed |
+| 5 | both controls pass for a constant `NAO SEI` | ⚠️ **PARTIAL** — two legs added (§11.3), but the **answerable floor is still a word, not a number**. See the row below |
 | 6 | independence asserted; four claims not derived | ✅ **measured** (§11.2: 2.0% evidence-coupled ⇒ cluster-robust SE) and the four claims withdrawn or narrowed (§11.5) |
 
-**Both blocking items are now closed, 2026-10-27, and each changed the design:**
+⚠️ **Read this table against the prose below it.** Until 2026-10-27 the table said rows 3 and 5 were
+open while the paragraph under it announced that both blocking items were closed — a state marker
+and a claim about the same state, contradicting each other in the same screen. Row 3 is genuinely
+closed. Row 5 is **not**, and saying so is the correction: the floor's number is owed, and the
+remaining open item is listed with the others at the end of this section.
+
+**The two items that blocked the first pass are closed, 2026-10-27, and each changed the design:**
 
 1. ⚠️ **Resized, then resized again — the first pass fixed one leg of two**
    (`power-additive.py`, then `estimand-and-power.py`). It corrected `Var(D)` to 0.973 and took n
