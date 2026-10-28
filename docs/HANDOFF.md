@@ -1,3 +1,48 @@
+## ▶ Terça 27/10, 23h30 BRT — o pré-registro do paper 3 está PUBLICADO, e a corrida é a próxima ação
+
+**DOI [`10.5281/zenodo.23716613`](https://doi.org/10.5281/zenodo.23716613)** · concept
+`10.5281/zenodo.23716612` · tag `paper3-prereg-v1.0` → `23ee59f` · card em
+[labf.bio](https://www.labf.bio/papers/construction-before-search).
+
+**Publicado ANTES de qualquer braço rodar.** Nada foi executado sob este plano. A tag congelou:
+um DOI público a cita, então ela não se move mais — mudança agora é versão nova do registro.
+
+**▶ PRÓXIMA AÇÃO: o estágio 1.** n=200, α=0.03, **US$ 108**, ~6 h a 8 concorrentes. Até US$ 297
+se o estágio 2 (500 instâncias, α=0.02) rodar. **Só sob pedido do Toto.**
+
+### O que o plano pode e não pode decidir, para não ser relido errado
+
+| | |
+|---|---|
+| primário | efeito **total** de consertar janela + prompt. 99,6% de poder em n=500, 80,8% em n=200 |
+| secundário | a **interação** (13,0 pp). 78,1% no corpus inteiro — declaradamente sem poder |
+| nulo substantivo | encadeamento **serial**, que prevê +0,4 pp contra os +13,0 pp medidos — 33× |
+| 🔴 o que NÃO faz | **nenhum resultado refuta a tese mostrando que o reparo não faz nada.** Em n=500 nenhum IC é estreito o bastante para limitar o efeito perto de zero; equivalência exigiria n≈2.106 |
+
+### Como o documento chegou aqui, em um parágrafo
+
+Três famílias adversariais leram antes do depósito, e **cada uma achou defeito que as anteriores
+introduziram**. Codex e DeepSeek moveram o primário (o poder dimensionava a interação com o efeito
+total). GLM achou sete, e o pior era meu, do mesmo dia: a margem de equivalência que eu tinha
+acrescentado para tornar a tese refutável era **inalcançável em qualquer n do corpus** — e o
+`estimand-and-power.py`, escrito no mesmo dia como gate contra essa classe, não viu, porque media
+**poder** (detectar um efeito) e não **limite** (bound). Hoje a seção 6 faz essa conta, com mutação
+testada. Audits: `audits/2026-10-27-codex-and-deepseek-on-the-prereg.md` e
+`audits/2026-10-27-glm-on-the-final.md`.
+
+⚠️ **Duas famílias não entregaram** e o motivo não foi a voz: grok morreu três vezes no tempo de
+parede (~60 KB não voltam em 480 s), gemini não chegou a invocar o runner em 2 h. E o
+`verify-vozes-http.sh` diz `ok` com a conta **sem saldo** — o predicado dele é autenticação, e
+saldo só aparece com key válida, que ele nunca manda.
+
+### Pendências herdadas, nenhuma bloqueia a corrida
+
+- conserto do destilador (see-once + prompt) e `retention_days` explícito — **depois** da corrida
+- duas lacunas do Kimi em aberto: efeito **por query** da duplicação; estabilidade dos rankings v2→v3
+- `/root/.openclaw/reports/prazos/prazos-2026-10-26.md` nunca lido
+
+---
+
 ## ▶ Terça 27/10, 11h05 BRT — régua PT-BR: o gate era vermelho PARA SEMPRE, e 9 queries estavam fora na direção que nos favorece
 
 Audit `audits/2026-10-27-ptbr-ruler-the-gate-and-the-eleven.md`. Custo **zero** (tudo read-only; nenhuma
