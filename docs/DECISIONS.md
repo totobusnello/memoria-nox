@@ -3321,3 +3321,34 @@ caracteres são amostradas por duas janelas de 20k, logo o tax delas é medido s
 
 `audits/2026-10-26-faithfulness-replay.md`,
 `audits/2026-10-26-replay-{build,generate,answer,judge,report}.py`.
+
+
+### D-2026-11-01 — Notas-modelo do `create-daily-notes.sh`: cron desligado, 41 chunks e 810 arquivos fora
+
+**Contexto.** O cron de agente `daily-notes-auto-create` (main, 23:55 BRT) rodava o
+`workspace/tools/create-daily-notes.sh`, que para todo agente sem nota no dia gravava um heredoc fixo:
+"OpenClaw: 2026.4.11", "Plugins ativos: 13", "Nenhuma tarefa ativa registrada hoje". Conteúdo falso
+(versão e contagem de plugins de abril) e uma afirmação de "sem tarefa" feita para agente que apenas não
+escreveu. Efeitos medidos em 01/11: 832 notas com a marca nos 6 agentes e **41 chunks** no banco; e o
+check 3 do `sync-verify.sh` ("agente sem daily note") ficava cego, porque o placeholder fabricava o sinal.
+
+**Decidido pelo Toto (2026-11-01):** desligar o cron e limpar o que ele deixou.
+
+**Execução e validação:**
+1. Cron desativado (backup do job em `/root/_archive/cron-disabled/`; openclaw-vps#70).
+2. Chunks: `/root/nox-purge-placeholder-notes-2026-11-01.mjs`, mesmo molde e mesmas proteções do
+   `nox-purge-imports-2026-09-30.mjs` (D-2026-09-30). Escopo = `chunk_type='daily'`, < 260 caracteres e as
+   duas marcas, ou seja, chunk que é **só** o modelo. 41 removidos, 0 protegidos, 0 com seção;
+   `ops_audit` **399** (`purge-placeholders-2026-11-01`, snapshot 1,58 GB em `pre-op/`), 7/7 invariantes ok
+   (total, FTS, mapa e vetores caindo juntos, seções iguais). 62.545 → 62.504 chunks. 35 dos 41 vinham de
+   `memory/AAAA-MM-DD.md` compartilhado e o texto **já não estava no arquivo**: eram órfãos.
+3. Arquivos: só os **byte-idênticos** ao heredoc para aquela data e agente (810) saíram do disco, empacotados
+   antes em `/root/_archive/placeholder-daily-notes-20261101.tgz` (+ `.list`), conferido 810 = 810. As **22
+   editadas** (o agente escreveu depois do modelo) ficaram intactas, com o bloco falso dentro; duas delas
+   (forge 21/09, cipher 30/04) ainda contêm o modelo e podem recriar o chunk se forem reingeridas.
+
+**Consequência esperada:** o `sync-verify.sh` volta a acusar agente sem nota diária (atlas e lex, heartbeat
+de 6 h). É o sinal verdadeiro que estava escondido, não regressão.
+
+⚠️ `withOpAudit` recusa `opName` fora de `/^[a-z0-9-]{1,32}$/` **antes** do snapshot, então nada é escrito —
+a primeira tentativa abortou assim, sem efeito.
