@@ -7,7 +7,13 @@
 > (`stage1-manifest.json`), how memory is served, the controls' samples and thresholds, a judge
 > preflight and the second judge family on every row. The runner (`lme-run.py`) and the keyless
 > analysis (`lme-analyze.py --check`) are frozen in the code archive. A declared smoke on 8
-> excluded instances is in `runs/smoke-2026-11-03/`. Stage 1 is the next step: n=200, ≈ US$ 20.
+> excluded instances is in `runs/smoke-2026-11-03/`. Stage 1 ran on 2026-11-03.
+>
+> **Stage 1 = instrument failure** (`STAGE1-RESULT.md`): the answerable floor failed, acc(11) =
+> 0.210 < 0.50, so the primary is not interpreted. **v1.2 (§13, in registration)** changes only the
+> reader: four candidates (`READERS` in `lme-run.py`) are calibrated on the spent stage-1 instances,
+> cell 11 and the positive control only (`reader-calibration.py`), and the selected one is confirmed
+> on the 262 untouched instances in one stage at α 0.05 (`v12-manifest.py`).
 
 > ✅ **DEPOSITED AND PUBLISHED 2026-10-27** — [`10.5281/zenodo.23716613`](https://doi.org/10.5281/zenodo.23716613)
 > (concept [`10.5281/zenodo.23716612`](https://doi.org/10.5281/zenodo.23716612), always the latest
