@@ -53,7 +53,9 @@ ND = NormalDist()
 # Y[w][c]: w = window (0 truncated, 1 full), c = criterion (0 v1, 1 v2).
 Y00, Y01, Y10, Y11 = 0.424, 0.465, 0.465, 0.636
 
-CORPUS = 500          # LongMemEval s_cleaned, after §11.1's exclusions
+CORPUS = 462          # v1.1 §12.1-12.2: 500 minus the 30 `_abs` minus the 8 smoke instances.
+                      # v1.0 said 500 "after §11.1's exclusions" — §11.1 excluded nothing,
+                      # because its census looked for `_abs` in the wrong field.
 POWER = 0.80
 ALPHA_STAGE1 = 0.03   # the alpha stage 1 actually spends
 ALPHA_STAGE2 = 0.02   # and stage 2's, which only the document used to carry

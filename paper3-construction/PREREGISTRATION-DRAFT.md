@@ -834,3 +834,209 @@ mechanical gate I ran on this document passed.
 used `if old in s: s = s.replace(...)` instead of an assert — a silent conditional that applied
 nothing and reported nothing, so the header kept saying something untrue for two commits. Every
 substitution in this file now asserts its anchor.
+
+---
+
+## 12. Amendment v1.1 (2026-11-03) — registered before any arm ran
+
+🔴 **Why this exists.** Reading a neighbouring evaluation programme that uses **the same file**
+(`gbrain-evals`, W8 control of 2026-10-06; its `longmemeval_s_cleaned.json` has sha256
+`d6f21ea9d60a0d56f34a05b609c79c88a451d2ae03597821ea3d5a9678c3a442`, byte-identical to ours) exposed
+a census error in §11.1: it excludes *"the 30 abstention questions"*, and our §11.1 says there are
+none. They are right. Fixing that showed that §11 leaves several things a run would have to choose
+— a seed, which full-window cell the floor applies to, the controls' sample and thresholds, how the
+memory is served — and **a choice made by the runner after the fact is the freedom a
+pre-registration exists to remove.** Every one is fixed here.
+
+**What has been seen before this amendment:** the smoke run of §12.2, on 8 instances that this
+amendment removes from every analysis. No stage-1 instance has been distilled, answered or judged.
+
+### 12.1 The 30 abstention instances — the census looked in the wrong field
+
+`lme-census.py` v1.0 tested `question_type.endswith("_abs")` and printed **0**. LongMemEval marks
+abstention on the **`question_id`** (`gpt4_70e84552_abs`, …). Corrected census, with a positive
+control that fails the script if a known `_abs` id is not matched:
+
+| | count |
+|---|---|
+| `_abs` on `question_id` | **30 of 500 = 6.0%** |
+| by category | multi-session 12 · temporal-reasoning 6 · knowledge-update 6 · single-session-user 6 |
+| the v1.0 predicate (`question_type`) | 0 |
+
+For these 30 the correct answer **is** *"the information is not enough"*: `NAO SEI` scores in all four
+cells, and the positive control (drop every answer session ⇒ floor) cannot sit at the floor on them.
+**Decision: the 30 are excluded from every analysis**, primary, secondary and controls. The
+universe is the **470 answerable** instances. §11.1's *"0 of 500"* and §11.5 item 4's reason are
+superseded on the count; the conclusion stands — **this leg carries no abstention claim.**
+
+### 12.2 A declared smoke run, and what it was allowed to change
+
+8 instances, drawn **first** from the 470 by the seed of §12.9 with a fixed allocation (multi-session
+2, temporal-reasoning 2, one each of the other four types), and **removed from stage 1 and stage 2**.
+The stage-2 universe is therefore **462**, and the corrected power is:
+
+| n | α | power, total effect (21.2 pp) | power, interaction (13.0 pp) |
+|---|---|---|---|
+| 200 (stage 1) | 0.03 | 80.8% | 38.0% |
+| **462** (stage 2) | 0.02 | **98.9%** | **69.4%** |
+
+`estimand-and-power.py` now carries `CORPUS = 462` and still exits 0: the primary fits, the
+interaction does not, equivalence needs n≈2,107.
+
+The smoke ran the four primary cells, the positive and negative controls and the length-matched arm
+on its 8 instances, plus the judge preflight of §12.7. **What it was allowed to change:** instrument
+defects only — a crash, a parse failure, a judge that accepts abstentions, a cost far from the
+estimate. **What it was not allowed to change:** any threshold, any estimand, any cell. Its
+accuracies are reported in §12.2.1 for transparency and are **not evidence** for anything.
+
+#### 12.2.1 What the smoke returned (8 instances, excluded; not evidence)
+
+Run 2026-11-03, `lme-run.py --phase smoke`. 5,390 distinct blocks, **0 failed**; 56 cell rows.
+
+| check | result | what it was allowed to change |
+|---|---|---|
+| pipeline end to end | ran; one crash before any judging — the OpenAI key on the run machine was revoked (HTTP 401); replaced, and the run resumed from cache | nothing in the design |
+| judge preflight (§12.7) | judge 1 accepted **0 of 16** abstentions; judge 2 **0 of 16** | — passes |
+| answerable floor | acc(11) = 4/8 | none (threshold kept) |
+| positive control | acc(pos) = 0/8 | none |
+| **negative control** | acc(neg) = 2/8 against acc(11) = 4/8, discordance 2/8 — **fails** | **none: the thresholds are kept** |
+| analysis | `lme-analyze.py` ran; one gap found — the cluster bootstrap of the serial-null contrast **silently dropped** resamples where acc(00) = 0. It now counts and reports them | instrument fix, made here |
+
+[limit] **The negative-control failure is reported, not repaired.** Both discordant items were read.
+`3249768e` asks for *"the fifth bottle"* of a recommended list: the evidence units are identical in
+both cells (§12.4), but serving sorts by `importance` (§12.3), so with fewer distractors between
+them the answerer read a different order. `gpt4_4cd9eba1` (temporal) answers `NAO SEI` in `neg` and
+in cell 10 and computes correctly in cell 11 — answerer instability on a borderline item. The first
+is exactly what this control exists to catch — a truncation that changes the answer through
+something other than losing evidence — so it is a property of the pinned serving, not a defect to
+fix after seeing it. Two consequences are fixed now: if stage 1 fails this control, §11.3 applies as
+written (the window and interaction estimates are reported as contaminated), and **ordinal
+questions about a list are a declared weakness of importance-ordered serving**, affecting every cell.
+
+The smoke accuracies (cell 00 0/8, cell 11 4/8, 4 of 8 instances with no answer session kept at
+W=0.240) are not reported as an effect and do not enter any analysis.
+
+### 12.3 Serving, question and unit format — the piece §11.2 declared unpinned
+
+§11.2 said *"serving is the one piece still not pinned here"*. Pinned, as the production arms served
+it (`audits/2026-10-27-arm-d-verbatim-identifiers-answer.py`, native budget, no `_iso` cap):
+
+- **material** = every unit of the cell's sessions, sorted by `importance` descending; ties by more
+  recent session, then block, then position in the extractor's output;
+- **each line** = `[<session date>] [<category>] <text>` — the session date is the record's own
+  metadata (a memory store keeps when a memory was written); without it no temporal question is
+  answerable in any cell, which would delete 127 of the 470 instances' contrast by construction;
+- **question** = `PERGUNTA (feita em <question_date>): <question>`, LongMemEval's own question date;
+- **answerer** = `ANSWER_SYSTEM` verbatim, `gemini-2.5-flash-lite`, temperature 0, 200 output tokens.
+
+### 12.4 Blocking per session, and one distillation per block
+
+- **Blocking is per session** — `session-distill` distils one transcript at a time, so a block never
+  spans two sessions. This yields **337 blocks per instance per criterion**, not the 245 of §11.4,
+  which divided characters by 2,000 as if the haystack were one transcript.
+- **A block is distilled once per criterion, and every window that contains it reuses the same
+  units.** The truncated memory is then an exact subset of the full one, so the window contrast
+  measures *which sessions were seen* and nothing about the extractor's sampling noise at
+  temperature 0.1. It also means sessions shared between instances (20.5% of session ids, §11.2) are
+  distilled once. This is common random numbers; it can only lower the variance of the contrasts.
+
+### 12.5 The controls, pinned
+
+| control | sample | cell | passes when |
+|---|---|---|---|
+| answerable floor | all stage-1 instances | **cell 11** (full window, C1) | acc ≥ **0.50** (§11.3's number; v1.0 did not say which of the two full-window cells) |
+| positive | `control_subsample`, 40 of stage 1 | full window **minus every answer session**, C1 | acc ≤ **0.10** |
+| negative | the same 40 | the W=0.240 cut applied to non-answer sessions **plus all answer sessions**, C1 | \|acc − acc(11)\| ≤ **0.10** and item-wise discordance with cell 11 ≤ **0.20** |
+| counterfactual | §12.6 | the four primary cells | §12.6 |
+
+v1.0 priced none of the positive and negative cells. Under §12.4 both are subsets of the full window
+and cost no distillation; they cost only their answer and judge calls.
+
+### 12.6 The counterfactual control — 31 instances, not 40, and a rule that knows its answer
+
+v1.0 asked for *"a seeded 40-item subsample"* whose rewrite is *"mechanical"* without counting how
+many instances admit a mechanical rewrite with a known answer. Counted:
+
+- **eligible** = the reference answer is ≤ 60 characters, **contains a number**, appears verbatim in an
+  evidence turn (`has_answer`), and appears **nowhere outside the answer sessions** (else the
+  original fact survives the rewrite);
+- **31 of the 462** qualify (14 of them in stage 1). The control runs on **all 31**; nothing is drawn;
+- **rewrite** = inside the answer sessions only, every case-insensitive occurrence of the answer
+  string is replaced by the altered string, where each number moves by **+3 if it is a year
+  (1900–2100), +7 otherwise** (`'45 minutes each way'` → `'52 minutes each way'`). No altered value
+  occurs anywhere in its original haystack (checked; 31 of 31);
+- **passes when**, in cell 11, answers carrying the **original** number are ≤ 10% of the 31 and
+  answers carrying the **altered** number outnumber them — a string test, no judge.
+
+### 12.7 The judges
+
+- **Preflight, from W8.** `gbrain-evals` measured LongMemEval's official judge accepting a "not
+  available" answer to an answerable question **19 times in 100**. Our judge 1 is different, but the
+  failure would silently void the positive control. The smoke therefore judges two abstentions
+  (`NAO SEI`, and the English one W8 quotes) against each smoke instance's reference. **Required:
+  judge 1 accepts 0 of 16.**
+- **Judge 2 on every row.** §11.5 item 9 makes the criterion effect a bracket across judge families
+  but v1.0 ran the second family nowhere in §11. Every answer is judged by both: judge 1
+  `gpt-6-luna` (Decisions API, confirmatory, unchanged) and judge 2 `gemini-2.5-flash-lite` with the
+  prompt of `audits/2026-10-27-second-family-judge.py`, verbatim.
+
+### 12.8 Predictions the design makes before the data — stated so they cannot be read as findings
+
+- **At W=0.240, 95 of the 200 stage-1 instances keep no answer session at all** and 31 keep all of
+  them (`stage1-manifest.json`, `cuts`). LongMemEval spreads evidence across time and the cut keeps
+  the most recent quarter, so cells 00 and 01 are unanswerable **by construction** on about half the
+  sample. The window's main effect here will be dominated by **evidence availability** — the `e_w` of
+  §11.4's serial null, not a construction effect. This is why the secondary is tested against the
+  serial null and not against zero, and the paper will say so in these words.
+- **single-session-preference (13 in stage 1) is expected near the floor in every cell.**
+  LongMemEval's rubric for it rewards advice that uses a remembered preference; an answerer told to
+  reply `NAO SEI` when the material lacks the answer treats a request for advice as a failed lookup.
+  `gbrain-evals` W10b shows this failure in a frontier-class reader (particle-1: 23 of 30) with a
+  prompt carrying the same instruction; our answerer is weaker. Reported per type, never removed.
+
+### 12.9 Every draw, by one seed
+
+`stage1-manifest.py` (seed **20261103**) writes `stage1-manifest.json`, sha256
+`9dc7e7287d2c6cd6607d85d7d6a3acbf5e13e671c6b31687ec726d3e3124b1aa`, in this order: the 30 `_abs` out → 8 smoke → the 462 → stage 1 (200,
+proportional to `question_type`, largest remainder) → dose subsample (60 of stage 1) → control
+subsample (40 of stage 1) → the 31 counterfactual instances. The runner refuses to start unless
+`stage1-manifest.py --check` exits 0. Stage-1 allocation: knowledge-update 31, multi-session 51,
+single-session-assistant 24, single-session-preference 13, single-session-user 27,
+temporal-reasoning 54.
+
+### 12.10 Runner and analysis, frozen
+
+`lme-run.py` implements §11 and §12 and nothing else; `lme-analyze.py` computes, in order, the
+controls, the primary with its licence label and stop rule, the judge-family bracket, the secondary
+against the serial null, the served-length adjustment and the length-matched arm, the dose signs,
+and the per-type description. Both ship in the code zip of this version. `lme-analyze.py --check`
+recounts every published number from `rows.ndjson` with no API key and exits 1 unless the output is
+byte-identical — a practice taken from `gbrain-evals`, whose findings ship the same check.
+
+### 12.11 Cost, re-estimated from the smoke
+
+Measured in the smoke from the providers' usage fields at list price: **US$ 1.13e-4 per distiller
+block** (5,390 blocks, US$ 0.61 — about a fifth of §11.4's production figure, because LongMemEval
+blocks yield far less extractor output) and **US$ 3.24e-3 per answer** (the full-window material
+averages ~161k characters). Judge 1 stays at §11.4's US$ 6.4e-5 per call; judge 2 is the same
+flash-lite and costs less than the answerer.
+
+| component | rows / blocks | cost |
+|---|---|---|
+| distillation, stage 1 (200 instances + 31 counterfactual variants, both criteria, §12.4 reuse) | 127,522 distinct blocks | US$ 14.4 |
+| answers, stage 1 (200 × 5 cells + 60 × 4 dose + 40 × 2 controls + 31 × 4 counterfactual) | 1,444 | US$ 4.7 |
+| both judges | 1,444 × 2 | < US$ 0.5 |
+| **stage 1 total** | | **≈ US$ 20** — against v1.0's US$ 108 |
+| stage 2, the remaining 262 instances, primary cells only | | ≈ US$ 23 |
+| smoke, already spent | | US$ 0.80 |
+
+The runner enforces a hard cap (`--cap-usd`); stage 1 runs with **US$ 40**, twice the estimate. The
+cost falls by a factor of five for two declared reasons — the measured unit cost and the reuse of
+§12.4 — and **nothing about the design is cheaper**: every cell, control and arm v1.0 priced is run,
+plus the positive and negative controls and the second judge it did not price.
+
+### 12.12 What this amendment does not change
+
+The primary estimand (total effect, judge 1), α 0.03 / 0.02, the stop rule, the licence tables of
+§11.4, the serial-null secondary, the dose levels, the length-matched arm, and the rule that a
+primary interval containing 0 is inconclusive and never a null.
