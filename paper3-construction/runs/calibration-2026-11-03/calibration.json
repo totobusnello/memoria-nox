@@ -1,0 +1,64 @@
+{
+ "calibration_sha256": "cb8d270868b9374e006ddef4172eaca0623583b777e6aea0d94218aaceffed3b",
+ "calls": {
+  "answer": 720,
+  "cached": 1606,
+  "distill": 0,
+  "failed": 0,
+  "judge": 554
+ },
+ "runner_sha256": "e56b0b4e29b9150a07d976d392065b4fae1bcda5df95a399f833d2811b4ff2e9",
+ "seconds": 482,
+ "selected": "NONE",
+ "spend_usd": 19.0339,
+ "summary": {
+  "R0": {
+   "abst11": 0.65,
+   "abstpos": 1.0,
+   "acc11_j1": 0.21,
+   "acc11_j2": 0.22,
+   "accpos_j1": 0.0,
+   "model": "gemini-2.5-flash-lite",
+   "pass": false,
+   "prompt": "A",
+   "stop_frac": 1.0,
+   "usd_per_answer": 0.004943097499999999
+  },
+  "R1": {
+   "abst11": 0.61,
+   "abstpos": 1.0,
+   "acc11_j1": 0.245,
+   "acc11_j2": 0.26,
+   "accpos_j1": 0.0,
+   "model": "gemini-2.5-flash-lite",
+   "pass": false,
+   "prompt": "B",
+   "stop_frac": 1.0,
+   "usd_per_answer": 0.004949450833333333
+  },
+  "R2": {
+   "abst11": 0.535,
+   "abstpos": 1.0,
+   "acc11_j1": 0.36,
+   "acc11_j2": 0.365,
+   "accpos_j1": 0.0,
+   "model": "gemini-3.8-flash",
+   "pass": false,
+   "prompt": "A",
+   "stop_frac": 1.0,
+   "usd_per_answer": 0.037099215625
+  },
+  "R3": {
+   "abst11": 0.32,
+   "abstpos": 0.95,
+   "acc11_j1": 0.505,
+   "acc11_j2": 0.51,
+   "accpos_j1": 0.025,
+   "model": "gemini-3.8-flash",
+   "pass": false,
+   "prompt": "B",
+   "stop_frac": 1.0,
+   "usd_per_answer": 0.0371613875
+  }
+ }
+}

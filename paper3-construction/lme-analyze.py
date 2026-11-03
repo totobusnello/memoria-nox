@@ -113,12 +113,14 @@ def main():
     if len(sys.argv) < 2:
         sys.exit(__doc__)
     run = pathlib.Path(sys.argv[1])
-    alpha = float(sys.argv[sys.argv.index("--alpha") + 1]) if "--alpha" in sys.argv else 0.03
+    receipt = json.load(open(run / "receipt.json"))
+    confirm = receipt["phase"] == "confirm"   # v1.2 §13.8: one stage, alpha 0.05, no stop rule
+    alpha = (float(sys.argv[sys.argv.index("--alpha") + 1]) if "--alpha" in sys.argv
+             else (0.05 if confirm else 0.03))
     z = NormalDist().inv_cdf(1 - alpha / 2)
     rows = [json.loads(l) for l in open(run / "rows.ndjson")]
     data = {r["question_id"]: r for r in json.load(open(DATA))}
     man = json.load(open(pathlib.Path(__file__).resolve().parent / "stage1-manifest.json"))
-    receipt = json.load(open(run / "receipt.json"))
     rng = random.Random(SEED)
 
     Y, Y2, R = defaultdict(dict), defaultdict(dict), defaultdict(dict)
@@ -192,10 +194,12 @@ def main():
     p(f"   {m*100:+.1f} pp  [{lo*100:+.1f} .. {hi*100:+.1f}]  (cluster-robust SE {se*100:.2f} pp, "
       f"G={G}) · acc00 {acc('00', prim)[0]:.3f} · acc11 {a11:.3f}")
     p(f"   licence: {licence(lo, hi) if floor_ok else 'NOT INTERPRETED (floor failed)'}")
-    stop = lo > 0.05
-    p(f"   stop at stage 1 (interval entirely above +5 pp): {'YES' if stop else 'NO -> stage 2'}")
     J["primary"] = {"est": m, "lo": lo, "hi": hi, "se": se, "clusters": G,
-                    "licence": licence(lo, hi), "stop_at_stage1": stop}
+                    "licence": licence(lo, hi)}
+    if not confirm:
+        stop = lo > 0.05
+        p(f"   stop at stage 1 (interval entirely above +5 pp): {'YES' if stop else 'NO -> stage 2'}")
+        J["primary"]["stop_at_stage1"] = stop
 
     # 2. bracket
     p("\n2. JUDGE-FAMILY BRACKET (§11.5 item 9)")
