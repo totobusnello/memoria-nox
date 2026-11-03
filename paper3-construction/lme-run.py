@@ -27,6 +27,12 @@ What v1.1 §12 pins and this file implements (nothing here is chosen after seein
   python3 -I lme-run.py --phase smoke  --out <dir> --yes      runs
   python3 -I lme-run.py --phase stage1 --out <dir> --yes --cap-usd 140
 
+  python3 -I lme-run.py --phase confirm --reader <R> --out <dir> --yes --cap-usd <usd>   (v1.2 §13)
+
+v1.2 §13 adds READERS: the reader is the only component v1.2 changes. R0 is the v1.1 reader and
+keeps its exact cache key, so smoke and stage 1 replay byte for byte; R1-R3 are the calibration
+candidates of §13.5. Phase `confirm` reads v12-manifest.json and requires --reader.
+
 Resumable: every call is cached in <out>/cache.sqlite under the hash of its exact input.
 """
 import argparse
@@ -84,6 +90,35 @@ Regras:
 - Se o material trouxer duas informações conflitantes, responda com a que o
   material indicar como final e diga que houve mudança. Se não houver como
   saber qual é a final, responda as duas e diga que o material não resolve."""
+
+# v1.2 §13.5 — prompt B, fixed before any calibration call. It changes three things against
+# ANSWER_SYSTEM and nothing else: it says what the material is (dated memories), it asks for the
+# combining LongMemEval questions need (count, compare, date arithmetic from the memories' dates
+# and the question's date), and it reserves NAO SEI for material with NOTHING relevant.
+ANSWER_SYSTEM_B = """Você responde perguntas sobre o usuário usando APENAS o material fornecido: memórias datadas, extraídas de conversas antigas dele, uma por linha no formato [data] [categoria] texto.
+
+Regras:
+- Leia todas as memórias relevantes para a pergunta. A resposta pode exigir juntar várias delas, contar itens, comparar ou ordenar eventos, ou calcular intervalos a partir das datas das memórias e da data em que a pergunta é feita. Faça esse raciocínio.
+- Responda em no máximo 25 palavras.
+- Responda exatamente NAO SEI somente se nenhuma memória do material for relevante para a pergunta.
+- Tudo o que você afirmar sobre o usuário tem de estar no material. Não use conhecimento próprio sobre ele.
+- Se o material trouxer informações conflitantes, use a mais recente e diga que houve mudança."""
+
+# id -> (model, system prompt, generationConfig, USD per input token, USD per output token).
+# Prices: Gemini Developer API list price, standard tier, read 2026-11-03 (ai.google.dev pricing);
+# output price includes thinking tokens. R0 is the v1.1 reader, untouched.
+READERS = {
+    "R0": ("gemini-2.5-flash-lite", "A", {"temperature": 0.0, "maxOutputTokens": 200},
+           0.10e-6, 0.40e-6),
+    "R1": ("gemini-2.5-flash-lite", "B", {"temperature": 0.0, "maxOutputTokens": 200},
+           0.10e-6, 0.40e-6),
+    "R2": ("gemini-3.8-flash", "A", {"temperature": 0.0, "maxOutputTokens": 2048,
+                                     "thinkingConfig": {"thinkingLevel": "low"}},
+           0.75e-6, 3.75e-6),
+    "R3": ("gemini-3.8-flash", "B", {"temperature": 0.0, "maxOutputTokens": 2048,
+                                     "thinkingConfig": {"thinkingLevel": "low"}},
+           0.75e-6, 3.75e-6),
+}
 
 CANON = "i have no memory matches for this question"
 
@@ -251,8 +286,8 @@ def post(url, body, hdr, timeout=180):
     raise RuntimeError(str(last))
 
 
-def gurl():
-    return (f"https://generativelanguage.googleapis.com/v1beta/models/{GMODEL}"
+def gurl(model=None):
+    return (f"https://generativelanguage.googleapis.com/v1beta/models/{model or GMODEL}"
             f":generateContent?key={os.environ['GEMINI_API_KEY']}")
 
 
@@ -291,23 +326,28 @@ def distill(cache, led, crit, block):
     return v
 
 
-def answer(cache, led, material, question):
-    k = h("answer", GMODEL, ANSWER_SYSTEM, material, question)
+def answer(cache, led, material, question, reader="R0"):
+    model, pid, gen, p_in, p_out = READERS[reader]
+    system = ANSWER_SYSTEM if pid == "A" else ANSWER_SYSTEM_B
+    if reader == "R0":   # the v1.1 key, so stage 1 and the smoke replay from their caches
+        k = h("answer", GMODEL, ANSWER_SYSTEM, material, question)
+    else:
+        k = h("answer", model, system, json.dumps(gen, sort_keys=True), material, question)
     hit = cache.get(k)
     if hit is not None:
         led.n["cached"] += 1
         return hit
-    d = post(gurl(), {
-        "systemInstruction": {"parts": [{"text": ANSWER_SYSTEM}]},
+    d = post(gurl(model), {
+        "systemInstruction": {"parts": [{"text": system}]},
         "contents": [{"parts": [{"text": f"MATERIAL:\n{material}\n\n{question}"}]}],
-        "generationConfig": {"temperature": 0.0, "maxOutputTokens": 200}},
+        "generationConfig": gen},
         {"Content-Type": "application/json"})
     c = (d.get("candidates") or [{}])[0]
     txt = "".join(p.get("text", "") for p in (c.get("content") or {}).get("parts") or []).strip()
     ti, to = g_usage(d)
     v = {"text": txt, "finish": c.get("finishReason"), "model_version": d.get("modelVersion"),
          "tin": ti, "tout": to}
-    led.add("answer", ti * G_IN + to * G_OUT)
+    led.add("answer", ti * p_in + to * p_out)
     cache.put(k, "answer", v)
     return v
 
@@ -451,7 +491,9 @@ def question_text(r):
 # ------------------------------------------------------------------ main
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--phase", choices=["smoke", "stage1"], required=True)
+    ap.add_argument("--phase", choices=["smoke", "stage1", "confirm"], required=True)
+    ap.add_argument("--reader", choices=sorted(READERS), default=None,
+                    help="v1.2 §13: required for --phase confirm; smoke and stage 1 are R0")
     ap.add_argument("--out", required=True)
     ap.add_argument("--data", default=os.path.expanduser(
         "~/datasets/longmemeval/longmemeval_s_cleaned.json"))
@@ -459,20 +501,39 @@ def main():
     ap.add_argument("--cap-usd", type=float, default=0)
     ap.add_argument("--yes", action="store_true")
     a = ap.parse_args()
+    if a.phase == "confirm" and not a.reader:
+        sys.exit("--phase confirm needs --reader (the one §13.10 records as selected)")
+    if a.phase != "confirm" and a.reader not in (None, "R0"):
+        sys.exit("smoke and stage 1 ran with R0; another reader there would not be a replay")
+    reader = a.reader or "R0"
 
     chk = subprocess.run([sys.executable, "-I", str(HERE / "stage1-manifest.py"), a.data, "--check"],
                          capture_output=True, text=True)
     if chk.returncode != 0:
         sys.exit(f"manifest check failed: {chk.stdout}{chk.stderr}")
     man = json.load(open(HERE / "stage1-manifest.json"))
+    man_path = HERE / "stage1-manifest.json"
+    if a.phase == "confirm":
+        chk = subprocess.run([sys.executable, "-I", str(HERE / "v12-manifest.py"), a.data, "--check"],
+                             capture_output=True, text=True)
+        if chk.returncode != 0:
+            sys.exit(f"v1.2 manifest check failed: {chk.stdout}{chk.stderr}")
+        man_path = HERE / "v12-manifest.json"
+        man = json.load(open(man_path))
     data = {r["question_id"]: r for r in json.load(open(a.data))}
 
     if a.phase == "smoke":
         qids, cf_ids = list(man["smoke"]), []
-    else:
+    elif a.phase == "stage1":
         qids, cf_ids = list(man["stage1"]), list(man["counterfactual"])
-    overlap = set(qids) & (set(man["smoke"]) if a.phase == "stage1" else set(man["stage1"]))
-    assert not overlap, f"smoke and stage 1 overlap: {overlap}"
+    else:
+        qids, cf_ids = list(man["confirm"]), list(man["counterfactual"])
+    if a.phase == "confirm":
+        overlap = set(qids) & (set(man["smoke"]) | set(man["stage1"]))
+        assert not overlap, f"confirmatory sample touches spent instances: {overlap}"
+    else:
+        overlap = set(qids) & (set(man["smoke"]) if a.phase == "stage1" else set(man["stage1"]))
+        assert not overlap, f"smoke and stage 1 overlap: {overlap}"
 
     # every (instance-variant, criterion, session, block) the run needs
     variants = {q: data[q] for q in qids}
@@ -551,7 +612,7 @@ def main():
 
     # 3. answer + 4. judge
     def run(j):
-        av = answer(cache, led, j["material"] or "(vazio)", j["question"])
+        av = answer(cache, led, j["material"] or "(vazio)", j["question"], reader)
         jv = judge(cache, led, j["reference"], av["text"], j["q_plain"])
         j2 = judge2(cache, led, j["reference"], av["text"], j["q_plain"])
         out = {k: v for k, v in j.items() if k != "material"}
@@ -591,8 +652,9 @@ def main():
                "seconds": round(time.time() - t0), "spend_usd_estimated": round(led.usd, 4),
                "calls": led.n, "distinct_blocks": len(uniq), "failed_blocks": failed_blocks,
                "rows": len(rows), "judge_preflight": pre,
-               "manifest_sha256": hashlib.sha256((HERE / "stage1-manifest.json").read_bytes()).hexdigest(),
+               "manifest_sha256": hashlib.sha256(man_path.read_bytes()).hexdigest(),
                "runner_sha256": hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest(),
+               **({"reader": reader, "reader_spec": READERS[reader][:3]} if a.phase == "confirm" else {}),
                "models": {"extractor_answerer": GMODEL, "judge": JMODEL,
                           "answer_versions": sorted({r.get("answer_model_version") or "?" for r in rows})}}
     (out / "receipt.json").write_text(json.dumps(receipt, indent=1) + "\n")
