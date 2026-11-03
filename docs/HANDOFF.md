@@ -1,3 +1,33 @@
+## ▶ Terça 03/11, 11h BRT — v1.1 do pré-registro PUBLICADA e o estágio 1 RODANDO
+
+**v1.1 [`10.5281/zenodo.23914868`](https://doi.org/10.5281/zenodo.23914868)** (13:41 UTC, `is_latest`,
+4 de 4 arquivos públicos batem com o pacote) · concept `10.5281/zenodo.23716612` · tag
+`paper3-prereg-v1.1` → `f920303` (#622). **Emenda feita antes de qualquer braço.**
+
+**Por que existe:** o gbrain-evals (W8, mesmo `longmemeval_s_cleaned.json`, sha256 idêntico) exclui
+30 perguntas de abstenção; o nosso §11.1 dizia 0 — `lme-census.py` olhava `_abs` em `question_type`,
+o sufixo está em `question_id`. Corrigido com controle positivo; as 30 saem de tudo. A §12 fixa o
+que o §11 deixava ao runner: seed `20261103` (`stage1-manifest.json`, `--check`), smoke declarado
+de 8 instâncias (universo do estágio 2 = **462**), servir a memória, os controles com limiar, o
+contrafactual com **31** elegíveis (não 40), preflight do juiz contra aceitar abstenção, juiz da
+2ª família em toda linha. Runner `lme-run.py`, análise keyless `lme-analyze.py --check`.
+
+**Smoke** (`paper3-construction/runs/smoke-2026-11-03/`): 0 blocos falhos, preflight 0/16 nos dois
+juízes, piso e positivo passam, **negativo falha 2/8** — pergunta ordinal que o servir por
+importância embaralha; limiar mantido e falha declarada (§12.2.1).
+
+**Estágio 1:** `tmux paper3-stage1` no Mac, saída em
+`~/Claude-worktrees/memoria-nox/paper3-amendment-v1-1/.job_logs/stage1/`, teto US$ 40, ~US$ 16–20
+medido no andamento (o "US$ 108" abaixo é da v1.0: o bloco custa 1/5 e a §12.4 reutiliza a
+destilação). Ao terminar: `python3 -I paper3-construction/lme-analyze.py <saída>`; regra de parada
+do §11.4 (IC todo acima de +5 pp ⇒ para). **Chave OpenAI do Mac trocada hoje** (a de 20/07 dava 401).
+
+**Lacunas do Kimi (régua PT-BR):** as linhas por query da v3 em `/var/tmp/score-v3-161128/` foram
+**apagadas** (o audit dizia que ficavam). Refeito como "um ranking de hoje, dois golds" —
+`audits/2026-11-03-one-ranking-two-golds.{sh,py}`.
+
+---
+
 ## ▶ Terça 27/10, 23h30 BRT — o pré-registro do paper 3 está PUBLICADO, e a corrida é a próxima ação
 
 **DOI [`10.5281/zenodo.23716613`](https://doi.org/10.5281/zenodo.23716613)** · concept
