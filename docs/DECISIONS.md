@@ -3323,6 +3323,25 @@ caracteres são amostradas por duas janelas de 20k, logo o tax delas é medido s
 `audits/2026-10-26-replay-{build,generate,answer,judge,report}.py`.
 
 
+### D-2026-11-03 — GTM Phase 2 adiado até o resultado do estágio 1 do Paper 3
+
+**Contexto.** O ROADMAP §4 marcava o GTM Phase 2 para novembro/2026. A auditoria de prontidão de
+03/11 (só leitura, no `nox-supermem`) achou o discurso do repo-produto parado em 28/09 e contrário às
+medições de outubro: o tile "+78,8% nDCG@10" é ganho sobre a versão anterior do próprio sistema, a
+tabela "SOTA" está sem as ressalvas de backbone, o "KG path 769×" só existe no harness, e nenhum doc de
+GTM cita que a memória perde −21,2 pp para BM25 com orçamento de contexto igual. O gate
+"conditional on Q4 COMPARISON winning" foi declarado cumprido em maio e nunca foi reavaliado depois de
+26–27/10. O pricing segue Hotmart-first e em hipóteses, apesar do D44b.
+
+**Decidido pelo Toto (2026-11-03):** adiar o GTM Phase 2.
+
+**Por quê:** o estágio 1 do Paper 3 (pré-registro v1.1, `10.5281/zenodo.23914868`, rodando em 03/11)
+decide qual discurso é honesto: "a memória perde para BM25" ou "a memória com a construção consertada
+empata ou vence". Lançar antes seria escolher o discurso sem o dado que o decide.
+
+**Reabre quando:** sair o resultado do estágio 1 (ou do estágio 2, se a regra de parada mandar
+seguir). O primeiro passo continua sendo o mesmo nos dois casos: corrigir o discurso do repo-produto.
+
 ### D-2026-11-01 — Notas-modelo do `create-daily-notes.sh`: cron desligado, 41 chunks e 810 arquivos fora
 
 **Contexto.** O cron de agente `daily-notes-auto-create` (main, 23:55 BRT) rodava o
