@@ -30,6 +30,7 @@ measured on 2026-10-27, and one of them is **pre-registered**.
 | what is lost is the **literal detail** | **yes** | `2601.00821` — summarization turns *"use type hints **everywhere**"* into *"the user prefers type hints"*, deleting the quantifier: 14.0% against 91.0% |
 | write-time loss against query-time loss, quantified | **yes** | `2601.00821` — of diagnosable failures, **69.0%** are facts the extractor never wrote down, 31.0% are retrieval misses |
 | build cost exceeds the whole rollout it saves | **yes** | `2610.29823` §3 — Mem0's build $0.56 against full context's $0.43 |
+| fixing the **writer** raises what survives into memory | **yes, as page recall** | `gbrain-evals` Cat 35 (2026-08-16, not peer reviewed) — triage that kept 4 of 20 signal-bearing transcripts from ever reaching the writer, and quotes that were paraphrases, both repaired: judged recall 70.2% → 88.1%, quote fidelity 54.2% → 82.7%, on 24 transcripts. Measures the page, not downstream answer accuracy; one factor at a time; no construction window. *Added 2026-11-03 (v1.1).* |
 
 ⛔ **So "agent memory has negative net value against naive RAG" is not ours to claim.** Three papers
 hold it, `2609.34227` holds it with a registered plan, a non-inferiority margin and blind human
