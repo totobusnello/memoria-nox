@@ -1040,3 +1040,155 @@ plus the positive and negative controls and the second judge it did not price.
 The primary estimand (total effect, judge 1), α 0.03 / 0.02, the stop rule, the licence tables of
 §11.4, the serial-null secondary, the dose levels, the length-matched arm, and the rule that a
 primary interval containing 0 is inconclusive and never a null.
+
+## 13. Amendment v1.2 (2026-11-03) — the reader, calibrated before any contrast
+
+Registered after stage 1 and before any call under a new reader. The git tag
+`paper3-prereg-v1.2-calibration` fixes this section, `reader-calibration.py`, `v12-manifest.py`,
+`v12-manifest.json` and the runner **before** the calibration's first call; the Zenodo v1.2
+deposit fixes them, plus the calibration result, **before** the confirmatory run.
+
+### 13.1 Why
+
+Stage 1 (`runs/stage1-2026-11-03/`, `STAGE1-RESULT.md`) failed the answerable floor:
+acc(11) = **0.210** against ≥ 0.50. Under §11.3 that is an instrument failure. The primary
+(+14.5 pp) is not interpreted and is not a null. Stage 2 was not run on that instrument.
+
+An exploratory diagnosis, not registered (`stage1-floor-diagnosis.py`), looked at the 42 instances
+whose textual reference answer appears verbatim in the units served in cell 11. The reader got
+**15** of them right and abstained on **18**, although the first evidence unit sat at a median 3%
+of the served list. Distillation lost 23% of the answers. The reader is the larger loss, and it is
+the only thing v1.2 changes.
+
+### 13.2 What v1.2 does not change
+
+- the corpus and the 30 `_abs` exclusion;
+- both distillation criteria, with their model and prompts, and the blocking;
+- the window rule, the serving and question formats, and every cell;
+- both judges and the correctness rule;
+- the four controls and **every threshold, the 0.50 floor included**;
+- `lme-analyze.py`, with its cluster-robust intervals, licence tables, bracket, serial-null
+  secondary, served-length section and dose section;
+- the rule that an interval containing 0 is inconclusive and never a null.
+
+Changing a threshold after it failed is the freedom a registration exists to remove. So the floor
+stays at 0.50, although the sentence in §11.3 that justifies it is wrong about the numbers' origin.
+The 42.4% and 63.6% come from the PT-BR faithfulness replay (`audits/2026-10-26-faithfulness-
+replay.md`), not from LongMemEval. The number now rests on its plain reading: a reader that holds
+all the evidence should answer at least half the questions.
+
+### 13.3 What changes: the reader, from a fixed table
+
+`lme-run.py` `READERS`, fixed here:
+
+| id | model | prompt | generation | USD / M tokens in · out |
+|---|---|---|---|---|
+| R0 | gemini-2.5-flash-lite | A = `ANSWER_SYSTEM` (v1.1) | temp 0, 200 tokens | 0.10 · 0.40 |
+| R1 | gemini-2.5-flash-lite | B = `ANSWER_SYSTEM_B` | temp 0, 200 tokens | 0.10 · 0.40 |
+| R2 | gemini-3.8-flash | A | temp 0, 2048 tokens, `thinkingLevel: low` | 0.75 · 3.75 |
+| R3 | gemini-3.8-flash | B | same as R2 | 0.75 · 3.75 |
+
+R0 is the stage-1 reader under its stage-1 cache key. The table is a 2×2:
+- R1 changes only the prompt;
+- R2 changes only the model;
+- R3 changes both.
+
+So the calibration also says whether the failure was the instruction or the capacity.
+
+Prompt B differs from A in three ways, and in nothing else:
+- it says the material is dated memories;
+- it asks for the combining LongMemEval questions need (count, compare, date arithmetic against
+  the question's date);
+- it reserves `NAO SEI` for material in which *nothing* is relevant.
+
+Its text is verbatim in `lme-run.py`.
+
+The readers stay in the Gemini family, so that the reader is never in judge 1's family (OpenAI).
+Judge 2 (gemini-2.5-flash-lite) shares a family with R0 and R1, as it already did with the v1.1
+reader. Prices are the Gemini Developer API list prices, standard tier, read on 2026-11-03.
+`thinkingLevel: minimal` is refused by gemini-3.8-flash (HTTP 400, probed on 2026-11-03), so
+`low` is the smallest available level.
+
+### 13.4 The calibration sample, and what it may build
+
+The calibration uses the 200 stage-1 instances. They are already spent, because their contrasts
+were printed under R0. It builds **only** two cells:
+- **cell 11** on all 200;
+- **pos** on the 40 of `control_subsample`.
+
+No contrast can be computed from its output, because no other cell is built under a new reader.
+
+The material is rebuilt from the stage-1 cache, and every one of the 240 rows must hash-equal its
+stage-1 `material_sha256`, or the script stops before spending anything. This was verified at
+registration: 240 of 240 equal. Nothing is re-distilled, and the 143 blocks that failed in stage 1
+stay empty. R0 must replay stage 1's verdicts row for row.
+
+### 13.5 Selection rule
+
+| | |
+|---|---|
+| pass | acc_j1(11) ≥ **0.55**, acc_j1(pos) ≤ **0.10**, and `finishReason` STOP on ≥ 98% of the reader's rows |
+| selected | the passing reader with the lowest **measured** cost per answer |
+| none passes | v1.2 stops. No reader outside §13.3 is tried without a new registered amendment |
+
+The calibration threshold is 0.55, not 0.50. It picks the best of four, so the selected accuracy
+is biased upward, and 0.55 sits 1.4 standard errors above the floor (n = 200, p ≈ 0.5). A reader
+selected on noise near 0.50 is then unlikely to fail the floor on fresh instances. The confirmatory
+floor stays at 0.50 (§13.2).
+
+`reader-calibration.py` applies the rule and prints the selection; it is not chosen by hand. The
+result is recorded in §13.10 by a commit that only fills that table.
+
+### 13.6 The confirmatory sample
+
+The confirmatory sample is the **262** instances of the 462 universe that neither the smoke nor
+stage 1 touched, **all** of them, run in one stage (`v12-manifest.py`, seed **20261104**).
+
+| draw | rule | allocation |
+|---|---|---|
+| dose subsample | 60 of the 262, v1.1's allocation function (imported, not copied) | KU 9 · MS 16 · SSA 7 · SSP 4 · SSU 8 · TR 16 |
+| control subsample | 40 of the 262, same rule | KU 6 · MS 10 · SSA 5 · SSP 2 · SSU 6 · TR 11 |
+| counterfactual | the same 31 rewrites as v1.1, on the four primary cells (17 of them in the 262) | no draw |
+
+By type, the 262 are: KU 40, MS 68, SSA 31, SSP 16, SSU 36, TR 71. The runner refuses to start
+if the confirmatory sample touches a smoke or stage-1 instance.
+
+### 13.7 α, stopping, power
+
+One stage, primary at **α = 0.05** two-sided, with no interim look and no stop rule. The v1.1 split
+(0.03 / 0.02) belonged to a group-sequential test of one instrument on one sample. The
+confirmatory test runs on a disjoint sample with a different reader, so no α has been spent on it.
+
+Power for the total effect at n = 262 and α 0.05, under no within-instance correlation (positive
+correlation only raises it):
+- §11.4's planning effect, +21.2 pp: **99.9%**;
+- stage 1's uninterpretable +14.5 pp, used here only as a pessimistic planning value: **99.9%**;
+- a +8 pp effect: 45%.
+
+The interaction stays secondary, as in §11.4. `lme-analyze.py` reads the phase from the receipt.
+For `confirm` it defaults to α 0.05 and prints no stop rule. The smoke and stage-1 analyses still
+reproduce byte for byte (`--check`).
+
+### 13.8 Cost
+
+| | estimate |
+|---|---|
+| calibration (R1-R3; R0 is cached) | ~US$ 16.5, run with a cap of US$ 25 |
+| confirmatory distillation, 262 instances | ~US$ 18.5, at stage 1's measured rate |
+| confirmatory answers, ~1,890 rows | the selected reader's measured cost per answer × rows |
+
+At R2/R3's price the confirmatory answers cost roughly US$ 45–50. At R1's price they cost about
+US$ 6.
+
+### 13.9 Order
+
+1. This section, the harness and the v1.2 manifest are committed and tagged.
+2. The calibration runs.
+3. The selection is recorded in §13.10.
+4. The Zenodo v1.2 deposit is published by the author.
+5. The confirmatory run (`lme-run.py --phase confirm --reader <selected>`).
+6. The analysis (`lme-analyze.py <run>`, α 0.05).
+
+### 13.10 Calibration result
+
+*(filled by the commit that records the calibration, and by nothing else)*
