@@ -1,5 +1,14 @@
 # Paper 3 — the construction step. Collision check first, then the claim that survives it.
 
+> **v1.1 (2026-11-03) — [`10.5281/zenodo.23914868`](https://doi.org/10.5281/zenodo.23914868)**,
+> a new version of the same concept DOI, amending v1.0 **before any arm ran**. §12 of the plan
+> corrects a census error (LongMemEval `s_cleaned` holds **30** abstention instances, not 0; they
+> are excluded) and pins what §11 left to the runner: one seed for every draw
+> (`stage1-manifest.json`), how memory is served, the controls' samples and thresholds, a judge
+> preflight and the second judge family on every row. The runner (`lme-run.py`) and the keyless
+> analysis (`lme-analyze.py --check`) are frozen in the code archive. A declared smoke on 8
+> excluded instances is in `runs/smoke-2026-11-03/`. Stage 1 is the next step: n=200, ≈ US$ 20.
+
 > ✅ **DEPOSITED AND PUBLISHED 2026-10-27** — [`10.5281/zenodo.23716613`](https://doi.org/10.5281/zenodo.23716613)
 > (concept [`10.5281/zenodo.23716612`](https://doi.org/10.5281/zenodo.23716612), always the latest
 > version). The plan is frozen: PDF, the Markdown it was built from, the code zip and `SHA256SUMS`,
