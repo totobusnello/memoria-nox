@@ -1,0 +1,139 @@
+{
+ "phase": "smoke",
+ "finished_at": "2026-11-03T10:41:06Z",
+ "seconds": 26,
+ "spend_usd_estimated": 0.1483,
+ "calls": {
+  "distill": 10,
+  "answer": 44,
+  "judge": 81,
+  "cached": 5455,
+  "failed": 0
+ },
+ "distinct_blocks": 5390,
+ "failed_blocks": 0,
+ "rows": 56,
+ "judge_preflight": [
+  {
+   "qid": "184da446",
+   "candidate": "NAO SEI",
+   "contem": 0.0,
+   "accepted": false,
+   "accepted_j2": false
+  },
+  {
+   "qid": "184da446",
+   "candidate": "The information is not available in the retrieved sessions; I don't know.",
+   "contem": 0.0,
+   "accepted": false,
+   "accepted_j2": false
+  },
+  {
+   "qid": "195a1a1b",
+   "candidate": "NAO SEI",
+   "contem": 0.0,
+   "accepted": false,
+   "accepted_j2": false
+  },
+  {
+   "qid": "195a1a1b",
+   "candidate": "The information is not available in the retrieved sessions; I don't know.",
+   "contem": 0.0,
+   "accepted": false,
+   "accepted_j2": false
+  },
+  {
+   "qid": "2788b940",
+   "candidate": "NAO SEI",
+   "contem": 0.0,
+   "accepted": false,
+   "accepted_j2": false
+  },
+  {
+   "qid": "2788b940",
+   "candidate": "The information is not available in the retrieved sessions; I don't know.",
+   "contem": 0.0,
+   "accepted": false,
+   "accepted_j2": false
+  },
+  {
+   "qid": "2b8f3739",
+   "candidate": "NAO SEI",
+   "contem": 0.0,
+   "accepted": false,
+   "accepted_j2": false
+  },
+  {
+   "qid": "2b8f3739",
+   "candidate": "The information is not available in the retrieved sessions; I don't know.",
+   "contem": 0.0,
+   "accepted": false,
+   "accepted_j2": false
+  },
+  {
+   "qid": "2c63a862",
+   "candidate": "NAO SEI",
+   "contem": 0.0,
+   "accepted": false,
+   "accepted_j2": false
+  },
+  {
+   "qid": "2c63a862",
+   "candidate": "The information is not available in the retrieved sessions; I don't know.",
+   "contem": 0.0,
+   "accepted": false,
+   "accepted_j2": false
+  },
+  {
+   "qid": "3249768e",
+   "candidate": "NAO SEI",
+   "contem": 0.0,
+   "accepted": false,
+   "accepted_j2": false
+  },
+  {
+   "qid": "3249768e",
+   "candidate": "The information is not available in the retrieved sessions; I don't know.",
+   "contem": 0.0,
+   "accepted": false,
+   "accepted_j2": false
+  },
+  {
+   "qid": "4fd1909e",
+   "candidate": "NAO SEI",
+   "contem": 0.0,
+   "accepted": false,
+   "accepted_j2": false
+  },
+  {
+   "qid": "4fd1909e",
+   "candidate": "The information is not available in the retrieved sessions; I don't know.",
+   "contem": 0.0,
+   "accepted": false,
+   "accepted_j2": false
+  },
+  {
+   "qid": "gpt4_4cd9eba1",
+   "candidate": "NAO SEI",
+   "contem": 0.0,
+   "accepted": false,
+   "accepted_j2": false
+  },
+  {
+   "qid": "gpt4_4cd9eba1",
+   "candidate": "The information is not available in the retrieved sessions; I don't know.",
+   "contem": 0.0,
+   "accepted": false,
+   "accepted_j2": false
+  }
+ ],
+ "manifest_sha256": "9dc7e7287d2c6cd6607d85d7d6a3acbf5e13e671c6b31687ec726d3e3124b1aa",
+ "runner_sha256": "5b047dd47297100d0d66b7d389512397c7b7081818573020065d623b487a9d5c",
+ "models": {
+  "extractor_answerer": "gemini-2.5-flash-lite",
+  "judge": "gpt-6-luna",
+  "answer_versions": [
+   "gemini-2.5-flash-lite"
+  ]
+ }
+}

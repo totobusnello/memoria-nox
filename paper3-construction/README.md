@@ -1,5 +1,14 @@
 # Paper 3 — the construction step. Collision check first, then the claim that survives it.
 
+> **v1.1 (2026-11-03) — [`10.5281/zenodo.23914868`](https://doi.org/10.5281/zenodo.23914868)**,
+> a new version of the same concept DOI, amending v1.0 **before any arm ran**. §12 of the plan
+> corrects a census error (LongMemEval `s_cleaned` holds **30** abstention instances, not 0; they
+> are excluded) and pins what §11 left to the runner: one seed for every draw
+> (`stage1-manifest.json`), how memory is served, the controls' samples and thresholds, a judge
+> preflight and the second judge family on every row. The runner (`lme-run.py`) and the keyless
+> analysis (`lme-analyze.py --check`) are frozen in the code archive. A declared smoke on 8
+> excluded instances is in `runs/smoke-2026-11-03/`. Stage 1 is the next step: n=200, ≈ US$ 20.
+
 > ✅ **DEPOSITED AND PUBLISHED 2026-10-27** — [`10.5281/zenodo.23716613`](https://doi.org/10.5281/zenodo.23716613)
 > (concept [`10.5281/zenodo.23716612`](https://doi.org/10.5281/zenodo.23716612), always the latest
 > version). The plan is frozen: PDF, the Markdown it was built from, the code zip and `SHA256SUMS`,
@@ -30,6 +39,7 @@ measured on 2026-10-27, and one of them is **pre-registered**.
 | what is lost is the **literal detail** | **yes** | `2601.00821` — summarization turns *"use type hints **everywhere**"* into *"the user prefers type hints"*, deleting the quantifier: 14.0% against 91.0% |
 | write-time loss against query-time loss, quantified | **yes** | `2601.00821` — of diagnosable failures, **69.0%** are facts the extractor never wrote down, 31.0% are retrieval misses |
 | build cost exceeds the whole rollout it saves | **yes** | `2610.29823` §3 — Mem0's build $0.56 against full context's $0.43 |
+| fixing the **writer** raises what survives into memory | **yes, as page recall** | `gbrain-evals` Cat 35 (2026-08-16, not peer reviewed) — triage that kept 4 of 20 signal-bearing transcripts from ever reaching the writer, and quotes that were paraphrases, both repaired: judged recall 70.2% → 88.1%, quote fidelity 54.2% → 82.7%, on 24 transcripts. Measures the page, not downstream answer accuracy; one factor at a time; no construction window. *Added 2026-11-03 (v1.1).* |
 
 ⛔ **So "agent memory has negative net value against naive RAG" is not ours to claim.** Three papers
 hold it, `2609.34227` holds it with a registered plan, a non-inferiority margin and blind human

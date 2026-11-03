@@ -1,0 +1,49 @@
+phase smoke · n=8 instances with all four primary cells · 8 answer-session clusters · alpha 0.03 (z=2.1701)
+spend (estimated from usage) US$ 0.1483 · failed blocks 0
+
+0. CONTROLS
+   answerable floor  acc(11) = 0.500 (n=8)  required >= 0.500  PASS
+   positive          acc(pos) = 0.000 (n=8)  required <= 0.100  PASS
+   negative          acc(neg) = 0.250 vs acc(11) = 0.500, discordance 0.250  required |diff| <= 0.100 and discordance <= 0.200  FAIL
+   judge preflight   abstentions on answerable questions accepted: judge 1 0/16, judge 2 0/16  required 0 for judge 1
+
+1. PRIMARY · total effect E[Y11 - Y00], judge 1 (gpt-6-luna)
+   +50.0 pp  [+9.0 .. +91.0]  (cluster-robust SE 18.90 pp, G=8) · acc00 0.000 · acc11 0.500
+   licence: excludes 0, contains 21.2 pp: repair confirmed, covers production's estimate
+   stop at stage 1 (interval entirely above +5 pp): YES
+
+2. JUDGE-FAMILY BRACKET (§11.5 item 9)
+   total 11-00      judge1  +50.0 [+9.0 .. +91.0] · judge2  +62.5 [+22.8 .. +102.2] · bracket [+50.0 · +62.5] pp
+   criterion 11-10  judge1  +25.0 [-10.5 .. +60.5] · judge2  +37.5 [-2.2 .. +77.2] · bracket [+25.0 · +37.5] pp
+   criterion 01-00  judge1  +12.5 [-14.6 .. +39.6] · judge2  +25.0 [-10.5 .. +60.5] · bracket [+12.5 · +25.0] pp
+   window 11-01     judge1  +37.5 [-2.2 .. +77.2] · judge2  +37.5 [-2.2 .. +77.2] · bracket [+37.5 · +37.5] pp
+   agreement between families over the primary cells: 30/32
+
+3. SECONDARY · interaction minus the serial null (cluster bootstrap)
+   undefined: acc(00) = 0, the serial null divides by it
+
+4. SERVED LENGTH (§11.5 item 8)
+   mean served chars: 00 37,482 · 11 161,344
+   primary adjusted for length difference: +50.0 pp [+11.8 .. +89.0] (unadjusted +50.0)
+   length-matched minus 00: +0.0 [+0.0 .. +0.0] · minus 11: -50.0 [-91.0 .. -9.0]
+   capacity reading (lenmatch-00 >= half the total effect, interval above 0): no
+
+5. DOSE SENSITIVITY (sign of Y(full,C1) - Y(dose,C0), dose subsample)
+
+6. DESCRIPTIVE
+   question_type                   n     00     01     10     11
+   knowledge-update                1  0.000  1.000  0.000  1.000
+   multi-session                   2  0.000  0.000  0.000  0.000
+   single-session-assistant        1  0.000  0.000  1.000  1.000
+   single-session-preference       1  0.000  0.000  0.000  0.000
+   single-session-user             1  0.000  0.000  1.000  1.000
+   temporal-reasoning              2  0.000  0.000  0.000  0.500
+   abstention rate cell 00       1.000 (n=8)
+   abstention rate cell 01       0.500 (n=8)
+   abstention rate cell 10       0.625 (n=8)
+   abstention rate cell 11       0.250 (n=8)
+   abstention rate cell lenmatch 1.000 (n=8)
+   abstention rate cell neg      0.375 (n=8)
+   abstention rate cell pos      0.875 (n=8)
+   realised dose of cell 00: median 0.253 [0.241 .. 0.271]
+   cell 00 instances with NO evidence session kept: 4/8

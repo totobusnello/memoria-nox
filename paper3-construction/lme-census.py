@@ -26,8 +26,23 @@ cat = Counter(r.get("question_type", "?") for r in rows)
 print(f"\ncategories ({len(cat)}):")
 for k, v in cat.most_common():
     print(f"  {k:34s} {v:4d}")
-abst = sum(1 for r in rows if str(r.get("question_type", "")).endswith("_abs"))
-print(f"\nabstention variants (_abs): {abst} of {len(rows)} = {abst/len(rows):.1%}")
+# v1.0 tested question_type here and printed 0 — the field was wrong. LongMemEval marks an
+# abstention instance by the _abs suffix of its question_id (Wu et al. 2024, §3; the dataset's
+# own ids, e.g. gpt4_70e84552_abs). Corrected 2026-11-03, amendment v1.1 §12.1.
+abst_wrong = sum(1 for r in rows if str(r.get("question_type", "")).endswith("_abs"))
+abs_rows = [r for r in rows if str(r.get("question_id", "")).endswith("_abs")]
+abst = len(abs_rows)
+print(f"\nabstention variants (_abs on question_id): {abst} of {len(rows)} = {abst/len(rows):.1%}")
+print(f"  (the v1.0 predicate, _abs on question_type: {abst_wrong})")
+print(f"  by category: {dict(Counter(r['question_type'] for r in abs_rows))}")
+# Positive control: a predicate that counts zero must be shown able to count one. A known
+# abstention id from the dataset has to be found, or the census refuses to report.
+KNOWN_ABS = "gpt4_70e84552_abs"
+if any(r.get("question_id") == KNOWN_ABS for r in rows) and not any(
+        r.get("question_id") == KNOWN_ABS for r in abs_rows):
+    sys.exit(f"CONTROL FAILED: known abstention id {KNOWN_ABS} not matched by the predicate")
+if not any(r.get("question_id") == KNOWN_ABS for r in rows):
+    sys.exit(f"CONTROL UNAVAILABLE: {KNOWN_ABS} absent — wrong file or revision")
 
 # unit of inference: does each instance carry its OWN haystack?
 hs = [len(r.get("haystack_sessions") or []) for r in rows]

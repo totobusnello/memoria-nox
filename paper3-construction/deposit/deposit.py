@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Paper 3's pre-registration on Zenodo: a NEW record (not a version of another one).
+"""Paper 3's pre-registration on Zenodo. v1.0 was a new record; v1.1 is a new VERSION of it.
 
 Same shape as datanote-telemetry/deposit/deposit.py, which is the house pattern:
 
@@ -34,7 +34,7 @@ import zipfile
 HERE = pathlib.Path(__file__).resolve().parent
 PLAN = HERE.parent
 API = "https://zenodo.org/api"
-VERSION = "1.0"
+VERSION = "1.1"
 SLUG = "construction-interaction-prereg"
 MD, PDF = f"{SLUG}-v{VERSION}.md", f"{SLUG}-v{VERSION}.pdf"
 CODE = f"code-v{VERSION}.zip"
@@ -44,8 +44,11 @@ DRAFT_ID = HERE / ".draft-id"
 # creators are copied from an already-published record so authorship stays identical
 # across deposits rather than being retyped here.
 CREATORS_FROM = "23041503"          # Paper 1 v1.0.2
-PUB_DATE = "2026-10-27"
-REPO_TAG = "paper3-prereg-v1.0"
+# v1.1 is a NEW VERSION of the v1.0 record (same concept DOI 10.5281/zenodo.23716612), not a new
+# record: --create-draft POSTs /records/<v1.0>/versions instead of /records.
+NEW_VERSION_OF = "23716613"
+PUB_DATE = "2026-11-03"
+REPO_TAG = "paper3-prereg-v1.1"
 CODE_FILES = ["lme-census.py", "lme-independence.py", "lme-answer-overlap.py",
               "power-additive.py", "see-once-denominator.py",
               # estimand-and-power.py supersedes power-additive.py: it computes every
@@ -59,7 +62,10 @@ CODE_FILES = ["lme-census.py", "lme-independence.py", "lme-answer-overlap.py",
               # character wide), and check-layout.py is the gate that proves the
               # result — it fails on the v1.0 PDF and passes on this one.
               "pdf-build/table-widths.py", "pdf-build/check-layout.py",
-              "deposit/deposit.py", "README.md"]
+              "deposit/deposit.py", "README.md",
+              # v1.1 (§12): every draw, the runner and the analysis, frozen before stage 1.
+              # stage1-manifest.py --check and lme-analyze.py --check are keyless.
+              "stage1-manifest.py", "stage1-manifest.json", "lme-run.py", "lme-analyze.py"]
 SUBJECTS = ["pre-registration", "agent memory", "memory construction", "write path",
             "factorial design", "LongMemEval", "retrieval evaluation", "judge agreement"]
 
@@ -72,8 +78,9 @@ EDITS = [
     ("# Construction before search: a pre-registered factorial test of two repairs to LLM-extracted agent memory. DRAFT for approval, not deposited.",
      "# Construction before search: a pre-registered factorial test of two repairs to LLM-extracted agent memory"),
     ("> 📌 **DEPOSIT CANDIDATE — §11 is the active design; §4 is kept as the blocked first attempt.**",
-     "> **Status.** Version 1.0. §11 is the active design; §4 is kept as the blocked first attempt. "
-     "Not peer reviewed."),
+     "> **Status.** Version 1.1 (2026-11-03), amending version 1.0 (2026-10-27) BEFORE any arm "
+     "ran: §12 corrects a census error and pins what §11 left unspecified. §11 as amended by §12 "
+     "is the active design; §4 is kept as the blocked first attempt. Not peer reviewed."),
 ]
 EMOJI = {"\U0001F534": "[defect] ", "⚠️": "[limit] ", "⚠": "[limit] ",
          "✅": "[closed] ", "\U0001F511": "[key] ", "\U0001F4CC": "[status] ",
@@ -234,7 +241,7 @@ def build():
     assert doi in pdftext, "the DOI is not in the PDF text"
     with zipfile.ZipFile(HERE / CODE, "w", zipfile.ZIP_DEFLATED) as z:
         for f in CODE_FILES:
-            zi = zipfile.ZipInfo(f"paper3-construction/{f}", (2026, 10, 27, 0, 0, 0))
+            zi = zipfile.ZipInfo(f"paper3-construction/{f}", (2026, 11, 3, 0, 0, 0))
             zi.compress_type = zipfile.ZIP_DEFLATED
             z.writestr(zi, (PLAN / f).read_bytes())
     (HERE / "SHA256SUMS").write_text(
@@ -280,10 +287,12 @@ def create_draft():
     if DRAFT_ID.exists():
         sys.exit(f"refusing: .draft-id already exists ({DRAFT_ID.read_text().strip()})")
     tok = token()
-    st, d = req("POST", "/records", {"metadata": metadata(), "access":
-                {"record": "public", "files": "public"}, "files": {"enabled": True}}, tok)
-    assert st in (200, 201), f"create draft: {st} {d}"
+    st, d = req("POST", f"/records/{NEW_VERSION_OF}/versions", None, tok)
+    assert st in (200, 201), f"new version draft: {st} {d}"
     rid = d["id"]
+    st, d = req("PUT", f"/records/{rid}/draft", {"metadata": metadata(), "access":
+                {"record": "public", "files": "public"}, "files": {"enabled": True}}, tok)
+    assert st == 200, f"metadata on the new version: {st} {d}"
     DRAFT_ID.write_text(str(rid) + "\n")
     st2, d2 = req("POST", f"/records/{rid}/draft/pids/doi", {}, tok)
     print(f"draft {rid} · reserve doi {st2} · {d2.get('pids', {}).get('doi', {}).get('identifier')}")
