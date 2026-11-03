@@ -1,0 +1,12 @@
+READER CALIBRATION · v1.2 §13.6 · 200 stage-1 instances (cell 11) + 40 (pos)
+pass: acc_j1(11) >= 0.55 and acc_j1(pos) <= 0.1 and STOP >= 98%
+R0 replays stage 1 verdict for verdict: yes
+
+id  model                  pr acc11 j1     j2  abst11  pos j1 abstpos   STOP   US$/ans  verdict
+R0  gemini-2.5-flash-lite  A     0.210  0.220   0.650   0.000   1.000 100.0%   0.00494  fail
+R1  gemini-2.5-flash-lite  B     0.245  0.260   0.610   0.000   1.000 100.0%   0.00495  fail
+R2  gemini-3.8-flash       A     0.360  0.365   0.535   0.000   1.000 100.0%   0.03710  fail
+R3  gemini-3.8-flash       B     0.505  0.510   0.320   0.025   0.950 100.0%   0.03716  fail
+
+SELECTED: NONE  -> v1.2 stops here (§13.6)
+spend US$ 19.0339

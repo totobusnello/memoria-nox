@@ -1191,4 +1191,34 @@ US$ 6.
 
 ### 13.10 Calibration result
 
-*(filled by the commit that records the calibration, and by nothing else)*
+Run on 2026-11-03 after the tag, `runs/calibration-2026-11-03/`. It made 960 calls in 482 s and
+spent US$ 19.03, under the US$ 25 cap. R0 replayed stage 1 verdict for verdict.
+
+| id | model | prompt | acc_j1(11) | acc_j2(11) | abstained (11) | acc_j1(pos) | STOP | US$ / answer | verdict |
+|---|---|---|---|---|---|---|---|---|---|
+| R0 | gemini-2.5-flash-lite | A | 0.210 | 0.220 | 0.650 | 0.000 | 100% | 0.00494 | fail |
+| R1 | gemini-2.5-flash-lite | B | 0.245 | 0.260 | 0.610 | 0.000 | 100% | 0.00495 | fail |
+| R2 | gemini-3.8-flash | A | 0.360 | 0.365 | 0.535 | 0.000 | 100% | 0.03710 | fail |
+| R3 | gemini-3.8-flash | B | 0.505 | 0.510 | 0.320 | 0.025 | 100% | 0.03716 | fail |
+
+**SELECTED: NONE.** Under §13.5, v1.2 stops here: the confirmatory run does not take place, and no
+reader outside §13.3 is tried under this amendment. R3 clears the confirmatory floor (0.50) but
+not the calibration threshold (0.55) that §13.5 set to absorb the selection over four candidates,
+and the rule is applied as written.
+
+What the 2×2 shows, descriptively; it is not a registered test:
+- the prompt is worth +3.5 pp with the small model and +14.5 pp with the larger one;
+- the model is worth +15.0 pp under prompt A and +26.0 pp under prompt B.
+
+Neither change reaches the threshold alone.
+
+Accuracy in cell 11 by question type:
+
+| type | n | R0 | R1 | R2 | R3 |
+|---|---|---|---|---|---|
+| knowledge-update | 31 | 0.419 | 0.387 | 0.645 | 0.742 |
+| multi-session | 51 | 0.078 | 0.157 | 0.294 | 0.510 |
+| single-session-assistant | 24 | 0.500 | 0.458 | 0.458 | 0.542 |
+| single-session-preference | 13 | 0.000 | 0.000 | 0.000 | 0.077 |
+| single-session-user | 27 | 0.296 | 0.407 | 0.593 | 0.630 |
+| temporal-reasoning | 54 | 0.093 | 0.130 | 0.185 | 0.389 |
