@@ -1,0 +1,22 @@
+READER CEILING · exploratory, not registered · 200 stage-1 instances
+cell11 = all sessions, C1 units (from the v1.2 calibration); E-dist = evidence sessions,
+C1 units; E-raw = evidence sessions, raw turns
+
+reader arm      acc j1     j2   abst   STOP     chars
+R0     cell11    0.210  0.220  0.650 100.0%         0
+R0     E-dist    0.205  0.200  0.725 100.0%     9,178
+R0     E-raw     0.340  0.355  0.540 100.0%    26,458
+R3     cell11    0.505  0.510  0.320 100.0%         0
+R3     E-dist    0.475  0.505  0.360 100.0%     9,178
+R3     E-raw     0.830  0.865  0.070 100.0%    26,458
+
+by question_type, judge 1, R3:
+type                            n  cell11  E-dist   E-raw
+knowledge-update               31   0.742   0.710   0.871
+multi-session                  51   0.510   0.451   0.745
+single-session-assistant       24   0.542   0.458   1.000
+single-session-preference      13   0.077   0.154   0.077
+single-session-user            27   0.630   0.630   0.926
+temporal-reasoning             54   0.389   0.370   0.944
+
+spend US$ 1.7053 · {'distill': 0, 'answer': 780, 'judge': 857, 'cached': 763, 'failed': 0} calls · 142s
