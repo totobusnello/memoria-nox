@@ -546,7 +546,7 @@ not prevent them.
   is read on contrasts. The blind human pass the plan provides for has not been done, so the
   conclusions are conditional on the judges. It matters most for H4, whose two judges part on
   0.3 pp and on 35 to 36 discordant pairs.
-- **Margin of H4:** δ = 10 pp was fixed after the development gap of C2 (8.5 pp) was known. It
+- **Margin of H4:** the 10 pp margin was fixed after the development gap of C2 (8.5 pp) was known. It
   is a registered threshold, not a margin of practical irrelevance, and a non-inferiority result
   at 10 pp would still allow a loss larger than the one observed in development.
 - **Adaptive development:** R3 and C2 were chosen on development data after earlier versions
