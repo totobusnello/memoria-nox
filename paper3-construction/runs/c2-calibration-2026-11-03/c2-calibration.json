@@ -1,0 +1,43 @@
+{
+ "blocks": 59273,
+ "c2_prompt_sha256": "325342a36e742f1e844b7c3792dae3eb47a76879c501678b576cd6df2cc8089d",
+ "calibration_sha256": "db71e889cb2f6b96c4d9337c970c7ad1c6c1bcd9b20c1a44392c28a8c6575660",
+ "calls": {
+  "answer": 440,
+  "cached": 1471,
+  "distill": 57999,
+  "failed": 59,
+  "judge": 683
+ },
+ "failed_blocks": 63,
+ "pass": true,
+ "runner_sha256": "975fc594599f392e57bae8b2a475624a0f6610ff49ff78e623333ef12c8e87f4",
+ "spend_usd": 23.5843,
+ "stop_frac_rule_rows": 1.0,
+ "summary": {
+  "11": {
+   "abst": 0.115,
+   "acc_j1": 0.77,
+   "acc_j2": 0.76,
+   "mean_chars": 229898.005,
+   "n": 200,
+   "stop": 1.0
+  },
+  "E-dist": {
+   "abst": 0.12,
+   "acc_j1": 0.745,
+   "acc_j2": 0.785,
+   "mean_chars": 12102.745,
+   "n": 200,
+   "stop": 1.0
+  },
+  "pos": {
+   "abst": 0.925,
+   "acc_j1": 0.0,
+   "acc_j2": 0.0,
+   "mean_chars": 217420.3,
+   "n": 40,
+   "stop": 1.0
+  }
+ }
+}

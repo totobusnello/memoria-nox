@@ -14,6 +14,12 @@
 > reader: four candidates (`READERS` in `lme-run.py`) are calibrated on the spent stage-1 instances,
 > cell 11 and the positive control only (`reader-calibration.py`), and the selected one is confirmed
 > on the 262 untouched instances in one stage at α 0.05 (`v12-manifest.py`).
+> The v1.2 calibration selected **none** (best R3 0.505 < 0.55). An exploratory reader ceiling
+> (`READER-CEILING.md`) then put the loss in **distillation**: R3 scores 0.830 on raw evidence and
+> 0.475 on its C1 units. **v1.3 (§14)** fixes the reader at R3 and replaces the repaired criterion
+> with **C2**, which adds facts said in passing, the event's own time, and what the assistant gave.
+> C2's calibration on the spent 200 **passed**: cell 11 = **0.770**, pos 0.000
+> (`runs/c2-calibration-2026-11-03/`). The confirmatory run on the 262 waits for the v1.3 deposit.
 
 > ✅ **DEPOSITED AND PUBLISHED 2026-10-27** — [`10.5281/zenodo.23716613`](https://doi.org/10.5281/zenodo.23716613)
 > (concept [`10.5281/zenodo.23716612`](https://doi.org/10.5281/zenodo.23716612), always the latest
