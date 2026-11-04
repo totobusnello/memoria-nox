@@ -1,0 +1,20 @@
+CRITERION CALIBRATION · v1.3 §14.5 · C2 read by R3 · 200 stage-1 instances
+pass: acc_j1(11) >= 0.55 and acc_j1(pos) <= 0.1 and STOP >= 98%
+failed blocks: 63 of 59273
+
+cell       n  acc j1     j2   abst   STOP     chars
+11       200   0.770  0.760  0.115 100.0%   229,898
+pos       40   0.000  0.000  0.925 100.0%   217,420
+E-dist   200   0.745  0.785  0.120 100.0%    12,103
+
+VERDICT: PASS -> confirmatory run on the 262 (§14.6)
+
+by question_type, judge 1, cell 11 / E-dist:
+  knowledge-update               31   0.903   0.871
+  multi-session                  51   0.765   0.765
+  single-session-assistant       24   0.875   0.875
+  single-session-preference      13   0.231   0.077
+  single-session-user            27   0.815   0.778
+  temporal-reasoning             54   0.759   0.741
+
+spend US$ 23.5843 · {'distill': 57999, 'answer': 440, 'judge': 683, 'cached': 1471, 'failed': 59} · 1708s

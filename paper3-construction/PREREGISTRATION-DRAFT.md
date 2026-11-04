@@ -1349,4 +1349,25 @@ Per-block cost is taken from stage 1's measured spend (~US$ 1.5e-4), not from th
 
 ### 14.8 Calibration result
 
-*(filled by the commit that records `c2-calibration.txt`)*
+`runs/c2-calibration-2026-11-03/` (`c2-calibration.txt`). R3 reads C2 on the 200 spent instances.
+There were 59,273 blocks, of which 63 failed and were served empty (0.11%, the same rate as stage 1).
+Spend was US$ 24.4, including a first launch that was stopped and resumed from its cache with more
+workers.
+
+| cell | n | acc judge 1 | judge 2 | abstained | STOP | mean chars served |
+|---|---|---|---|---|---|---|
+| 11 (full window, C2) | 200 | **0.770** | 0.760 | 0.115 | 100% | 229,898 |
+| pos (no answer session, C2) | 40 | **0.000** | 0.000 | 0.925 | 100% | 217,420 |
+| E-dist (evidence only, C2; exploratory) | 200 | 0.745 | 0.785 | 0.120 | 100% | 12,103 |
+
+**Verdict: PASS** (0.770 ≥ 0.55; 0.000 ≤ 0.10; STOP 100%). The confirmatory run of §14.6 is
+licensed. It starts only after this section is deposited.
+
+Descriptive, and not a registered contrast:
+- Against C1 under the same reader on the same 200 (§13.10, R3 cell 11 = 0.505), C2 is right on 56
+  instances C1 misses and wrong on 3 that C1 gets.
+- It approaches the raw-evidence ceiling of `READER-CEILING.md` (0.830).
+- C2 was written after reading these instances' failures, so these numbers are the upper end of what
+  the 262 can show.
+
+By type (judge 1, cell 11): KU 0.903 · MS 0.765 · SSA 0.875 · SSP 0.231 · SSU 0.815 · TR 0.759.

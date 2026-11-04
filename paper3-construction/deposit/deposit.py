@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Paper 3's pre-registration on Zenodo. v1.0 was a new record; v1.1 is a new VERSION of it.
+"""Paper 3's pre-registration on Zenodo. v1.0 was a new record; v1.1 and v1.3 are new VERSIONS of it.
+(v1.2 was registered by tag only: its calibration selected no reader, so nothing confirmatory
+followed it and v1.3 deposits its result with its own.)
 
 Same shape as datanote-telemetry/deposit/deposit.py, which is the house pattern:
 
@@ -34,7 +36,7 @@ import zipfile
 HERE = pathlib.Path(__file__).resolve().parent
 PLAN = HERE.parent
 API = "https://zenodo.org/api"
-VERSION = "1.1"
+VERSION = "1.3"
 SLUG = "construction-interaction-prereg"
 MD, PDF = f"{SLUG}-v{VERSION}.md", f"{SLUG}-v{VERSION}.pdf"
 CODE = f"code-v{VERSION}.zip"
@@ -46,9 +48,9 @@ DRAFT_ID = HERE / ".draft-id"
 CREATORS_FROM = "23041503"          # Paper 1 v1.0.2
 # v1.1 is a NEW VERSION of the v1.0 record (same concept DOI 10.5281/zenodo.23716612), not a new
 # record: --create-draft POSTs /records/<v1.0>/versions instead of /records.
-NEW_VERSION_OF = "23716613"
-PUB_DATE = "2026-11-03"
-REPO_TAG = "paper3-prereg-v1.1"
+NEW_VERSION_OF = "23914868"     # v1.3 is a new version of v1.1 (concept 23716612)
+PUB_DATE = "2026-11-04"
+REPO_TAG = "paper3-prereg-v1.3"
 CODE_FILES = ["lme-census.py", "lme-independence.py", "lme-answer-overlap.py",
               "power-additive.py", "see-once-denominator.py",
               # estimand-and-power.py supersedes power-additive.py: it computes every
@@ -65,7 +67,26 @@ CODE_FILES = ["lme-census.py", "lme-independence.py", "lme-answer-overlap.py",
               "deposit/deposit.py", "README.md",
               # v1.1 (§12): every draw, the runner and the analysis, frozen before stage 1.
               # stage1-manifest.py --check and lme-analyze.py --check are keyless.
-              "stage1-manifest.py", "stage1-manifest.json", "lme-run.py", "lme-analyze.py"]
+              "stage1-manifest.py", "stage1-manifest.json", "lme-run.py", "lme-analyze.py",
+              # v1.2 (§13) and v1.3 (§14): what stage 1 produced, the reader calibration, the two
+              # exploratory runs that located the loss, the C2 calibration, and every row they
+              # read. lme-analyze.py --check reproduces stage 1 from its rows, keylessly.
+              "STAGE1-RESULT.md", "stage1-floor-diagnosis.py",
+              "v12-manifest.py", "v12-manifest.json", "reader-calibration.py",
+              "READER-CEILING.md", "reader-ceiling.py", "distill-loss-diagnosis.py",
+              "c2-calibration.py",
+              "runs/smoke-2026-11-03/rows.ndjson", "runs/smoke-2026-11-03/receipt.json",
+              "runs/smoke-2026-11-03/analysis.txt", "runs/smoke-2026-11-03/analysis.json",
+              "runs/stage1-2026-11-03/rows.ndjson", "runs/stage1-2026-11-03/receipt.json",
+              "runs/stage1-2026-11-03/analysis.txt", "runs/stage1-2026-11-03/analysis.json",
+              "runs/calibration-2026-11-03/rows-calibration.ndjson",
+              "runs/calibration-2026-11-03/calibration.txt",
+              "runs/calibration-2026-11-03/calibration.json",
+              "runs/ceiling-2026-11-03/rows-ceiling.ndjson",
+              "runs/ceiling-2026-11-03/ceiling.txt", "runs/ceiling-2026-11-03/ceiling.json",
+              "runs/c2-calibration-2026-11-03/rows-c2-calibration.ndjson",
+              "runs/c2-calibration-2026-11-03/c2-calibration.txt",
+              "runs/c2-calibration-2026-11-03/c2-calibration.json"]
 SUBJECTS = ["pre-registration", "agent memory", "memory construction", "write path",
             "factorial design", "LongMemEval", "retrieval evaluation", "judge agreement"]
 
