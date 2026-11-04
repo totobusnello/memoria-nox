@@ -19,7 +19,9 @@
 > 0.475 on its C1 units. **v1.3 (§14)** fixes the reader at R3 and replaces the repaired criterion
 > with **C2**, which adds facts said in passing, the event's own time, and what the assistant gave.
 > C2's calibration on the spent 200 **passed**: cell 11 = **0.770**, pos 0.000
-> (`runs/c2-calibration-2026-11-03/`). The confirmatory run on the 262 waits for the v1.3 deposit.
+> (`runs/c2-calibration-2026-11-03/`). An adversarial pass before deposit (§14.9) found 20 of
+> v1.2's 262 already exposed. The confirmatory sample is the remaining **242** (`v13-manifest.py`),
+> and the run waits for the v1.3 deposit.
 
 > ✅ **DEPOSITED AND PUBLISHED 2026-10-27** — [`10.5281/zenodo.23716613`](https://doi.org/10.5281/zenodo.23716613)
 > (concept [`10.5281/zenodo.23716612`](https://doi.org/10.5281/zenodo.23716612), always the latest

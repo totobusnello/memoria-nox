@@ -74,7 +74,7 @@ CODE_FILES = ["lme-census.py", "lme-independence.py", "lme-answer-overlap.py",
               "STAGE1-RESULT.md", "stage1-floor-diagnosis.py",
               "v12-manifest.py", "v12-manifest.json", "reader-calibration.py",
               "READER-CEILING.md", "reader-ceiling.py", "distill-loss-diagnosis.py",
-              "c2-calibration.py",
+              "c2-calibration.py", "v13-manifest.py", "v13-manifest.json",
               "runs/smoke-2026-11-03/rows.ndjson", "runs/smoke-2026-11-03/receipt.json",
               "runs/smoke-2026-11-03/analysis.txt", "runs/smoke-2026-11-03/analysis.json",
               "runs/stage1-2026-11-03/rows.ndjson", "runs/stage1-2026-11-03/receipt.json",
@@ -102,9 +102,10 @@ EDITS = [
      "> **Status.** Version 1.3 (2026-11-04). It amends version 1.1 (2026-11-03) after stage 1 and "
      "BEFORE the confirmatory run. Stage 1 failed the answerable floor and is reported as an "
      "instrument failure, not interpreted (§12, `STAGE1-RESULT.md`). §13 (v1.2, registered by tag "
-     "only) calibrated four readers and selected none. §14 (v1.3) fixes the reader and replaces the "
+     "only) calibrated four readers and selected none. §14 (v1.3) freezes the reader and replaces the "
      "repaired criterion with C2. C2's calibration on the spent instances passed (§14.8), and the "
-     "confirmatory run on 262 untouched instances follows this deposit. §11 as amended by §12–§14 "
+     "confirmatory run on 242 instances, drawn by provenance after an adversarial pass (§14.9), "
+     "follows this deposit. §11 as amended by §12–§14 "
      "is the active design; §4 is kept as the blocked first attempt. Not peer reviewed."),
 ]
 # 3. v1.3: a Greek letter in a section TITLE breaks xelatex (hyperref turns it into a label:
