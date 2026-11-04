@@ -8,9 +8,12 @@ from a file in this directory. §10 lists the sources.
 
 ## Abstract
 
-Several recent studies find that memory extracted by a language model loses to retrieval over
-the raw conversation. They conclude that agents need better search, not better construction.
-All of them keep the extraction step at its defaults. One of them, *Fidelity before Structure*
+Several recent studies compare memory extracted by a language model with retrieval or search
+over the raw conversation, and in most of their settings the raw record wins. Their conclusions
+carry conditions: one limits its recommendation to the extraction designs it tested, one finds
+extraction more accurate at generous context budgets, and one finds designed memory helping
+only a weak reader. None of them varies how much of the conversation the builder sees or the
+instructions it extracts under. One of them, *Fidelity before Structure*
 (arXiv 2601.00821), predicts that better extraction prompts can narrow the gap but cannot reach
 what a verbatim store retains.
 
@@ -19,8 +22,8 @@ the builder is shown (the window), and the instructions it extracts under (the c
 first instrument failed its own registered floor. With the full window, the pipeline answered
 21% of LongMemEval questions against a required 50%, so its primary contrast was not
 interpreted. Two more amendments followed, each fixed before its calibration calls. The first
-of them tried four readers, and none passed. An exploratory run then located the loss in
-distillation. Units distilled from the evidence sessions scored 0.475, and the raw turns of the
+of them tried four readers, and none passed. An exploratory run then found the larger loss
+between the raw evidence and the units distilled from it. Units distilled from the evidence sessions scored 0.475, and the raw turns of the
 same sessions scored 0.830. A revised criterion, C2, asks the builder to keep facts said in
 passing, the event's own time and what the assistant said. It passed calibration on the
 development instances.
@@ -28,8 +31,10 @@ development instances.
 The confirmatory run used 242 instances with no prior exposure, defined by provenance and not
 by question id alone. All four registered controls passed. Repairing both factors against
 repairing neither raised accuracy by +66.5 pp [+60.6, +72.5] under judge 1 and +66.9 pp under a
-second judge family. Descriptively, the window contrast is mostly evidence availability: at the
-truncated window, 120 of the 242 instances kept no annotated evidence session. The criterion contrast at
+second judge family. At the truncated window, 120 of the 242 instances kept no annotated
+evidence session, and the truncated cells answered none of them. That pattern is consistent
+with evidence availability as a large part of the window contrast, though the design does not
+estimate a mediated share. The criterion contrast at
 the full window is +24.8 to +27.3 pp across judges. A length-matched arm rules out its own form
 of padding as the explanation. The result confirms a revised intervention, not the original
 hypotheses. It does not test the verbatim-store prediction on unseen data, because the
@@ -40,15 +45,19 @@ raw-evidence arm did not run on the confirmatory sample.
 An agent that remembers usually does it in two steps. A builder reads past conversations and
 writes memory units, often facts or lessons with an importance score. A reader later answers
 from the units that are served to it. When such systems are compared against retrieval over the
-raw transcript, the raw transcript tends to win. Four studies we read report this in different
-settings (2601.00821, 2609.34227, 2610.29823, 2609.34160). Their shared conclusion is
-that selection over the raw record should replace extraction.
+raw transcript, the raw transcript often wins. Three recent studies report this in different
+settings, each with a condition attached. 2601.00821 recommends that structure augment verbatim
+text rather than replace it, for the extraction designs it tested. 2609.34227 finds raw turns
+non-inferior to an extraction memory at a tight budget, and extraction systems more accurate at
+generous ones. 2610.29823 finds that designed memory beats full context only with the weakest
+reader it tried. A fourth study, 2609.34160, works on the construction step itself: processing
+the same records in a different order changes what memory keeps.
 
-These studies vary the reader, the context budget, the construction order or the retrieval
-method. None of them varies how much of the conversation the builder sees or the instructions
-it extracts under. 2610.29823 says so directly: Mem0
+The three comparisons vary the reader, the context budget or the retrieval method. None of them
+varies how much of the conversation the builder sees or the instructions it extracts under.
+2610.29823 says so directly: Mem0
 and Zep "run with their default extraction and retrieval, and other settings may do better".
-The closest of the four, 2601.00821, isolates the mechanism as lossy distillation. It also
+The closest to our question, 2601.00821, isolates the mechanism as lossy distillation. It also
 states, as a prediction rather than a result, that "better extraction prompts — explicit
 date/time targeting, temporal attribute modeling — could shrink this class, but cannot reach
 the unconditional retention of a verbatim store."
@@ -79,6 +88,8 @@ controls passed. The effect is not explained by the length-matched padding arm.
   first registered.
 - It does not test 2601.00821's prediction on clean data, because no raw-evidence arm ran on
   the 242.
+- It does not show that the gain holds at an equal context budget or under selective
+  retrieval, because every unit of a cell is served (§8).
 - It makes no comparison with the LongMemEval leaderboard, because our judges are not the
   benchmark's judge.
 
@@ -87,12 +98,12 @@ controls passed. The effect is not explained by the length-matched padding arm.
 | study | what it varies | finding relevant here | what it holds fixed |
 |---|---|---|---|
 | 2601.00821 *Fidelity before Structure* | memory representation, with six confound controls | verbatim chunks beat lossy artifact extraction; of diagnosable failures, 69.0% are facts never written down and 31.0% retrieval misses | the extraction prompt, except a few-shot contamination control |
-| 2609.34227 *When Does Selection Replace Extraction?* | context budget; pre-registered, blind human grading | reranking adds 17.4 points at a tight budget and 1.5 at a generous one | the extractor |
-| 2610.29823 *MemoryTax* | reader tier, cost | a stronger reader does not recover what a weaker writer left out; build cost can exceed the rollout it saves | default Mem0 and Zep extraction |
-| 2609.34160 *RoutePrism* | construction order | restoring one displaced record recovers more than 60 pp | window and criterion |
+| 2609.34227 *When Does Selection Replace Extraction?* | context budget; pre-registered, blind human grading | raw turns non-inferior at a tight budget; reranking adds 17.4 points there and 1.5 at a generous budget, where extraction systems are more accurate | the extractor |
+| 2610.29823 *MemoryTax* | reader tier, cost | designed memory beats full context only with the weakest reader; a stronger reader does not recover what a weaker writer left out; build cost can exceed the rollout it saves | default Mem0 and Zep extraction |
+| 2609.34160 *RoutePrism* | construction order; memory policy | restoring one displaced record recovers more than 60 pp; memory policies leave distinct failure signatures | record content, timestamps, policy and answer model, within each order comparison |
 
-The studies above already establish that extracted memory loses to raw retrieval and that the
-writer limits the reader. What we add is narrower: a registered test of a change to the
+The studies above already show, in their settings, that extracted memory can lose to raw
+retrieval and that the writer limits the reader. What we add is narrower: a registered test of a change to the
 builder's configuration, with controls that can fail. 2609.34227 is the methodological
 model, with a registered plan, a primary test and blind human grading. We have the first two
 and not yet the third (§8).
@@ -278,7 +289,7 @@ pass bar was 0.55, set above the floor to absorb selection over four candidates.
 None passed, and v1.2 stopped as registered (US$ 19.03). The prompt helped the larger model
 (+14.5 pp) far more than the smaller one (+3.5 pp).
 
-### 5.4 Exploratory: the loss is in distillation
+### 5.4 Exploratory: the loss sits between raw evidence and distilled units
 
 An unregistered run on the same spent 200 asked how much of the gap was the reader and how much
 was the material (US$ 1.71). R3 read three materials:
@@ -291,7 +302,10 @@ was the material (US$ 1.71). R3 read three materials:
 
 Removing roughly fifty distractor sessions made no detectable difference (12 against 6
 discordant pairs, exact McNemar p = 0.24, which is not an equivalence result). Replacing the
-units with the raw turns they came from did (6 against 77, p < 10⁻¹⁶). The largest losses were
+units with the raw turns they came from did (6 against 77, p < 10⁻¹⁶). The two materials differ
+in length, in representation (scored units against chronological turns) and in order as well
+as in content, so the contrast measures the loss of the whole distill-and-serve step under this
+protocol, not omitted facts alone. The largest losses were
 in temporal reasoning (0.37 against 0.94) and single-session-assistant questions (0.46 against
 1.00). With the weaker reader R0 the same comparison gave 0.205 and 0.340. A weak reader hides
 the construction loss, and that is why stage 1 seemed to point at the reader.
@@ -343,7 +357,9 @@ analysis byte for byte.
 | negative | 0.775 against 0.775, discordance 0.100 | ≤ 0.10, ≤ 0.20 |
 | counterfactual | original number 1, altered number 28, of 31 | original ≤ 3.1, altered > original |
 
-All four pass, so the primary is interpreted.
+All four pass, so the primary is interpreted. The counterfactual instances had been exposed in
+earlier stages, so that control is a regression check on known examples, not a fourth test on
+unseen data.
 
 ### 6.2 Primary
 
@@ -378,8 +394,10 @@ and it licenses no equivalence claim.
 
 **Served length.** Cell 00 served a mean of 36,199 characters and cell 11 served 231,416. The
 length-matched arm serves cell 00's material padded to cell 11's length. It scored +0.8 pp
-[−0.8, +2.4] above cell 00 and −65.7 pp below cell 11. The primary adjusted for served length
-is +66.5 pp. The registered test asks whether this arm reproduces cell 11, and it does not. That
+[−0.8, +2.4] above cell 00 and −65.7 pp below cell 11. The registered length adjustment
+regresses the paired accuracy difference on the mean-centred length difference and reports the
+intercept. On the full sample that intercept equals the unadjusted mean by construction, so its
+value (+66.5 pp) carries no evidence about length. The registered test asks whether this arm reproduces cell 11, and it does not. That
 rules out this form of padding as the explanation. It does not rule out every explanation by
 length.
 
@@ -392,8 +410,11 @@ script, and the cells it reads are `d020` and `d894`.
 
 The design predicted that the window contrast would be dominated by evidence availability (v1.1
 §12.8). The table below splits the 242 by how many annotated evidence sessions the 0.240 cut
-kept in cell 00. The split depends only on the instance and the cut, both fixed before any
-answer is read. It is not a registered analysis.
+kept in cell 00. Each instance gets one group, computed from its sessions and annotations under
+the reference cut before any model call, and the same group is used in all four cells, so the
+split depends on neither the extraction nor the answers. It describes how the contrasts vary
+across instances. It does not estimate how much of the window contrast is mediated by evidence
+availability, and it is not a registered analysis.
 
 | evidence kept by the cut | n | 00 | 01 | 10 | 11 |
 |---|---|---|---|---|---|
@@ -402,12 +423,16 @@ answer is read. It is not a registered analysis.
 | all | 43 | 0.535 | 0.744 | 0.581 | 0.767 |
 
 When the cut kept no evidence session, the truncated cells answered nothing under either
-criterion. That is the positive control's result, reproduced on a different subset. When the
+criterion. This is consistent with the positive control, which removed every answer session
+from the full window, although the two interventions serve different material. When the
 cut kept all the evidence, the window added +4.6 pp under C0 and +2.3 pp under C2, and the
-criterion added +20.9 pp at the truncated window and +18.6 pp at the full one. On this corpus
-the window contrast is mostly a question of whether the evidence reached the builder. The
-criterion contrast appears at both windows once it has. The "all kept" group has 43 instances,
-and these figures carry no interval.
+criterion added +20.9 pp at the truncated window and +18.6 pp at the full one. The pattern is
+consistent with evidence availability being a large part of the window contrast on this
+corpus, with the criterion contrast present at both windows once the evidence reached the
+builder. The groups may also differ in recency, question type and difficulty, and the window
+changes distractors and length along with evidence. The "all kept" group has 43 instances,
+these figures carry no interval, and the small window difference in that group is not evidence
+that the two windows are equivalent.
 
 ### 6.5 By question type, and against calibration
 
@@ -426,12 +451,12 @@ did not appear. The two numbers come from different samples, so the comparison i
 
 ## 7. Discussion
 
-**The four studies' shared conclusion.** On this corpus, with this reader, changing
+**Extraction against raw retrieval.** On this corpus, with this reader, changing
 how the builder is configured moved accuracy from 15% to 82%. A study that holds the extraction
 step at its defaults measures one configuration of the builder, and the gap it reports between
 extraction and raw retrieval holds for that configuration. We ran no retrieval arm in the
 confirmatory stage, so nothing here says extraction beats retrieval. What the run shows is that
-the comparison depends on a variable these studies did not vary.
+the comparisons in §2 depend on a variable that the three of them held at a default.
 
 **The prediction of 2601.00821.** It concerns retention, and on retention it is
 right: units are not a verbatim store. Whether C2 closes the accuracy gap to raw evidence is
@@ -443,10 +468,11 @@ follow-up would run the raw-evidence arm and C2 on the same unseen instances, wi
 non-inferiority margin fixed in advance.
 
 **The window.** The production finding that motivated the window factor is a property of a
-deployed system. The benchmark imposes it by construction. Here the window acted mostly by
-deciding whether the evidence sessions reached the builder (§6.4). That is the serial
-mechanism the analysis plan named, and the interaction against the serial null was
-inconclusive. We do not claim a joint mechanism.
+deployed system. The benchmark imposes it by construction. The descriptive split in §6.4 is
+consistent with the window acting largely by deciding whether the evidence sessions reached the
+builder, which is the serial mechanism the analysis plan named. It does not identify that
+mechanism. The interaction against the serial null was inconclusive, so the run neither selects
+the serial model nor supports a joint one.
 
 **The instrument.** Three things went wrong before the result. The floor was justified with
 numbers from another corpus. A smoke of 8 instances was treated as if it could check a
@@ -464,9 +490,11 @@ not prevent them.
 - **Adaptive development.** R3 and C2 were chosen on development data after earlier versions
   failed. The confirmatory sample was untouched, but the intervention it tests was shaped by
   what failed before.
-- **Preference questions.** Their references are rubrics, not answers. They scored 0.077 under
-  R3 even on raw evidence, and they cap every cell. They are 16 of the 242 and stayed in the
-  sample.
+- **Preference questions.** Their references are rubrics rather than answers. In the
+  exploratory run on the spent 200, the 13 preference questions scored 0.077 under R3 even on
+  raw evidence. The 242 hold 16, cell 11 scored 0.438 on them, and no raw arm ran. We read the
+  low scores as a sign that reading or grading this category is hard, not as an established
+  ceiling.
 - **Window shape.** The cut takes whole sessions, most recent first. Sensitivity to the shape of
   the cut was not measured.
 - **One corpus, one reader, one extraction model.** LongMemEval sessions are synthetic
@@ -475,6 +503,15 @@ not prevent them.
   system's language, while LongMemEval is in English. Units mix both languages. The
   distillation-loss diagnosis found no difference in the share of Portuguese units between lost
   and kept instances (0.10 against 0.14).
+- **Context budget.** Every unit of a cell is served. Cell 11 serves about 6.4 times the
+  characters of cell 00 (231,416 against 36,199), and at the full window C2 serves more than C0
+  (231,416 against 142,733). The result says nothing about accuracy at an equal budget, and the
+  padded arm is not a competing use of that budget.
+- **No selective retrieval.** No retriever chooses among the units. The gain may not survive a
+  context limit or a retriever that serves only part of the memory.
+- **No unanswerable questions.** The 30 abstention instances were excluded. The fall in
+  abstention on answerable questions does not show a better balance between correct answers
+  and wrong ones where no answer exists.
 - **No leaderboard comparison.** Neither judge is LongMemEval's official judge.
 - **No production confirmation.** C2 has not run on the production corpus that motivated it.
 
@@ -491,6 +528,7 @@ not prevent them.
 
 | section | file |
 |---|---|
+| §1, §2 | the arXiv abstract pages of the four studies, read on 2026-11-04 |
 | §3 | `README.md`, "Numbers it rests on"; `PREREGISTRATION-DRAFT.md` §11.2, §11.5 item 7, §11.6 |
 | §4 | `PREREGISTRATION-DRAFT.md` §11.1–§11.5, §12.3–§12.7, §13.3, §14.3, §14.9 |
 | §5.2 | `STAGE1-RESULT.md`, `runs/stage1-2026-11-03/` |
