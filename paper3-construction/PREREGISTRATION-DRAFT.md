@@ -1573,3 +1573,47 @@ E-dist(C2) (what the distractor sessions cost), and both arms by question type.
 `raw-arm.py` prints a cost estimate without `--yes`. It runs under a cap (US$ 10) and writes rows
 before any summary. No row is read for its outcome until all 484 exist. This amendment is fixed by
 the tag `paper3-prereg-v1.4`, pushed before the first call.
+
+## 16. Amendment v1.5 (2026-11-04) — two more judges on H4, registered before their first call on the data
+
+### 16.1 Why, and what is already known
+
+Under §15.4 the two registered judges landed in different rows: judge 1 −5.4 pp [−10.3, −0.8]
+(a loss, non-inferiority missed by 0.3 pp), judge 2 −5.0 pp [−9.9, 0.0] (non-inferior, no loss
+shown). Both results were read before this amendment. Adding judges after that is a source of
+bias in its own right: a rule written after seeing which way the new judges lean could pick the
+reading. This section therefore fixes the judges, the gate and the aggregation before any call
+of the new judges on the arm's rows. Two endpoint probes on a question unrelated to the corpus
+(the capital of France) ran before this section, to check that each endpoint returns a verdict.
+
+### 16.2 Judges
+
+| judge | model | family | prompt |
+|---|---|---|---|
+| 3 | `glm-5.3` (Z.ai), thinking enabled, effort low, temperature 0 | Zhipu | judge 2's `J2_PROMPT`, verbatim |
+| 4 | `gemini-4-argon`, thinking level low, temperature 0 | Google | judge 2's `J2_PROMPT`, verbatim |
+
+They grade the 484 rows of `runs/raw-arm-2026-11-04/` (E-dist(C2) and E-raw on the 242) as they
+stand; no answer is regenerated. Judge 4, judge 2 and the reader R3 are all Gemini models, so two
+of the four judges share a family with the reader. That is stated here, not corrected.
+
+### 16.3 Gate
+
+A new judge counts only if it rejects all 16 smoke abstentions of §12.7 (8 smoke instances × 2
+abstention strings) and accepts the reference answer itself on at least 7 of the 8 smoke
+instances. A judge that fails is reported and left out; the committee of §16.4 then does not run.
+
+### 16.4 Primary of this amendment and its reading
+
+A committee label per row: correct iff at least 3 of the 4 judges accept the answer. A 2-2 tie
+counts as not correct; ties are counted and reported. The §15.4 decision table (δ = 10 pp,
+cluster bootstrap of `lme-analyze.py`, its seed) is applied to the committee label, and its row is
+the v1.5 reading of H4. Each judge is also reported alone, with the same table, and pairwise
+agreement between judges is printed. This does not replace the blind human grading of §8, and the
+committee is still four language models, not a ground truth.
+
+### 16.5 Runner and order
+
+`h4-judges.py` runs the gate, then the 484 rows, under a cap of 1,100 calls, and writes rows before
+any summary. `--analyze` reproduces the summary from the rows without keys. This amendment is fixed
+by the tag `paper3-prereg-v1.5`, pushed before the first call on the data.
