@@ -36,7 +36,7 @@ import zipfile
 HERE = pathlib.Path(__file__).resolve().parent
 PLAN = HERE.parent
 API = "https://zenodo.org/api"
-VERSION = "1.3"
+VERSION = "1.4"
 SLUG = "construction-interaction-prereg"
 MD, PDF = f"{SLUG}-v{VERSION}.md", f"{SLUG}-v{VERSION}.pdf"
 CODE = f"code-v{VERSION}.zip"
@@ -48,9 +48,9 @@ DRAFT_ID = HERE / ".draft-id"
 CREATORS_FROM = "23041503"          # Paper 1 v1.0.2
 # v1.1 is a NEW VERSION of the v1.0 record (same concept DOI 10.5281/zenodo.23716612), not a new
 # record: --create-draft POSTs /records/<v1.0>/versions instead of /records.
-NEW_VERSION_OF = "23914868"     # v1.3 is a new version of v1.1 (concept 23716612)
+NEW_VERSION_OF = "23934489"     # v1.4 is a new version of v1.3 (concept 23716612); v1.3 was of v1.1
 PUB_DATE = "2026-11-04"
-REPO_TAG = "paper3-prereg-v1.3"
+REPO_TAG = "paper3-prereg-v1.4"
 CODE_FILES = ["lme-census.py", "lme-independence.py", "lme-answer-overlap.py",
               "power-additive.py", "see-once-denominator.py",
               # estimand-and-power.py supersedes power-additive.py: it computes every
@@ -86,7 +86,10 @@ CODE_FILES = ["lme-census.py", "lme-independence.py", "lme-answer-overlap.py",
               "runs/ceiling-2026-11-03/ceiling.txt", "runs/ceiling-2026-11-03/ceiling.json",
               "runs/c2-calibration-2026-11-03/rows-c2-calibration.ndjson",
               "runs/c2-calibration-2026-11-03/c2-calibration.txt",
-              "runs/c2-calibration-2026-11-03/c2-calibration.json"]
+              "runs/c2-calibration-2026-11-03/c2-calibration.json",
+              # v1.4 (§15): the raw-evidence arm's runner, fixed by the tag before its first call.
+              # Its rows and result ship in the result record (new version of 23949145).
+              "raw-arm.py"]
 SUBJECTS = ["pre-registration", "agent memory", "memory construction", "write path",
             "factorial design", "LongMemEval", "retrieval evaluation", "judge agreement"]
 
@@ -99,7 +102,11 @@ EDITS = [
     ("# Construction before search: a pre-registered factorial test of two repairs to LLM-extracted agent memory. DRAFT for approval, not deposited.",
      "# Construction before search: a pre-registered factorial test of two repairs to LLM-extracted agent memory"),
     ("> 📌 **DEPOSIT CANDIDATE — §11 is the active design; §4 is kept as the blocked first attempt.**",
-     "> **Status.** Version 1.3 (2026-11-04). It amends version 1.1 (2026-11-03) after stage 1 and "
+     "> **Status.** Version 1.4 (2026-11-04). §15 adds one arm, the raw evidence on the 242 "
+     "confirmatory instances. It was fixed by the tag `paper3-prereg-v1.4`, pushed to the public "
+     "repository before its first call, and this deposit FOLLOWS that run: for §15 the tag, not this "
+     "record, is the evidence of precedence. Everything before §15 is unchanged from version 1.3. "
+     "Version 1.3 (2026-11-04). It amends version 1.1 (2026-11-03) after stage 1 and "
      "BEFORE the confirmatory run. Stage 1 failed the answerable floor and is reported as an "
      "instrument failure, not interpreted (§12, `STAGE1-RESULT.md`). §13 (v1.2, registered by tag "
      "only) calibrated four readers and selected none. §14 (v1.3) freezes the reader and replaces the "
@@ -111,6 +118,9 @@ EDITS = [
 # 3. v1.3: a Greek letter in a section TITLE breaks xelatex (hyperref turns it into a label:
 #    "Improper alphabetic constant" at §13.7). The body keeps α; only the heading is spelled out.
 EDITS.append(("### 13.7 α, stopping, power", "### 13.7 Alpha, stopping, power"))
+# 4. v1.4: the body font has no δ (U+03B4): xelatex reported 6 missing glyphs in §15. The tagged
+#    source keeps δ; the deposit copy spells it, and the meaning is unchanged.
+GREEK_SPELLED = {"δ": "delta"}
 EMOJI = {"\U0001F534": "[defect] ", "⚠️": "[limit] ", "⚠": "[limit] ",
          "✅": "[closed] ", "\U0001F511": "[key] ", "\U0001F4CC": "[status] ",
          "\U0001F525": "[result] ", "⏸️": "[held] ", "⏸": "[held] ",
@@ -231,6 +241,8 @@ def deposit_text():
         text = text.replace(old, new)
     for e, lab in EMOJI.items():
         text = text.replace(e + " ", lab).replace(e, lab)
+    for g, word in GREEK_SPELLED.items():
+        text = text.replace(g, word)
     # Allow the typographic and mathematical symbols the PDF build has already
     # shown it renders (the test build reported missing glyphs for emoji only).
     # The gate exists for PICTOGRAPHS, which the fonts do not carry — not for

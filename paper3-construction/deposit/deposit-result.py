@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """The confirmatory RESULT of Paper 3's v1.3 pre-registration, as its own Zenodo record.
 
+Version 1.1 (2026-11-04) is a new VERSION of that record (23949145): it adds the raw-evidence arm
+registered by pre-registration v1.4 (§15), appended to the deposit copy as an addendum, and the
+arm's rows and runner to the data zip. --create-draft POSTs /records/<v1.0>/versions.
+
 A result is a different work from the plan it tests, so it is a NEW record, not a new version of
 the pre-registration (concept 10.5281/zenodo.23716612). It references the published plan
 (10.5281/zenodo.23934489), which was public before the run started.
@@ -31,17 +35,19 @@ spec = importlib.util.spec_from_file_location("dep", HERE / "deposit.py")
 dep = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(dep)
 
-VERSION = "1.0"
+VERSION = "1.1"
 SLUG = "construction-interaction-confirm"
 MD, PDF = f"{SLUG}-v{VERSION}.md", f"{SLUG}-v{VERSION}.pdf"
 DATA = f"data-v{VERSION}.zip"
 FILES = [PDF, MD, DATA, "SHA256SUMS"]
 DESC = HERE / f"description-confirm-v{VERSION}.html"
-DRAFT_ID = HERE / ".draft-id-result"
+DRAFT_ID = HERE / f".draft-id-result-v{VERSION}"
+NEW_VERSION_OF = "23949145"       # v1.0 of this record
 PUB_DATE = "2026-11-04"
 PREREG_DOI = "10.5281/zenodo.23934489"
+PREREG14_DOI = "10.5281/zenodo.23964906"   # v1.4, deposited after the arm; the tag preceded it
 # The commit that versioned the run (PR #631). A commit URL is immutable, so no tag is needed.
-REPO_COMMIT = "6695c60"
+REPO_COMMIT = "e66d786"   # v1.1: the commit that versioned the raw-evidence arm (PR #634)
 RUN = "runs/confirm-2026-11-04"
 DATA_FILES = ["CONFIRM-RESULT.md", "README.md",
               f"{RUN}/receipt.json", f"{RUN}/rows.ndjson",
@@ -52,7 +58,12 @@ DATA_FILES = ["CONFIRM-RESULT.md", "README.md",
               # what produced and what reads the rows; v13-manifest.py imports stage1-manifest.py
               "lme-run.py", "lme-analyze.py", "v13-manifest.py", "v13-manifest.json",
               "v12-manifest.json", "stage1-manifest.py", "stage1-manifest.json",
-              "deposit/deposit.py", "deposit/deposit-result.py"]
+              "deposit/deposit.py", "deposit/deposit-result.py",
+              # v1.1: the raw-evidence arm (pre-registration v1.4, §15). raw-arm.py imports
+              # reader-ceiling.py; raw-arm.py --analyze reproduces raw-arm.txt from the rows.
+              "RAW-ARM-RESULT.md", "raw-arm.py", "reader-ceiling.py",
+              "runs/raw-arm-2026-11-04/rows-raw-arm.ndjson", "runs/raw-arm-2026-11-04/raw-arm.txt",
+              "runs/raw-arm-2026-11-04/raw-arm.json", "runs/raw-arm-2026-11-04/receipt.json"]
 SUBJECTS = ["confirmatory result", "pre-registration", "agent memory", "memory construction",
             "write path", "factorial design", "LongMemEval", "judge agreement"]
 TITLE = ("Construction before search: confirmatory result of the pre-registered test "
@@ -61,7 +72,7 @@ TITLE = ("Construction before search: confirmatory result of the pre-registered 
 EDITS = [
     ("# Confirmatory run of v1.3 (2026-11-04)", f"# {TITLE}"),
     ("Run: `runs/confirm-2026-11-04/`\n(rows, receipt, analysis, per-process spend).",
-     "Run: `runs/confirm-2026-11-04/` in `data-v1.0.zip`\n(rows, receipt, analysis, per-process spend)."),
+     f"Run: `runs/confirm-2026-11-04/` in `data-v{VERSION}.zip`\n(rows, receipt, analysis, per-process spend)."),
 ]
 
 
@@ -81,6 +92,9 @@ def metadata():
             {"identifier": PREREG_DOI, "scheme": "doi",
              "relation_type": {"id": "references"},
              "resource_type": {"id": "publication-preprint"}},
+            {"identifier": PREREG14_DOI, "scheme": "doi",
+             "relation_type": {"id": "references"},
+             "resource_type": {"id": "publication-preprint"}},
             {"identifier": f"https://github.com/totobusnello/memoria-nox/tree/{REPO_COMMIT}/paper3-construction",
              "scheme": "url", "relation_type": {"id": "issupplementedby"},
              "resource_type": {"id": "software"}},
@@ -93,12 +107,21 @@ def deposit_text():
     for old, new in EDITS:
         assert old in text, f"EDITS anchor missing: {old[:60]!r}"
         text = text.replace(old, new)
-    return text
+    # v1.1: the raw-evidence arm as an addendum, one heading level down
+    raw = (PLAN / "RAW-ARM-RESULT.md").read_text(encoding="utf-8")
+    first = "# Raw-evidence arm on the 242 — result (v1.4, §15)"
+    assert raw.startswith(first)
+    raw = raw.replace(first, "# Addendum, version 1.1: the raw-evidence arm on the 242 "
+                             "(pre-registration v1.4, §15)", 1)
+    raw = "\n".join("#" + l if l.startswith("## ") else l for l in raw.split("\n"))
+    raw = raw.replace("# Addendum", "## Addendum", 1)
+    raw = raw.replace("δ", "delta")   # the body font has no δ (see deposit.py, GREEK_SPELLED)
+    return text.rstrip() + "\n\n" + raw
 
 
 def draft_doi():
     if not DRAFT_ID.exists():
-        sys.exit("no .draft-id-result — run --create-draft first")
+        sys.exit(f"no {DRAFT_ID.name} — run --create-draft first")
     return f"10.5281/zenodo.{DRAFT_ID.read_text().strip()}"
 
 
@@ -159,10 +182,12 @@ def create_draft():
     if DRAFT_ID.exists():
         sys.exit(f"refusing: {DRAFT_ID.name} already exists ({DRAFT_ID.read_text().strip()})")
     tok = dep.token()
-    st, d = dep.req("POST", "/records", {"metadata": metadata(), "access":
-                    {"record": "public", "files": "public"}, "files": {"enabled": True}}, tok)
-    assert st in (200, 201), f"new draft: {st} {d}"
+    st, d = dep.req("POST", f"/records/{NEW_VERSION_OF}/versions", None, tok)
+    assert st in (200, 201), f"new version draft: {st} {d}"
     rid = d["id"]
+    st, d = dep.req("PUT", f"/records/{rid}/draft", {"metadata": metadata(), "access":
+                    {"record": "public", "files": "public"}, "files": {"enabled": True}}, tok)
+    assert st == 200, f"metadata on the new version: {st} {d}"
     DRAFT_ID.write_text(str(rid) + "\n")
     st2, d2 = dep.req("POST", f"/records/{rid}/draft/pids/doi", {}, tok)
     print(f"draft {rid} · reserve doi {st2} · {d2.get('pids', {}).get('doi', {}).get('identifier')}")

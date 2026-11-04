@@ -1,0 +1,28 @@
+RAW-EVIDENCE ARM · registered v1.4 (§15) · 242 confirmatory instances · reader R3
+
+arm       acc j1     j2   abst   STOP     chars
+cell11     0.818  0.826  0.074 100.0%   231,416
+E-dist     0.818  0.835  0.087 100.0%    13,115
+E-raw      0.872  0.884  0.083 100.0%    28,153
+
+instrument check: acc(E-raw) j1 = 0.872 >= 0.6 -> PASS
+
+H4  E-dist(C2) - E-raw   j1: -5.4 pp [-10.3, -0.8] · discordant 11/24
+H4  E-dist(C2) - E-raw   j2: -5.0 pp [-9.9, +0.0] · discordant 12/24
+cell11 - E-raw           j1: -5.4 pp [-10.7, -0.4] · discordant 14/27
+cell11 - E-raw           j2: -5.8 pp [-11.5, -0.4] · discordant 16/30
+cell11 - E-dist(C2)      j1: +0.0 pp [-3.7, +3.7] · discordant 10/10
+cell11 - E-dist(C2)      j2: -0.8 pp [-4.1, +2.5] · discordant 8/10
+
+H4 decision (j1): C2 units lose to raw evidence
+H4 decision (j2): non-inferior at delta = 10 pp
+G = 241 answer-session clusters
+
+by question_type, judge 1:
+type                            n  cell11  E-dist   E-raw
+knowledge-update               30   0.900   0.900   0.933
+multi-session                  68   0.838   0.853   0.956
+single-session-assistant       28   0.786   0.821   0.964
+single-session-preference      16   0.438   0.375   0.250
+single-session-user            32   0.906   0.875   0.906
+temporal-reasoning             68   0.824   0.824   0.853

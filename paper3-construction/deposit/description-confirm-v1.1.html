@@ -1,0 +1,37 @@
+<p><strong>Version 1.1 (2026-11-04) adds the raw-evidence arm registered by version 1.4 of the pre-registration (<a href="https://doi.org/10.5281/zenodo.23964906">10.5281/zenodo.23964906</a>).</strong> That arm was fixed by the git tag <code>paper3-prereg-v1.4</code> before its first call; the v1.4 deposit followed the run. On the same 242 instances, two arms served only the annotated evidence sessions: their raw turns (E-raw) and the C2 units distilled from them (E-dist(C2)). The instrument check passed (acc(E-raw) = 0.872, required &ge; 0.60). H4, E-dist(C2) &minus; E-raw: &minus;5.4 points [&minus;10.3, &minus;0.8] under judge 1 and &minus;5.0 [&minus;9.9, 0.0] under judge 2. Judge 1 lands in "the units lose to raw evidence" and misses non-inferiority at 10 points by 0.3; judge 2 lands in "non-inferior at 10 points" with an upper bound of exactly zero. The registered rule says the weaker claim stands when the judges disagree, but these two outcomes are not nested and the rule does not order them, so neither reading is claimed across judges; the bracket [&minus;5.4 &middot; &minus;5.0] is variation between judges, not an uncertainty interval. Both arms have perfect retrieval through the annotations and differ in length, order and format as well as content, so H4 compares two served materials and does not measure retention. Cell 11 and E-dist(C2) score the same (0.818), so the distractor sessions cost nothing detectable under C2. The arm cost US$ 2.06; its rows, runner and keyless re-analysis are in the data zip. Everything below is version 1.0, unchanged.</p>
+
+<p><strong>This record reports the confirmatory run registered by version 1.3 of the pre-registration (<a href="https://doi.org/10.5281/zenodo.23934489">10.5281/zenodo.23934489</a>), which was public before the run started.</strong> The run used 242 LongMemEval <code>s_cleaned</code> instances drawn by provenance, plus the 31 counterfactual rewrites, for 1,654 rows. Every row finished, no judge call failed, and the runner and the C2 prompt are byte-identical to the ones the plan fixed. Spend was US$ 70.73 against a cap of US$ 110, over three processes resumed from one cache. The analysis was run once, after the last row existed, and the keyless <code>lme-analyze.py --check</code> reproduces it byte for byte from the rows.</p>
+
+<p><strong>Controls.</strong> All four registered controls pass, so the primary is interpreted. Answerable floor acc(11) = 0.818 (required &ge; 0.50). Positive control 0.000 (&le; 0.10). Negative control 0.775 against 0.775 with discordance 0.100. Counterfactual regression control: 1 of 31 originals against 28 of 31 altered.</p>
+
+<p><strong>Primary, H1&prime;.</strong> Full window with criterion C2 against the 0.240 window with the deployed criterion, same reader: +66.5 points [+60.6, +72.5] under the primary judge (OpenAI) and +66.9 [+61.0, +72.9] under the second (Gemini), cluster-robust over 241 answer-session groups, &alpha; = 0.05, one stage, no interim look. acc(00) = 0.153 and acc(11) = 0.818. The interval excludes zero, so H1&prime; is confirmed.</p>
+
+<p>The reading is narrower than the analyzer's printed label. This confirms the total effect of an intervention revised after exploration (C2 with reader R3). It does not confirm the original H1, it does not confirm H3, which the design does not identify, and it does not show that C2 beats the v1.1 criterion C1, because C1 did not run.</p>
+
+<h4>Contrasts behind the total effect (descriptive)</h4>
+<p>The contrasts are conditional, and the interaction keeps them from adding up as shares of the total.</p>
+<ul>
+<li><strong>Window:</strong> +59.5 [+53.1, +65.9] for 11 &minus; 01 with C2 held. At the 0.240 window, cell 00 kept no annotated evidence session in 120 of the 242 instances, so the extractor never saw them.</li>
+<li><strong>Criterion at the full window:</strong> 11 &minus; 10 is +24.8 [+18.8, +30.8] under the primary judge and +27.3 [+21.1, +33.4] under the second, read as the bracket [+24.8 &middot; +27.3] as the plan requires. It measures C2 against the deployed C0, not against C1. At the truncated window the bracket is [+5.4 &middot; +7.0].</li>
+<li><strong>Length:</strong> cell 00's material padded to cell 11's length with raw text from sessions that hold no answer scores +0.8 [&minus;0.8, +2.4] over cell 00. Adjusted for served length, the primary is unchanged at +66.5. The arm does not reproduce cell 11, so the primary is not read as a capacity effect, though this rules out only this padding.</li>
+<li><strong>Interaction:</strong> &minus;1.4 [&minus;20.2, +11.8] after the serial null: inconclusive, which is neither a null nor an equivalence.</li>
+<li><strong>Calibration against confirmation:</strong> C2 was written after reading the failures of the spent instances, and its calibration score of 0.770 was called likely optimistic. On the 242 new instances cell 11 scored 0.818. These are two different samples, so the comparison is descriptive.</li>
+</ul>
+
+<h4>Limits</h4>
+<ul>
+<li>Both judges are language models, and the reader and the second judge are both Gemini, so the bracket between judges is read on the contrasts, not on the levels. A blind human pass is still owed.</li>
+<li>Preference questions have rubric references and cap every cell. They stayed in the sample, as registered.</li>
+<li>The window is a most-recent-first cut by whole sessions, an approximation of production's window. Its realised dose has median 0.251 [0.240, 0.274], and sensitivity to the shape of the cut was not measured.</li>
+<li>One corpus, one reader, one extraction model (gemini-2.5-flash-lite). During the run the Gemini project's prepaid credit ran out once (HTTP 402). The run was resumed from its own cache after a top-up, and no row was read for its outcome before all rows existed.</li>
+</ul>
+
+<p>Not peer reviewed.</p>
+
+<h4>Files</h4>
+<ul>
+<li><code>construction-interaction-confirm-v1.0.pdf</code>: the result note.</li>
+<li><code>construction-interaction-confirm-v1.0.md</code>: its source text.</li>
+<li><code>data-v1.0.zip</code>: every row of the run, its receipt, the analysis in text and JSON, the per-process spend records, the runner, the keyless analysis, and the v1.3 manifest that drew the 242.</li>
+<li><code>SHA256SUMS</code>: checksums of the three files above.</li>
+</ul>
