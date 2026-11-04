@@ -37,8 +37,11 @@ with evidence availability as a large part of the window contrast, though the de
 estimate a mediated share. The criterion contrast at
 the full window is +24.8 to +27.3 pp across judges. A length-matched arm rules out its own form
 of padding as the explanation. The result confirms a revised intervention, not the original
-hypotheses. It does not test the verbatim-store prediction on unseen data, because the
-raw-evidence arm did not run on the confirmatory sample.
+hypotheses. A raw-evidence arm, registered as a further amendment before it ran, used the same
+242. C2 units of the evidence sessions scored about 5 pp below the raw turns of those sessions
+(−5.4 pp [−10.3, −0.8] under judge 1, −5.0 pp [−9.9, 0.0] under judge 2). The judges fall on
+opposite sides of the registered decision rule, so the arm neither confirms the verbatim-store
+prediction nor shows non-inferiority at 10 pp.
 
 ## 1. Introduction
 
@@ -86,8 +89,9 @@ controls passed. The effect is not explained by the length-matched padding arm.
   not run in the confirmatory stage.
 - It does not confirm the interaction hypothesis H1 or the identifier-survival hypothesis H3 as
   first registered.
-- It does not test 2601.00821's prediction on clean data, because no raw-evidence arm ran on
-  the 242.
+- It does not settle 2601.00821's prediction. The raw-evidence arm on the 242 put C2 units
+  about 5 pp below raw evidence, and the two judges fall on opposite sides of the registered
+  rule (§6.6).
 - It does not show that the gain holds at an equal context budget or under selective
   retrieval, because every unit of a cell is served (§8).
 - It makes no comparison with the LongMemEval leaderboard, because our judges are not the
@@ -246,7 +250,8 @@ contrast is not interpreted.
 Each amendment was fixed by a git tag of this repository before the calls it governs. Where a
 DOI is given, a Zenodo deposit followed. The v1.3 calibration was fixed by tag on 2026-11-03,
 and the v1.3 deposit, which includes the calibration result, was published before the
-confirmatory run.
+confirmatory run. v1.4 was fixed by its tag before its first call and deposited after the run,
+so for v1.4 the evidence of precedence is the tag's push to the public repository, not a DOI.
 
 | version | fixed | DOI | what it changed | outcome |
 |---|---|---|---|---|
@@ -255,6 +260,7 @@ confirmatory run.
 | v1.2 | 2026-11-03 | tag `paper3-prereg-v1.2-calibration` | the reader, calibrated over four candidates | no reader selected |
 | v1.3 | 2026-11-04 | 10.5281/zenodo.23934489 | criterion C2, reader R3, confirmatory sample of 242 | controls pass, H1′ confirmed |
 | result | 2026-11-04 | 10.5281/zenodo.23949145 | the confirmatory result as its own record | |
+| v1.4 | 2026-11-04 | tag `paper3-prereg-v1.4`; deposited after the run as 10.5281/zenodo.23964906 | the raw-evidence arm on the 242, margin 10 pp (§6.6) | judges split on the decision rule |
 
 ### 5.1 v1.0 to v1.1: a census error
 
@@ -449,6 +455,36 @@ Abstention falls from 0.760 in cell 00 to 0.074 in cell 11. On the 242 unseen in
 scored 0.818, against 0.770 in calibration on the 200 spent ones. The drop that §5.5 expected
 did not appear. The two numbers come from different samples, so the comparison is descriptive.
 
+### 6.6 The raw-evidence arm (v1.4)
+
+Both arms of v1.4 serve only the instance's annotated evidence sessions, so they differ only in
+representation: E-raw serves the raw turns, chronologically, and E-dist(C2) serves the C2 units
+of the same sessions from the confirmatory cache, with nothing re-distilled. The instrument check
+passed (acc(E-raw) = 0.872 against the required 0.60). The arm cost US$ 2.06.
+
+| arm | judge 1 | judge 2 | mean characters |
+|---|---|---|---|
+| cell 11, all sessions, C2 units | 0.818 | 0.826 | 231,416 |
+| E-dist(C2), evidence sessions, C2 units | 0.818 | 0.835 | 13,115 |
+| E-raw, evidence sessions, raw turns | 0.872 | 0.884 | 28,153 |
+
+| H4: E-dist(C2) − E-raw | estimate | 95% interval | discordant pairs |
+|---|---|---|---|
+| judge 1 | −5.4 pp | [−10.3, −0.8] | 11 / 24 |
+| judge 2 | −5.0 pp | [−9.9, 0.0] | 12 / 24 |
+
+Under judge 1 the upper bound is below zero, so C2 units lose to raw evidence, and the lower
+bound misses the −10 pp margin by 0.3 pp. Under judge 2 the lower bound clears the margin, so the
+units are non-inferior at 10 pp, and the upper bound is exactly zero, so a loss is not shown.
+The registered rule takes the weaker claim when the judges disagree, and neither reading holds
+under both. We report the gap as the bracket [−5.4 · −5.0] pp.
+
+Descriptively, cell 11 and E-dist(C2) score the same under judge 1 (10 against 10 discordant
+pairs), so the roughly fifty distractor sessions per instance cost nothing detectable under C2.
+The gap sits in multi-session questions (0.853 against 0.956) and single-session-assistant
+questions (0.821 against 0.964). Temporal reasoning, where C1 units lost most in development
+(0.37 against 0.94), is within 3 pp (0.824 against 0.853).
+
 ## 7. Discussion
 
 **Extraction against raw retrieval.** On this corpus, with this reader, changing
@@ -459,13 +495,13 @@ confirmatory stage, so nothing here says extraction beats retrieval. What the ru
 the comparisons in §2 depend on a variable that the three of them held at a default.
 
 **The prediction of 2601.00821.** It concerns retention, and on retention it is
-right: units are not a verbatim store. Whether C2 closes the accuracy gap to raw evidence is
-not answered by this run. On the spent 200, raw evidence scored 0.830 under R3 and C2 units
-scored 0.770 in cell 11 and 0.745 on the evidence sessions alone. On the 242, cell 11 scored
-0.818, but the raw-evidence arm did not run. The two numbers cannot be compared as a test,
-because one sample informed the writing of C2 and the other has no raw arm. A registered
-follow-up would run the raw-evidence arm and C2 on the same unseen instances, with a
-non-inferiority margin fixed in advance.
+right: units are not a verbatim store. The v1.4 arm asked whether C2 closes the accuracy gap
+on unseen data. The remaining gap, about 5 pp, is much smaller than the 35.5 pp that C1 units
+lost to the same raw evidence in development, and smaller than the 22.0 pp 2601.00821 reports on
+LongMemEval-S with a different pipeline. It is not shown to be zero: under judge 1 the loss is
+significant, under judge 2 it is not, and both intervals reach from about −10 pp to about zero.
+The data fit a small remaining loss and do not establish one. Deciding between the two readings
+would take a larger sample, or a third judge fixed in advance.
 
 **The window.** The production finding that motivated the window factor is a property of a
 deployed system. The benchmark imposes it by construction. The descriptive split in §6.4 is
@@ -492,7 +528,7 @@ not prevent them.
   what failed before.
 - **Preference questions.** Their references are rubrics rather than answers. In the
   exploratory run on the spent 200, the 13 preference questions scored 0.077 under R3 even on
-  raw evidence. The 242 hold 16, cell 11 scored 0.438 on them, and no raw arm ran. We read the
+  raw evidence. The 242 hold 16: cell 11 scored 0.438 on them and raw evidence 0.250. We read the
   low scores as a sign that reading or grading this category is hard, not as an established
   ceiling.
 - **Window shape.** The cut takes whole sessions, most recent first. Sensitivity to the shape of
@@ -519,10 +555,14 @@ not prevent them.
 
 - Pre-registration, cumulative through v1.3: 10.5281/zenodo.23934489 (concept
   10.5281/zenodo.23716612).
+- Pre-registration v1.4, the raw-evidence arm: 10.5281/zenodo.23964906 (deposited after the run; the tag
+  `paper3-prereg-v1.4` precedes it).
 - Confirmatory result with data: 10.5281/zenodo.23949145. It holds the rows, receipt, analysis,
   manifests and runner. `lme-analyze.py --check` reproduces the analysis without any API key.
+- Raw-evidence arm result with data, as a new version of that record: 10.5281/zenodo.23964931.
+  `raw-arm.py --analyze` reproduces its analysis without any API key.
 - Code: the public repository `totobusnello/memoria-nox`, directory `paper3-construction/`, at
-  tags `paper3-prereg-v1.0` through `paper3-prereg-v1.3`.
+  tags `paper3-prereg-v1.0` through `paper3-prereg-v1.4`.
 
 ## 10. Sources of the numbers in this text
 
@@ -537,6 +577,7 @@ not prevent them.
 | §5.5 | `PREREGISTRATION-DRAFT.md` §14.8–§14.10, `runs/c2-calibration-2026-11-03/` |
 | §6.1–§6.3, §6.5 | `CONFIRM-RESULT.md`, `runs/confirm-2026-11-04/analysis.txt` |
 | §6.3 cell accuracies, §6.4 | `manuscript-tables.py` (descriptive, keyless) |
+| §5 (v1.4), §6.6, §7 | `PREREGISTRATION-DRAFT.md` §15, `RAW-ARM-RESULT.md`, `runs/raw-arm-2026-11-04/raw-arm.txt` |
 
 ## References
 

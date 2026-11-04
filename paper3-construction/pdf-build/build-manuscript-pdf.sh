@@ -3,6 +3,8 @@
 # pre-registration PDF (build-pdf.sh). It builds from a COPY: table-widths.py --apply rewrites
 # the table separator rows, and the source markdown stays as written.
 #
+#   MANUSCRIPT_MD=<path>     build from that file (the deposit copy, written by
+#                             deposit/deposit-manuscript.py --build).
 #   MANUSCRIPT_LINE="<text>"  date line under the title (default: working draft, not deposited).
 #                             When a DOI is reserved, put it here; there is no DOI gate yet,
 #                             because the manuscript has none.
@@ -13,7 +15,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 NAME=MANUSCRIPT
 LINE="${MANUSCRIPT_LINE:-Working draft, not deposited, not peer reviewed}"
-cp ../MANUSCRIPT.md manuscript-build.md
+cp "${MANUSCRIPT_MD:-../MANUSCRIPT.md}" manuscript-build.md
 python3 -I table-widths.py manuscript-build.md --apply
 pandoc manuscript-build.md --from=markdown+smart --standalone --to=latex \
   --resource-path=.. \
