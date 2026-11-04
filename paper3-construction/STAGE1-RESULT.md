@@ -57,3 +57,10 @@ A new run needs a reader that clears the floor *before* any contrast is looked a
 instances outside every sample used here. The 200 stage-1 instances and the 8 smoke instances are
 spent: their contrasts have been printed, so they cannot serve as the confirmatory sample of a
 repaired instrument. The 262 never-touched instances of the 462 universe remain.
+
+## Correction, 2026-11-03 (additive)
+
+"The larger one is the reader" holds only for the stage-1 reader (flash-lite). With
+gemini-3.8-flash on the same 200 instances (`READER-CEILING.md`, exploratory), distillation is the
+larger loss: 0.475 on the evidence sessions' C1 units against 0.830 on their raw turns, while
+removing the distractor sessions changes nothing (0.505 → 0.475, p = 0.24).
