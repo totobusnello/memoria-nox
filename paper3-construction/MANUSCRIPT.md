@@ -3,7 +3,7 @@ title: "Construction before search: a pre-registered test of what an LLM memory 
 author: "Luiz Antonio Busnello"
 ---
 
-**Status: working draft, not deposited, not peer reviewed.** Every number in this text comes
+Status: working draft, not deposited, not peer reviewed. Every number in this text comes
 from a file in this directory. §10 lists the sources.
 
 ## Abstract
@@ -91,9 +91,9 @@ controls passed. The effect is not explained by the length-matched padding arm.
 | 2610.29823 *MemoryTax* | reader tier, cost | a stronger reader does not recover what a weaker writer left out; build cost can exceed the rollout it saves | default Mem0 and Zep extraction |
 | 2609.34160 *RoutePrism* | construction order | restoring one displaced record recovers more than 60 pp | window and criterion |
 
-We do not claim that extracted memory loses to raw retrieval, or that the writer limits the
-reader. Both are established. Our contribution is narrower: a registered test of a change to
-the builder's configuration, with controls that can fail. 2609.34227 is the methodological
+The studies above already establish that extracted memory loses to raw retrieval and that the
+writer limits the reader. What we add is narrower: a registered test of a change to the
+builder's configuration, with controls that can fail. 2609.34227 is the methodological
 model, with a registered plan, a primary test and blind human grading. We have the first two
 and not yet the third (§8).
 
@@ -176,8 +176,9 @@ subsample of 60. A length-matched cell serves cell 00's material, padded to cell
 with raw text from sessions that hold no answer.
 
 Each block is distilled once per criterion, and every window that contains it reuses the same
-units. The truncated memory is therefore an exact subset of the full one. The window contrast
-measures which sessions were seen, not sampling noise in the extractor.
+units. The truncated memory is therefore an exact subset of the full one, and a difference
+between windows comes from which sessions the builder saw. Sampling noise in the extractor
+cancels out of that contrast.
 
 ### 4.3 Serving and reading
 
@@ -421,19 +422,18 @@ and these figures carry no interval.
 
 Abstention falls from 0.760 in cell 00 to 0.074 in cell 11. On the 242 unseen instances cell 11
 scored 0.818, against 0.770 in calibration on the 200 spent ones. The drop that §5.5 expected
-did not appear. The two numbers come from different samples, so this is a description, not a
-test.
+did not appear. The two numbers come from different samples, so the comparison is descriptive.
 
 ## 7. Discussion
 
-**On the shared conclusion of the four studies.** On this corpus, with this reader, changing
+**The four studies' shared conclusion.** On this corpus, with this reader, changing
 how the builder is configured moved accuracy from 15% to 82%. A study that holds the extraction
 step at its defaults measures one configuration of the builder, and the gap it reports between
 extraction and raw retrieval holds for that configuration. We ran no retrieval arm in the
 confirmatory stage, so nothing here says extraction beats retrieval. What the run shows is that
 the comparison depends on a variable these studies did not vary.
 
-**On 2601.00821's prediction.** The prediction concerns retention, and on retention it is
+**The prediction of 2601.00821.** It concerns retention, and on retention it is
 right: units are not a verbatim store. Whether C2 closes the accuracy gap to raw evidence is
 not answered by this run. On the spent 200, raw evidence scored 0.830 under R3 and C2 units
 scored 0.770 in cell 11 and 0.745 on the evidence sessions alone. On the 242, cell 11 scored
@@ -442,14 +442,15 @@ because one sample informed the writing of C2 and the other has no raw arm. A re
 follow-up would run the raw-evidence arm and C2 on the same unseen instances, with a
 non-inferiority margin fixed in advance.
 
-**On the window.** The production finding that motivated the window factor is a property of a
+**The window.** The production finding that motivated the window factor is a property of a
 deployed system. The benchmark imposes it by construction. Here the window acted mostly by
 deciding whether the evidence sessions reached the builder (§6.4). That is the serial
 mechanism the analysis plan named, and the interaction against the serial null was
 inconclusive. We do not claim a joint mechanism.
 
-**On the instrument.** Three things went wrong before the result. The floor was justified with numbers from another corpus. A smoke of 8 instances
-was treated as if it could check a threshold. And a clean sample was defined by question id
+**The instrument.** Three things went wrong before the result. The floor was justified with
+numbers from another corpus. A smoke of 8 instances was treated as if it could check a
+threshold. And a clean sample was defined by question id
 when exposure also travels through rewritten variants and shared evidence sessions. The first
 two were found by the run itself and the third by external review before deposit. A
 pre-registration let these be stated as failures rather than absorbed into the analysis. It did
