@@ -1,0 +1,16 @@
+{
+ "j3": {
+  "abstentions_accepted": 0,
+  "of": 16,
+  "references_accepted": 8,
+  "of_ref": 8,
+  "pass": true
+ },
+ "j4": {
+  "abstentions_accepted": 0,
+  "of": 16,
+  "references_accepted": 8,
+  "of_ref": 8,
+  "pass": true
+ }
+}
