@@ -28,6 +28,7 @@ What v1.1 §12 pins and this file implements (nothing here is chosen after seein
   python3 -I lme-run.py --phase stage1 --out <dir> --yes --cap-usd 140
 
   python3 -I lme-run.py --phase confirm --reader <R> --out <dir> --yes --cap-usd <usd>   (v1.2 §13)
+  python3 -I lme-run.py --phase confirm --reader R3 --repair C2 --out <dir> --yes ...      (v1.3 §14)
 
 v1.2 §13 adds READERS: the reader is the only component v1.2 changes. R0 is the v1.1 reader and
 keeps its exact cache key, so smoke and stage 1 replay byte for byte; R1-R3 are the calibration
@@ -79,7 +80,19 @@ IDENT_PARAGRAPH = """OBRIGATÓRIO: todo identificador que aparecer na conversa t
 _ANCHOR = "Responda APENAS com JSON válido:"
 assert DISTILL_SYSTEM.count(_ANCHOR) == 1
 DISTILL_SYSTEM_V2 = DISTILL_SYSTEM.replace(_ANCHOR, IDENT_PARAGRAPH + _ANCHOR)
-PROMPTS = {"C0": DISTILL_SYSTEM, "C1": DISTILL_SYSTEM_V2}
+# v1.3 §14.3 — criterion C2, fixed before any C2 call. It is C1 plus one paragraph, inserted at
+# the same anchor, aimed at the three losses READER-CEILING.md / §14.1 measured on the spent 200:
+# incidental facts about the user dropped or turned into lessons, the time of an event replaced
+# by the date of the conversation, and what the assistant said that the user may ask back.
+EVENT_PARAGRAPH = """TAMBÉM OBRIGATÓRIO: fatos concretos sobre a vida do usuário merecem memória mesmo quando ditos de passagem, no meio de outro assunto — rotina, quantidades, valores gastos, durações, idades, lugares, pessoas, compras, viagens, eventos. Extraia cada um como fato (categoria context), com os números e nomes copiados, sem transformá-lo em lição ou preferência, e com importância de pelo menos 0.5.
+Quando a conversa disser quando algo aconteceu ("há três semanas", "ontem", "no sábado passado", "em 15 de abril"), copie a expressão de tempo para a memória junto com o evento: a data da conversa não é a data do evento.
+Quando o assistente der uma informação específica que o usuário pode pedir de volta depois — uma lista, um nome, uma recomendação, um número — guarde-a como memória, com os itens na ordem em que foram dados.
+
+"""
+DISTILL_SYSTEM_V3 = DISTILL_SYSTEM_V2.replace(_ANCHOR, EVENT_PARAGRAPH + _ANCHOR)
+PROMPTS = {"C0": DISTILL_SYSTEM, "C1": DISTILL_SYSTEM_V2, "C2": DISTILL_SYSTEM_V3}
+# the repaired level of factor C. v1.1/v1.2: C1. v1.3 (§14): C2, set only by --phase confirm --repair C2
+REPAIR = "C1"
 
 ANSWER_SYSTEM = """Você responde perguntas usando APENAS o material fornecido.
 
@@ -429,7 +442,7 @@ def cells_for(qid, man, phase):
         cs += ["pos", "neg", "lenmatch"]
         return cs
     if qid in man["dose_subsample"]:
-        cs += ["d020_C0", "d020_C1", "d894_C0", "d894_C1"]
+        cs += ["d020_C0", f"d020_{REPAIR}", "d894_C0", f"d894_{REPAIR}"]
     if qid in man["control_subsample"]:
         cs += ["pos", "neg"]
     cs += ["lenmatch"]
@@ -442,17 +455,17 @@ def cell_spec(cell, r):
     allv = list(range(n))
     ev = evidence(r)
     if cell in ("00", "01"):
-        return ("C0" if cell == "00" else "C1"), cut(r, 0.240)
+        return ("C0" if cell == "00" else REPAIR), cut(r, 0.240)
     if cell in ("10", "11"):
-        return ("C0" if cell == "10" else "C1"), allv
+        return ("C0" if cell == "10" else REPAIR), allv
     if cell.startswith("d"):
         frac = {"d020": 0.020, "d894": 0.894}[cell[:4]]
         return cell[5:], cut(r, frac)
     if cell == "pos":
-        return "C1", [i for i in allv if i not in ev]
+        return REPAIR, [i for i in allv if i not in ev]
     if cell == "neg":
         non = set(allv) - ev
-        return "C1", sorted(set(cut(r, 0.240, among=non)) | ev)
+        return REPAIR, sorted(set(cut(r, 0.240, among=non)) | ev)
     raise ValueError(cell)
 
 
@@ -494,6 +507,8 @@ def main():
     ap.add_argument("--phase", choices=["smoke", "stage1", "confirm"], required=True)
     ap.add_argument("--reader", choices=sorted(READERS), default=None,
                     help="v1.2 §13: required for --phase confirm; smoke and stage 1 are R0")
+    ap.add_argument("--repair", choices=["C1", "C2"], default="C1",
+                    help="v1.3 §14: the repaired criterion level; C2 only with --phase confirm")
     ap.add_argument("--out", required=True)
     ap.add_argument("--data", default=os.path.expanduser(
         "~/datasets/longmemeval/longmemeval_s_cleaned.json"))
@@ -506,6 +521,10 @@ def main():
     if a.phase != "confirm" and a.reader not in (None, "R0"):
         sys.exit("smoke and stage 1 ran with R0; another reader there would not be a replay")
     reader = a.reader or "R0"
+    if a.repair != "C1" and a.phase != "confirm":
+        sys.exit("smoke and stage 1 ran with C1 as the repaired level; C2 is v1.3's, confirm only")
+    global REPAIR
+    REPAIR = a.repair
 
     chk = subprocess.run([sys.executable, "-I", str(HERE / "stage1-manifest.py"), a.data, "--check"],
                          capture_output=True, text=True)
@@ -542,7 +561,7 @@ def main():
         variants[q + "#cf"] = rewrite(data[q], cf["original"], cf["altered"])
     blocks = {}
     for vk, r in variants.items():
-        crits = ("C0", "C1")
+        crits = ("C0", REPAIR)
         for i, s in enumerate(r["haystack_sessions"]):
             if vk.endswith("#cf") and i not in evidence(r):
                 pass  # unchanged session: same text as the original, same cache key
@@ -590,7 +609,7 @@ def main():
         else:
             cells = cells_for(q, man, a.phase)
             ref = str(r["answer"])
-        ub = {c: units(vk, c) for c in ("C0", "C1")}
+        ub = {c: units(vk, c) for c in ("C0", REPAIR)}
         mats = {}
         for cell in cells:
             if cell == "lenmatch":
@@ -654,7 +673,9 @@ def main():
                "rows": len(rows), "judge_preflight": pre,
                "manifest_sha256": hashlib.sha256(man_path.read_bytes()).hexdigest(),
                "runner_sha256": hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest(),
-               **({"reader": reader, "reader_spec": READERS[reader][:3]} if a.phase == "confirm" else {}),
+               **({"reader": reader, "reader_spec": READERS[reader][:3], "repair": REPAIR,
+                   "repair_prompt_sha256": hashlib.sha256(PROMPTS[REPAIR].encode()).hexdigest()}
+                  if a.phase == "confirm" else {}),
                "models": {"extractor_answerer": GMODEL, "judge": JMODEL,
                           "answer_versions": sorted({r.get("answer_model_version") or "?" for r in rows})}}
     (out / "receipt.json").write_text(json.dumps(receipt, indent=1) + "\n")
