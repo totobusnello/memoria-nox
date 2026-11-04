@@ -1481,3 +1481,24 @@ Estimate: ~US$ 20 of distillation, from C2's measured 1.7e-4 per block and C0's 
 **9. A known measurement limit.** Preference questions score 0.077 under R3 even on raw evidence,
 because their references are rubrics, not answers. They are about 6.6% of the 242 and cap every
 cell. They stay in the sample, as registered.
+
+### 14.10 Second review of the corrections (DeepSeek, 2026-11-03), before the deposit
+
+A third voice reviewed the §14.9 diff and found two real defects in the spending rule. Both are
+fixed in the runner, and they replace the "cap" row of §14.9.7:
+
+- **Two processes on one run directory** could each read the same prior spend and pass the cap
+  together. The runner now takes an exclusive lock on `<out>/run.lock`, and a second process
+  exits.
+- **`kill -9` skips exit handlers**, so that process's spend went unrecorded. Each process now
+  keeps its own `<out>/spend/<start>-<pid>.json`. It is rewritten every 20 ledger entries, when
+  the cap trips, and at exit, and the next process starts from the sum of all of them. A hard kill
+  loses at most the last 19 entries, under US$ 1 at this run's prices.
+
+The cap can still be overshot by the calls already in flight when it trips, at most one call per
+worker. Both behaviours were tested without API calls, on the runner's own code: a kill at entry
+45 kept 40; a restart stopped at the cumulative cap; a concurrent second process was refused.
+
+The other two findings were not defects:
+- `v13-manifest.json` is committed. The reviewed diff had omitted it.
+- The power and allocation numbers cannot be checked from a diff alone.
