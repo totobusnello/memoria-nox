@@ -99,8 +99,12 @@ EDITS = [
     ("# Construction before search: a pre-registered factorial test of two repairs to LLM-extracted agent memory. DRAFT for approval, not deposited.",
      "# Construction before search: a pre-registered factorial test of two repairs to LLM-extracted agent memory"),
     ("> 📌 **DEPOSIT CANDIDATE — §11 is the active design; §4 is kept as the blocked first attempt.**",
-     "> **Status.** Version 1.1 (2026-11-03), amending version 1.0 (2026-10-27) BEFORE any arm "
-     "ran: §12 corrects a census error and pins what §11 left unspecified. §11 as amended by §12 "
+     "> **Status.** Version 1.3 (2026-11-04). It amends version 1.1 (2026-11-03) after stage 1 and "
+     "BEFORE the confirmatory run. Stage 1 failed the answerable floor and is reported as an "
+     "instrument failure, not interpreted (§12, `STAGE1-RESULT.md`). §13 (v1.2, registered by tag "
+     "only) calibrated four readers and selected none. §14 (v1.3) fixes the reader and replaces the "
+     "repaired criterion with C2. C2's calibration on the spent instances passed (§14.8), and the "
+     "confirmatory run on 262 untouched instances follows this deposit. §11 as amended by §12–§14 "
      "is the active design; §4 is kept as the blocked first attempt. Not peer reviewed."),
 ]
 EMOJI = {"\U0001F534": "[defect] ", "⚠️": "[limit] ", "⚠": "[limit] ",

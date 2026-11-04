@@ -1,0 +1,30 @@
+<p><strong>Version 1.3 (2026-11-04) amends version 1.1 after its first stage and before the confirmatory run.</strong> Stage 1 (200 LongMemEval <code>s_cleaned</code> instances) failed the registered answerable floor. With every session served, the pipeline answered 21.0% of the questions against a required 50%. Under the plan's own rule that is an instrument failure. The primary contrast it printed is reported but not interpreted, and stage 2 was not run.</p>
+
+<p>This version records what happened next, in order. Each registered step was fixed by a git tag before its first API call, and each exploratory run was committed before its own.</p>
+<ul>
+<li><strong>v1.2 (&sect;13), the reader.</strong> Four readers (two models &times; two prompts) were calibrated on the spent stage-1 instances, on the floor cell and the positive control only, with a pass bar of 0.55. None passed. The best, gemini-3.8-flash with a prompt that names the material as dated memories, reached 0.505. Under its rule, v1.2 stopped there.</li>
+<li><strong>Where the answer is lost (exploratory, not registered).</strong> Served the raw turns of the answer sessions, the same reader answers 83.0%. Served the distilled units of those same sessions, it answers 47.5%. Served the units of all ~50 sessions, it answers 50.5%. Removing the distractor sessions changes nothing (12 against 6 discordant pairs, p = 0.24), while distillation costs 35.5 points (6 against 77, p &lt; 10<sup>&minus;16</sup>). A cache-only diagnosis of the 77 losses found the blocks distilled but the wrong things kept. Facts said in passing are rewritten as lessons or preferences ("the commute takes 45 minutes" becomes "the user retains more from audiobooks"). The time of an event is replaced by the date of the conversation. Lists the assistant gave are not kept.</li>
+<li><strong>v1.3 (&sect;14), the criterion.</strong> The reader is fixed rather than selected again. The repaired extraction criterion becomes C2: the v1.1 repaired prompt plus one paragraph that asks for facts said in passing (with their numbers and names), the event's own time expression, and specific information the assistant gave. The primary contrast is unchanged in form: full window with the repaired criterion against the truncated window with the deployed one. Calibrated on the same spent instances with the same 0.55 bar, C2 passed: 0.770 on the floor cell (second judge family 0.760) and 0.000 with every answer session removed. Temporal-reasoning questions went from 0.389 to 0.759.</li>
+</ul>
+
+<p>C2 was written after reading these instances' failures, so the calibration number is an upper bound on what new instances will show. The confirmatory run therefore uses only the 262 instances of the 462-instance universe that no earlier stage touched (seed 20261104). It is a single stage at &alpha; = 0.05 with no interim look, and every threshold and control is the one v1.1 registered, the 50% floor included. It runs after this version is published.</p>
+
+<p>The closest prior work predicts that extraction prompts with explicit date and time targeting "could shrink this class, but cannot reach the unconditional retention of a verbatim store" (<code>arXiv 2601.00821</code>). C2 is such a prompt. On the spent instances it reached 0.770 against 0.830 for the verbatim evidence. The confirmatory run is where that becomes a test rather than an observation.</p>
+
+<h4>What the document records against itself</h4>
+<ul>
+<li>The 50% floor was justified in v1.1 by figures from a different corpus (a Portuguese-language replay, not LongMemEval). The threshold was kept, and the wrong citation is stated in &sect;13.2.</li>
+<li>The 8-instance smoke run passed the floor at exactly 4/8, an interval of about &plusmn;35 points. It could check plumbing but not a threshold.</li>
+<li>The stage-1 diagnosis named the reader as the larger loss. That held only for the stage-1 reader, which was weak enough to hide the construction loss. The correction is dated and kept next to the original sentence.</li>
+<li>Preference questions score near zero even on raw evidence (their reference answers are rubrics, not answers). They cap every arm at about 6.5% of the sample, and they stay in the sample as registered.</li>
+</ul>
+
+<p>Not peer reviewed. The confirmatory run this version registers has not been performed.</p>
+
+<h4>Files</h4>
+<ul>
+<li><code>construction-interaction-prereg-v1.3.pdf</code>: the plan, with &sect;12&ndash;&sect;14.</li>
+<li><code>construction-interaction-prereg-v1.3.md</code>: its source text.</li>
+<li><code>code-v1.3.zip</code>: the runner (with the C2 prompt verbatim), the keyless analysis, both manifests, the two calibration scripts, the exploratory ceiling and diagnosis scripts, the result notes, and every row of the smoke, stage 1, both calibrations and the ceiling run.</li>
+<li><code>SHA256SUMS</code>: checksums of the three files above.</li>
+</ul>

@@ -1247,7 +1247,7 @@ Paired results:
 - cell 11 → evidence-only units: 12/6, p = 0.24. The distractor sessions cost nothing.
 - units → raw turns: 6/77, p < 10⁻¹⁶.
 
-With a capable reader, the floor fails on **construction**. §13.1's sentence "the reader is the
+With a capable reader, the floor fails on construction. §13.1's sentence "the reader is the
 larger loss" is corrected there (it held only for the stage-1 reader).
 
 **Distillation-loss diagnosis** (`distill-loss-diagnosis.py`, cache only) on the 77 instances R3
@@ -1274,7 +1274,7 @@ The language of the units does not separate the groups.
 Everything §13.2 lists, which includes:
 - the corpus, the cells and the window rule;
 - the serving format, both judges and the correctness rule;
-- the four controls, every threshold (**the floor at 0.50**), α and the analysis.
+- the four controls, every threshold (the floor at 0.50 included), α and the analysis.
 
 C0 (the deployed criterion) and C1 are not modified.
 
@@ -1330,7 +1330,7 @@ If and only if §14.5 passes:
 lme-run.py --phase confirm --reader R3 --repair C2
 ```
 
-The run uses the **262** instances of `v12-manifest.json` (seed 20261104), with its dose and
+The run uses the 262 instances of `v12-manifest.json` (seed 20261104), with its dose and
 control subsamples and the 31 counterfactual rewrites. It is one stage at α = 0.05 with no stop
 rule, exactly as in §13.6–13.7, and the power stated there is unchanged.
 
