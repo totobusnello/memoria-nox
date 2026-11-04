@@ -107,6 +107,9 @@ EDITS = [
      "confirmatory run on 262 untouched instances follows this deposit. §11 as amended by §12–§14 "
      "is the active design; §4 is kept as the blocked first attempt. Not peer reviewed."),
 ]
+# 3. v1.3: a Greek letter in a section TITLE breaks xelatex (hyperref turns it into a label:
+#    "Improper alphabetic constant" at §13.7). The body keeps α; only the heading is spelled out.
+EDITS.append(("### 13.7 α, stopping, power", "### 13.7 Alpha, stopping, power"))
 EMOJI = {"\U0001F534": "[defect] ", "⚠️": "[limit] ", "⚠": "[limit] ",
          "✅": "[closed] ", "\U0001F511": "[key] ", "\U0001F4CC": "[status] ",
          "\U0001F525": "[result] ", "⏸️": "[held] ", "⏸": "[held] ",
