@@ -23,10 +23,12 @@
 > v1.2's 262 already exposed. The confirmatory sample is the remaining **242** (`v13-manifest.py`).
 >
 > **v1.3 (2026-11-04) — [`10.5281/zenodo.23934489`](https://doi.org/10.5281/zenodo.23934489)**,
-> published before the confirmatory run. **Confirmatory result** (`CONFIRM-RESULT.md`,
+> published before the confirmatory run. **Confirmatory result**, deposited as its own record
+> [`10.5281/zenodo.23949145`](https://doi.org/10.5281/zenodo.23949145) (`CONFIRM-RESULT.md`,
 > `runs/confirm-2026-11-04/`): all four controls pass (floor acc(11) = **0.818** ≥ 0.50), and
-> **H1′ is confirmed**: +66.5 pp [+60.6, +72.5] under judge 1, +66.9 under judge 2. Most of it is
-> the window (11 − 01 = +59.5 pp); the criterion at the full window adds +24.8 pp (11 − 10). The
+> **H1′ is confirmed**: +66.5 pp [+60.6, +72.5] under judge 1, +66.9 under judge 2. The contrasts
+> interact, so they are not shares of the total: window 11 − 01 = +59.5 pp, criterion at the full
+> window 11 − 10 = [+24.8 · +27.3] pp across judges (C2 against C0, not against C1). The
 > interaction is inconclusive. This confirms the revised intervention (C2 with R3), not the
 > original H1 or H3 (§14.9 item 3).
 
