@@ -1222,3 +1222,152 @@ Accuracy in cell 11 by question type:
 | single-session-preference | 13 | 0.000 | 0.000 | 0.000 | 0.077 |
 | single-session-user | 27 | 0.296 | 0.407 | 0.593 | 0.630 |
 | temporal-reasoning | 54 | 0.093 | 0.130 | 0.185 | 0.389 |
+
+## 14. Amendment v1.3 (2026-11-03) — the criterion, calibrated before any contrast
+
+Registered after the v1.2 calibration selected no reader, and before any call under criterion C2.
+The git tag `paper3-prereg-v1.3-calibration` fixes this section, `c2-calibration.py`, the
+runner (with `PROMPTS["C2"]`) and `v12-manifest.json` **before** the calibration's first call.
+A Zenodo deposit fixes them, plus the calibration result, **before** the confirmatory run.
+
+### 14.1 Why
+
+v1.2 (§13.10) selected no reader. The best one, R3, reached acc(11) = 0.505 against 0.55. Two
+exploratory, unregistered runs on the same 200 spent instances then located the loss.
+
+**Reader ceiling** (`READER-CEILING.md`), R3, judge 1:
+
+| material | acc |
+|---|---|
+| cell 11 (all sessions, C1 units) | 0.505 |
+| evidence sessions only, C1 units | 0.475 |
+| evidence sessions only, raw turns | 0.830 |
+
+Paired results:
+- cell 11 → evidence-only units: 12/6, p = 0.24. The distractor sessions cost nothing.
+- units → raw turns: 6/77, p < 10⁻¹⁶.
+
+With a capable reader, the floor fails on construction. §13.1's sentence "the reader is the
+larger loss" is corrected there (it held only for the stage-1 reader).
+
+**Distillation-loss diagnosis** (`distill-loss-diagnosis.py`, cache only) on the 77 instances R3
+answers from raw turns and misses from units ("lost"), against the 89 it answers from both ("kept"):
+
+| | lost | kept |
+|---|---|---|
+| answer-turn block distilled to zero units | 5 / 77 | 0 / 89 |
+| reference content words found in the evidence units (textual references) | 0.50 | 0.84 |
+| … none of them found | 16 / 51 | 4 / 56 |
+| temporal: answer turn states when the event happened, and the units drop it | 7 / 12 | 2 / 10 |
+| share of units written in Portuguese | 0.10 | 0.14 |
+
+The blocks are distilled; what they keep is the wrong thing. In the cases read by hand:
+- a fact said in passing is turned into a lesson or a preference ("commute takes 45 minutes each
+  way" becomes "the user retains more from audiobooks");
+- the time of an event is replaced by the date of the conversation;
+- an item the assistant listed is not kept.
+
+The language of the units does not separate the groups.
+
+### 14.2 What v1.3 does not change
+
+Everything §13.2 lists, which includes:
+- the corpus, the cells and the window rule;
+- the serving format, both judges and the correctness rule;
+- the four controls, every threshold (the floor at 0.50 included), α and the analysis.
+
+C0 (the deployed criterion) and C1 are not modified.
+
+### 14.3 What changes
+
+1. **The repaired level of factor C becomes C2.** C2 is C1 with one paragraph inserted at the same
+   anchor, aimed at the three losses of §14.1. Its text is verbatim in `lme-run.py`
+   (`EVENT_PARAGRAPH`). C2 asks for three things:
+   - concrete facts about the user's life, kept even when said in passing, with their numbers and
+     names, as facts and not lessons, at importance ≥ 0.5;
+   - the event's own time expression, copied with the event;
+   - specific information the assistant gave that the user may ask back (lists in order, names,
+     numbers).
+
+   The primary stays the total effect, **cell 11 − cell 00**, now *full window + C2* against
+   *0.240 window + C0*. That is still "repair both against repair neither", with the deployed
+   criterion as the unrepaired level. C1 is not run in the confirmatory stage.
+2. **The reader is fixed at R3** (gemini-3.8-flash, prompt B, §13.3). The ceiling run shows R3
+   answers 83% from raw evidence, and R0 34%. A reader that cannot read the evidence cannot test a
+   construction step. R3 is fixed by this amendment, not selected: no reader table is calibrated
+   again.
+
+C2 was written after reading the failures of the 200 spent instances. That is why it is
+calibrated there and confirmed only on the 262 untouched ones (§13.6), where no C2 output has been
+seen.
+
+### 14.4 Calibration
+
+`c2-calibration.py`, on the 200 stage-1 instances:
+- it distils every block under C2;
+- it builds cell 11 (C2, all 200) and pos (C2, the 40 of `control_subsample`);
+- it reads them with R3 and judges with both judges.
+
+It also builds an exploratory E-dist (evidence sessions only, C2), which is outside the rule. It
+builds no C0 cell and no cut window, so no contrast can be computed.
+
+### 14.5 Rule
+
+| | |
+|---|---|
+| pass | acc_j1(11) ≥ **0.55**, acc_j1(pos) ≤ **0.10**, and STOP on ≥ 98% of the rule's rows |
+| fail | v1.3 stops. No other criterion is tried without a new registered amendment |
+
+There is one candidate, so there is no selection among candidates. The 0.55 margin is kept,
+because C2's text was itself chosen on these instances. The script prints the verdict. §14.8
+records it by a commit that only fills the table.
+
+### 14.6 Confirmatory run
+
+If and only if §14.5 passes:
+
+```
+lme-run.py --phase confirm --reader R3 --repair C2
+```
+
+The run uses the 262 instances of `v12-manifest.json` (seed 20261104), with its dose and
+control subsamples and the 31 counterfactual rewrites. It is one stage at α = 0.05 with no stop
+rule, exactly as in §13.6–13.7, and the power stated there is unchanged.
+
+The receipt records the reader, `repair: C2` and the sha256 of the C2 prompt.
+
+### 14.7 Cost
+
+| step | estimate |
+|---|---|
+| calibration: 59,273 blocks under C2 + 440 R3 reads | ~US$ 21 (cap 30) |
+| confirmatory: ~157k blocks (C0 + C2) + ~1,750 R3 rows + judges | ~US$ 70 |
+| v1.3 total | **~US$ 90** |
+
+Per-block cost is taken from stage 1's measured spend (~US$ 1.5e-4), not from the smoke's figure
+(6.22e-4), which the runner's estimate line still prints.
+
+### 14.8 Calibration result
+
+`runs/c2-calibration-2026-11-03/` (`c2-calibration.txt`). R3 reads C2 on the 200 spent instances.
+There were 59,273 blocks, of which 63 failed and were served empty (0.11%, the same rate as stage 1).
+Spend was US$ 24.4, including a first launch that was stopped and resumed from its cache with more
+workers.
+
+| cell | n | acc judge 1 | judge 2 | abstained | STOP | mean chars served |
+|---|---|---|---|---|---|---|
+| 11 (full window, C2) | 200 | **0.770** | 0.760 | 0.115 | 100% | 229,898 |
+| pos (no answer session, C2) | 40 | **0.000** | 0.000 | 0.925 | 100% | 217,420 |
+| E-dist (evidence only, C2; exploratory) | 200 | 0.745 | 0.785 | 0.120 | 100% | 12,103 |
+
+**Verdict: PASS** (0.770 ≥ 0.55; 0.000 ≤ 0.10; STOP 100%). The confirmatory run of §14.6 is
+licensed. It starts only after this section is deposited.
+
+Descriptive, and not a registered contrast:
+- Against C1 under the same reader on the same 200 (§13.10, R3 cell 11 = 0.505), C2 is right on 56
+  instances C1 misses and wrong on 3 that C1 gets.
+- It approaches the raw-evidence ceiling of `READER-CEILING.md` (0.830).
+- C2 was written after reading these instances' failures, so these numbers are the upper end of what
+  the 262 can show.
+
+By type (judge 1, cell 11): KU 0.903 · MS 0.765 · SSA 0.875 · SSP 0.231 · SSU 0.815 · TR 0.759.
