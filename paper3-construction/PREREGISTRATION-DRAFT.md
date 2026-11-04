@@ -1371,3 +1371,113 @@ Descriptive, and not a registered contrast:
   the 262 can show.
 
 By type (judge 1, cell 11): KU 0.903 · MS 0.765 · SSA 0.875 · SSP 0.231 · SSU 0.815 · TR 0.759.
+
+### 14.9 Corrections after the adversarial pass, before the deposit
+
+§14.1–§14.8 were fixed by tag `paper3-prereg-v1.3-calibration` before the calibration and are
+left as written. Two adversarial voices (Codex and Kimi, `challenge` mode, 2026-11-03) read them
+before deposit and both said not to publish them as they stood. This section is what changed in
+response. Where it conflicts with §14.1–§14.8, **this section governs**. No C2 output on any
+confirmatory instance existed when it was written.
+
+**1. The confirmatory sample is 242, by provenance (`v13-manifest.py`).** v1.2 defined "untouched"
+by qid only. Two kinds of prior exposure were missed:
+
+- the 31 counterfactual instances all ran in stage 1 as rewritten variants (four primary cells,
+  judged); **17** of them are among the 262;
+- **3** more of the 262 share an answer session id with a smoke or stage-1 instance.
+
+Removing these 20 leaves **242**:
+
+| type | KU | MS | SSA | SSP | SSU | TR |
+|---|---|---|---|---|---|---|
+| confirm (242) | 30 | 68 | 28 | 16 | 32 | 68 |
+| dose subsample (60) | 7 | 17 | 7 | 4 | 8 | 17 |
+| control subsample (40) | 5 | 11 | 5 | 3 | 5 | 11 |
+
+The dose and control subsamples are redrawn from the 242 with the same seed (20261104) and the
+same allocation function. The runner refuses a C2 confirmatory run on any instance that is
+exposed under either rule. Every LongMemEval instance shares *distractor* sessions with others,
+because the haystacks come from one pool. That is how the corpus is built and it does not expose
+evidence, so it is stated here rather than filtered.
+
+**2. The counterfactual control is a regression control.** All 31 rewrites ran in stage 1, so
+the counterfactual checks the instrument on known examples, not on new instances. It runs and is
+reported with its registered thresholds. Its result is not a confirmatory claim about unseen data.
+
+**3. The hypothesis, stated as what it is.** The primary is the total effect
+
+> H1′: E[ Y(full window, C2, R3) − Y(0.240 window, C0, R3) ] > 0 on the 242.
+
+It is a confirmatory test of an **intervention revised after exploration**. It is not a
+continuation of the C1 test. A positive result:
+
+- does not confirm the original H1: the interaction was already a secondary, and it now involves
+  another treatment;
+- does not confirm H3: identifier survival is not identified by this design;
+- does not show that C2 beats C1 on new data, because C1 does not run. The 0.505 → 0.770 of
+  §14.8 stays descriptive and on spent instances.
+
+**4. Selection, worded accurately.**
+- R3 was **chosen on development data and frozen before confirmation**. It was not "fixed rather
+  than selected".
+- Running one candidate does not remove the adaptive selection built into writing C2 from
+  observed failures. The 0.55 margin does not correct for that quantitatively.
+- 0.770 is **likely optimistic**, not an upper bound: the new instances may score higher or lower.
+- 0.830 is the score **observed** under the oracle condition, not a formal ceiling.
+- The 12/6 split in `READER-CEILING.md` (p = 0.24) does not show that distractors cost nothing.
+  It shows no detectable cost at n = 200, and it is not an equivalence result.
+
+**5. Judge and reader families.** R3 (gemini-3.8-flash) and judge 2 (gemini-2.5-flash-lite) are
+both Gemini. Judge 1 (OpenAI) stays the primary judge and the bracket stays a sensitivity analysis
+to the judge.
+- Agreement between the two judges is not independent validation of R3.
+- A family affinity between reader and judge 2 would show up as a difference between cells, so the
+  bracket is read on the contrasts, not on the levels.
+- Conclusions remain conditional on the judges until the blind human pass the plan already
+  provides for.
+
+**6. Power, recomputed for 242.** The approximation is paired binary at α = 0.05 two-sided, with
+the discordance rate p_d stated as an assumption: C2 and R3 change it, and it cannot be taken
+from stage 1. Clustering by answer session touches 2.0% of instances (§11), and its inflation is
+not included.
+
+| planning effect | p_d = 0.30 | p_d = 0.40 | p_d = 0.50 |
+|---|---|---|---|
+| +21.2 pp (§11.4) | 100% | 100% | 99.8% |
+| +14.5 pp (stage 1, uninterpretable; pessimistic planning value only) | 99.0% | 95.6% | 90.3% |
+| +8.0 pp | 63.2% | 50.9% | 42.5% |
+
+An interval that contains 0 is inconclusive, never a null. That rule is §13.2's and is unchanged.
+
+**7. Spending, failures and completion.**
+
+| rule | what it fixes |
+|---|---|
+| cap | **US$ 110, cumulative** across restarts. Each process appends its spend to `<out>/spend-log.ndjson` on exit, normal, cap or exception, and the next process starts from the sum |
+| resume | from the run's own cache only; nothing is re-decided between processes |
+| no look | `lme-analyze.py` is not run, and no row is read for outcome, until every row exists |
+| incomplete | a run that ends at the cap without every row gives **no confirmatory inference** and is reported as incomplete |
+| failures | a block that fails to distil is served empty, as registered (§12); an answer or judge call that errors is retried by resuming |
+
+Estimate: ~US$ 20 of distillation, from C2's measured 1.7e-4 per block and C0's ~0.9e-4 over
+155,506 distinct blocks, plus ~US$ 51 of R3 reads and judges, so **~US$ 72**.
+
+**8. Reconciliations and textual fixes.**
+- The calibration spent **≈ US$ 23.8**: US$ 23.58 measured by the second process, plus ≈ 0.2 for
+  the first launch. The second process distilled 57,999 of the 59,273 blocks, so the first did
+  ≈ 1.3k, at the measured 1.7e-4 per block. The US$ 24.4 in §14.8 overstated it.
+- §14.7's "~US$ 21" disagrees with the script's own estimate line (US$ 25.93), which assumed every
+  read cost a full-window read.
+- §14.2: "Everything §13.2 lists" holds **except** the repaired level of factor C, which §14.3
+  replaces.
+- §14.4: the new outputs alone give no factorial contrast. Combined with §13.10 they give the
+  descriptive C2–C1 comparison §14.8 prints.
+- `c2-calibration.py`'s docstring says STOP on ≥ 98% of "R3 rows". The code applies it to the
+  240 rule rows (cell 11 + pos), as §14.5 states. Here the two coincide (100%).
+- `lme-analyze.py` now labels the dose section with the repaired level that ran. The stage-1 and
+  smoke `--check` stay byte-identical.
+
+**9. A known measurement limit.** Preference questions score 0.077 under R3 even on raw evidence,
+because their references are rubrics, not answers. They are about 6.6% of the 242 and cap every
+cell. They stay in the sample, as registered.
