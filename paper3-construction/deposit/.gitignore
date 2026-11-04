@@ -3,3 +3,4 @@
 *.zip
 SHA256SUMS
 .draft-id-result
+.draft-id*

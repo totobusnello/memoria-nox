@@ -1502,3 +1502,74 @@ worker. Both behaviours were tested without API calls, on the runner's own code:
 The other two findings were not defects:
 - `v13-manifest.json` is committed. The reviewed diff had omitted it.
 - The power and allocation numbers cannot be checked from a diff alone.
+
+## 15. Amendment v1.4 (2026-11-04) — the raw-evidence arm on the 242, registered before its first call
+
+### 15.1 Why
+
+The confirmatory run tested the revised intervention and left one question open. 2601.00821
+predicts that better extraction prompts "could shrink this class, but cannot reach the
+unconditional retention of a verbatim store". On the spent 200 (§14.8, `READER-CEILING.md`),
+under R3, raw evidence scored 0.830 and C2 units of the same evidence sessions 0.745. Those 200
+informed the writing of C2, so that gap is not a test. The 242 have no raw arm. This amendment
+adds one, on the 242, before any of its calls.
+
+### 15.2 What does not change
+
+The 242 (`v13-manifest.json`, `confirm`), reader R3, both judges and their prompts, the
+correctness rule (judge 1 `contem` > 0.5), the C2 prompt, and the serving function `serve()`.
+Nothing is re-distilled: every C2 unit of the evidence sessions already sits in the confirmatory
+cache, because each block was distilled once per criterion (§11.4). The cache is copied; the
+source is never written.
+
+### 15.3 Arms
+
+Both arms are restricted to the instance's annotated evidence sessions (an oracle of retrieval),
+so they differ only in representation:
+
+| arm | material |
+|---|---|
+| E-raw | the evidence sessions as raw turns, chronological, `[date] [ROLE]: content` (as `reader-ceiling.py`) |
+| E-dist(C2) | the C2 units of the same sessions, served by `serve()`, importance then recency |
+
+Cell 11 of the confirmatory run (all sessions, C2 units) is reused from `rows.ndjson`, with no
+new call.
+
+### 15.4 Primary hypothesis and decision rule
+
+> H4: D = acc(E-dist(C2)) − acc(E-raw) on the 242, judge 1, paired.
+
+The estimate is the paired difference with a 95% two-sided interval from the cluster bootstrap
+of `lme-analyze.py` (answer-session clusters, B = 10,000, its seed). Margin δ = 10 pp, fixed here,
+less than half of the 22.0-pp gap 2601.00821 reports on LongMemEval-S.
+
+| interval | reading |
+|---|---|
+| upper bound < 0 | C2 units lose to raw evidence under this protocol; 2601.00821's prediction holds here |
+| lower bound > −δ | C2 units are non-inferior to raw evidence at δ = 10 pp |
+| both | worse than raw evidence, by less than δ; both readings are reported |
+| neither | inconclusive; never read as a null or as equivalence |
+
+Judge 2 is reported beside judge 1. If the two judges lead to different rows of this table, the
+claim is the weaker of the two.
+
+**Power** (simulated from the dev discordance, 11 C2-only against 28 raw-only pairs of 200, at
+n = 242): if the true gap equals the dev gap (−8.5 pp), P(upper < 0) ≈ 0.86 and
+P(lower > −δ) ≈ 0.08; if the true gap is zero, P(lower > −δ) ≈ 0.94 and P(upper < 0) ≈ 0.02.
+The test can come out either way.
+
+### 15.5 Instrument check
+
+If acc(E-raw) < 0.60 under judge 1, the reader is not reading raw evidence as it did in
+development (0.830), the run is reported as an instrument failure, and H4 is not interpreted.
+
+### 15.6 Secondary, descriptive
+
+With intervals, none confirmatory: cell 11 − E-raw (distractors plus representation), cell 11 −
+E-dist(C2) (what the distractor sessions cost), and both arms by question type.
+
+### 15.7 Runner, cost, and order
+
+`raw-arm.py` prints a cost estimate without `--yes`. It runs under a cap (US$ 10) and writes rows
+before any summary. No row is read for its outcome until all 484 exist. This amendment is fixed by
+the tag `paper3-prereg-v1.4`, pushed before the first call.
