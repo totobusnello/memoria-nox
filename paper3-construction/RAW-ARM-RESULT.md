@@ -1,6 +1,8 @@
 # Raw-evidence arm on the 242 — result (v1.4, §15)
 
 Registered by the tag `paper3-prereg-v1.4` (commit `bca912c`), pushed before the first call.
+GitHub's activity log records the push of `bca912c` at 21:55:05 UTC; the first call started at
+21:55:12 UTC. The tag's own date is set by the author.
 Run 2026-11-04, 484 rows, every one with finish `STOP`, no failed call, US$ 2.06 in 148 s.
 `python3 -I raw-arm.py --out runs/raw-arm-2026-11-04 --analyze` reproduces `raw-arm.txt` without
 any API key.
@@ -30,13 +32,22 @@ acc(E-raw) = 0.872 under judge 1, against the required 0.60. PASS, so H4 is inte
 
 G = 241 answer-session clusters.
 
-**Reading under the registered rule.** The two judges land in different rows, and each by the
-smallest margin the interval can carry (0.3 pp below −δ under judge 1; an upper bound of exactly
-zero under judge 2). §15.4 says the claim is then the weaker of the two. Neither directional
-reading holds under both judges: "C2 units lose to raw evidence" fails under judge 2, and
-"non-inferior at 10 pp" fails under judge 1. What both judges agree on is the estimate, a gap of
-about 5 pp against the C2 units (−5.4 and −5.0), with intervals that reach from about −10 pp to
-about 0. The result is reported as that bracket, not as a confirmation of either reading.
+**Reading under the registered rule.** The two judges land in different rows, each by a small
+margin (0.3 pp below −δ under judge 1; an upper bound of exactly zero under judge 2, 0.0 in the
+unrounded `raw-arm.json`). §15.4 says the weaker claim stands when the judges disagree, but "C2
+units lose to raw evidence" and "non-inferior at 10 pp" are not nested, and the rule does not
+order them. We therefore make neither claim across judges and report both estimates and
+intervals: a gap of about 5 pp against the C2 units (−5.4 and −5.0), with intervals reaching from
+about −10 pp to about 0. The bracket [−5.4 · −5.0] is variation between judges, not an
+uncertainty interval.
+
+**What H4 measures.** Both arms are given perfect retrieval through the annotations, and the two
+materials differ in length (13,115 against 28,153 characters), order (importance and recency
+against chronological) and format as well as in content. H4 compares two served materials; it
+does not measure retention, so it can be compatible with 2601.00821's prediction but cannot
+adjudicate it. The responses are new, but the 242 instances and their primary-cell results were
+known when §15 was written. The by-type table below carries no intervals, although §15.6 asked
+for them.
 
 ## Secondary, descriptive
 

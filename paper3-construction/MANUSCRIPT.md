@@ -12,10 +12,10 @@ Several recent studies compare memory extracted by a language model with retriev
 over the raw conversation, and in most of their settings the raw record wins. Their conclusions
 carry conditions: one limits its recommendation to the extraction designs it tested, one finds
 extraction more accurate at generous context budgets, and one finds designed memory helping
-only a weak reader. None of them varies how much of the conversation the builder sees or the
-instructions it extracts under. One of them, *Fidelity before Structure*
-(arXiv 2601.00821), predicts that better extraction prompts can narrow the gap but cannot reach
-what a verbatim store retains.
+only a weak reader. One of them, *Fidelity before Structure* (arXiv 2601.00821), also varies
+the extraction itself, down to a near-verbatim, full-coverage design that still trails verbatim
+chunks, and predicts that better extraction prompts can narrow the gap but cannot reach what a
+verbatim store retains. None of them varies how much of the conversation the builder is shown.
 
 We pre-registered a test of two repairs to the construction step: how much of the conversation
 the builder is shown (the window), and the instructions it extracts under (the criterion). The
@@ -39,9 +39,11 @@ the full window is +24.8 to +27.3 pp across judges. A length-matched arm rules o
 of padding as the explanation. The result confirms a revised intervention, not the original
 hypotheses. A raw-evidence arm, registered as a further amendment before it ran, used the same
 242. C2 units of the evidence sessions scored about 5 pp below the raw turns of those sessions
-(−5.4 pp [−10.3, −0.8] under judge 1, −5.0 pp [−9.9, 0.0] under judge 2). The judges fall on
-opposite sides of the registered decision rule, so the arm neither confirms the verbatim-store
-prediction nor shows non-inferiority at 10 pp.
+(−5.4 pp [−10.3, −0.8] under judge 1, −5.0 pp [−9.9, 0.0] under judge 2). Judge 1 detects a
+loss without non-inferiority at 10 pp, and judge 2 shows non-inferiority without a loss, so
+neither reading holds under both judges. Both arms are restricted to the annotated evidence
+and differ in length and order as well as content, so the arm compares two served materials and
+does not test retention.
 
 ## 1. Introduction
 
@@ -56,12 +58,13 @@ generous ones. 2610.29823 finds that designed memory beats full context only wit
 reader it tried. A fourth study, 2609.34160, works on the construction step itself: processing
 the same records in a different order changes what memory keeps.
 
-The three comparisons vary the reader, the context budget or the retrieval method. None of them
-varies how much of the conversation the builder sees or the instructions it extracts under.
-2610.29823 says so directly: Mem0
+2609.34227 and 2610.29823 keep the extractor at its default; 2610.29823 says so directly: Mem0
 and Zep "run with their default extraction and retrieval, and other settings may do better".
-The closest to our question, 2601.00821, isolates the mechanism as lossy distillation. It also
-states, as a prediction rather than a result, that "better extraction prompts — explicit
+2601.00821 goes further. Besides its main ablation, it sweeps the compression rate of a real
+extractor and tests a near-verbatim extraction with full coverage and no salience filter, which
+still saturates about 11 points below verbatim chunks on LoCoMo; it locates the mechanism in
+lossy distillation. None of the three varies how much of the conversation the builder is shown.
+2601.00821 also states, as a prediction rather than a result, that "better extraction prompts — explicit
 date/time targeting, temporal attribute modeling — could shrink this class, but cannot reach
 the unconditional retention of a verbatim store."
 
@@ -69,14 +72,16 @@ That prediction can be tested, and our own system gave us a reason to test it. I
 multi-agent memory system (§3), the builder skips sessions it has already logged, so in the
 largest sessions it saw a median of 24% of the prose. Its criterion also turned specific facts
 into general lessons. In an exploratory, unregistered measurement, repairing either factor alone
-moved little, and repairing both moved a lot. A study can only see this if it changes the
-construction step.
+moved little, and repairing both moved a lot. Our contribution is narrower than a claim about
+extraction in general: a registered test, in one system, of the construction window crossed
+with one concrete revision of the extraction instructions.
 
 This paper reports a pre-registered test of that claim on a public benchmark, LongMemEval
 `s_cleaned`. It reports the path to the result as well: the first instrument failed its own
 floor, the first amendment selected no reader, and the criterion that passed was written after
-looking at failures on development data. The registration records were deposited before the
-runs they govern (§5), so a reader can check what was fixed when.
+looking at failures on development data. Every registration record except v1.4 was deposited
+before the runs it governs; v1.4 was fixed by a pushed tag and deposited afterwards (§5), so a
+reader can check what was fixed when.
 
 **What this paper claims.** On 242 LongMemEval instances the test had never touched, a full
 construction window plus the revised criterion C2 raised answer accuracy from 0.153 to 0.818,
@@ -101,7 +106,7 @@ controls passed. The effect is not explained by the length-matched padding arm.
 
 | study | what it varies | finding relevant here | what it holds fixed |
 |---|---|---|---|
-| 2601.00821 *Fidelity before Structure* | memory representation, with six confound controls | verbatim chunks beat lossy artifact extraction; of diagnosable failures, 69.0% are facts never written down and 31.0% retrieval misses | the extraction prompt, except a few-shot contamination control |
+| 2601.00821 *Fidelity before Structure* | memory representation, with six confound controls; a real extractor's compression rate (App. F); a near-verbatim, full-coverage extraction (App. H) | verbatim chunks beat lossy artifact extraction; of diagnosable failures, 69.0% are facts never written down and 31.0% retrieval misses; the near-verbatim extraction stays about 11 points below chunks | the retrieval and answer stack; how much of the conversation the extractor sees |
 | 2609.34227 *When Does Selection Replace Extraction?* | context budget; pre-registered, blind human grading | raw turns non-inferior at a tight budget; reranking adds 17.4 points there and 1.5 at a generous budget, where extraction systems are more accurate | the extractor |
 | 2610.29823 *MemoryTax* | reader tier, cost | designed memory beats full context only with the weakest reader; a stronger reader does not recover what a weaker writer left out; build cost can exceed the rollout it saves | default Mem0 and Zep extraction |
 | 2609.34160 *RoutePrism* | construction order; memory policy | restoring one displaced record recovers more than 60 pp; memory policies leave distinct failure signatures | record content, timestamps, policy and answer model, within each order comparison |
@@ -250,7 +255,10 @@ Each amendment was fixed by a git tag of this repository before the calls it gov
 DOI is given, a Zenodo deposit followed. The v1.3 calibration was fixed by tag on 2026-11-03,
 and the v1.3 deposit, which includes the calibration result, was published before the
 confirmatory run. v1.4 was fixed by its tag before its first call and deposited after the run,
-so for v1.4 the only evidence of precedence is the tag's push to the public repository.
+so for v1.4 the evidence of precedence is the push to the public repository. GitHub's activity
+log records the push of commit `bca912c`, which holds §15 and the arm's runner, at
+21:55:05 UTC on 2026-11-04; the arm's first call started at 21:55:12 UTC. The tag's own date
+is set by the author and proves nothing alone.
 
 | version | fixed | DOI | what it changed | outcome |
 |---|---|---|---|---|
@@ -402,8 +410,9 @@ length-matched arm serves cell 00's material padded to cell 11's length. It scor
 [−0.8, +2.4] above cell 00 and −65.7 pp below cell 11. The registered length adjustment
 regresses the paired accuracy difference on the mean-centred length difference and reports the
 intercept. On the full sample that intercept equals the unadjusted mean by construction, so its
-value (+66.5 pp) carries no evidence about length. The registered test asks whether this arm reproduces cell 11, and it does not. That
-rules out this form of padding as the explanation. It does not rule out every explanation by
+value (+66.5 pp) carries no evidence about length. The registered capacity reading asks whether
+the padded arm gains at least half of the total effect over cell 00, with an interval above
+zero, and it does not. That rules out this form of padding as the explanation. It does not rule out every explanation by
 length.
 
 **Dose.** On the subsample of 60, Y(full, C2) − Y(dose, C0) was +83.3 pp at W = 0.020 and
@@ -430,7 +439,7 @@ availability, and it is not a registered analysis.
 When the cut kept no evidence session, the truncated cells answered nothing under either
 criterion. This is consistent with the positive control, which removed every answer session
 from the full window, although the two interventions serve different material. When the
-cut kept all the evidence, the window added +4.6 pp under C0 and +2.3 pp under C2, and the
+cut kept all the evidence, the window added +4.7 pp under C0 and +2.3 pp under C2, and the
 criterion added +20.9 pp at the truncated window and +18.6 pp at the full one. The pattern is
 consistent with evidence availability being a large part of the window contrast on this
 corpus, with the criterion contrast present at both windows once the evidence reached the
@@ -456,10 +465,15 @@ did not appear. The two numbers come from different samples, so the comparison i
 
 ### 6.6 The raw-evidence arm (v1.4)
 
-Both arms of v1.4 serve only the instance's annotated evidence sessions, so they differ only in
-representation: E-raw serves the raw turns, chronologically, and E-dist(C2) serves the C2 units
-of the same sessions from the confirmatory cache, with nothing re-distilled. The instrument check
-passed (acc(E-raw) = 0.872 against the required 0.60). The arm cost US$ 2.06.
+Both arms of v1.4 serve only the instance's annotated evidence sessions, so both are given
+perfect retrieval. E-raw serves the raw turns, chronologically. E-dist(C2) serves the C2 units of
+the same sessions from the confirmatory cache, with nothing re-distilled, ordered by importance
+and then recency. The two materials therefore differ in length (13,115 against 28,153 characters
+on average), order and format as well as in what they keep, and H4 compares them as served
+packages. The new responses were not seen before §15 was fixed, but the 242 instances and their
+primary-cell results were. The instrument check passed (acc(E-raw) = 0.872 against the required
+0.60). The completed run recorded US$ 2.06; a first attempt, stopped at its first judge call by
+a stale API key, made answer calls that were reused and not ledgered.
 
 | arm | judge 1 | judge 2 | mean characters |
 |---|---|---|---|
@@ -474,12 +488,17 @@ passed (acc(E-raw) = 0.872 against the required 0.60). The arm cost US$ 2.06.
 
 Under judge 1 the upper bound is below zero, so C2 units lose to raw evidence, and the lower
 bound misses the −10 pp margin by 0.3 pp. Under judge 2 the lower bound clears the margin, so the
-units are non-inferior at 10 pp, and the upper bound is exactly zero, so a loss is not shown.
-The registered rule takes the weaker claim when the judges disagree, and neither reading holds
-under both. We report the gap as the bracket [−5.4 · −5.0] pp.
+units are non-inferior at 10 pp, and the upper bound is exactly zero (0.0 in the unrounded output,
+`raw-arm.json`), so a loss is not shown. §15.4 says the weaker claim stands when the judges
+disagree, but these two outcomes are not nested and the rule does not order them. We therefore
+make neither claim across judges and report both estimates and intervals. The bracket
+[−5.4 · −5.0] pp is variation between judges, not an uncertainty interval.
 
-Descriptively, cell 11 and E-dist(C2) score the same under judge 1 (10 against 10 discordant
-pairs), so the roughly fifty distractor sessions per instance cost nothing detectable under C2.
+Descriptively, cell 11 and E-dist(C2) score the same under judge 1 (0.0 pp [−3.7, +3.7], 10
+against 10 discordant pairs; judge 2 −0.8 pp [−4.1, +2.5]), so the roughly fifty distractor
+sessions per instance cost nothing detectable under C2. §15.6 also asked for intervals on the
+by-type accuracies; the runner printed them without intervals, and with 16 to 68 instances per
+type the differences below are descriptions only.
 The gap sits in multi-session questions (0.853 against 0.956) and single-session-assistant
 questions (0.821 against 0.964). Temporal reasoning, where C1 units lost most in development
 (0.37 against 0.94), is within 3 pp (0.824 against 0.853).
@@ -491,16 +510,21 @@ how the builder is configured moved accuracy from 15% to 82%. A study that holds
 step at its defaults measures one configuration of the builder, and the gap it reports between
 extraction and raw retrieval holds for that configuration. We ran no retrieval arm in the
 confirmatory stage, so nothing here says extraction beats retrieval. What the run shows is that
-the comparisons in §2 depend on a variable that the three of them held at a default.
+the builder's configuration is a large effect modifier in this system. Whether it changes the
+conclusions of the studies in §2 was not tested here.
 
-**The prediction of 2601.00821.** It concerns retention, and on retention it is
-right: units are not a verbatim store. The v1.4 arm asked whether C2 closes the accuracy gap
-on unseen data. The remaining gap, about 5 pp, is much smaller than the 35.5 pp that C1 units
-lost to the same raw evidence in development, and smaller than the 22.0 pp 2601.00821 reports on
-LongMemEval-S with a different pipeline. It is not shown to be zero: under judge 1 the loss is
-significant, under judge 2 it is not, and both intervals reach from about −10 pp to about zero.
-The data fit a small remaining loss and do not establish one. Deciding between the two readings
-would take a larger sample, or a third judge fixed in advance.
+**The prediction of 2601.00821.** It concerns retention, which this study does not measure.
+The v1.4 arm compares accuracy on two materials under perfect retrieval, with new responses on
+the same 242 instances, so its result is at most compatible with the prediction and cannot
+adjudicate it. Descriptively, the gap between units and raw evidence of the same sessions was
+35.5 pp for C1 in development, 8.5 pp for C2 in development and 5.4 pp for C2 on the 242. These
+come from different samples and criteria, and no run estimates C2 against C1 on new data. For
+context, 2601.00821's near-verbatim extraction trails verbatim chunks by about 11 points on
+LoCoMo, under retrieval and a different pipeline. On the 242, under judge 1 the loss is
+significant and under judge 2 it is not, and both intervals reach from about −10 pp to about
+zero. A larger sample would narrow the intervals, and both readings could then hold at once. A
+third language-model judge would add a measurement, not a ground truth. The step that would
+resolve the judge dependence is the blind human grading of the discordant pairs (§8).
 
 **The window.** The production finding that motivated the window factor is a property of a
 deployed system. The benchmark imposes it by construction. The descriptive split in §6.4 is
@@ -521,7 +545,11 @@ not prevent them.
 
 - **Judges:** both judges are language models, and R3 and judge 2 are both Gemini. The bracket
   is read on contrasts. The blind human pass the plan provides for has not been done, so the
-  conclusions are conditional on the judges.
+  conclusions are conditional on the judges. It matters most for H4, whose two judges part on
+  0.3 pp and on 35 to 36 discordant pairs.
+- **Margin of H4:** δ = 10 pp was fixed after the development gap of C2 (8.5 pp) was known. It
+  is a registered threshold, not a margin of practical irrelevance, and a non-inferiority result
+  at 10 pp would still allow a loss larger than the one observed in development.
 - **Adaptive development:** R3 and C2 were chosen on development data after earlier versions
   failed. The confirmatory sample was untouched, but the intervention it tests was shaped by
   what failed before.
@@ -567,7 +595,7 @@ not prevent them.
 
 | section | file |
 |---|---|
-| §1, §2 | the arXiv abstract pages of the four studies, read on 2026-11-04 |
+| §1, §2, §7 | the arXiv abstract pages of the four studies, read on 2026-11-04; 2601.00821v4 Appendices F and H (Tables 9 and 11) |
 | §3 | `README.md`, "Numbers it rests on"; `PREREGISTRATION-DRAFT.md` §11.2, §11.5 item 7, §11.6 |
 | §4 | `PREREGISTRATION-DRAFT.md` §11.1–§11.5, §12.3–§12.7, §13.3, §14.3, §14.9 |
 | §5.2 | `STAGE1-RESULT.md`, `runs/stage1-2026-11-03/` |
