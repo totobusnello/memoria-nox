@@ -538,6 +538,13 @@ def main():
         if chk.returncode != 0:
             sys.exit(f"v1.2 manifest check failed: {chk.stdout}{chk.stderr}")
         man_path = HERE / "v12-manifest.json"
+        if REPAIR == "C2":
+            # v1.3 §14.9: the confirmatory sample is v13-manifest.json (by provenance, 242)
+            chk = subprocess.run([sys.executable, "-I", str(HERE / "v13-manifest.py"), a.data,
+                                  "--check"], capture_output=True, text=True)
+            if chk.returncode != 0:
+                sys.exit(f"v1.3 manifest check failed: {chk.stdout}{chk.stderr}")
+            man_path = HERE / "v13-manifest.json"
         man = json.load(open(man_path))
     data = {r["question_id"]: r for r in json.load(open(a.data))}
 
@@ -550,6 +557,12 @@ def main():
     if a.phase == "confirm":
         overlap = set(qids) & (set(man["smoke"]) | set(man["stage1"]))
         assert not overlap, f"confirmatory sample touches spent instances: {overlap}"
+        if REPAIR == "C2":   # §14.9: nor any instance whose question or evidence already ran
+            spent_ev = set().union(*(set(data[q]["answer_session_ids"])
+                                     for q in set(man["smoke"]) | set(man["stage1"])))
+            bad = [q for q in qids if q in man["counterfactual"]
+                   or set(data[q]["answer_session_ids"]) & spent_ev]
+            assert not bad, f"confirmatory sample holds exposed instances: {bad[:5]}"
     else:
         overlap = set(qids) & (set(man["smoke"]) if a.phase == "stage1" else set(man["stage1"]))
         assert not overlap, f"smoke and stage 1 overlap: {overlap}"
@@ -580,6 +593,20 @@ def main():
         print("estimate only; pass --yes to run")
         return
     led = Ledger(a.cap_usd)
+    if a.phase == "confirm":
+        # §14.9: the cap is CUMULATIVE across restarts. Each process appends what it spent to
+        # <out>/spend-log.ndjson on exit (normal, cap or exception); the next one starts from the sum.
+        slog = pathlib.Path(a.out) / "spend-log.ndjson"
+        prior = sum(json.loads(l)["usd"] for l in open(slog)) if slog.exists() else 0.0
+        led.usd = prior
+        print(f"cumulative spend before this process: US$ {prior:.2f} (cap {a.cap_usd})")
+
+        def _log_spend():
+            with open(slog, "a") as f:
+                f.write(json.dumps({"usd": round(led.usd - prior, 6), "calls": dict(led.n),
+                                    "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}) + "\n")
+        import atexit
+        atexit.register(_log_spend)
     t0 = time.time()
 
     # 1. distill

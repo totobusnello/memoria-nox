@@ -273,7 +273,8 @@ def main():
                        "lenmatch_minus_11": e_b[:3], "capacity": capacity}
 
     # 5. dose
-    p("\n5. DOSE SENSITIVITY (sign of Y(full,C1) - Y(dose,C0), dose subsample)")
+    rep_lvl = receipt.get("repair", "C1")   # v1.3 §14.9: label the repaired level that ran
+    p(f"\n5. DOSE SENSITIVITY (sign of Y(full,{rep_lvl}) - Y(dose,C0), dose subsample)")
     for dn in ("d020", "d894"):
         ids = sorted(set(Y[f"{dn}_C0"]) & set(Y["11"]))
         if ids:
