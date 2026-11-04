@@ -176,13 +176,13 @@ Each instance passes through every cell, so all contrasts are paired.
 | **window 0.240** | cell 00 | cell 01 |
 | **full window** | cell 10 | cell 11 |
 
-- **Window.** At level 0 the builder sees the most recent sessions whose cumulative prose
+- **Window:** at level 0 the builder sees the most recent sessions whose cumulative prose
   reaches 0.240 of the haystack's characters. The session that crosses the threshold is
   included whole. The realised dose in cell 00 had median 0.251 [0.240, 0.274]. At level 1 it
   sees all sessions. The cut approximates production's window by its median seen-fraction. It
   does not reproduce production's mechanism, which is a prune crossed with a lookback and a
   per-run ceiling.
-- **Criterion.** C0 is the deployed `DISTILL_SYSTEM`, verbatim. C1, the repair registered in
+- **Criterion:** C0 is the deployed `DISTILL_SYSTEM`, verbatim. C1, the repair registered in
   v1.0, adds one paragraph requiring identifiers verbatim. C2 adds a second paragraph to C1
   (§5.4). The prompts are in Portuguese, the deployed system's language.
 
@@ -209,8 +209,7 @@ Judge 1 is `gpt-6-luna` through a structured decision API with no free-text fiel
 correct when the judge's probability for "contains the reference fact" exceeds 0.5. Judge 2 is
 `gemini-2.5-flash-lite` with a fixed prompt, and it grades every row. Before any run, a
 preflight checks that judge 1 accepts none of 16 abstentions offered against real references.
-The reader and judge 2 are both Gemini models, so the judge bracket is read on contrasts, not on
-levels (§8).
+The reader and judge 2 are both Gemini models, so the judge bracket is read on contrasts only (§8).
 
 ### 4.5 Primary hypothesis and analysis
 
@@ -251,7 +250,7 @@ Each amendment was fixed by a git tag of this repository before the calls it gov
 DOI is given, a Zenodo deposit followed. The v1.3 calibration was fixed by tag on 2026-11-03,
 and the v1.3 deposit, which includes the calibration result, was published before the
 confirmatory run. v1.4 was fixed by its tag before its first call and deposited after the run,
-so for v1.4 the evidence of precedence is the tag's push to the public repository, not a DOI.
+so for v1.4 the only evidence of precedence is the tag's push to the public repository.
 
 | version | fixed | DOI | what it changed | outcome |
 |---|---|---|---|---|
@@ -311,7 +310,7 @@ discordant pairs, exact McNemar p = 0.24, which is not an equivalence result). R
 units with the raw turns they came from did (6 against 77, p < 10⁻¹⁶). The two materials differ
 in length, in representation (scored units against chronological turns) and in order as well
 as in content, so the contrast measures the loss of the whole distill-and-serve step under this
-protocol, not omitted facts alone. The largest losses were
+protocol, of which omitted facts are one part. The largest losses were
 in temporal reasoning (0.37 against 0.94) and single-session-assistant questions (0.46 against
 1.00). With the weaker reader R0 the same comparison gave 0.205 and 0.340. A weak reader hides
 the construction loss, and that is why stage 1 seemed to point at the reader.
@@ -364,7 +363,7 @@ analysis byte for byte.
 | counterfactual | original number 1, altered number 28, of 31 | original ≤ 3.1, altered > original |
 
 All four pass, so the primary is interpreted. The counterfactual instances had been exposed in
-earlier stages, so that control is a regression check on known examples, not a fourth test on
+earlier stages, so that control is a regression check on known examples. Three of the four controls test
 unseen data.
 
 ### 6.2 Primary
@@ -395,8 +394,8 @@ total splits as +59.5 (window) plus +7.0 (criterion), and in the other as about 
 [+24.8 · +27.3] pp. It compares C2 with the deployed C0, not with C1.
 
 **Interaction.** The additive interaction is +17.8 pp. Against the serial null it is −1.4 pp
-[−20.2, +11.8]. The interval contains zero, so the secondary is inconclusive. It is not a null,
-and it licenses no equivalence claim.
+[−20.2, +11.8]. The interval contains zero, so the secondary is inconclusive. It licenses
+neither a null nor an equivalence claim.
 
 **Served length.** Cell 00 served a mean of 36,199 characters and cell 11 served 231,416. The
 length-matched arm serves cell 00's material padded to cell 11's length. It scored +0.8 pp
@@ -520,36 +519,36 @@ not prevent them.
 
 ## 8. Limitations
 
-- **Judges.** Both judges are language models, and R3 and judge 2 are both Gemini. The bracket
+- **Judges:** both judges are language models, and R3 and judge 2 are both Gemini. The bracket
   is read on contrasts. The blind human pass the plan provides for has not been done, so the
   conclusions are conditional on the judges.
-- **Adaptive development.** R3 and C2 were chosen on development data after earlier versions
+- **Adaptive development:** R3 and C2 were chosen on development data after earlier versions
   failed. The confirmatory sample was untouched, but the intervention it tests was shaped by
   what failed before.
-- **Preference questions.** Their references are rubrics rather than answers. In the
+- **Preference questions:** their references are rubrics rather than answers. In the
   exploratory run on the spent 200, the 13 preference questions scored 0.077 under R3 even on
   raw evidence. The 242 hold 16: cell 11 scored 0.438 on them and raw evidence 0.250. We read the
-  low scores as a sign that reading or grading this category is hard, not as an established
+  low scores as a sign that reading or grading this category is hard; they do not establish a
   ceiling.
-- **Window shape.** The cut takes whole sessions, most recent first. Sensitivity to the shape of
+- **Window shape:** the cut takes whole sessions, most recent first. Sensitivity to the shape of
   the cut was not measured.
-- **One corpus, one reader, one extraction model.** LongMemEval sessions are synthetic
+- **One corpus, one reader, one extraction model:** LongMemEval sessions are synthetic
   dialogue. The extractor is `gemini-2.5-flash-lite` throughout.
-- **Language.** The builder, reader and abstention prompts are in Portuguese, the deployed
+- **Language:** the builder, reader and abstention prompts are in Portuguese, the deployed
   system's language, while LongMemEval is in English. Units mix both languages. The
   distillation-loss diagnosis found no difference in the share of Portuguese units between lost
   and kept instances (0.10 against 0.14).
-- **Context budget.** Every unit of a cell is served. Cell 11 serves about 6.4 times the
+- **Context budget:** every unit of a cell is served. Cell 11 serves about 6.4 times the
   characters of cell 00 (231,416 against 36,199), and at the full window C2 serves more than C0
   (231,416 against 142,733). The result says nothing about accuracy at an equal budget, and the
-  padded arm is not a competing use of that budget.
-- **No selective retrieval.** No retriever chooses among the units. The gain may not survive a
+  padded arm does not test a competing use of that budget.
+- **No selective retrieval:** no retriever chooses among the units. The gain may not survive a
   context limit or a retriever that serves only part of the memory.
-- **No unanswerable questions.** The 30 abstention instances were excluded. The fall in
+- **No unanswerable questions:** the 30 abstention instances were excluded. The fall in
   abstention on answerable questions does not show a better balance between correct answers
   and wrong ones where no answer exists.
-- **No leaderboard comparison.** Neither judge is LongMemEval's official judge.
-- **No production confirmation.** C2 has not run on the production corpus that motivated it.
+- **No leaderboard comparison:** neither judge is LongMemEval's official judge.
+- **No production confirmation:** C2 has not run on the production corpus that motivated it.
 
 ## 9. Release
 
