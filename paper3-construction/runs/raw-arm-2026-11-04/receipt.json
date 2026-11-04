@@ -1,0 +1,13 @@
+{
+ "rows": 484,
+ "spend_usd": 2.0611,
+ "calls": {
+  "distill": 0,
+  "answer": 464,
+  "judge": 805,
+  "cached": 183,
+  "failed": 0
+ },
+ "seconds": 148,
+ "cap_usd": 10.0
+}
