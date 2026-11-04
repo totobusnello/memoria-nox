@@ -1,0 +1,40 @@
+{
+ "phase": "confirm",
+ "finished_at": "2026-11-04T10:18:52Z",
+ "seconds": 1759,
+ "spend_usd_estimated": 70.7297,
+ "calls": {
+  "distill": 102,
+  "answer": 1564,
+  "judge": 2005,
+  "cached": 156797,
+  "failed": 71
+ },
+ "distinct_blocks": 155506,
+ "failed_blocks": 87,
+ "rows": 1654,
+ "judge_preflight": [],
+ "manifest_sha256": "f9c7df69bc7d4f8ce77f2b1b138e73a12d67ebfd72cbeb95918f039b95688ff3",
+ "runner_sha256": "f6b82e0ca9769570d8c1e36513852f40c403cae27d48da11d92672dd2bcce585",
+ "reader": "R3",
+ "reader_spec": [
+  "gemini-3.8-flash",
+  "B",
+  {
+   "temperature": 0.0,
+   "maxOutputTokens": 2048,
+   "thinkingConfig": {
+    "thinkingLevel": "low"
+   }
+  }
+ ],
+ "repair": "C2",
+ "repair_prompt_sha256": "325342a36e742f1e844b7c3792dae3eb47a76879c501678b576cd6df2cc8089d",
+ "models": {
+  "extractor_answerer": "gemini-2.5-flash-lite",
+  "judge": "gpt-6-luna",
+  "answer_versions": [
+   "gemini-3.8-flash"
+  ]
+ }
+}
