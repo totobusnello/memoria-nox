@@ -56,12 +56,12 @@ families agree on 922 of 968 primary-cell judgments.
 The analysis prints the v1.1 licence label, *"repair confirmed, larger on this corpus"*. That label
 was written for H1 with criterion C1. Under §14.9 item 3, the reading is narrower:
 
-- this confirms a total effect for an intervention **revised after exploration** (C2 with R3);
+- this confirms a total effect for an intervention revised after exploration (C2 with R3);
 - it does not confirm the original H1, whose interaction now involves another treatment;
 - it does not confirm H3, which this design does not identify;
 - it does not show that C2 beats C1 on new data, because C1 did not run.
 
-## What the total effect is made of
+## Contrasts behind the total effect
 
 These contrasts are reported by the registered analysis (§11.5 item 9). None of them is a
 confirmatory test.
@@ -72,20 +72,30 @@ confirmatory test.
 | criterion, 11 − 10 (full window held) | +24.8 [+18.8, +30.8] | +27.3 [+21.1, +33.4] |
 | criterion, 01 − 00 (0.240 window held) | +7.0 [+3.6, +10.4] | +5.4 [+2.1, +8.6] |
 
-Most of the total effect is the window. At 0.240, cell 00 kept no evidence session at all in
-120 of the 242 instances, and no extraction criterion can recover a session that was never built.
-The criterion contrast at the full window (+24.8 pp) is the effect that belongs to v1.3.
+The contrasts are conditional, and the interaction keeps them from adding up as shares of the
+total. Taken in one order, the total splits as window +59.5 plus criterion +7.0; in the other, as
+about +41.7 (10 − 00, by difference) plus +24.8. The window contrast is the larger in both orders,
+which does not identify a share of the mechanism. At 0.240, cell 00 kept no annotated evidence
+session in 120 of the 242 instances, so the extractor never saw those sessions; as the plan states
+for its controls, a missing annotated session is not proof that no usable information was left.
+The criterion contrast measures C2 against the deployed C0, not C2 against C1. As the plan requires
+(§11.5 item 9), it is read as the bracket across judge families, [+24.8 · +27.3] pp at the full
+window, until a human pass picks between them.
 
-Served length does not explain the window effect. The length-matched arm (cell 00's material, padded
-to cell 11's length with raw text from sessions that hold no answer) scores +0.8 pp [−0.8, +2.4] over cell 00 and −65.7 pp below cell 11;
-the primary adjusted for length is unchanged at +66.5 pp. More text does not help unless it holds
-the right sessions.
+The length-matched arm (cell 00's material, padded to cell 11's length with raw text from sessions
+that hold no answer) scores +0.8 pp [−0.8, +2.4] over cell 00 and −65.7 pp below cell 11, and the
+primary adjusted for served length is unchanged at +66.5 pp. The plan's test (§11.5 item 8) is
+whether this arm reproduces cell 11. It does not, so the primary is not read as a capacity effect.
+That rules out this padding, not every explanation by length, and it does not identify the
+mechanism of the window contrast by elimination.
 
 **Interaction (secondary).** +17.8 pp, and −1.4 pp [−20.2, +11.8] after the serial null. The
 interval contains 0: inconclusive, which is not a null and does not allow an equivalence claim.
 
 **Dose.** The sign of Y(full, C2) − Y(dose, C0) is the same at both doses: +83.3 pp at 0.020 and
-+35.0 pp at 0.894 (n = 60 each).
++35.0 pp at 0.894 (n = 60 each). `analysis.txt` prints these two levels as `W=0.20` and `W=8.94`:
+that is a formatting defect in `lme-analyze.py`, which is frozen at the tag, and the cells it reads
+are `d020` and `d894`.
 
 ## Calibration and confirmation
 
@@ -111,6 +121,9 @@ Abstention falls from 0.760 in cell 00 to 0.074 in cell 11.
   the blind human pass the plan provides for.
 - Preference questions have rubric references and cap every cell (§14.9 item 9). They stayed in
   the sample.
+- The window is a most-recent-first cut by whole sessions at a nominal 0.240, an approximation of
+  production's window and not its mechanism (§11.2). Its realised dose in cell 00 has median 0.251
+  [0.240, 0.274], and sensitivity to the shape of the cut was not measured (§11.5 item 2).
 - One corpus (LongMemEval `s_cleaned`), one reader, one extraction model (gemini-2.5-flash-lite).
 
 Not peer reviewed.
