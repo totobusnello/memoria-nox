@@ -594,19 +594,44 @@ def main():
         return
     led = Ledger(a.cap_usd)
     if a.phase == "confirm":
-        # §14.9: the cap is CUMULATIVE across restarts. Each process appends what it spent to
-        # <out>/spend-log.ndjson on exit (normal, cap or exception); the next one starts from the sum.
-        slog = pathlib.Path(a.out) / "spend-log.ndjson"
-        prior = sum(json.loads(l)["usd"] for l in open(slog)) if slog.exists() else 0.0
+        # §14.9 / §14.10: the cap is CUMULATIVE across restarts, and only one process may own <out>.
+        #  - lock: an exclusive flock on <out>/run.lock; a second process on the same out exits.
+        #  - spend: each process keeps its own <out>/spend/<start>-<pid>.json, rewritten every 20
+        #    ledger entries, when the cap trips, and at exit. The next process starts from the sum
+        #    of all of them, so a kill -9 loses at most the last 19 entries (< US$ 1 here).
+        import atexit
+        import fcntl
+        outp = pathlib.Path(a.out)
+        lockf = open(outp / "run.lock", "w")
+        try:
+            fcntl.flock(lockf, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            sys.exit(f"another process holds {outp}/run.lock; one process per out dir")
+        sdir = outp / "spend"
+        sdir.mkdir(exist_ok=True)
+        prior = sum(json.loads(f.read_text())["usd"] for f in sorted(sdir.glob("*.json")))
+        mine = sdir / f"{time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())}-{os.getpid()}.json"
         led.usd = prior
         print(f"cumulative spend before this process: US$ {prior:.2f} (cap {a.cap_usd})")
+        wlock, nadd = threading.Lock(), [0]
 
-        def _log_spend():
-            with open(slog, "a") as f:
-                f.write(json.dumps({"usd": round(led.usd - prior, 6), "calls": dict(led.n),
-                                    "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}) + "\n")
-        import atexit
-        atexit.register(_log_spend)
+        def _save():
+            with wlock:
+                tmp = mine.with_suffix(".tmp")
+                tmp.write_text(json.dumps({"usd": round(led.usd - prior, 6), "calls": dict(led.n),
+                                           "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}))
+                tmp.replace(mine)
+        base_add = led.add
+
+        def _add(kind, usd):
+            try:
+                base_add(kind, usd)
+            finally:
+                nadd[0] += 1
+                if nadd[0] % 20 == 0 or (led.cap and led.usd > led.cap):
+                    _save()
+        led.add = _add
+        atexit.register(_save)
     t0 = time.time()
 
     # 1. distill
