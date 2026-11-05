@@ -231,6 +231,11 @@ plan and Toto's explicit go-ahead.
 
 ## 11. Open decisions for Toto
 
+Decided on 2026-11-05 (19:2x BRT): **D2** no C1 arm and **D3** no as-built arm, so the paper compares
+C0 and C2 only; **D8** the blind human sample of 60 pairs, graded by the author, is mandatory;
+**D9** the protocol is frozen as a tagged pre-registration before the session draw, as Paper A was.
+Still open: D1, D4 (after a smoke), D5, D6, D7.
+
 - **D1. Question criterion.** C0's declared categories (proposed, with C2's two extra classes as a
   labelled secondary), C2's, or the union.
 - **D2. Third arm C1.** Paper 3 never ran C2 against C1 on new data (`paper3-construction/CONFIRM-RESULT.md`,
