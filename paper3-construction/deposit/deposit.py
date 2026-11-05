@@ -7,7 +7,7 @@ Same shape as datanote-telemetry/deposit/deposit.py, which is the house pattern:
 
   --plan            read-only, no token: prints the metadata it would write and checks the package.
   --create-draft    WRITE: POST /api/records (a new draft), then reserves its DOI. Stores the id in
-                    .draft-id (gitignored). Refuses if .draft-id exists.
+                    .draft-id-v<VERSION> (gitignored). Refuses if it exists.
   --build           local: with the reserved DOI, writes the deposit copy of the plan, builds the
                     PDF with the DOI line, zips the code, writes SHA256SUMS, runs the privacy gate.
                     Never edits ../PREREGISTRATION-DRAFT.md.
@@ -36,21 +36,21 @@ import zipfile
 HERE = pathlib.Path(__file__).resolve().parent
 PLAN = HERE.parent
 API = "https://zenodo.org/api"
-VERSION = "1.4"
+VERSION = "1.5"
 SLUG = "construction-interaction-prereg"
 MD, PDF = f"{SLUG}-v{VERSION}.md", f"{SLUG}-v{VERSION}.pdf"
 CODE = f"code-v{VERSION}.zip"
 FILES = [PDF, MD, CODE, "SHA256SUMS"]
 DESC = HERE / f"description-v{VERSION}.html"
-DRAFT_ID = HERE / ".draft-id"
+DRAFT_ID = HERE / f".draft-id-v{VERSION}"   # v1.5: per version, so a published draft id never blocks the next
 # creators are copied from an already-published record so authorship stays identical
 # across deposits rather than being retyped here.
 CREATORS_FROM = "23041503"          # Paper 1 v1.0.2
 # v1.1 is a NEW VERSION of the v1.0 record (same concept DOI 10.5281/zenodo.23716612), not a new
 # record: --create-draft POSTs /records/<v1.0>/versions instead of /records.
-NEW_VERSION_OF = "23934489"     # v1.4 is a new version of v1.3 (concept 23716612); v1.3 was of v1.1
+NEW_VERSION_OF = "23964906"     # v1.5 is a new version of v1.4 (concept 23716612); v1.4 was of v1.3
 PUB_DATE = "2026-11-04"
-REPO_TAG = "paper3-prereg-v1.4"
+REPO_TAG = "paper3-prereg-v1.5"
 CODE_FILES = ["lme-census.py", "lme-independence.py", "lme-answer-overlap.py",
               "power-additive.py", "see-once-denominator.py",
               # estimand-and-power.py supersedes power-additive.py: it computes every
@@ -89,7 +89,10 @@ CODE_FILES = ["lme-census.py", "lme-independence.py", "lme-answer-overlap.py",
               "runs/c2-calibration-2026-11-03/c2-calibration.json",
               # v1.4 (§15): the raw-evidence arm's runner, fixed by the tag before its first call.
               # Its rows and result ship in the result record (new version of 23949145).
-              "raw-arm.py"]
+              "raw-arm.py",
+              # v1.5 (§16): the two-judge runner, fixed by the tag before its first call on the data.
+              # Its rows and result ship in the result record (version 1.2 of 23949145).
+              "h4-judges.py"]
 SUBJECTS = ["pre-registration", "agent memory", "memory construction", "write path",
             "factorial design", "LongMemEval", "retrieval evaluation", "judge agreement"]
 
@@ -102,7 +105,12 @@ EDITS = [
     ("# Construction before search: a pre-registered factorial test of two repairs to LLM-extracted agent memory. DRAFT for approval, not deposited.",
      "# Construction before search: a pre-registered factorial test of two repairs to LLM-extracted agent memory"),
     ("> 📌 **DEPOSIT CANDIDATE — §11 is the active design; §4 is kept as the blocked first attempt.**",
-     "> **Status.** Version 1.4 (2026-11-04). §15 adds one arm, the raw evidence on the 242 "
+     "> **Status.** Version 1.5 (2026-11-04). §16 adds two judges and a committee label to H4, "
+     "after the two registered judges of §15 split on its decision rule. It was fixed by the tag "
+     "`paper3-prereg-v1.5`, pushed to the public repository before the new judges' first call on "
+     "the arm's rows, and this deposit FOLLOWS that run: for §16 the tag, not this record, is the "
+     "evidence of precedence. Everything before §16 is unchanged from version 1.4. "
+     "Version 1.4 (2026-11-04). §15 adds one arm, the raw evidence on the 242 "
      "confirmatory instances. It was fixed by the tag `paper3-prereg-v1.4`, pushed to the public "
      "repository before its first call, and this deposit FOLLOWS that run: for §15 the tag, not this "
      "record, is the evidence of precedence. Everything before §15 is unchanged from version 1.3. "
@@ -178,7 +186,7 @@ def sha256(b):
 
 def draft_doi():
     if not DRAFT_ID.exists():
-        sys.exit("no .draft-id — run --create-draft first")
+        sys.exit(f"no {DRAFT_ID.name} — run --create-draft first")
     return f"10.5281/zenodo.{DRAFT_ID.read_text().strip()}"
 
 
@@ -326,7 +334,7 @@ def plan():
 
 def create_draft():
     if DRAFT_ID.exists():
-        sys.exit(f"refusing: .draft-id already exists ({DRAFT_ID.read_text().strip()})")
+        sys.exit(f"refusing: {DRAFT_ID.name} already exists ({DRAFT_ID.read_text().strip()})")
     tok = token()
     st, d = req("POST", f"/records/{NEW_VERSION_OF}/versions", None, tok)
     assert st in (200, 201), f"new version draft: {st} {d}"

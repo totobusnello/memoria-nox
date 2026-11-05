@@ -12,6 +12,9 @@ Same commands and gates as deposit.py, whose helpers it imports:
   --fill            WRITE: metadata and files, md5-checked.
   --readback        read-only (token): every metadata field and every file checksum.
 
+Version 1.1 (2026-11-04) is a new VERSION of version 1.0 (23964960): it reports H4 under the
+four-judge committee of pre-registration v1.5. --create-draft POSTs /records/<v1.0>/versions.
+
 This script never publishes (deposit.req refuses any /actions/publish URL).
 """
 import importlib.util
@@ -27,7 +30,7 @@ spec = importlib.util.spec_from_file_location("dep", HERE / "deposit.py")
 dep = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(dep)
 
-VERSION = "1.0"
+VERSION = "1.1"
 SLUG = "construction-before-search"
 MD, PDF = f"{SLUG}-v{VERSION}.md", f"{SLUG}-v{VERSION}.pdf"
 CODE = f"code-v{VERSION}.zip"
@@ -35,6 +38,7 @@ FILES = [PDF, MD, CODE, "SHA256SUMS"]
 DESC = HERE / f"description-manuscript-v{VERSION}.html"
 DRAFT_ID = HERE / f".draft-id-manuscript-v{VERSION}"
 PUB_DATE = "2026-11-04"
+NEW_VERSION_OF = "23964960"   # v1.0 of this record (concept 23964959)
 TITLE = "Construction before search: a pre-registered test of what an LLM memory builder keeps"
 REPO_BRANCH_COMMIT = os.environ.get("MANUSCRIPT_COMMIT", "")
 CITED = [  # (doi, what) — every record the manuscript's §9 cites
@@ -42,6 +46,8 @@ CITED = [  # (doi, what) — every record the manuscript's §9 cites
     ("10.5281/zenodo.23964906", "pre-registration v1.4"),
     ("10.5281/zenodo.23949145", "confirmatory result v1.0"),
     ("10.5281/zenodo.23964931", "confirmatory result v1.1, raw-evidence arm"),
+    ("10.5281/zenodo.23966699", "pre-registration v1.5"),
+    ("10.5281/zenodo.23966704", "confirmatory result v1.2, four judges on H4"),
 ]
 CODE_FILES = ["manuscript-tables.py", "pdf-build/build-manuscript-pdf.sh",
               "pdf-build/preamble-prereg.tex", "pdf-build/table-widths.py",
@@ -155,10 +161,12 @@ def create_draft():
     if DRAFT_ID.exists():
         sys.exit(f"refusing: {DRAFT_ID.name} already exists ({DRAFT_ID.read_text().strip()})")
     tok = dep.token()
-    st, d = dep.req("POST", "/records", {"metadata": metadata(), "access":
-                    {"record": "public", "files": "public"}, "files": {"enabled": True}}, tok)
-    assert st in (200, 201), f"new draft: {st} {d}"
+    st, d = dep.req("POST", f"/records/{NEW_VERSION_OF}/versions", None, tok)
+    assert st in (200, 201), f"new version draft: {st} {d}"
     rid = d["id"]
+    st, d = dep.req("PUT", f"/records/{rid}/draft", {"metadata": metadata(), "access":
+                    {"record": "public", "files": "public"}, "files": {"enabled": True}}, tok)
+    assert st == 200, f"metadata on the new version: {st} {d}"
     DRAFT_ID.write_text(str(rid) + "\n")
     st2, d2 = dep.req("POST", f"/records/{rid}/draft/pids/doi", {}, tok)
     print(f"draft {rid} · reserve doi {st2} · {d2.get('pids', {}).get('doi', {}).get('identifier')}")
