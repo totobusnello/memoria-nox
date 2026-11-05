@@ -5,9 +5,18 @@
       --out <private>/holdout-v1.jsonl --commit HOLDOUT-COMMITMENT.json
 
 Takes the drawn passages stratum by stratum, in draw order, and asks the writer model for one
-question per passage until each stratum's quota is filled. A passage the model calls IMPOSSIVEL,
-or an answer that is not one line, is skipped and counted as a replacement. Every call is cached
-in <out>.cache.jsonl, so a resumed run never pays twice.
+question and one verbatim evidence span per passage until each stratum's quota is filled. An
+output is accepted only if it passes every check in VALIDATION below; otherwise the passage is
+skipped, the reason is counted, and the next draw of the same stratum is used. Every call is
+cached in <out>.cache.jsonl, so a resumed run never pays twice.
+
+VALIDATION (fixed before the draw, PREREGISTRATION.md §3):
+  impossible   the model answered IMPOSSIVEL
+  format       not PERGUNTA: on one line followed by EVIDENCIA: (which may span lines)
+  length       the question has more than 25 words, or is empty
+  copy         the question shares a run of 4 or more consecutive words with the passage
+  evidence     the evidence span, whitespace-normalised, is not a substring of the passage,
+               or is shorter than 30 or longer than 300 characters
 
 The holdout (questions, anchors, file names) goes to --out, which must be outside the repository.
 --commit receives only what may be public: sha256 of the holdout, of the draw, of the prompt and of
@@ -29,7 +38,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 URL = "https://api.z.ai/api/coding/paas/v4/chat/completions"
 MODEL = "glm-5.3"
 MAX_CALLS = 200
-ANCHOR_CHARS = 160
+MAX_WORDS, COPY_RUN, EV_MIN, EV_MAX = 25, 4, 30, 300
 STOP = set("""a o as os um uma uns umas de da do das dos em na no nas nos por para com sem que
 qual quais como quando onde porque e ou se ao aos à às é são foi ser está estão isso este esta
 the of and to in is for on with""".split())
@@ -49,8 +58,46 @@ def content_words(t):
 
 
 def overlap(q, chunk):
+    """Share of the QUESTION's content words that occur in the passage. Question-side, so a long
+    passage does not dilute it (a Jaccard over the union did, as both reviews pointed out)."""
     a, b = content_words(q), content_words(chunk)
-    return len(a & b) / len(a | b) if a | b else 0.0
+    return len(a & b) / len(a) if a else 0.0
+
+
+def ws(t):
+    return re.sub(r"\s+", " ", t).strip()
+
+
+def words(t):
+    return re.findall(r"\w+", t.lower())
+
+
+def longest_shared_run(q, chunk):
+    qa, ca = words(q), words(chunk)
+    grams = {tuple(ca[i:i + n]) for n in range(1, 9) for i in range(len(ca) - n + 1)}
+    best = 0
+    for n in range(1, 9):
+        if any(tuple(qa[i:i + n]) in grams for i in range(len(qa) - n + 1)):
+            best = n
+    return best
+
+
+def validate(ans, chunk):
+    if ans.strip().upper().startswith("IMPOSSIVEL"):
+        return "impossible", None, None
+    m = re.fullmatch(r"\s*PERGUNTA:\s*(.+?)\s*\n\s*EVIDENCIA:\s*(.+?)\s*", ans, flags=re.S)
+    # the question must be one line; the evidence may span lines, because it is copied from a
+    # passage that has line breaks (the first smoke rejected 2 valid outputs for exactly that)
+    if not m or "\n" in m.group(1):
+        return "format", None, None
+    q, ev = ws(m.group(1)), ws(m.group(2))
+    if not q or len(q.split()) > MAX_WORDS:
+        return "length", None, None
+    if longest_shared_run(q, chunk) >= COPY_RUN:
+        return "copy", None, None
+    if not (EV_MIN <= len(ev) <= EV_MAX) or ev not in ws(chunk):
+        return "evidence", None, None
+    return None, q, ev
 
 
 def key():
@@ -86,6 +133,12 @@ def main():
     draw = json.loads(draw_b)
     if draw.get("smoke") and not a.commit.endswith(".smoke.json"):
         sys.exit("refusing: a smoke draw can only write a commitment named *.smoke.json")
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("draw", HERE / "holdout-draw.py")
+    dr = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(dr)
+    if draw.get("snapshot_db_sha256") != dr.SNAPSHOT_DB_SHA or dr.file_sha(a.db) != dr.SNAPSHOT_DB_SHA:
+        sys.exit("refusing: the draw or --db is not the registered snapshot")
     con = sqlite3.connect(f"file:{a.db}?mode=ro", uri=True)
     cache_p = pathlib.Path(a.out + ".cache.jsonl")
     cache = {}
@@ -93,7 +146,7 @@ def main():
         for l in cache_p.read_text().splitlines():
             e = json.loads(l)
             cache[e["k"]] = e
-    calls, rows, repl = 0, [], {}
+    calls, rows, repl, reasons = 0, [], {}, {}
     for s in sorted(draw["quota"]):
         got, repl[s] = 0, 0
         for cand in draw["strata"][s]:
@@ -111,18 +164,23 @@ def main():
                 cache[k] = {"k": k, "answer": ans, "model": model}
                 with cache_p.open("a") as fh:
                     fh.write(json.dumps(cache[k], ensure_ascii=False) + "\n")
-            ans = cache[k]["answer"]
-            if ans.upper().startswith("IMPOSSIVEL") or "\n" in ans or not ans:
+            why, q, ev = validate(cache[k]["answer"], text)
+            if why:
                 repl[s] += 1
+                reasons[why] = reasons.get(why, 0) + 1
                 continue
             got += 1
             # query_id is an integer because the v3 tooling casts it (audits/2026-10-27-v3-rescore.py);
             # 9001.. cannot collide with the 1..66 of the v1-v3 gold sets
             rows.append({"query_id": 9000 + len(rows) + 1, "holdout_id": f"{s}{got:02d}",
-                         "stratum": s, "category": f"holdout-{s}", "status": "accepted", "query": ans,
-                         "gold": [{"source_file": cand["source_file"],
-                                   "anchor": text[:ANCHOR_CHARS], "chunk_id": cand["chunk_id"]}],
-                         "overlap": round(overlap(ans, text), 4),
+                         "stratum": s, "category": f"holdout-{s}", "status": "accepted", "query": q,
+                         # gold for H-A1 is the drawn chunk id itself, checked by the sha256 of its
+                         # text; the evidence span is the anchor H-A2 follows into later snapshots
+                         "gold": [{"source_file": cand["source_file"], "anchor": ev,
+                                   "chunk_id": cand["chunk_id"],
+                                   "chunk_text_sha256": sha(text.encode("utf-8"))}],
+                         "overlap": round(overlap(q, text), 4),
+                         "longest_shared_run": longest_shared_run(q, text),
                          "writer_model": cache[k]["model"]})
         if got < draw["quota"][s]:
             sys.exit(f"stratum {s}: frame exhausted at {got} of {draw['quota'][s]}")
@@ -131,7 +189,9 @@ def main():
     ov = sorted(r["overlap"] for r in rows)
     commit = {"holdout_sha256": sha(blob), "n": len(rows),
               "per_stratum": {s: sum(r["stratum"] == s for r in rows) for s in draw["quota"]},
-              "replacements": repl, "writer_model_requested": MODEL,
+              "replacements": repl, "rejection_reasons": reasons,
+              "cache_sha256": sha(cache_p.read_bytes()) if cache_p.exists() else None,
+              "writer_model_requested": MODEL,
               "writer_models_served": sorted({r["writer_model"] or "?" for r in rows}),
               "draw_sha256": sha(draw_b), "prompt_sha256": sha(prompt_t.encode()),
               "script_sha256": sha(pathlib.Path(__file__).read_bytes()),

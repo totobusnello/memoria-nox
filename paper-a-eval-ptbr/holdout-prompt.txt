@@ -2,11 +2,14 @@ Você vai escrever UMA pergunta em português do Brasil que alguém faria a um s
 
 Regras:
 1. A pergunta tem de poder ser respondida só com o trecho.
-2. Escreva como um usuário que precisa da informação e NÃO viu o trecho: não copie frases dele, não repita sequências de três ou mais palavras do trecho, use as suas próprias palavras. Nomes próprios, comandos e identificadores podem aparecer como estão.
+2. Escreva como um usuário que precisa da informação e NÃO viu o trecho: use as suas próprias palavras e não repita sequências de quatro ou mais palavras do trecho. Nomes próprios, comandos e identificadores podem aparecer como estão.
 3. Uma frase, até 25 palavras, sem explicar a resposta.
-4. Se o trecho não contém nenhuma informação que responda a uma pergunta útil (só formatação, lista sem contexto, texto truncado), responda exatamente IMPOSSIVEL.
+4. Depois, copie do trecho, EXATAMENTE como está escrito, a passagem contínua que responde à pergunta (de 30 a 300 caracteres).
+5. Se o trecho não contém nenhuma informação que responda a uma pergunta útil (só formatação, lista sem contexto, texto truncado), responda exatamente IMPOSSIVEL.
 
-Responda só com a pergunta, ou só com IMPOSSIVEL.
+Responda exatamente neste formato, em duas linhas, ou só com IMPOSSIVEL:
+PERGUNTA: <a pergunta>
+EVIDENCIA: <a passagem copiada do trecho>
 
 Trecho:
 """

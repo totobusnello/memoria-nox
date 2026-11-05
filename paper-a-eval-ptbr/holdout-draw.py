@@ -27,7 +27,20 @@ import sys
 
 SEED = 20261105
 MIN_CHARS = 200
-QUOTA = {"A": 15, "B": 10, "C": 9, "D": 8, "E": 12, "F": 6}
+HERE = pathlib.Path(__file__).resolve().parent
+# quotas derived from the v3 gold by derive-quotas.py, never typed by hand (PREREGISTRATION.md §3)
+QUOTA = json.loads((HERE / "quotas.json").read_text())["quota"]
+# sha256 of the DECOMPRESSED snapshot the draw and the generator read (the .gz is pinned in
+# score-holdout.sh); a draw from any other database is refused
+SNAPSHOT_DB_SHA = "4ab1a94f7245c272177e184e0b465eeb795ab90813c91fb9afc1b6cf273a58ad"
+
+
+def file_sha(p):
+    h = hashlib.sha256()
+    with open(p, "rb") as fh:
+        for b in iter(lambda: fh.read(1 << 20), b""):
+            h.update(b)
+    return h.hexdigest()
 
 
 def stratum(f):
@@ -65,6 +78,8 @@ def main():
         sys.exit("refusing: --smoke-seed must differ from the registered seed")
     if inside_repo(a.out):
         sys.exit("refusing: --out is inside a git repository; the draw names private files")
+    if file_sha(a.db) != SNAPSHOT_DB_SHA:
+        sys.exit("refusing: --db is not the registered snapshot (sha256 mismatch)")
     con = sqlite3.connect(f"file:{a.db}?mode=ro", uri=True)
     rows = con.execute("SELECT id, source_file FROM chunks WHERE superseded_by IS NULL "
                        "AND length(chunk_text) >= ?", (MIN_CHARS,)).fetchall()
@@ -80,6 +95,7 @@ def main():
         rng.shuffle(files)
         out["strata"][s] = [{"chunk_id": rng.choice(sorted(by[s][f])), "source_file": f}
                             for f in files]
+    out["snapshot_db_sha256"] = SNAPSHOT_DB_SHA
     blob = json.dumps(out, ensure_ascii=False, sort_keys=True).encode()
     pathlib.Path(a.out).write_bytes(blob)
     print(f"draw sha256 {hashlib.sha256(blob).hexdigest()}")
