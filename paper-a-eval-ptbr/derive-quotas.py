@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Derive the holdout's per-stratum quotas from the v3 gold set (PREREGISTRATION.md §3).
 
-  python3 -I derive-quotas.py <golden-queries-v3.jsonl> > quotas.json
+  python3 -I derive-quotas.py <golden-queries-v3.jsonl> --out quotas.json
 
 The v3 gold file is private (removed from the public tree on 2026-11-04); this script reads it
 locally and writes only counts and its sha256. It replaced a constant typed by hand, which two
@@ -21,18 +21,17 @@ import sys
 
 N = 120
 HERE = pathlib.Path(__file__).resolve().parent
-spec = importlib.util.spec_from_file_location("draw", HERE / "holdout-draw.py")
-draw = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(draw)
+sys.path.insert(0, str(HERE))
+from strata import stratum  # noqa: E402  (reads no file at import)
 
 
-def main(path):
+def main(path, dest):
     raw = pathlib.Path(path).read_bytes()
     gold = [json.loads(l) for l in raw.decode("utf-8").splitlines() if l.strip()]
     acc = [q for q in gold if q.get("status") in ("accepted", "accepted_marginal")]
     pairs, outside = {}, 0
     for q in acc:
-        for s in {draw.stratum(g["source_file"]) for g in q.get("gold", [])}:
+        for s in {stratum(g["source_file"]) for g in q.get("gold", [])}:
             if s is None:
                 outside += 1
             else:
@@ -47,11 +46,13 @@ def main(path):
     out = {"n": N, "v3_sha256": hashlib.sha256(raw).hexdigest(), "v3_queries_accepted": len(acc),
            "pairs": dict(sorted(pairs.items())), "pairs_total": total,
            "pairs_outside_frame": outside, "quota": dict(sorted(quota.items()))}
-    print(json.dumps(out, indent=1))
+    text = json.dumps(out, indent=1) + "\n"
+    pathlib.Path(dest).write_text(text)
+    print(text, end="")
     return 0
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 4 or sys.argv[2] != "--out":
         sys.exit(__doc__)
-    sys.exit(main(sys.argv[1]))
+    sys.exit(main(sys.argv[1], sys.argv[3]))

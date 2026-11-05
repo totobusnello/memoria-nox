@@ -69,7 +69,15 @@ def ws(t):
 
 
 def words(t):
-    return re.findall(r"\w+", t.lower())
+    """Whitespace tokens with punctuation stripped only at their ends, so an identifier the prompt
+    allows verbatim (alpha.beta.gamma, a/b/c, NOX_DB_PATH) is ONE token, not a run of words. A
+    \\w+ split turned one dotted identifier into a four-word 'copy' (second review)."""
+    out = []
+    for t in t.lower().split():
+        t = t.strip(".,;:!?()[]{}\"'«»“”‘’`")
+        if t:
+            out.append(t)
+    return out
 
 
 def longest_shared_run(q, chunk):
@@ -139,6 +147,11 @@ def main():
     spec.loader.exec_module(dr)
     if draw.get("snapshot_db_sha256") != dr.SNAPSHOT_DB_SHA or dr.file_sha(a.db) != dr.SNAPSHOT_DB_SHA:
         sys.exit("refusing: the draw or --db is not the registered snapshot")
+    if not draw.get("smoke") and draw.get("seed") != dr.SEED:
+        sys.exit("refusing: a non-smoke draw must use the registered seed")
+    if dr.draw(a.db, draw["seed"], bool(draw.get("smoke")),
+               draw["quota"] if draw.get("smoke") else None) != draw:
+        sys.exit("refusing: holdout-draw.py does not reproduce this draw file")
     con = sqlite3.connect(f"file:{a.db}?mode=ro", uri=True)
     cache_p = pathlib.Path(a.out + ".cache.jsonl")
     cache = {}
@@ -187,7 +200,8 @@ def main():
     blob = "".join(json.dumps(r, ensure_ascii=False, sort_keys=True) + "\n" for r in rows).encode()
     pathlib.Path(a.out).write_bytes(blob)
     ov = sorted(r["overlap"] for r in rows)
-    commit = {"holdout_sha256": sha(blob), "n": len(rows),
+    commit = {"smoke": bool(draw.get("smoke")), "seed": draw["seed"],
+              "holdout_sha256": sha(blob), "n": len(rows),
               "per_stratum": {s: sum(r["stratum"] == s for r in rows) for s in draw["quota"]},
               "replacements": repl, "rejection_reasons": reasons,
               "cache_sha256": sha(cache_p.read_bytes()) if cache_p.exists() else None,

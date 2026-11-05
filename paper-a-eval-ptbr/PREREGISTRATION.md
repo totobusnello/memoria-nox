@@ -27,7 +27,10 @@ ask. Its conclusions are stated for that population only.
 - **Search build:** the production `dist/` served when this document is fixed, identified by the
   sha256 of its sorted per-file hashes,
   `cd75e48d7e9517a7b2548f4d50feb1a381f9ea6de1d8686ae67d5303f532f07e`. If production serves a
-  different build when the run starts, the run stops and the deviation is reported (§7).
+  different build when the run starts, the run stops and the deviation is reported (§7). The
+  `NOX_*` settings the build reads at run time are pinned the same way (sha256 of the sorted
+  settings of the production `.env`, secrets and the database path excluded,
+  `cd157cc97987f6fdd9b38a663ccfb47d872fa46869c79358cf1f9c6be3ec0f9a`).
 - **Holdout:** 120 questions (§3), written and committed by hash before any system ranks them.
 
 ## 3. How the holdout is drawn and written
@@ -42,7 +45,9 @@ ask. Its conclusions are stated for that population only.
   integer arithmetic, ties broken by stratum letter. Result in `quotas.json`: A 30, B 19, C 18,
   D 17, E 23, F 13. The quotas copy where the development queries had their gold, so the holdout
   inherits the development instrument's coverage; this is stated, not corrected.
-- **Draw:** `holdout-draw.py`, seed `20261105`, refuses any database but the registered snapshot.
+- **Draw:** `holdout-draw.py`, seed `20261105`, refuses any database but the registered snapshot
+  and any quota but `quotas.json`; the generator recomputes the draw and refuses a draw file it
+  does not reproduce.
   One RNG; strata A to F; within a stratum the eligible source files sorted and shuffled, and one
   chunk per file uniformly at random. Every file gets a position, so a replacement is the next draw.
 - **Writer:** `glm-5.3` (Z.ai), a family that is neither the embedder (Gemini) nor the judge
@@ -50,7 +55,9 @@ ask. Its conclusions are stated for that population only.
   their own words, plus the verbatim passage of the chunk that answers it.
 - **Validation, fixed now** (`holdout-generate.py`, `VALIDATION`): an output is accepted only if
   it is not IMPOSSIVEL; has the question on one line; the question has at most 25 words; the
-  question shares no run of 4 or more consecutive words with the chunk; and the evidence, once
+  question shares no run of 4 or more consecutive tokens with the chunk (tokens are split on
+  whitespace and stripped of end punctuation only, so an identifier such as `a.b.c.d`, which the
+  prompt allows verbatim, is one token); and the evidence, once
   whitespace is normalised, is a substring of the chunk of 30 to 300 characters. A rejected
   passage is replaced by the next draw of its stratum; replacements and their reasons are counted
   and published. The cache of every call is hashed into the commitment.
@@ -64,7 +71,8 @@ ask. Its conclusions are stated for that population only.
 **H-A1 (primary): the two annotation protocols still disagree upward on new queries.** Scored by
 `score-holdout.sh`, on the path that scored v3: strict nDCG@10 (gold = the drawn chunk) and pooled
 nDCG@10 (the top-10 of the production search, fully judged by `eval/judge-relevance.py` at
-p > 0.5, union the gold), each with its own ideal. The estimand is the mean over queries of pooled
+p > 0.5, union the gold; the labelled pairs must be exactly the top-10 plus the gold), each with
+its own ideal. The estimand is the mean over queries of pooled
 minus strict: the directional contrast between two complete scoring procedures. It is not a
 correction of one by the other, and it can be negative for a query, because a newly judged
 relevant document raises the ideal. The pool contains only what this one system returned.
@@ -77,14 +85,20 @@ run suggests a half-width of roughly 0.04 at n = 120; that is a rough guide, not
 does not.** A natural experiment on the first daily snapshot dated 2026-11-18 or later
 (`holdout-persistence.py`). A reference persists if it leads to an active chunk whose text still
 contains the evidence span: by id, the chunk with the gold id; by anchor, any active chunk of the
-same source file (more than one is reported as ambiguous). Precondition: churn over the chunks of
+same source file (more than one is reported as ambiguous). The frozen database is checked by its
+hash; the later snapshot is the first daily `.gz` dated 2026-11-18 or later, checked against a
+listing of the backup directory, and its hash is reported. Precondition: churn over the chunks of
 the drawn source files of at least 5%; below that, H-A2 is reported as not tested. Prediction:
-persists by anchor ≥ 95% of queries, and by anchor minus by id ≥ 10 points.
+persists by anchor ≥ 95% of queries, and by anchor minus by id ≥ 10 points. Every share is
+compared as an integer count.
 
 **Blind human sample (registered, mandatory).** `human-sample.py make` draws 60 (query, chunk)
 pairs uniformly at random from every pair the judge labelled, seed `20261105`, and writes a sheet
 with the question and the first 6,000 characters of the chunk, without the judge's output. The
-author grades it blind (`relevante`: s/n) before seeing H-A1. `human-sample.py agree` reports
+author grades it blind (`relevante`: s/n) before H-A1 is read: `score-holdout.sh` prints no
+reading, and `read-h-a1.sh` refuses to run until `HUMAN-COMMITMENT.json` (the graded sheet's
+sha256 and the counts, from `human-sample.py commit`) is in a commit that descends from the holdout
+commitment. The sheet must be exactly the 60 drawn pairs. `human-sample.py agree` reports
 agreement and Cohen's kappa with the judge at p > 0.5. No threshold is registered; if kappa is
 below 0.4, the paper states that its judge-dependent conclusions are not validated by a human.
 
@@ -99,15 +113,19 @@ overlap tercile and by stratum; replacements and rejection reasons; rankings sho
 2. Draw, then write the 120 questions. The holdout stays outside the repository; its sha256, n,
    per-stratum counts, replacements and the hashes of draw, prompt, cache and script are committed
    as `HOLDOUT-COMMITMENT.json` and pushed before step 3.
-3. On the serving host, from a checkout of the tag: `score-holdout.sh <snapshot> <holdout>
-   <commitment commit>`. It reads the commitment from that commit, refuses if the commit does not
-   descend from the tag or if any executed file changed, checks every hash, pins the configuration
-   after the production `.env` is read, and works in a new private directory. `holdout-analyze.py`
-   checks the input contract (120 queries, quotas, gold, judge configuration, labels) and refuses
-   to print a reading unless it reproduces `audits/2026-10-27-v3-rescore.py`.
-4. Human sample made from the labels and graded blind; then H-A1 is read.
-5. H-A2 on or after 2026-11-18.
-6. Every number in the paper has an entry in `PROVENANCE.json`.
+3. On the serving host: `score-holdout.sh <snapshot> <holdout> <commitment commit>` scores and
+   judges, and prints no reading. It executes the code extracted from the tag (`git archive`),
+   not the working tree; reads the commitment from its commit, which must descend from the tag;
+   checks the commitment's prompt and generator hashes against the tag, the snapshot, the build
+   and the settings; pins the configuration after the production `.env`; and works in a new
+   private directory.
+4. Human sample made from the labels, graded blind, and `HUMAN-COMMITMENT.json` pushed.
+5. `read-h-a1.sh` reads H-A1 from the same workdir. `holdout-analyze.py` checks the input contract
+   (the registered n and quotas, not only the commitment's; the human commitment; the committed
+   question texts; the exact label set; the judge configuration) and refuses to print a reading
+   unless it reproduces `audits/2026-10-27-v3-rescore.py`.
+6. H-A2 on or after 2026-11-18.
+7. Every number in the paper has an entry in `PROVENANCE.json`.
 
 ## 6. What this cannot show
 
@@ -133,3 +151,13 @@ generator; overlap measured from the question's side; the build pinned and the c
 after the `.env`; a private `mktemp` workdir; the commitment read from its own commit; the human
 sample made mandatory; and the claim narrowed to synthetic, passage-conditioned queries. A promise
 to measure false "verbatim" citations was dropped: the registered judge returns no citation.
+
+A second pass on the revised version, by Codex and DeepSeek (v4-pro), still recommended against
+fixing it. Codex showed, with synthetic inputs, that the input contract accepted 5 queries all in
+one stratum, that an extra positive label outside the pool changed the pooled score with both
+controls passing, that the wrapper ran the working tree rather than the tag, that the prescribed
+run printed H-A1 before the human grading, that 114/120 against 102/120 failed a gap of exactly
+ten points in floating point, that the copy rule rejected a dotted identifier the prompt allows,
+and that `derive-quotas.py > quotas.json` truncated its own input; DeepSeek found that H-A2 took
+any later database and that the human sample size was not enforced. Each is fixed above, and each
+fix was tested with an input that the previous version accepted.

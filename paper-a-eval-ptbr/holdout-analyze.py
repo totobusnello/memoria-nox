@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Paper A, H-A1 (PREREGISTRATION.md §4): pooled minus strict nDCG@10 on the holdout. Keyless.
 
-  python3 -I holdout-analyze.py <score.json> <labels.json> <holdout.jsonl> <commitment.json> <rescore.txt>
+  python3 -I holdout-analyze.py <score.json> <labels.json> <holdout.jsonl> <commitment.json> \
+      <rescore.txt> --human <HUMAN-COMMITMENT.json>      (or --smoke, for a smoke run only)
 
 score.json      eval/run-gold-eval.mjs output (rows[].ranked, rows[].gold_ids, summary.ndcg_at_10)
 labels.json     eval/judge-relevance.py output, JUDGE_MODE=full ({"meta", "rows"})
@@ -17,13 +18,18 @@ be negative (a newly judged relevant document raises the ideal), and the descrip
 how often it is.
 
 INPUT CONTRACT, checked before any number is printed; exit 1 on the first violation:
-  * the holdout's sha256 equals the commitment's, its n and per-stratum counts equal the
-    commitment's, and its query ids are unique;
-  * score.json has exactly one row per holdout query, no row with an error, no duplicate chunk id
-    in any ranking, and each row's gold is exactly the holdout's drawn chunk id;
+  * the commitment is not a smoke commitment; its n is 120 and its per-stratum counts are the
+    registered quotas of quotas.json (a commitment cannot redefine the sample: the second review
+    passed 5 queries, all in stratum A, through the first version of this check);
+  * the human sample was graded and committed before this reading (--human), as §5 orders;
+  * the holdout's sha256 equals the commitment's, its counts equal the commitment's, and its query
+    ids are unique;
+  * score.json has exactly one row per holdout query, with the committed question text, no error,
+    no duplicate chunk id in any ranking, and as gold exactly the holdout's drawn chunk id;
   * labels.json was produced by the registered judge (gpt-6-luna) at threshold 0.5 with 6,000
     characters per chunk and 0 errors; no (query, chunk) pair appears twice; every probability is
-    a number in [0, 1]; every returned top-10 pair is labelled;
+    a number in [0, 1]; the labelled pairs are EXACTLY the top-10 pairs plus the gold pairs (an
+    extra positive label outside that set would enter the pooled ideal unseen);
   * strict and pooled means reproduce run-gold-eval's mean and the interval v3-rescore.py printed,
     within 0.0005 (a second implementation must agree with the registered one).
 A ranking shorter than K is allowed and counted.
@@ -31,8 +37,10 @@ A ranking shorter than K is allowed and counted.
 Interval: 10,000 bootstrap resamples, seed 20261105, resampling queries WITHIN each stratum so
 every replicate keeps the registered quotas.
 """
+import argparse
 import hashlib
 import json
+import pathlib
 import math
 import random
 import re
@@ -50,8 +58,20 @@ def fail(msg):
     sys.exit("INPUT CONTRACT FAIL: " + msg)
 
 
-def main(score_p, labels_p, holdout_p, commit_p, rescore_p):
+def main(score_p, labels_p, holdout_p, commit_p, rescore_p, human_p, smoke):
     commit = json.load(open(commit_p))
+    if not smoke:
+        reg = json.loads((pathlib.Path(__file__).resolve().parent / "quotas.json").read_text())
+        if commit.get("smoke") is not False or commit["n"] != reg["n"] or \
+                commit["per_stratum"] != reg["quota"]:
+            fail(f"commitment n {commit['n']}, strata {commit['per_stratum']}, smoke "
+                 f"{commit.get('smoke')} is not the registered sample ({reg['n']}, {reg['quota']})")
+        if not human_p:
+            fail("no --human commitment: the human sample is graded before H-A1 is read (§5)")
+        hum = json.load(open(human_p))
+        if hum.get("n") != 60 or hum.get("holdout_sha256") != commit["holdout_sha256"] \
+                or not hum.get("sheet_sha256"):
+            fail("the human commitment is not the registered 60-pair sample of this holdout")
     hb = open(holdout_p, "rb").read()
     if hashlib.sha256(hb).hexdigest() != commit["holdout_sha256"]:
         fail("holdout sha256 differs from the commitment")
@@ -78,6 +98,8 @@ def main(score_p, labels_p, holdout_p, commit_p, rescore_p):
     for r in rows:
         if r.get("error") or r.get("skipped") or r.get("ndcg") is None:
             fail(f"query {r['query_id']} has no valid score ({r.get('error') or r.get('skipped')})")
+        if r.get("query") != meta[int(r["query_id"])]["query"]:
+            fail(f"query {r['query_id']}: the scored question is not the committed one")
         rk = r["ranked"][:K]
         if len(set(rk)) != len(rk):
             fail(f"query {r['query_id']}: duplicate chunk id in the ranking")
@@ -103,8 +125,11 @@ def main(score_p, labels_p, holdout_p, commit_p, rescore_p):
         P[key] = p
     tot = sum(len(r["ranked"][:K]) for r in rows)
     jud = sum((int(r["query_id"]), int(c)) in P for r in rows for c in r["ranked"][:K])
-    if jud != tot:
-        fail(f"top-{K} judged {jud}/{tot}")
+    expected = {(int(r["query_id"]), int(c)) for r in rows
+                for c in list(r["ranked"][:K]) + list(r["gold_ids"])}
+    if set(P) != expected:
+        fail(f"labelled pairs differ from top-{K} plus gold: {len(set(P) - expected)} extra, "
+             f"{len(expected - set(P))} missing")
     print(f"input contract PASS · {len(rows)} queries · {per_st} · top-{K} judged {jud}/{tot}"
           f" · rankings shorter than {K}: {short}")
 
@@ -175,6 +200,10 @@ def main(score_p, labels_p, holdout_p, commit_p, rescore_p):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 6:
-        sys.exit(__doc__)
-    sys.exit(main(*sys.argv[1:]))
+    ap = argparse.ArgumentParser(usage=__doc__)
+    for k in ("score", "labels", "holdout", "commitment", "rescore"):
+        ap.add_argument(k)
+    ap.add_argument("--human")
+    ap.add_argument("--smoke", action="store_true")
+    a = ap.parse_args()
+    sys.exit(main(a.score, a.labels, a.holdout, a.commitment, a.rescore, a.human, a.smoke))
