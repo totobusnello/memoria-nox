@@ -1,4 +1,4 @@
-# Paper A — evaluating retrieval on a living PT-BR agent memory
+# Paper A: evaluating retrieval on a living PT-BR agent memory
 
 Working title: *Five ways the ruler misleads: evaluating retrieval on a living Portuguese agent
 memory.* Status: setup. Not deposited. The plan lives in `../PLANO.md` (section "Os quatro papers",
@@ -12,10 +12,9 @@ A methods paper in two parts, kept apart in the text:
    reported with the population it was measured on and the version of the gold set it used. These
    are findings of development, not confirmations: the queries, anchors, prompts and thresholds were
    changed after looking at results on the same corpus.
-2. **Prospective (what is fixed before it runs).** A holdout of new queries, written and committed
-   (by hash) before any system ranks them, scored under a protocol frozen by a tag. If no holdout is
-   built, this part is called a *stability re-measurement* and its conclusions are limited to the
-   cases it re-measures.
+2. **Prospective (what is fixed before it runs).** 120 new, synthetic, passage-conditioned
+   queries, written and committed (by hash) before any system ranks them, scored under a protocol
+   frozen by a tag (`PREREGISTRATION.md`). Its conclusions hold for that population only.
 
 ## What it will not claim
 
@@ -60,5 +59,5 @@ were left out.
    repairs 27 gold entries. Keep them as v2 history.
 5. Audits the inventory cites but did not read: `2026-10-27-the-adversarial-pass-and-what-it-moved.md`
    and the "deflated, not inflated" pass. Add them before writing.
-6. The holdout: who writes the new queries, from what, and with what rule about looking at the
-   corpus (see `../PLANO.md`, Pendências 2).
+6. ~~The holdout~~ decided 2026-11-04: 120 synthetic questions written by a model from passages
+   drawn at random, with a blind human sample graded by the author (`PREREGISTRATION.md`).

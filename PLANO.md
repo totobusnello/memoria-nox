@@ -89,14 +89,17 @@ no Setup de cada paper.
 
 ## Etapa atual
 
-Etapa: Setup (paper A)
-Próximo passo: sua decisão sobre o holdout do A (quem escreve as queries novas, a partir de quê);
-depois resolver os 6 itens abertos de `paper-a-eval-ptbr/README.md` e escrever o pré-registro da
-parte prospectiva.
-PR em aberto: o do Setup do A · branch `paper-a-setup`
-Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-a-setup`
-Último resultado dos gates: 2026-11-04 · `tools/tests/test_gates.py` 15/15; proveniência do A 161
-registros, 0 falhas; privacidade rc 0
+Etapa: Work (paper A, parte prospectiva)
+Próximo passo: com a tag `paper-a-prereg-v1.0` no commit de squash do PR do pré-registro, o sorteio
+registrado (semente 20261105), as 120 perguntas e o push de `HOLDOUT-COMMITMENT.json` num commit
+posterior; depois `score-holdout.sh` na VPS (clone completo, antes de o backup de 04/11 ser podado,
+~10/11), a amostra humana de 60 pares, `read-h-a1.sh`, e H-A2 no primeiro snapshot de 18/11 (cópia
+até 23/11). Ordem inteira em `paper-a-eval-ptbr/PREREGISTRATION.md` §5.
+PR em aberto: o do pré-registro do A · branch `paper-a-prereg`
+Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-a-prereg`
+Último resultado dos gates: 2026-11-05 · proveniência do A 163 registros, 24 números, 0 falhas;
+smoke ponta a ponta na VPS (n 6) rc 0; analisador contra 8 variantes do controle e portões git num
+remoto simulado, cada um com a entrada que a versão anterior aceitava
 
 ## Pendências
 
@@ -137,6 +140,10 @@ registros, 0 falhas; privacidade rc 0
 | Data | Ponto | Vozes | Recibo / parecer | O que mudou |
 |---|---|---|---|---|
 | 2026-11-04 | fim do Plan, challenge | Codex gpt-6-astra (130 s), Kimi k3.1-pro (618 s) | recibos `adversary-receipt-codex-2026-11-04T215237-1793.txt` e `adversary-receipt-kimi-2026-11-04T215241-2301.txt`, `exit 0`, cwd do clone | todos os achados conferidos nos audits e confirmados, menos um: o «−5,8 pp é o contraste errado», das duas, vem de lerem o manuscrito v1.0 do `main`; −5,8 é o comitê da v1.5. Mudaram a tabela inteira de números, a ordem, o recorte de C, o desenho de D e os gates (proveniência, privacidade antes do push, exportação por lista). O Codex achou a exposição de privacidade |
+| 2026-11-05 | pré-registro, challenge (1ª passada) | Codex gpt-6-astra, Kimi k3.1-pro | recibos `exit 0`, cwd do clone (cópia untracked, apagada) | as duas contra fixar; quotas por script, gold = id sorteado, contrato de entrada, bootstrap estratificado, n 60→120, H-A2 simétrico, amostra humana obrigatória. Detalhe no §8 do pré-registro |
+| 2026-11-05 | pré-registro, review (2ª e 3ª passadas) | Codex gpt-6-astra, DeepSeek v4-pro | idem | contra fixar nas duas; tag executada em vez da árvore, leitura só depois da nota humana, cadeia de commits conferida antes de calcular, score e labels presos ao compromisso humano, H-A2 em dia fixo e por exposição |
+| 2026-11-05 | pré-registro, review (4ª passada) | Codex gpt-6-astra, DeepSeek v4-pro | idem | controle que para no limiar exploratório, H-A2 lê o compromisso publicado, banco registrado na amostra humana, tag ≠ compromisso, planilha com BOM ou `;` |
+| 2026-11-05 | diff da 4ª, review (5ª passada) | Codex gpt-6-astra | idem | toda falha do controle para a leitura, salvo a registrada; cada compromisso escrito uma vez, depois da tag. Toto: «fixa a tag» (16:51) |
 
 ## Lições
 
