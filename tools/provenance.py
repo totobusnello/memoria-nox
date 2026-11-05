@@ -26,7 +26,14 @@ Fails (exit 1) when:
   * a claim's value is printed in the text while its `superseded_by` is set;
   * a claim's artifact does not exist in the repository, or its locator is not in it;
   * a claim's commit does not exist, or the artifact is not in that commit;
-  * `superseded_by` names a claim id that does not exist.
+  * `superseded_by` names a claim id that does not exist;
+  * a `history` fragment (below) is not in the text, or does not contain its claim's value.
+
+A superseded value may be printed only as history, and only where declared: a claim's optional
+"history": ["<exact fragment of the text>", ...] lists the passages that cite it as a value that
+was later corrected. Those fragments are removed before the text's numbers are checked, so the
+same value printed anywhere else still fails. A value may hold several numbers ("[0.427 · 0.439]");
+each number in it counts.
 An artifact that is private (kept outside the repository) is declared with "artifact_private":
 true and a "sha256" of the file; the gate then checks only that the claim is not superseded, and
 says the artifact was not verified.
@@ -37,14 +44,14 @@ import re
 import subprocess
 import sys
 
-NUM = re.compile(r"(?<![\w.])[−-]?\d+(?:[.,]\d+)+%?|(?<![\w.])\d+%")
+NUM = re.compile(r"(?<![\w.])[−+-]?\d+(?:[.,]\d+)+%?|(?<![\w.])\d+%")
 
 
 def numbers(text):
     # strip inline code and fenced code: identifiers and commands are not measurements
     text = re.sub(r"```.*?```", " ", text, flags=re.S)
     text = re.sub(r"`[^`]*`", " ", text)
-    return {m.group(0).lstrip("−-") for m in NUM.finditer(text)}
+    return {m.group(0).lstrip("−+-") for m in NUM.finditer(text)}
 
 
 def git_ok(*a):
@@ -59,11 +66,27 @@ def check(d):
     claims = {c["id"]: c for c in man["claims"]}
     ignore = set(man.get("ignore", []))
     errs, notes = [], []
+    original = {t: (d / t).read_text(encoding="utf-8") for t in man["text"]}
+    texts = dict(original)
+    # every fragment is checked against the ORIGINAL text, then all are removed: two claims may
+    # declare the same passage, and removing it for the first must not fail the second
+    for cid, c in claims.items():
+        for frag in c.get("history", []):
+            if not any(frag in body for body in original.values()):
+                errs.append(f"{cid}: history fragment not in the text: {frag[:50]!r}")
+            elif not numbers(c["value"]) <= numbers(frag):
+                errs.append(f"{cid}: history fragment does not contain the value {c['value']!r}")
+    for c in claims.values():
+        for frag in c.get("history", []):
+            for t in texts:
+                texts[t] = texts[t].replace(frag, " ")
     printed = set()
-    for t in man["text"]:
-        printed |= numbers((d / t).read_text(encoding="utf-8"))
-    current = {c["value"].lstrip("−-") for c in claims.values() if not c.get("superseded_by")}
-    stale = {c["value"].lstrip("−-"): c["id"] for c in claims.values() if c.get("superseded_by")}
+    for body in texts.values():
+        printed |= numbers(body)
+    current = set().union(*[numbers(c["value"]) or {c["value"]} for c in claims.values()
+                            if not c.get("superseded_by")])
+    stale = {n: c["id"] for c in claims.values() if c.get("superseded_by")
+             for n in (numbers(c["value"]) or {c["value"]})}
     for n in sorted(printed):
         if n in stale and n not in current:
             errs.append(f"{n}: printed, but claim '{stale[n]}' is superseded by "
