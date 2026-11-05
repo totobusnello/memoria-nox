@@ -43,7 +43,7 @@ def make(a):
     pairs = sorted({(int(r["query_id"]), int(r["chunk_id"])) for r in lab
                     if r.get("prob_contem_resposta") is not None})
     rng = random.Random(SEED)
-    pick = rng.sample(pairs, N)
+    pick = rng.sample(pairs, a.n)
     rng.shuffle(pick)
     q = {int(json.loads(l)["query_id"]): json.loads(l)["query"] for l in open(a.holdout)}
     con = sqlite3.connect(f"file:{a.db}?mode=ro", uri=True)
@@ -53,7 +53,7 @@ def make(a):
         for i, (qid, cid) in enumerate(pick, 1):
             t = con.execute("SELECT chunk_text FROM chunks WHERE id = ?", (cid,)).fetchone()[0]
             w.writerow([i, qid, cid, q[qid], t[:CHARS], ""])
-    print(f"{N} pairs of {len(pairs)} written to the sheet; fill `relevante` with s or n")
+    print(f"{a.n} pairs of {len(pairs)} written to the sheet; fill `relevante` with s or n")
 
 
 def agree(a):
@@ -83,5 +83,6 @@ if __name__ == "__main__":
     ap.add_argument("mode", choices=("make", "agree"))
     for k in ("--labels", "--holdout", "--db", "--out", "--sheet"):
         ap.add_argument(k)
+    ap.add_argument("--n", type=int, default=N, help="registered: 60; smaller only for a smoke test")
     a = ap.parse_args()
     sys.exit((make if a.mode == "make" else agree)(a))

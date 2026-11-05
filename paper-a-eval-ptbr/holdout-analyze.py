@@ -38,7 +38,7 @@ import random
 import re
 import sys
 
-K, THRESH, SEED, B, MARGIN = 10, 0.5, 20261105, 10000, 0.10
+K, THRESH, SEED, B, MARGIN, MIN_STRATUM = 10, 0.5, 20261105, 10000, 0.10, 5
 JUDGE, CHUNK_CHARS = "gpt-6-luna", 6000
 
 
@@ -133,6 +133,11 @@ def main(score_p, labels_p, holdout_p, commit_p, rescore_p):
     by_st = {}
     for q in diffs:
         by_st.setdefault(meta[q]["stratum"], []).append(diffs[q])
+    # a stratum with fewer than MIN_STRATUM queries gives the within-stratum bootstrap nothing to
+    # resample, and the interval collapses to a point (the 6-query smoke printed [x, x] -> holds)
+    small = {st: len(v) for st, v in by_st.items() if len(v) < MIN_STRATUM}
+    if small:
+        fail(f"strata too small for a within-stratum bootstrap: {small}")
     est = sum(diffs.values()) / len(diffs)
     rng = random.Random(SEED)
     boots = []
