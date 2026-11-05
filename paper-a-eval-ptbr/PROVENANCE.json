@@ -598,8 +598,8 @@
    "artifact": "audits/2026-10-22-abstention-baseline.md",
    "locator": "negative abstention from 0.696",
    "commit": "f47c552",
-   "superseded_by": "abstention-neg-judge",
-   "note": "Remains the registered figure (printed 0.6957 in later audits); 2026-10-26 shows it is a floor."
+   "superseded_by": null,
+   "note": "Remains the registered figure (printed 0.6957 in later audits); 2026-10-26 shows it is a floor. Decided 2026-11-05 (Toto, README item 3): the registered figure stays the primary; the judge figure is the reference, not a correction."
   },
   {
    "id": "abstention-pos-baseline",
@@ -610,8 +610,8 @@
    "artifact": "audits/2026-10-22-abstention-baseline.md",
    "locator": "| 25 | **0.200** |",
    "commit": "f47c552",
-   "superseded_by": "abstention-pos-judge",
-   "note": "Registered figure; understated per 2026-10-26."
+   "superseded_by": null,
+   "note": "Registered figure; understated per 2026-10-26. Decided 2026-11-05 (Toto, README item 3): the registered figure stays the primary; the judge figure is the reference, not a correction."
   },
   {
    "id": "abstention-gap-baseline",
@@ -622,11 +622,8 @@
    "artifact": "audits/2026-10-22-abstention-baseline.md",
    "locator": "| **0.496** |",
    "commit": "f47c552",
-   "superseded_by": "abstention-gap-judge",
-   "note": "Printed 0.4957 in 2026-10-26/27.",
-   "history": [
-    "detector gave 0.496"
-   ]
+   "superseded_by": null,
+   "note": "Printed 0.4957 in 2026-10-26/27. Decided 2026-11-05 (Toto, README item 3): the registered figure stays the primary; the judge figure is the reference, not a correction."
   },
   {
    "id": "nonabstentions-cited",
@@ -758,7 +755,7 @@
    "locator": "**0.4315** | 0.4092",
    "commit": "cb29f44",
    "superseded_by": null,
-   "note": "AMBIGUOUS vs controlled-contrast (0.4412, 2026-10-27 addendum), also described as v2 rankings/gold under full labels; the audit reconciling them is outside this set."
+   "note": "v2 ceiling with the gold also required to pass the judge (19 of 30 confirmed). Decided 2026-11-05: the paper uses controlled-contrast 0.4412 as the v2 ceiling (gold counted relevant without judging, the rule v3 uses); this one is reported only as that variant. The same digits name a different v3 quantity in 2026-10-27-the-adversarial-pass-and-what-it-moved.md (pooled under the 60-label re-read): never print it without saying which."
   },
   {
    "id": "bounded-p07",
@@ -1010,7 +1007,7 @@
    "locator": "0.7826",
    "commit": "cb29f44",
    "superseded_by": null,
-   "note": "A floor (truncated heads). Quoted in 2026-10-27-ptbr-ruler-the-gate-and-the-eleven.md as the item-8 baseline. Registered figure remains 0.6957."
+   "note": "A floor (truncated heads). Quoted in 2026-10-27-ptbr-ruler-the-gate-and-the-eleven.md as the item-8 baseline. Registered figure remains 0.6957. Reference (decided 2026-11-05), not a replacement of the registered figure."
   },
   {
    "id": "abstention-pos-judge",
@@ -1022,7 +1019,7 @@
    "locator": "0.3200",
    "commit": "cb29f44",
    "superseded_by": null,
-   "note": "A floor."
+   "note": "A floor. Reference (decided 2026-11-05), not a replacement of the registered figure."
   },
   {
    "id": "abstention-gap-judge",
@@ -1034,7 +1031,7 @@
    "locator": "0.4626",
    "commit": "cb29f44",
    "superseded_by": null,
-   "note": "AMBIGUOUS current gap: 0.4957 registered (substrings), 0.4626 judge reference, +0.4157 adopted structural predicate (2026-10-27)."
+   "note": "0.4957 registered (substrings), 0.4626 judge reference, +0.4157 adopted structural predicate (2026-10-27). Reference (decided 2026-11-05), not a replacement of the registered figure."
   },
   {
    "id": "fabrication-rate-judge",
@@ -1819,8 +1816,8 @@
    "artifact": "audits/2026-10-27-v3-scored-and-my-prediction-refuted.md",
    "locator": "stand — 60.0% of gold",
    "commit": "a47235e",
-   "superseded_by": null,
-   "note": "Fact originates in 2026-10-27-the-ruler-is-deflated-not-inflated.md (outside this set); stated here to stand."
+   "superseded_by": "gold-entries-rejected",
+   "note": "WRONG MEANING, found 2026-11-05: 60.0% is the share the judge ACCEPTED (57 of 95), not the share that fails; the audits that state it inverted their own table (erratum appended to both)."
   },
   {
    "id": "half-disabled-run",
@@ -2349,6 +2346,30 @@
    "commit": "6120a37",
    "superseded_by": null,
    "note": ""
+  },
+  {
+   "id": "gold-entries-accepted",
+   "value": "57 of 95",
+   "what": "v2 gold entries the bounded judge accepted as answering their own question",
+   "locator": "57 of 95 = 60.0%",
+   "note": "60.0% of the entries; see the erratum in the artifact",
+   "population": "the 95 gold entries of the 55 accepted v2 queries, judged against their own query on the resolved chunk",
+   "date": "2026-10-27",
+   "artifact": "audits/2026-10-27-the-ruler-is-deflated-not-inflated.md",
+   "commit": "a01c9f7",
+   "superseded_by": null
+  },
+  {
+   "id": "gold-entries-rejected",
+   "value": "38 of 95",
+   "what": "v2 gold entries the bounded judge rejected (do not answer their own question)",
+   "locator": "gold entries rejected | **38**",
+   "note": "40.0% of the entries; replaces the inverted gold-entries-not-answering",
+   "population": "the 95 gold entries of the 55 accepted v2 queries, judged against their own query on the resolved chunk",
+   "date": "2026-10-27",
+   "artifact": "audits/2026-10-27-the-ruler-is-deflated-not-inflated.md",
+   "commit": "a01c9f7",
+   "superseded_by": null
   }
  ]
 }
