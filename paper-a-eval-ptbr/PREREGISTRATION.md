@@ -62,7 +62,12 @@ ask. Its conclusions are stated for that population only.
   passage is replaced by the next draw of its stratum; replacements and their reasons are counted
   and published. The cache of every call is hashed into the commitment.
 - **Gold:** for H-A1, the drawn chunk id, checked at scoring time by the sha256 of its text. For
-  H-A2, the evidence span, which is what a reference has to keep reaching.
+  H-A2, the evidence span, which is what a reference has to keep reaching. The validation checks
+  form, copying and the substring, not that the evidence answers the question: the gold is the
+  reference the writer proposed, relevant by definition in both arms. The analysis reports how
+  many golds the judge accepts (p > 0.5) and repeats pooled minus strict on those queries as an
+  exploratory figure, with no reading attached; H-A2 is read as persistence of the proposed
+  reference, not of a verified answer.
 - **Lexical overlap, measured:** the share of the question's content words that occur in its chunk
   (question-side, so chunk length does not dilute it), and the longest run of shared words.
 
@@ -82,13 +87,19 @@ development the pooled reading exceeded the strict one by more than this margin.
 run suggests a half-width of roughly 0.04 at n = 120; that is a rough guide, not a power analysis.
 
 **H-A2 (secondary): a reference by evidence keeps reaching the answer when a reference by chunk id
-does not.** A natural experiment on the first daily snapshot dated 2026-11-18 or later
+does not.** A natural experiment on the first daily snapshot of 2026-11-18
 (`holdout-persistence.py`). A reference persists if it leads to an active chunk whose text still
 contains the evidence span: by id, the chunk with the gold id; by anchor, any active chunk of the
 same source file (more than one is reported as ambiguous). The frozen database is checked by its
-hash; the later snapshot is the first daily `.gz` dated 2026-11-18 or later, checked against a
-listing of the backup directory, and its hash is reported. Precondition: churn over the chunks of
-the drawn source files of at least 5%; below that, H-A2 is reported as not tested. Prediction:
+hash and the commitment must be the registered one; the later snapshot is the daily `.gz` whose
+name carries the date 2026-11-18 (one fixed day, so there is no later snapshot to choose), the
+earliest of that day by the time in its name, and it must appear in a listing of the backup
+directory; its hash is reported. Daily snapshots are kept 6 days, so the copy is taken by
+2026-11-23; if no snapshot of 2026-11-18 exists, H-A2 is reported as not tested. Precondition:
+at least 10% of the queries exposed, that is, with a gold id that no longer names an active chunk
+with identical text (a gap of 10 points can only come from exposed queries); below that, H-A2 is
+reported as not tested. Churn over the chunks of the drawn source files is reported as a
+description. Prediction:
 persists by anchor ≥ 95% of queries, and by anchor minus by id ≥ 10 points. Every share is
 compared as an integer count.
 
@@ -98,7 +109,9 @@ with the question and the first 6,000 characters of the chunk, without the judge
 author grades it blind (`relevante`: s/n) before H-A1 is read: `score-holdout.sh` prints no
 reading, and `read-h-a1.sh` refuses to run until `HUMAN-COMMITMENT.json` (the graded sheet's
 sha256 and the counts, from `human-sample.py commit`) is in a commit that descends from the holdout
-commitment. The sheet must be exactly the 60 drawn pairs. `human-sample.py agree` reports
+commitment. The sheet must be exactly the 60 drawn pairs, each with the question and passage the
+judge saw (compared whitespace-normalised), and the analysis refuses a `labels.json` whose sha256
+is not the one in the human commitment. `human-sample.py agree` reports
 agreement and Cohen's kappa with the judge at p > 0.5. No threshold is registered; if kappa is
 below 0.4, the paper states that its judge-dependent conclusions are not validated by a human.
 
@@ -113,17 +126,27 @@ overlap tercile and by stratum; replacements and rejection reasons; rankings sho
 2. Draw, then write the 120 questions. The holdout stays outside the repository; its sha256, n,
    per-stratum counts, replacements and the hashes of draw, prompt, cache and script are committed
    as `HOLDOUT-COMMITMENT.json` and pushed before step 3.
-3. On the serving host: `score-holdout.sh <snapshot> <holdout> <commitment commit>` scores and
-   judges, and prints no reading. It executes the code extracted from the tag (`git archive`),
-   not the working tree; reads the commitment from its commit, which must descend from the tag;
+3. On the serving host, in a full clone of the public repository:
+   `score-holdout.sh <snapshot> <holdout> <commitment commit>` scores and judges, and prints no
+   reading, only the sha256 of `score.json` and `labels.json`. It executes the code extracted from
+   the tag (`git archive`), not the working tree; reads the commitment from its commit, which must
+   descend from the tag and be on `origin/main`, and records that commit in the workdir;
    checks the commitment's prompt and generator hashes against the tag, the snapshot, the build
    and the settings; pins the configuration after the production `.env`; and works in a new
    private directory.
-4. Human sample made from the labels, graded blind, and `HUMAN-COMMITMENT.json` pushed.
-5. `read-h-a1.sh` reads H-A1 from the same workdir. `holdout-analyze.py` checks the input contract
+4. Human sample made from the labels, graded blind, and `HUMAN-COMMITMENT.json` pushed: it
+   carries the sha256 of the graded sheet, of `score.json`, of `labels.json` and of the holdout.
+5. `read-h-a1.sh <workdir> <holdout> <human commit>` reads H-A1 from the same workdir. Before
+   anything is computed it checks that the human commit is a later commit than the scored
+   commitment's, descends from it, is on `origin/main`, carries the same `HOLDOUT-COMMITMENT.json`,
+   and that the human commitment was made from this workdir's `score.json` and `labels.json`. A
+   smoke run reads only a smoke commitment. `holdout-analyze.py` checks the input contract
    (the registered n and quotas, not only the commitment's; the human commitment; the committed
    question texts; the exact label set; the judge configuration) and refuses to print a reading
-   unless it reproduces `audits/2026-10-27-v3-rescore.py`.
+   unless it reproduces `audits/2026-10-27-v3-rescore.py`. That control script divides by the
+   number of queries with a relevant chunk in their top-10; if no query has one, it stops on a
+   division by zero, and H-A1 is then read as does not hold (with nothing relevant in any top-10,
+   strict and pooled are both 0).
 6. H-A2 on or after 2026-11-18.
 7. Every number in the paper has an entry in `PROVENANCE.json`.
 
@@ -161,3 +184,13 @@ ten points in floating point, that the copy rule rejected a dotted identifier th
 and that `derive-quotas.py > quotas.json` truncated its own input; DeepSeek found that H-A2 took
 any later database and that the human sample size was not enforced. Each is fixed above, and each
 fix was tested with an input that the previous version accepted.
+
+A third pass, by the same two voices, again recommended against fixing it. Codex showed that the
+reading could still be reached out of order (a smoke run read the registered holdout; the control
+wrote strict and pooled before the human commitment was checked; the holdout commit was given
+again by hand, and the same commit was accepted as both commitments), that `score.json` and
+`labels.json` could be changed after the grading, that H-A2 accepted a later snapshot past a
+caller-supplied listing, that a churn of 5% could pass with no gold exposed, and that the gold is
+not checked to answer its question; DeepSeek found the same-day snapshot, the unchecked labels
+hash, and that the graded sheet's text was not compared with what the judge saw. Each is fixed
+above, or stated where it cannot be fixed (the gold's answerability), and each fix was tested.

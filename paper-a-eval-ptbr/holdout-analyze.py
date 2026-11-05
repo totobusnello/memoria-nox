@@ -21,7 +21,9 @@ INPUT CONTRACT, checked before any number is printed; exit 1 on the first violat
   * the commitment is not a smoke commitment; its n is 120 and its per-stratum counts are the
     registered quotas of quotas.json (a commitment cannot redefine the sample: the second review
     passed 5 queries, all in stratum A, through the first version of this check);
-  * the human sample was graded and committed before this reading (--human), as §5 orders;
+  * the human sample was graded and committed before this reading (--human), as §5 orders, from
+    exactly this score.json and labels.json (their sha256 are in the human commitment);
+  * --smoke reads only a smoke commitment;
   * the holdout's sha256 equals the commitment's, its counts equal the commitment's, and its query
     ids are unique;
   * score.json has exactly one row per holdout query, with the committed question text, no error,
@@ -60,6 +62,10 @@ def fail(msg):
 
 def main(score_p, labels_p, holdout_p, commit_p, rescore_p, human_p, smoke):
     commit = json.load(open(commit_p))
+    sha = lambda f: hashlib.sha256(open(f, "rb").read()).hexdigest()
+    if smoke and commit.get("smoke") is not True:
+        # third review: --smoke read the registered holdout with no human commitment
+        fail("--smoke reads only a smoke commitment")
     if not smoke:
         reg = json.loads((pathlib.Path(__file__).resolve().parent / "quotas.json").read_text())
         if commit.get("smoke") is not False or commit["n"] != reg["n"] or \
@@ -69,9 +75,14 @@ def main(score_p, labels_p, holdout_p, commit_p, rescore_p, human_p, smoke):
         if not human_p:
             fail("no --human commitment: the human sample is graded before H-A1 is read (§5)")
         hum = json.load(open(human_p))
-        if hum.get("n") != 60 or hum.get("holdout_sha256") != commit["holdout_sha256"] \
-                or not hum.get("sheet_sha256"):
+        if hum.get("smoke") is not False or hum.get("n") != 60 \
+                or hum.get("holdout_sha256") != commit["holdout_sha256"] \
+                or not re.fullmatch(r"[0-9a-f]{64}", str(hum.get("sheet_sha256"))):
             fail("the human commitment is not the registered 60-pair sample of this holdout")
+        # the labels read here must be the ones the human sample was drawn from (third review:
+        # without this, labels.json could be edited after the grading and the reading would change)
+        if sha(labels_p) != hum.get("labels_sha256") or sha(score_p) != hum.get("score_sha256"):
+            fail("labels.json or score.json is not the file the human commitment was made from")
     hb = open(holdout_p, "rb").read()
     if hashlib.sha256(hb).hexdigest() != commit["holdout_sha256"]:
         fail("holdout sha256 differs from the commitment")
@@ -182,6 +193,14 @@ def main(score_p, labels_p, holdout_p, commit_p, rescore_p, human_p, smoke):
     neg = sum(v < 0 for v in diffs.values())
     print(f"\nper-query direction (descriptive): pooled > strict {pos} · equal {len(diffs) - pos - neg}"
           f" · pooled < strict {neg}")
+    # the gold is the generator's proposed reference, relevant by definition in both arms; how
+    # often the judge agrees that it contains the answer is reported, and the contrast is repeated
+    # on the queries whose gold it accepts (exploratory, no reading attached; third review)
+    ok_gold = [q for q in diffs if all(P[(q, int(g["chunk_id"]))] > THRESH for g in meta[q]["gold"])]
+    print(f"gold judged to contain the answer (p > {THRESH}): {len(ok_gold)}/{len(diffs)}")
+    if ok_gold:
+        print(f"  exploratory: pooled - strict on those queries "
+              f"{sum(diffs[q] for q in ok_gold) / len(ok_gold):+.4f}")
     ov = sorted(meta[q]["overlap"] for q in diffs)
     cut = (ov[len(ov) // 3], ov[2 * len(ov) // 3])
     print("\nby question-side lexical overlap tercile (descriptive):")

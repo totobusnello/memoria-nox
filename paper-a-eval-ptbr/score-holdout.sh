@@ -34,8 +34,12 @@ if [ "${SMOKE:-0}" = 1 ]; then
   case "$REF" in *.smoke.json) cp "$REF" "$W/commitment.json" ;; *) echo "SMOKE needs a *.smoke.json" >&2; exit 2 ;; esac
   git -C "$REPO" archive HEAD | tar -x -C "$W/code"
 else
+  # a full clone of the public repository: the tag and both commitments must be published
+  git -C "$REPO" fetch -q --tags origin main
   git -C "$REPO" rev-parse -q --verify "refs/tags/$TAG" >/dev/null || { echo "tag $TAG not found" >&2; exit 1; }
   git -C "$REPO" merge-base --is-ancestor "$TAG" "$REF" || { echo "$REF does not descend from $TAG" >&2; exit 1; }
+  git -C "$REPO" merge-base --is-ancestor "$REF" origin/main || { echo "$REF is not on origin/main" >&2; exit 1; }
+  git -C "$REPO" rev-parse "$REF^{commit}" > "$W/ref.txt"
   git -C "$REPO" archive "$TAG" | tar -x -C "$W/code"
   git -C "$REPO" show "$REF:paper-a-eval-ptbr/HOLDOUT-COMMITMENT.json" > "$W/commitment.json"
 fi
@@ -89,5 +93,6 @@ node "$C/eval/run-gold-eval.mjs" "$HOLDOUT" "$W/gold-map.json" "$W/score.json" >
 echo "== judge the whole top-10 (nothing printed)"
 python3 "$C/eval/judge-relevance.py" "$W/score.json" "$HOLDOUT" "$W/labels.json" > "$W/judge.log" 2>&1
 python3 -c "import json;m=json.load(open('$W/labels.json'))['meta'];print('   judged', m['n_judged'], 'pairs, errors', m['n_errors'])"
-echo "scored. Next: human-sample.py make from $W/labels.json; grade blind; push HUMAN-COMMITMENT.json;"
-echo "then read-h-a1.sh $W <holdout> <commitment-commit> <human-commitment-commit>."
+(cd "$W" && sha256sum score.json labels.json | tee outputs.sha256)
+echo "scored. Next: human-sample.py make from $W/labels.json; grade blind; human-sample.py commit"
+echo "with --score $W/score.json; push HUMAN-COMMITMENT.json; then read-h-a1.sh $W <holdout> <human-commit>."

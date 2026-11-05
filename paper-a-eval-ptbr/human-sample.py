@@ -5,10 +5,14 @@
               --db <snapshot.db> --out <private>/human-sample.csv
   agree:  python3 -I human-sample.py agree --labels <labels.json> --sheet <private>/human-sample.csv
   commit: python3 -I human-sample.py commit --labels <labels.json> --sheet <graded sheet>
-              --holdout <holdout.jsonl> --out HUMAN-COMMITMENT.json     (then push it)
+              --holdout <holdout.jsonl> --db <snapshot.db> --score <score.json>
+              --out HUMAN-COMMITMENT.json                                 (then push it)
 
 `agree` and `commit` recompute the registered draw from the labels and refuse a sheet that is not
-exactly those pairs, once each, all graded. `--n` other than 60 is accepted only with --smoke.
+exactly those pairs, once each, all graded. `commit` also checks that each row's question and
+passage are the holdout's question and the first 6,000 characters of the chunk in the snapshot,
+whitespace-normalised (a spreadsheet program may rewrite line endings), so the human graded what
+the judge saw. `--n` other than 60 is accepted only with --smoke.
 
 make draws 60 (query, chunk) pairs uniformly at random from ALL pairs the judge labelled (seed
 20261105), and writes a sheet with the question and the first 6,000 characters of the chunk (what
@@ -29,6 +33,7 @@ import csv
 import json
 import pathlib
 import random
+import re
 import sqlite3
 import subprocess
 import sys
@@ -80,6 +85,18 @@ def read_sheet(a):
     want, _ = registered_pick(a.labels, a.n)
     if sorted(got) != sorted(want) or len(set(got)) != len(got):
         sys.exit("refusing: the sheet is not exactly the registered draw of pairs")
+    if a.mode == "commit":
+        if not (a.holdout and a.db and a.score):
+            sys.exit("refusing: commit needs --holdout, --db and --score")
+        ws = lambda t: re.sub(r"\s+", " ", t).strip()
+        q = {int(json.loads(l)["query_id"]): json.loads(l)["query"] for l in open(a.holdout)}
+        con = sqlite3.connect(f"file:{a.db}?mode=ro", uri=True)
+        for r in rows:
+            t = con.execute("SELECT chunk_text FROM chunks WHERE id = ?",
+                            (int(r["chunk_id"]),)).fetchone()
+            if ws(r["pergunta"]) != ws(q[int(r["query_id"])]) or t is None \
+                    or ws(r["trecho"]) != ws(t[0][:CHARS]):
+                sys.exit(f"refusing: item {r['item']}: question or passage is not what the judge saw")
     return rows
 
 
@@ -115,7 +132,8 @@ def commit(a):
         sys.exit("refusing: the graded sheet must stay outside the repository")
     sha = lambda p: hashlib.sha256(open(p, "rb").read()).hexdigest()
     out = {"smoke": bool(a.smoke), **res, "seed": SEED, "sheet_sha256": sha(a.sheet),
-           "labels_sha256": sha(a.labels), "holdout_sha256": sha(a.holdout)}
+           "labels_sha256": sha(a.labels), "score_sha256": sha(a.score),
+           "holdout_sha256": sha(a.holdout)}
     pathlib.Path(a.out).write_text(json.dumps(out, indent=1) + "\n")
     print(f"wrote {a.out}; push it before read-h-a1.sh")
 
@@ -123,7 +141,7 @@ def commit(a):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("mode", choices=("make", "agree", "commit"))
-    for k in ("--labels", "--holdout", "--db", "--out", "--sheet"):
+    for k in ("--labels", "--holdout", "--db", "--out", "--sheet", "--score"):
         ap.add_argument(k)
     ap.add_argument("--n", type=int, default=N, help="registered: 60; another value needs --smoke")
     ap.add_argument("--smoke", action="store_true")
