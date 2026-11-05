@@ -10,6 +10,8 @@ replies, nor a change in the first action. It does not claim that the agents do 
 |---|---|
 | `NOTE.md` | the note |
 | `PROVENANCE.json` | every number the note prints, with its audit, locator and commit |
+| `pdf-build/build-note-pdf.sh` | the PDF, with Paper 3's preamble and layout check; runs the provenance gate first |
+| `deposit/deposit-note.py` | the Zenodo record; never publishes. `--plan` is read-only |
 
 | measurement | audit |
 |---|---|
