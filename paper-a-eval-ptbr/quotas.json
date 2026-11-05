@@ -1,0 +1,23 @@
+{
+ "n": 120,
+ "v3_sha256": "bf278f9352192a902c1381c5db137cf8daf26f36bcfe8527d916371c54603b24",
+ "v3_queries_accepted": 57,
+ "pairs": {
+  "A": 18,
+  "B": 11,
+  "C": 11,
+  "D": 10,
+  "E": 14,
+  "F": 8
+ },
+ "pairs_total": 72,
+ "pairs_outside_frame": 0,
+ "quota": {
+  "A": 30,
+  "B": 19,
+  "C": 18,
+  "D": 17,
+  "E": 23,
+  "F": 13
+ }
+}
