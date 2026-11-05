@@ -1,0 +1,8 @@
+# sha256 of the private outputs of score-holdout.sh (workdir on the serving host, 2026-11-05)
+76827fc20bbf3e51da18ed2d9ef341e9469c09cdb0b5d195c8362797a3af629c  score.json
+2e952380440ee2efb7829733b4515425a6f1062c3d6208cff5430fc487590a7b  labels.json
+# production build and NOX_* settings, as checked by score-holdout.sh
+dist cd75e48d7e9517a7b2548f4d50feb1a381f9ea6de1d8686ae67d5303f532f07e
+settings cd157cc97987f6fdd9b38a663ccfb47d872fa46869c79358cf1f9c6be3ec0f9a
+# holdout commitment commit scored
+54048e465aad68db53ad342f147fb646aa28fe54
