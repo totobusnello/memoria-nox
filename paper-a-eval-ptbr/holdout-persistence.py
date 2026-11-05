@@ -8,8 +8,10 @@
       --holdout <holdout.jsonl> --commitment <commit that pushed HOLDOUT-COMMITMENT.json>
 
 --commitment is a commit of the public repository (a *.smoke.json path with --smoke): the file is
-read from that commit, which must be on origin/main, and the holdout must have the commitment's n,
-per-stratum counts and unique query ids (fourth review: a local commitment for a subset passed).
+read from that commit, which must be on origin/main, come after the tag and be the only commit
+there that ever touched HOLDOUT-COMMITMENT.json (fifth review), and the holdout must have the
+commitment's n, per-stratum counts and unique query ids (fourth review: a local commitment for a
+subset passed).
 
 The frozen database must have the registered sha256, and the commitment must be the registered
 (non-smoke) one. The later snapshot is given as the .gz the host wrote, and the date in its name
@@ -78,9 +80,21 @@ def main():
     else:
         repo = str(here.parent)
         subprocess.run(["git", "-C", repo, "fetch", "-q", "origin", "main"], check=True)
-        if subprocess.run(["git", "-C", repo, "merge-base", "--is-ancestor", a.commitment,
-                           "origin/main"]).returncode != 0:
+        subprocess.run(["git", "-C", repo, "fetch", "-q", "--tags", "origin"], check=True)
+        git = lambda *x: subprocess.run(["git", "-C", repo, *x], capture_output=True, text=True)
+        ref = git("rev-parse", f"{a.commitment}^{{commit}}").stdout.strip()
+        tag = git("rev-parse", "-q", "--verify", "refs/tags/paper-a-prereg-v1.0^{commit}").stdout.strip()
+        if git("merge-base", "--is-ancestor", ref, "origin/main").returncode != 0:
             sys.exit(f"refusing: {a.commitment} is not on origin/main")
+        # the registered commitment: after the tag, and the only commit on origin/main that ever
+        # touched the file, which is the one score-holdout.sh scored (fifth review: any later
+        # published holdout with consistent hashes passed)
+        if not tag or ref == tag or git("merge-base", "--is-ancestor", tag, ref).returncode != 0:
+            sys.exit(f"refusing: {a.commitment} does not come after the tag paper-a-prereg-v1.0")
+        hist = git("log", "--full-history", "--format=%H", "origin/main", "--",
+                   "paper-a-eval-ptbr/HOLDOUT-COMMITMENT.json").stdout.split()
+        if hist != [ref]:
+            sys.exit(f"refusing: HOLDOUT-COMMITMENT.json on origin/main was not written once, by {ref}")
         c = json.loads(subprocess.run(
             ["git", "-C", repo, "show", f"{a.commitment}:paper-a-eval-ptbr/HOLDOUT-COMMITMENT.json"],
             check=True, capture_output=True, text=True).stdout)

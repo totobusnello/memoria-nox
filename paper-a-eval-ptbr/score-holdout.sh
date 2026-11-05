@@ -45,6 +45,11 @@ else
   if git -C "$REPO" cat-file -e "$TAG:paper-a-eval-ptbr/HOLDOUT-COMMITMENT.json" 2>/dev/null; then
     echo "the tag already carries a HOLDOUT-COMMITMENT.json" >&2; exit 1
   fi
+  # the holdout commitment is written once: the only commit on origin/main that ever touched it
+  # is REF (fifth review: a second holdout published later, with consistent hashes, passed)
+  HIST=$(git -C "$REPO" log --full-history --format=%H origin/main -- paper-a-eval-ptbr/HOLDOUT-COMMITMENT.json)
+  [ "$HIST" = "$(git -C "$REPO" rev-parse "$REF^{commit}")" ] \
+    || { echo "HOLDOUT-COMMITMENT.json on origin/main was not written once, by $REF" >&2; exit 1; }
   git -C "$REPO" rev-parse "$REF^{commit}" > "$W/ref.txt"
   git -C "$REPO" archive "$TAG" | tar -x -C "$W/code"
   git -C "$REPO" show "$REF:paper-a-eval-ptbr/HOLDOUT-COMMITMENT.json" > "$W/commitment.json"

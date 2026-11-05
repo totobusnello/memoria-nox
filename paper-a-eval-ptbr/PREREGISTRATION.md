@@ -91,8 +91,9 @@ does not.** A natural experiment on the first daily snapshot of 2026-11-18
 (`holdout-persistence.py`). A reference persists if it leads to an active chunk whose text still
 contains the evidence span: by id, the chunk with the gold id; by anchor, any active chunk of the
 same source file (more than one is reported as ambiguous). The frozen database is checked by its
-hash; the commitment is read from its commit on `origin/main`, and the holdout must have its n,
-per-stratum counts and unique ids; the later snapshot is the daily `.gz` whose
+hash; the commitment is read from its commit on `origin/main`, which must come after the tag and
+be the only commit there that ever touched `HOLDOUT-COMMITMENT.json` (the one H-A1 scored), and the
+holdout must have its n, per-stratum counts and unique ids; the later snapshot is the daily `.gz` whose
 name carries the date 2026-11-18 (one fixed day, so there is no later snapshot to choose), the
 earliest of that day by the time in its name, and it must appear in a listing of the backup
 directory taken in the same session as the copy; the listing and the snapshot's hash are
@@ -127,7 +128,9 @@ overlap tercile and by stratum; replacements and rejection reasons; rankings sho
    seeds (`--smoke-seed`); none used the registered seed.
 2. Draw, then write the 120 questions. The holdout stays outside the repository; its sha256, n,
    per-stratum counts, replacements and the hashes of draw, prompt, cache and script are committed
-   as `HOLDOUT-COMMITMENT.json` and pushed before step 3.
+   as `HOLDOUT-COMMITMENT.json` and pushed before step 3. Each commitment file is written once:
+   every script that reads one refuses if any commit on `origin/main` other than the one given has
+   touched it.
 3. On the serving host, in a full clone of the public repository:
    `score-holdout.sh <snapshot> <holdout> <commitment commit>` scores and judges, and prints no
    reading, only the sha256 of `score.json` and `labels.json`. It executes the code extracted from
@@ -148,9 +151,11 @@ overlap tercile and by stratum; replacements and rejection reasons; rankings sho
    unless it reproduces `audits/2026-10-27-v3-rescore.py`. That control script also computes the
    exploratory thresholds 0.3 and 0.7 and a `bounded` arm, and stops on a division by zero when a
    threshold leaves that arm with no query. If it stops that way after its own strict check has
-   passed, the reading goes ahead with strict checked against `run-gold-eval.mjs` only, and the
-   paper states that the pooled figure had no second implementation in this run. Any other failure
-   of the control stops the reading.
+   passed and before it printed the interval, the reading goes ahead: strict is checked against
+   `run-gold-eval.mjs`, and pooled against the control's `p>0.5` row of the threshold table; only
+   if that row is missing does the paper state that the pooled figure had no second implementation
+   in this run. Any other failure of the control stops the reading, including one after the
+   interval was printed.
 6. H-A2 on or after 2026-11-18.
 7. Every number in the paper has an entry in `PROVENANCE.json`.
 
@@ -214,3 +219,9 @@ quotas before paying the judge, and that a sheet saved with a byte-order mark or
 refused. Each is fixed and tested. Two remaining points are limits of any script run by the
 author, not defects of these: the analysis can be called directly with a local human
 commitment, and H-A2 trusts the listing it is given; §6 states both.
+
+A fifth pass, by Codex alone over the fourth pass's diff, found that a failure of the control after
+it printed the interval (an interrupt, say) did not stop the reading, and that H-A2, like the
+scoring wrapper, accepted any published holdout commitment rather than the one H-A1 scored. Both
+are fixed and tested: the analysis refuses every control failure but the registered one, and each
+commitment file must have been written once, after the tag.

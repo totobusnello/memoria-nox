@@ -29,6 +29,11 @@ else
   [ "$HREF" != "$REF" ] || { echo "the human commit is the holdout commit" >&2; exit 1; }
   git -C "$REPO" merge-base --is-ancestor "$REF" "$HREF" || { echo "$HREF does not descend from $REF" >&2; exit 1; }
   git -C "$REPO" merge-base --is-ancestor "$HREF" origin/main || { echo "$HREF is not on origin/main" >&2; exit 1; }
+  for f in HOLDOUT HUMAN; do
+    want=$REF; [ $f = HUMAN ] && want=$HREF
+    [ "$(git -C "$REPO" log --full-history --format=%H origin/main -- "paper-a-eval-ptbr/$f-COMMITMENT.json")" = "$want" ] \
+      || { echo "$f-COMMITMENT.json on origin/main was not written once, by $want" >&2; exit 1; }
+  done
   if git -C "$REPO" cat-file -e "$REF:paper-a-eval-ptbr/HUMAN-COMMITMENT.json" 2>/dev/null; then
     echo "HUMAN-COMMITMENT.json already exists at the holdout commit" >&2; exit 1
   fi

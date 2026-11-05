@@ -161,21 +161,33 @@ def main(score_p, labels_p, holdout_p, commit_p, rescore_p, human_p, smoke):
     exp = d["summary"]["ndcg_at_10"]
     rtxt = open(rescore_p).read()
     m = re.search(r"honest interval \[([\d.]+) · ([\d.]+)\]", rtxt)
-    crashed = m is None and re.search(r"^CONTROL SCRIPT FAILED rc=1: ZeroDivisionError", rtxt, re.M) \
-        and re.search(r"^CONTROL strict=[\d.]+ vs run-gold-eval [\d.]+ -> PASS$", rtxt, re.M)
-    if crashed:
-        # §5: the control script reached its own strict check and then divided by zero on an
-        # empty `bounded` arm; strict is still checked against run-gold-eval, and the pooled figure
-        # is reported as having no second implementation
-        ok = abs(ms - exp) < 5e-4
-        print("CONTROL v3-rescore stopped on an empty `bounded` arm after its strict check passed; "
-              "pooled has no second implementation in this run")
+    failed = re.search(r"^CONTROL SCRIPT FAILED rc=(\d+): (.*)$", rtxt, re.M)
+    # §5: the one failure that does not stop the reading is a division by zero on an empty
+    # `bounded` arm, raised in the threshold table, after the control's own strict check passed
+    # and before it printed the interval. Any other failure stops it, whether or not the interval
+    # was printed (fifth review: rc=130 after the interval was read as a pass).
+    allowed = (failed is not None and failed.group(1) == "1"
+               and re.fullmatch(r"ZeroDivisionError: (float )?division by zero", failed.group(2))
+               and re.search(r"^CONTROL strict=[\d.]+ vs run-gold-eval [\d.]+ -> PASS$", rtxt, re.M)
+               and m is None)
+    if failed and not allowed:
+        fail(f"the control script failed ({failed.group(0)}); §5 stops the reading")
+    if m is not None:
+        ref, src = (float(m.group(1)), float(m.group(2))), "interval"
     else:
-        ok = (m is not None and abs(ms - exp) < 5e-4 and abs(ms - float(m.group(1))) < 5e-4
-              and abs(mp - float(m.group(2))) < 5e-4)
-    print(f"CONTROL strict {ms:.4f} (run-gold-eval {exp:.4f}) · v3-rescore "
-          f"[{m.group(1) if m else '?'} · {m.group(2) if m else '?'}] vs ours [{ms:.4f} · {mp:.4f}]"
-          f" -> {'PASS' if ok else 'FAIL'}")
+        # the threshold table prints p>0.5 before the 0.7 row that can divide by zero
+        row = re.search(r"^  p>0\.5\s+([\d.]+)\s+([\d.]+)\s", rtxt, re.M) if allowed else None
+        ref, src = ((float(row.group(1)), float(row.group(2))), "p>0.5 row") if row else (None, None)
+    if allowed:
+        print("CONTROL v3-rescore stopped on an empty `bounded` arm after its strict check passed; "
+              + (f"pooled checked against its {src}" if ref else
+                 "pooled has no second implementation in this run"))
+    ok = abs(ms - exp) < 5e-4 and (
+        (ref is not None and abs(ms - ref[0]) < 5e-4 and abs(mp - ref[1]) < 5e-4)
+        or (ref is None and allowed))
+    print(f"CONTROL strict {ms:.4f} (run-gold-eval {exp:.4f}) · v3-rescore {src or 'none'} "
+          f"[{f'{ref[0]:.4f}' if ref else '?'} · {f'{ref[1]:.4f}' if ref else '?'}] vs ours "
+          f"[{ms:.4f} · {mp:.4f}] -> {'PASS' if ok else 'FAIL'}")
     if not ok:
         fail("this recomputation does not reproduce the registered tooling")
 
