@@ -1,0 +1,6 @@
+*.log
+*.aux
+*.out
+MANUSCRIPT.tex
+MANUSCRIPT.pdf
+manuscript-build.md

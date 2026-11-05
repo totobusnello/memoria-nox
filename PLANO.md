@@ -97,9 +97,10 @@ Feito em 05/11: tag `6c6879b` → `HOLDOUT-COMMITMENT.json` `54048e4` → score 
 humana → `HUMAN-COMMITMENT.json` `31d90b2` → leitura (saídas em `6120a37`). H-A1 se sustenta,
 +0,1933 [+0,1421, +0,2464]; kappa humano × juiz 0,038, então o pooled não fica validado pelo
 avaliador (§4).
-PR em aberto: o do manuscrito do A · branch `paper-a-manuscript` (rascunho `paper-a-eval-ptbr/PAPER.md`;
-falta a seção do H-A2, depois avoid-ai-writing final, paridade e a pergunta das vozes)
-Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-a-manuscript`
+PR em aberto: o do formato do manuscrito do A · branch `paper-a-manuscript-format`
+(`MANUSCRIPT.md` no padrão do Paper 3: tabelas por script com `--check`, PDF, depósito que
+recusa enquanto o H-A2 estiver pendente)
+Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-a-manuscript-format`
 Último resultado dos gates: 2026-11-05 · proveniência do A 197 registros, 89 números, 0 falhas
 (mutação: um número trocado no RESULTS reprova)
 
