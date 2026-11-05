@@ -38,6 +38,9 @@ A methods paper in two parts, kept apart in the text:
 | file | what |
 |---|---|
 | `PROVENANCE.json` | every number the text may print, with its audit, locator, commit and `superseded_by` |
+| `RESULTS.md` | the prospective results as read: H-A1 (2026-11-05), the human sample, descriptives; H-A2 pending |
+| `results/` | the registered run's printed outputs, copied unchanged from the serving host, and the hashes of its private outputs |
+| `HOLDOUT-COMMITMENT.json`, `HUMAN-COMMITMENT.json` | the two commitments, each written once on `origin/main` after the tag |
 
 `PROVENANCE.json` was seeded on 2026-11-04 from twelve audits (2026-10-22 to 2026-11-03): 161
 records, 122 current and 39 superseded, in 20 correction chains (for example the v2 interval

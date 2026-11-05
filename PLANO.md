@@ -89,17 +89,18 @@ no Setup de cada paper.
 
 ## Etapa atual
 
-Etapa: Work (paper A, parte prospectiva)
-Próximo passo: com a tag `paper-a-prereg-v1.0` no commit de squash do PR do pré-registro, o sorteio
-registrado (semente 20261105), as 120 perguntas e o push de `HOLDOUT-COMMITMENT.json` num commit
-posterior; depois `score-holdout.sh` na VPS (clone completo, antes de o backup de 04/11 ser podado,
-~10/11), a amostra humana de 60 pares, `read-h-a1.sh`, e H-A2 no primeiro snapshot de 18/11 (cópia
-até 23/11). Ordem inteira em `paper-a-eval-ptbr/PREREGISTRATION.md` §5.
-PR em aberto: o do pré-registro do A · branch `paper-a-prereg`
-Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-a-prereg`
-Último resultado dos gates: 2026-11-05 · proveniência do A 163 registros, 24 números, 0 falhas;
-smoke ponta a ponta na VPS (n 6) rc 0; analisador contra 8 variantes do controle e portões git num
-remoto simulado, cada um com a entrada que a versão anterior aceitava
+Etapa: Work (paper A, parte prospectiva): H-A1 lido, H-A2 aguarda 18/11
+Próximo passo: H-A2 no primeiro snapshot de 18/11 (cópia até 23/11; lembretes na agenda em 18/11
+e 22/11); depois o texto do paper a partir de `paper-a-eval-ptbr/RESULTS.md`, com os 6 itens
+abertos do README resolvidos antes.
+Feito em 05/11: tag `6c6879b` → `HOLDOUT-COMMITMENT.json` `54048e4` → score na VPS → amostra
+humana → `HUMAN-COMMITMENT.json` `31d90b2` → leitura (saídas em `6120a37`). H-A1 se sustenta,
++0,1933 [+0,1421, +0,2464]; kappa humano × juiz 0,038, então o pooled não fica validado pelo
+avaliador (§4).
+PR em aberto: o dos resultados do A · branch `paper-a-results`
+Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-a-results`
+Último resultado dos gates: 2026-11-05 · proveniência do A 193 registros, 56 números, 0 falhas
+(mutação: um número trocado no RESULTS reprova)
 
 ## Pendências
 
