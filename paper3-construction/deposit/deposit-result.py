@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """The confirmatory RESULT of Paper 3's v1.3 pre-registration, as its own Zenodo record.
 
+Version 1.2 (2026-11-04) is a new VERSION of version 1.1 (23964931): it adds the four-judge reading of
+H4 registered by pre-registration v1.5 (§16), as a second addendum, and that run's rows and runner.
+
 Version 1.1 (2026-11-04) is a new VERSION of that record (23949145): it adds the raw-evidence arm
 registered by pre-registration v1.4 (§15), appended to the deposit copy as an addendum, and the
 arm's rows and runner to the data zip. --create-draft POSTs /records/<v1.0>/versions.
@@ -35,19 +38,20 @@ spec = importlib.util.spec_from_file_location("dep", HERE / "deposit.py")
 dep = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(dep)
 
-VERSION = "1.1"
+VERSION = "1.2"
 SLUG = "construction-interaction-confirm"
 MD, PDF = f"{SLUG}-v{VERSION}.md", f"{SLUG}-v{VERSION}.pdf"
 DATA = f"data-v{VERSION}.zip"
 FILES = [PDF, MD, DATA, "SHA256SUMS"]
-DESC = HERE / f"description-confirm-v{VERSION}.html"
+DESC = HERE / f"description-confirm-v{VERSION}.html"   # its @@PREREG15@@ is replaced by the v1.5 DOI once reserved
 DRAFT_ID = HERE / f".draft-id-result-v{VERSION}"
-NEW_VERSION_OF = "23949145"       # v1.0 of this record
+NEW_VERSION_OF = "23964931"       # v1.1 of this record (v1.1 was a version of v1.0, 23949145)
 PUB_DATE = "2026-11-04"
 PREREG_DOI = "10.5281/zenodo.23934489"
 PREREG14_DOI = "10.5281/zenodo.23964906"   # v1.4, deposited after the arm; the tag preceded it
+PREREG15_DOI = os.environ.get("PREREG15_DOI", "")   # v1.5, reserved by deposit.py --create-draft
 # The commit that versioned the run (PR #631). A commit URL is immutable, so no tag is needed.
-REPO_COMMIT = "e66d786"   # v1.1: the commit that versioned the raw-evidence arm (PR #634)
+REPO_COMMIT = "50cc5cb"   # v1.2: the commit that versioned the four-judge run (PR #635); v1.1 was e66d786
 RUN = "runs/confirm-2026-11-04"
 DATA_FILES = ["CONFIRM-RESULT.md", "README.md",
               f"{RUN}/receipt.json", f"{RUN}/rows.ndjson",
@@ -63,7 +67,13 @@ DATA_FILES = ["CONFIRM-RESULT.md", "README.md",
               # reader-ceiling.py; raw-arm.py --analyze reproduces raw-arm.txt from the rows.
               "RAW-ARM-RESULT.md", "raw-arm.py", "reader-ceiling.py",
               "runs/raw-arm-2026-11-04/rows-raw-arm.ndjson", "runs/raw-arm-2026-11-04/raw-arm.txt",
-              "runs/raw-arm-2026-11-04/raw-arm.json", "runs/raw-arm-2026-11-04/receipt.json"]
+              "runs/raw-arm-2026-11-04/raw-arm.json", "runs/raw-arm-2026-11-04/receipt.json",
+              # v1.2: four judges on H4 (pre-registration v1.5, §16). h4-judges.py imports
+              # lme-run.py and lme-analyze.py; --analyze reproduces h4-judges.txt from the rows.
+              "H4-JUDGES-RESULT.md", "h4-judges.py",
+              "runs/h4-judges-2026-11-04/rows-h4-judges.ndjson",
+              "runs/h4-judges-2026-11-04/preflight.json", "runs/h4-judges-2026-11-04/receipt.json",
+              "runs/h4-judges-2026-11-04/h4-judges.txt", "runs/h4-judges-2026-11-04/h4-judges.json"]
 SUBJECTS = ["confirmatory result", "pre-registration", "agent memory", "memory construction",
             "write path", "factorial design", "LongMemEval", "judge agreement"]
 TITLE = ("Construction before search: confirmatory result of the pre-registered test "
@@ -95,6 +105,9 @@ def metadata():
             {"identifier": PREREG14_DOI, "scheme": "doi",
              "relation_type": {"id": "references"},
              "resource_type": {"id": "publication-preprint"}},
+            *([{"identifier": PREREG15_DOI, "scheme": "doi",
+                "relation_type": {"id": "references"},
+                "resource_type": {"id": "publication-preprint"}}] if PREREG15_DOI else []),
             {"identifier": f"https://github.com/totobusnello/memoria-nox/tree/{REPO_COMMIT}/paper3-construction",
              "scheme": "url", "relation_type": {"id": "issupplementedby"},
              "resource_type": {"id": "software"}},
@@ -116,7 +129,15 @@ def deposit_text():
     raw = "\n".join("#" + l if l.startswith("## ") else l for l in raw.split("\n"))
     raw = raw.replace("# Addendum", "## Addendum", 1)
     raw = raw.replace("δ", "delta")   # the body font has no δ (see deposit.py, GREEK_SPELLED)
-    return text.rstrip() + "\n\n" + raw
+    # v1.2: the four-judge reading of H4 as a second addendum
+    h4 = (PLAN / "H4-JUDGES-RESULT.md").read_text(encoding="utf-8")
+    first = "# H4 with four judges — result (v1.5, §16)"
+    assert h4.startswith(first)
+    h4 = h4.replace(first, "# Addendum, version 1.2: H4 with four judges "
+                           "(pre-registration v1.5, §16)", 1)
+    h4 = "\n".join("#" + l if l.startswith("## ") else l for l in h4.split("\n"))
+    h4 = h4.replace("# Addendum", "## Addendum", 1).replace("δ", "delta")
+    return text.rstrip() + "\n\n" + raw.rstrip() + "\n\n" + h4
 
 
 def draft_doi():
@@ -127,6 +148,8 @@ def draft_doi():
 
 def build():
     doi = draft_doi()
+    assert PREREG15_DOI.startswith("10.5281/zenodo."), "set PREREG15_DOI (pre-registration v1.5)"
+    assert PREREG15_DOI in DESC.read_text(), "PREREG15_DOI is not in the description"
     (HERE / MD).write_text(deposit_text(), encoding="utf-8")
     env = dict(os.environ, PREREG_DOI=doi, PREREG_MD=str(HERE / MD),
                PREREG_VER=f"Version {VERSION}")
@@ -172,7 +195,10 @@ def plan():
     fnd += dep.privacy_scan("description", DESC.read_text()) if DESC.exists() else []
     for f in fnd:
         print("  PRIVACY", f)
-    ok = not fnd and not missing and DESC.exists()
+    ph = DESC.exists() and "@@" in DESC.read_text()
+    if ph:
+        print("  PLACEHOLDER @@ left in the description")
+    ok = not fnd and not missing and DESC.exists() and not ph
     print(f"\nprivacy {'PASS' if not fnd else 'FAIL'} · data files {'PASS' if not missing else 'FAIL'}"
           f" · description {'PASS' if DESC.exists() else 'FAIL'}")
     return 0 if ok else 1

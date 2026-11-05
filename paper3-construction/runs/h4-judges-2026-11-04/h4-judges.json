@@ -1,0 +1,80 @@
+{
+ "agreement": {
+  "j1-j2": 0.9566115702479339,
+  "j1-j3": 0.9648760330578512,
+  "j1-j4": 0.9669421487603306,
+  "j2-j3": 0.9669421487603306,
+  "j2-j4": 0.9772727272727273,
+  "j3-j4": 0.981404958677686
+ },
+ "preflight": {
+  "j3": {
+   "abstentions_accepted": 0,
+   "of": 16,
+   "of_ref": 8,
+   "pass": true,
+   "references_accepted": 8
+  },
+  "j4": {
+   "abstentions_accepted": 0,
+   "of": 16,
+   "of_ref": 8,
+   "pass": true,
+   "references_accepted": 8
+  }
+ },
+ "results": {
+  "committee": {
+   "disc": [
+    10,
+    24
+   ],
+   "est": -0.05785123966942152,
+   "hi": -0.012345679012345623,
+   "lo": -0.10373443983402486,
+   "reading": "units lose to raw evidence"
+  },
+  "j1": {
+   "disc": [
+    11,
+    24
+   ],
+   "est": -0.05371900826446274,
+   "hi": -0.008196721311475419,
+   "lo": -0.10330578512396693,
+   "reading": "units lose to raw evidence"
+  },
+  "j2": {
+   "disc": [
+    12,
+    24
+   ],
+   "est": -0.04958677685950419,
+   "hi": 0.0,
+   "lo": -0.09917355371900827,
+   "reading": "non-inferior at 10 pp"
+  },
+  "j3": {
+   "disc": [
+    9,
+    23
+   ],
+   "est": -0.05785123966942152,
+   "hi": -0.012396694214876103,
+   "lo": -0.10373443983402486,
+   "reading": "units lose to raw evidence"
+  },
+  "j4": {
+   "disc": [
+    9,
+    24
+   ],
+   "est": -0.06198347107438018,
+   "hi": -0.016597510373443924,
+   "lo": -0.10788381742738584,
+   "reading": "units lose to raw evidence"
+  }
+ },
+ "script_sha256": "e588cfd4bbacbeac578ac42d1f371b4619cb8666575d890bc684daa4e95041b8",
+ "ties": 3
+}
