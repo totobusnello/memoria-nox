@@ -1,0 +1,6 @@
+.draft-id-*
+__pycache__/
+*.pdf
+*.zip
+five-ways-the-ruler-misleads-v*.md
+SHA256SUMS
