@@ -1,0 +1,16 @@
+judged fraction of the top-10: 1187/1187 = 100.0%  (the first v2 run had 9.1%)
+labels available: 1221 pairs · 399 relevant at p>0.5
+
+CONTROL strict=0.4939 vs run-gold-eval 0.4939 -> PASS
+
+threshold    strict   pooled   bounded
+  p>0.3      0.4939   0.7012    0.7829
+  p>0.5      0.4939   0.6872    0.7741
+  p>0.7      0.4939   0.6629    0.7587
+
+v3 at the registered threshold p>0.5:
+  honest interval [0.4939 · 0.6872]
+  v2 was          [0.2428 · 0.5114]
+  bounded 0.7741 — ORDERING only, not comparable to the two above
+
+zero-hit: strict 34/120 = 28.3% · pooled 10/120 = 8.3%

@@ -1,0 +1,22 @@
+input contract PASS · 120 queries · {'A': 30, 'B': 19, 'C': 18, 'D': 17, 'E': 23, 'F': 13} · top-10 judged 1187/1187 · rankings shorter than 10: 11
+CONTROL strict 0.4939 (run-gold-eval 0.4939) · v3-rescore interval [0.4939 · 0.6872] vs ours [0.4939 · 0.6872] -> PASS
+
+H-A1: pooled - strict = +0.1933 [+0.1421, +0.2464], 120 queries, stratified bootstrap (margin 0.1) -> holds
+      strict 0.4939 · pooled 0.6872
+
+per-query direction (descriptive): pooled > strict 57 · equal 40 · pooled < strict 23
+gold judged to contain the answer (p > 0.5): 117/120
+  exploratory: pooled - strict on those queries +0.1929
+
+by question-side lexical overlap tercile (descriptive):
+  low  n= 37 strict 0.4801 pooled 0.6351
+  mid  n= 42 strict 0.4660 pooled 0.6890
+  high n= 41 strict 0.5350 pooled 0.7325
+
+by stratum (descriptive):
+  A n= 30 strict 0.5189 pooled 0.6471
+  B n= 19 strict 0.3559 pooled 0.6000
+  C n= 18 strict 0.3873 pooled 0.5568
+  D n= 17 strict 0.6306 pooled 0.8470
+  E n= 23 strict 0.6092 pooled 0.7677
+  F n= 13 strict 0.4029 pooled 0.7366
