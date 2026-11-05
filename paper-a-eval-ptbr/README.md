@@ -1,4 +1,4 @@
-# Paper A — evaluating retrieval on a living PT-BR agent memory
+# Paper A: evaluating retrieval on a living PT-BR agent memory
 
 Working title: *Five ways the ruler misleads: evaluating retrieval on a living Portuguese agent
 memory.* Status: setup. Not deposited. The plan lives in `../PLANO.md` (section "Os quatro papers",
