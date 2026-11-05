@@ -80,3 +80,15 @@ paper2-interventional/_sprint-2026-10-04/noxmem-evidence/payload/
 paper2-interventional/_sprint-2026-10-04/noxmem-evidence/*.zip
 paper2-interventional/_sprint-2026-10-04/noxmem-v106/legacy-input/*.zip
 paper2-interventional/_sprint-2026-10-04/stanford-deposit/payload/
+
+# Conteúdo do corpus privado (removido do main em 2026-11-04; o repo é público).
+# Ficam no disco local e em ~/Backups/memoria-nox-privado-2026-11-04 (SHA256SUMS lá).
+# Os scripts em audits/ e eval/ que os leem continuam funcionando localmente.
+audits/out/kg-s1-precision-2026-10-22.json
+audits/out/resolve-gold-anchors-2026-10-22.json
+audits/out/abstention-baseline-2026-10-22.json
+eval/golden-queries-v2.jsonl
+eval/golden-queries-v3.jsonl
+eval/gold-proposals-2026-10-27.jsonl
+eval/golden-negatives-v1.jsonl
+eval/golden-negatives-v2.jsonl
