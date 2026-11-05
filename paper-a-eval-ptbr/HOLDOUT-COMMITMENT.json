@@ -1,0 +1,40 @@
+{
+ "smoke": false,
+ "seed": 20261105,
+ "holdout_sha256": "54fbf14bc3e3c344a991251684c8bf698abbed3dd639a815f9ed6cbbc4c40c6c",
+ "n": 120,
+ "per_stratum": {
+  "A": 30,
+  "B": 19,
+  "C": 18,
+  "D": 17,
+  "E": 23,
+  "F": 13
+ },
+ "replacements": {
+  "A": 2,
+  "B": 3,
+  "C": 4,
+  "D": 7,
+  "E": 23,
+  "F": 12
+ },
+ "rejection_reasons": {
+  "evidence": 8,
+  "impossible": 26,
+  "copy": 17
+ },
+ "cache_sha256": "752cd4cd210db5dc343a9487d8f36f2e6d8d1f793194161da4f15cede35c98df",
+ "writer_model_requested": "glm-5.3",
+ "writer_models_served": [
+  "glm-5.3"
+ ],
+ "draw_sha256": "889cdcc8c3e962a24ea99bf79719b35b0a958f3e108937364b8ba585973f6ea3",
+ "prompt_sha256": "a3f5fba50aef088111dcbe91e58a6998a6153523f8defe0acde1313928536682",
+ "script_sha256": "66c741e609ce3004fc1d43f2337818117e9c3c13ed7b26364e246cdfc08f4dad",
+ "overlap_terciles": [
+  0.25,
+  0.4444
+ ],
+ "new_calls_this_run": 171
+}
