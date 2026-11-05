@@ -89,12 +89,14 @@ no Setup de cada paper.
 
 ## Etapa atual
 
-Etapa: Setup (base comum)
-Próximo passo: merge do PR da base comum; depois o memo do item 2 (GTM) e o Setup do A
-(pasta, `PROVENANCE.json`, holdout).
-PR em aberto: o da base comum · branch `base-comum-papers`
-Worktrees abertas: `~/Claude-worktrees/memoria-nox/base-comum-papers`
-Último resultado dos gates: 2026-11-04 · `tools/tests/test_gates.py` 12/12 verdes; mutação 12/12 casos de infrator falham
+Etapa: Setup (paper A)
+Próximo passo: sua decisão sobre o holdout do A (quem escreve as queries novas, a partir de quê);
+depois resolver os 6 itens abertos de `paper-a-eval-ptbr/README.md` e escrever o pré-registro da
+parte prospectiva.
+PR em aberto: o do Setup do A · branch `paper-a-setup`
+Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-a-setup`
+Último resultado dos gates: 2026-11-04 · `tools/tests/test_gates.py` 15/15; proveniência do A 161
+registros, 0 falhas; privacidade rc 0
 
 ## Pendências
 
@@ -142,4 +144,5 @@ Worktrees abertas: `~/Claude-worktrees/memoria-nox/base-comum-papers`
 |---|---|---|---|
 | 2026-11-04 | Dois scripts de depósito gravam `SHA256SUMS` no mesmo diretório: build+fill de cada um em sequência | só aqui; vira gate se repetir | não |
 | 2026-11-04 | O teste de mutação achou um defeito no próprio teste: sem commit, `git reset` não tira do stage, e do 2º infrator em diante cada caso passava pelo arquivo do anterior | só aqui (comentário no teste) | sim |
+| 2026-11-04 | O gate de proveniência reprovou o próprio README do A por citar valores superados como história, e depois achou dois defeitos dele mesmo (trecho compartilhado entre registros; faixa como valor). Contar correções é o assunto do A, então o gate ganhou `history` explícito por registro | só aqui | sim |
 | 2026-11-04 | Plano montado a partir da MEMÓRIA herdou números superados (0,833; 0,44–0,51; 9.398; 523); a memória guarda a 1ª versão e o audit guarda a correção | memória (feedback) | sim |

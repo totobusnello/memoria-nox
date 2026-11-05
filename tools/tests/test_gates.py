@@ -160,6 +160,23 @@ class Provenance(unittest.TestCase):
         c = [dict(self.claims[1], commit="deadbeef")]
         self.assertEqual(self.check("Fidelity 0.900.\n", claims=c).returncode, 1)
 
+    def test_history_fragment_allows_only_where_declared(self):
+        c = [dict(self.claims[0], history=["first reported as 0.833"]), self.claims[1]]
+        self.assertEqual(self.check("It was first reported as 0.833; it is 0.900.\n", claims=c).returncode, 0)
+        res = self.check("It was first reported as 0.833; later 0.833 again; it is 0.900.\n", claims=c)
+        self.assertEqual(res.returncode, 1)
+        c = [dict(self.claims[0], history=["first reported as 0.8"]), self.claims[1]]
+        self.assertEqual(self.check("first reported as 0.8, now 0.900.\n", claims=c).returncode, 1)
+
+    def test_two_claims_may_share_a_history_fragment(self):
+        old2 = dict(self.claims[0], id="fid-old-2", value="0.833", history=["was 0.833"])
+        c = [dict(self.claims[0], history=["was 0.833"]), old2, self.claims[1]]
+        self.assertEqual(self.check("It was 0.833; now 0.900.\n", claims=c).returncode, 0)
+
+    def test_range_value_and_plus_sign(self):
+        c = [dict(self.claims[1], value="[+0.900 · 0.833]", locator="0.900")]
+        self.assertEqual(self.check("Between +0.900 and 0.833.\n", claims=c).returncode, 0)
+
     def test_numbers_in_code_are_ignored(self):
         self.assertEqual(self.check("Run `tool --x 3.14` then 0.900.\n").returncode, 0)
 
