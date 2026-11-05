@@ -1,0 +1,203 @@
+{
+ "text": [
+  "NOTE.md"
+ ],
+ "ignore": [],
+ "claims": [
+  {
+   "id": "7a-messages",
+   "value": "1,524",
+   "what": "assistant messages with text in the window, all three transcript roots",
+   "population": "assistant messages 2026-09-21 to 2026-10-15, three transcript roots",
+   "date": "2026-10-22",
+   "artifact": "audits/2026-10-14-brief-usage.md",
+   "locator": "**1,524**",
+   "commit": "f813bb1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "7a-exposed-pairs",
+   "value": "12,782",
+   "what": "exposed (message, brief item) pairs; 0 strict and 0 fuzzy hits",
+   "population": "assistant messages 2026-09-21 to 2026-10-15, three transcript roots",
+   "date": "2026-10-22",
+   "artifact": "audits/2026-10-14-brief-usage.md",
+   "locator": "**12,782** | **0**",
+   "commit": "f813bb1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "7a-future-control",
+   "value": "57",
+   "what": "fuzzy hits in the future control (positive control), three roots",
+   "population": "assistant messages 2026-09-21 to 2026-10-15, three transcript roots",
+   "date": "2026-10-22",
+   "artifact": "audits/2026-10-14-brief-usage.md",
+   "locator": "| **0** | 57 |",
+   "commit": "f813bb1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "7a-messages-first",
+   "value": "1,120",
+   "what": "messages in the first run, one transcript root",
+   "population": "assistant messages 2026-09-21 to 2026-10-14, one root",
+   "date": "2026-10-14",
+   "artifact": "audits/2026-10-14-brief-usage.md",
+   "locator": "assistant messages with text in window: 1120",
+   "commit": "f813bb1",
+   "superseded_by": "7a-messages",
+   "note": "understated: one of three roots",
+   "history": [
+    "reported 1,120 messages"
+   ]
+  },
+  {
+   "id": "7a-base-understated",
+   "value": "36%",
+   "what": "how much the first run understated the base (1,120 -> 1,524)",
+   "population": "assistant messages 2026-09-21 to 2026-10-15, three transcript roots",
+   "date": "2026-10-22",
+   "artifact": "audits/2026-10-14-brief-usage.md",
+   "locator": "understated by 36%",
+   "commit": "f813bb1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "7a-fuzzy-threshold",
+   "value": "60%",
+   "what": "fuzzy detector threshold: share of the item's distinctive tokens (design parameter)",
+   "population": "detector definition",
+   "date": "2026-10-14",
+   "artifact": "audits/2026-10-14-brief-usage.md",
+   "locator": "≥ 60%",
+   "commit": "f813bb1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "7a-v1-false-hits",
+   "value": "eight",
+   "what": "strict hits of the discarded first detector, all false on inspection",
+   "population": "detector v1",
+   "date": "2026-10-14",
+   "artifact": "audits/2026-10-14-brief-usage.md",
+   "locator": "8 strict",
+   "commit": "f813bb1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "r1-messages",
+   "value": "574",
+   "what": "assistant messages in the R1 window, three roots",
+   "population": "2026-10-14 to 2026-10-22",
+   "date": "2026-10-22",
+   "artifact": "audits/2026-10-21-r1-recency-relevance.md",
+   "locator": "assistant messages in window: 574",
+   "commit": "f813bb1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "r1-posctl-oneliner",
+   "value": "95.7%",
+   "what": "positive control: strict detector fires on injected one-line summaries (n=300)",
+   "population": "300 injected pairs",
+   "date": "2026-10-21",
+   "artifact": "audits/2026-10-21-r1-recency-relevance.md",
+   "locator": "strict fires=287 ( 95.7%)",
+   "commit": "f813bb1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "r1-posctl-stem",
+   "value": "100.0%",
+   "what": "positive control: strict detector fires on injected one-liner plus stem (n=300)",
+   "population": "300 injected pairs",
+   "date": "2026-10-21",
+   "artifact": "audits/2026-10-21-r1-recency-relevance.md",
+   "locator": "strict fires=300 (100.0%)",
+   "commit": "f813bb1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "r1-detectable",
+   "value": "99.6%",
+   "what": "brief items detectable by construction in the window",
+   "population": "served items of the window",
+   "date": "2026-10-21",
+   "artifact": "audits/2026-10-21-r1-recency-relevance.md",
+   "locator": "detectable=483 (99.6%)",
+   "commit": "f813bb1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "r1-canary-share",
+   "value": "337 of 382",
+   "what": "searches since 14/10 that were the canary probe; none from an agent",
+   "population": "search telemetry 2026-10-14 to 2026-10-21",
+   "date": "2026-10-21",
+   "artifact": "audits/2026-10-21-r1-recency-relevance.md",
+   "locator": "337 of 382 searches",
+   "commit": "f813bb1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "7b-decisive",
+   "value": "0/10",
+   "what": "decisive hits of the positive control (gate >= 7/10); main phase not run",
+   "population": "20 frozen scenarios x 2 arms x 2 replicas",
+   "date": "2026-10-15",
+   "artifact": "audits/2026-10-15-7b-positive-control.md",
+   "locator": "| decisive hits | **0/10** | ≥ 7/10 |",
+   "commit": "e9e973a",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "7b-planted-used",
+   "value": "3 of 28",
+   "what": "BP runs with a real first action that used the planted value; 0 of 27 in B1",
+   "population": "runs with a real first action",
+   "date": "2026-10-15",
+   "artifact": "audits/2026-10-15-7b-positive-control.md",
+   "locator": "| BP | 28 | **3** (all decisive) | 13 |",
+   "commit": "e9e973a",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "7b-superseded",
+   "value": "13/28 vs 12/27",
+   "what": "superseded value in the first action, with and without the plant",
+   "population": "runs with a real first action",
+   "date": "2026-10-15",
+   "artifact": "audits/2026-10-15-7b-positive-control.md",
+   "locator": "(13/28 vs 12/27)",
+   "commit": "e9e973a",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "item7-searches",
+   "value": "11 and 6",
+   "what": "searches the agent issued unprompted in two production runs of the deadline sweep",
+   "population": "two runs, 2026-10-23",
+   "date": "2026-10-23",
+   "artifact": "audits/2026-10-23-item7-consumidor-construido.md",
+   "locator": "| **searches the agent issued unprompted** | **11** | **6** |",
+   "commit": "77982a7",
+   "superseded_by": null,
+   "note": ""
+  }
+ ]
+}

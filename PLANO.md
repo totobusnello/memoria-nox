@@ -97,10 +97,11 @@ Feito em 05/11: tag `6c6879b` → `HOLDOUT-COMMITMENT.json` `54048e4` → score 
 humana → `HUMAN-COMMITMENT.json` `31d90b2` → leitura (saídas em `6120a37`). H-A1 se sustenta,
 +0,1933 [+0,1421, +0,2464]; kappa humano × juiz 0,038, então o pooled não fica validado pelo
 avaliador (§4).
-PR em aberto: o do formato do manuscrito do A · branch `paper-a-manuscript-format`
-(`MANUSCRIPT.md` no padrão do Paper 3: tabelas por script com `--check`, PDF, depósito que
-recusa enquanto o H-A2 estiver pendente)
-Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-a-manuscript-format`
+Em paralelo desde 05/11 (Toto: «em paralelo os 2»): C, nota de dados em
+`paper-c-pushed-memory/NOTE.md` (rascunho, proveniência 16 registros, 0 falhas), e o protocolo do D
+(`paper-d-c2-production/`, rascunho, sem rodar nada pago).
+PR em aberto: o da nota C · branch `paper-c-note`; o do protocolo D, quando o rascunho for revisado
+Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-c-note`, `~/Claude-worktrees/memoria-nox/paper-d-protocol`
 Último resultado dos gates: 2026-11-05 · proveniência do A 197 registros, 89 números, 0 falhas
 (mutação: um número trocado no RESULTS reprova)
 
