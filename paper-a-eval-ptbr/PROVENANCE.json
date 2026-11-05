@@ -1,9 +1,15 @@
 {
  "text": [
-  "README.md"
+  "README.md",
+  "PREREGISTRATION.md"
  ],
  "ignore": [
-  "0.5"
+  "0.10",
+  "0.5",
+  "10,000",
+  "5%",
+  "50%",
+  "95%"
  ],
  "claims": [
   {
@@ -1952,6 +1958,30 @@
    "commit": "3f80872",
    "superseded_by": null,
    "note": "Gold accounts for +0.0106 on a fixed ranking; rest undecomposable."
+  },
+  {
+   "id": "frame-vault-files",
+   "value": "4,721",
+   "what": "source files of the private document vault, outside the holdout frame",
+   "population": "chunks with superseded_by NULL and >=200 chars, snapshot 2026-11-04",
+   "date": "2026-11-04",
+   "artifact": "paper-a-eval-ptbr/frame-census.txt",
+   "locator": "files  4721",
+   "commit": "bca5369",
+   "superseded_by": null,
+   "note": "counted by frame-census.py"
+  },
+  {
+   "id": "frame-noxmem-files",
+   "value": "2,812",
+   "what": "source files of the nox-mem source tree, outside the holdout frame",
+   "population": "same",
+   "date": "2026-11-04",
+   "artifact": "paper-a-eval-ptbr/frame-census.txt",
+   "locator": "files  2812",
+   "commit": "bca5369",
+   "superseded_by": null,
+   "note": "counted by frame-census.py"
   }
  ]
 }
