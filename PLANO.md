@@ -91,14 +91,14 @@ no Setup de cada paper.
 
 Etapa: Work (paper A, parte prospectiva): H-A1 lido, H-A2 aguarda 18/11
 Próximo passo: H-A2 no primeiro snapshot de 18/11 (cópia até 23/11; lembretes na agenda em 18/11
-e 22/11); depois o texto do paper a partir de `paper-a-eval-ptbr/RESULTS.md`, com os 6 itens
-abertos do README resolvidos antes.
+e 22/11); depois o texto do paper a partir de `paper-a-eval-ptbr/RESULTS.md`. Os itens abertos do README
+foram resolvidos em 05/11 (Toto decidiu 1 a 3).
 Feito em 05/11: tag `6c6879b` → `HOLDOUT-COMMITMENT.json` `54048e4` → score na VPS → amostra
 humana → `HUMAN-COMMITMENT.json` `31d90b2` → leitura (saídas em `6120a37`). H-A1 se sustenta,
 +0,1933 [+0,1421, +0,2464]; kappa humano × juiz 0,038, então o pooled não fica validado pelo
 avaliador (§4).
-PR em aberto: o dos resultados do A · branch `paper-a-results`
-Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-a-results`
+PR em aberto: o dos itens abertos do A · branch `paper-a-open-items`
+Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-a-open-items`
 Último resultado dos gates: 2026-11-05 · proveniência do A 193 registros, 56 números, 0 falhas
 (mutação: um número trocado no RESULTS reprova)
 
@@ -153,4 +153,6 @@ Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-a-results`
 | 2026-11-04 | Dois scripts de depósito gravam `SHA256SUMS` no mesmo diretório: build+fill de cada um em sequência | só aqui; vira gate se repetir | não |
 | 2026-11-04 | O teste de mutação achou um defeito no próprio teste: sem commit, `git reset` não tira do stage, e do 2º infrator em diante cada caso passava pelo arquivo do anterior | só aqui (comentário no teste) | sim |
 | 2026-11-04 | O gate de proveniência reprovou o próprio README do A por citar valores superados como história, e depois achou dois defeitos dele mesmo (trecho compartilhado entre registros; faixa como valor). Contar correções é o assunto do A, então o gate ganhou `history` explícito por registro | só aqui | sim |
+| 2026-11-05 | Um audit inverteu a própria tabela («60% das golds não respondem» quando a tabela diz 57 de 95 ACEITAS), e o registro de proveniência herdou a frase, não a tabela. Nenhum gate pega isso: o locator casa com o texto errado. Só apareceu ao ler o audit por inteiro para resolver um item aberto | errata nos dois audits; registro superado | sim |
+| 2026-11-05 | A proveniência marcava o número registrado da abstenção como «superado» pelo do juiz, gravando como fato uma interpretação («corrected») que os audits não fazem. Supersessão é decisão de leitura, não só de cronologia | só aqui | sim |
 | 2026-11-04 | Plano montado a partir da MEMÓRIA herdou números superados (0,833; 0,44–0,51; 9.398; 523); a memória guarda a 1ª versão e o audit guarda a correção | memória (feedback) | sim |
