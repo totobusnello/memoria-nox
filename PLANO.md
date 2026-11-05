@@ -137,6 +137,7 @@ Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-c-note`, `~/Claude-work
 | 2026-11-04 | C passa a afirmar ausência de traço textual, datada; não «não uso» | 7a e R1 medem texto; 7b falhou o controle e teve sinal em 3/28; em 23/10 houve busca de agente |
 | 2026-11-04 | Faixa de nDCG do A = v3 [0,2567 · 0,4394], descrita como sensibilidade ao protocolo de anotação | o plano anterior misturava piso da v2 com teto de outra versão, e nenhum dos dois é limite demonstrado |
 | 2026-11-04 | D começa por replay offline pareado C0 × C2 | não toca produção e responde a mesma pergunta sobre o que a destilação produz |
+| 2026-11-05 | D: só C0 × C2 (sem C1, sem C0 como construído); amostra humana cega de 60 obrigatória; pré-registro com tag antes do sorteio das sessões | escolha do Toto; o resultado decide a segunda onda do GTM, e o kappa 0,038 do A mostrou que juiz LLM sozinho não basta |
 | 2026-11-04 | Zenodo + labf.bio | precedente dos Papers 1–3 |
 
 ## Vozes
