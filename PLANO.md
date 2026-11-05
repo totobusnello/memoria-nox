@@ -138,6 +138,7 @@ Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-c-note`, `~/Claude-work
 | 2026-11-04 | Faixa de nDCG do A = v3 [0,2567 · 0,4394], descrita como sensibilidade ao protocolo de anotação | o plano anterior misturava piso da v2 com teto de outra versão, e nenhum dos dois é limite demonstrado |
 | 2026-11-04 | D começa por replay offline pareado C0 × C2 | não toca produção e responde a mesma pergunta sobre o que a destilação produz |
 | 2026-11-05 | D: só C0 × C2 (sem C1, sem C0 como construído); amostra humana cega de 60 obrigatória; pré-registro com tag antes do sorteio das sessões | escolha do Toto; o resultado decide a segunda onda do GTM, e o kappa 0,038 do A mostrou que juiz LLM sozinho não basta |
+| 2026-11-05 | D: perguntas pelo critério do C0 (classes do C2 como secundário), redator glm-5.3; congela na data da tag, sessões de 15/08 a tag − 7 dias; leitor de produção; limiares teto ≥ 0,70, positivo ≤ 0,10, contrafactual ≤ 10%, fidelidade ±5 pp; smoke pago < US$ 1 | aprovação em bloco do Toto |
 | 2026-11-04 | Zenodo + labf.bio | precedente dos Papers 1–3 |
 
 ## Vozes
