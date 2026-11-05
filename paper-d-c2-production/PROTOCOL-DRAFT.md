@@ -245,7 +245,13 @@ transcript) reaches accuracy ≥ 0.70; positive control (evidence removed) ≤ 0
 answers with the original number ≤ 10% and fewer than with the altered number (Paper 3 §4.6);
 re-implementation fidelity: re-distilled C0 aggregate within 5 points of the units production
 stored. A paid smoke (about 5 sessions, under US$ 1) sizes the sample (D4); its sessions are
-excluded from the draw. All decisions are now taken except D4.
+excluded from the draw.
+
+After the smoke (`SMOKE-2026-11-05.md`): **D4** 80 sessions drawn from the eligible pool (enough to
+detect 10 points at a discordance up to 0.20, with a design effect of 1.5 and room for drops); **D7**
+the ceiling gate (arm A ≥ 0.70) is read under judge 1 (`gpt-6-luna`), the registered judge, as in
+Paper 3; judge 2's ceiling is reported, and judge 2 enters only the bracket on the effect. All
+decisions are now taken. Next: write the pre-registration from this draft, adversarial review, tag.
 
 - **D1. Question criterion.** C0's declared categories (proposed, with C2's two extra classes as a
   labelled secondary), C2's, or the union.
