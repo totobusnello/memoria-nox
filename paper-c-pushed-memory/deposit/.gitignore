@@ -1,0 +1,6 @@
+.draft-id-*
+__pycache__/
+*.pdf
+*.zip
+delivered-not-quoted-v*.md
+SHA256SUMS
