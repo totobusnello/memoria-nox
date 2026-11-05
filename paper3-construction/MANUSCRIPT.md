@@ -38,10 +38,11 @@ estimate a mediated share. The criterion contrast at
 the full window is +24.8 to +27.3 pp across judges. A length-matched arm rules out its own form
 of padding as the explanation. The result confirms a revised intervention, not the original
 hypotheses. A raw-evidence arm, registered as a further amendment before it ran, used the same
-242. C2 units of the evidence sessions scored about 5 pp below the raw turns of those sessions
-(−5.4 pp [−10.3, −0.8] under judge 1, −5.0 pp [−9.9, 0.0] under judge 2). Judge 1 detects a
-loss without non-inferiority at 10 pp, and judge 2 shows non-inferiority without a loss, so
-neither reading holds under both judges. Both arms are restricted to the annotated evidence
+242. C2 units of the evidence sessions scored below the raw turns of those sessions. Its two
+judges fell on opposite sides of the decision rule (−5.4 pp [−10.3, −0.8] and −5.0 pp
+[−9.9, 0.0]), so a last amendment, written after that split and fixed before any call of the
+new judges, added two judges and a committee label. Under it the units lose to raw evidence by
+−5.8 pp [−10.4, −1.2], and non-inferiority at 10 pp is not shown. Both arms are restricted to the annotated evidence
 and differ in length and order as well as content, so the arm compares two served materials and
 does not test retention.
 
@@ -79,8 +80,8 @@ with one concrete revision of the extraction instructions.
 This paper reports a pre-registered test of that claim on a public benchmark, LongMemEval
 `s_cleaned`. It reports the path to the result as well: the first instrument failed its own
 floor, the first amendment selected no reader, and the criterion that passed was written after
-looking at failures on development data. Every registration record except v1.4 was deposited
-before the runs it governs; v1.4 was fixed by a pushed tag and deposited afterwards (§5), so a
+looking at failures on development data. Every registration record except v1.4 and v1.5 was deposited
+before the runs it governs; those two were fixed by pushed tags and deposited afterwards (§5), so a
 reader can check what was fixed when.
 
 **What this paper claims.** On 242 LongMemEval instances the test had never touched, a full
@@ -94,9 +95,9 @@ controls passed. The effect is not explained by the length-matched padding arm.
   not run in the confirmatory stage.
 - It does not confirm the interaction hypothesis H1 or the identifier-survival hypothesis H3 as
   first registered.
-- It does not settle 2601.00821's prediction. The raw-evidence arm on the 242 put C2 units
-  about 5 pp below raw evidence, and the two judges fall on opposite sides of the registered
-  rule (§6.6).
+- It does not settle 2601.00821's prediction. On the 242 a four-judge committee put C2 units
+  5.8 pp below the raw evidence of the same sessions (§6.7), but that comparison holds retrieval
+  perfect and does not measure retention.
 - It does not show that the gain holds at an equal context budget or under selective
   retrieval, because every unit of a cell is served (§8).
 - It makes no comparison with the LongMemEval leaderboard, because our judges are not the
@@ -257,8 +258,10 @@ and the v1.3 deposit, which includes the calibration result, was published befor
 confirmatory run. v1.4 was fixed by its tag before its first call and deposited after the run,
 so for v1.4 the evidence of precedence is the push to the public repository. GitHub's activity
 log records the push of commit `bca912c`, which holds §15 and the arm's runner, at
-21:55:05 UTC on 2026-11-04; the arm's first call started at 21:55:12 UTC. The tag's own date
-is set by the author and proves nothing alone.
+21:55:05 UTC on 2026-11-04; the arm's first call started at 21:55:12 UTC. v1.5 was fixed
+the same way: the push of commit `977ec5f`, which holds §16 and its runner, is logged at
+22:48:26 UTC, and the new judges' first call on the data started at 22:48:32 UTC. The tag's own
+date is set by the author and proves nothing alone.
 
 | version | fixed | DOI | what it changed | outcome |
 |---|---|---|---|---|
@@ -268,6 +271,7 @@ is set by the author and proves nothing alone.
 | v1.3 | 2026-11-04 | 10.5281/zenodo.23934489 | criterion C2, reader R3, confirmatory sample of 242 | controls pass, H1′ confirmed |
 | result | 2026-11-04 | 10.5281/zenodo.23949145 | the confirmatory result as its own record | |
 | v1.4 | 2026-11-04 | tag `paper3-prereg-v1.4`; deposited after the run as 10.5281/zenodo.23964906 | the raw-evidence arm on the 242, margin 10 pp (§6.6) | judges split on the decision rule |
+| v1.5 | 2026-11-04 | tag `paper3-prereg-v1.5`; deposited after the run as 10.5281/zenodo.23966699 | two more judges on H4 and a committee label, at least 3 of 4 (§6.7) | committee: units lose to raw evidence |
 
 ### 5.1 v1.0 to v1.1: a census error
 
@@ -491,8 +495,9 @@ bound misses the −10 pp margin by 0.3 pp. Under judge 2 the lower bound clears
 units are non-inferior at 10 pp, and the upper bound is exactly zero (0.0 in the unrounded output,
 `raw-arm.json`), so a loss is not shown. §15.4 says the weaker claim stands when the judges
 disagree, but these two outcomes are not nested and the rule does not order them. We therefore
-make neither claim across judges and report both estimates and intervals. The bracket
-[−5.4 · −5.0] pp is variation between judges, not an uncertainty interval.
+make neither claim across judges from these two, and report both estimates and intervals. The
+bracket [−5.4 · −5.0] pp is variation between judges, not an uncertainty interval. §6.7 reads
+H4 under the rule v1.5 registered for this split.
 
 Descriptively, cell 11 and E-dist(C2) score the same under judge 1 (0.0 pp [−3.7, +3.7], 10
 against 10 discordant pairs; judge 2 −0.8 pp [−4.1, +2.5]), so the roughly fifty distractor
@@ -502,6 +507,33 @@ type the differences below are descriptions only.
 The gap sits in multi-session questions (0.853 against 0.956) and single-session-assistant
 questions (0.821 against 0.964). Temporal reasoning, where C1 units lost most in development
 (0.37 against 0.94), is within 3 pp (0.824 against 0.853).
+
+### 6.7 H4 with four judges (v1.5)
+
+The split in §6.6 was known when v1.5 was written. To keep the rule from being chosen after
+seeing the new judges, v1.5 fixed them, their gate and the aggregation before any of their
+calls on the arm's rows. Judges 3 (`glm-5.3`) and 4 (`gemini-4-argon`) graded the same 484 rows
+with judge 2's prompt; no answer was regenerated. Both passed the gate: each rejected all 16
+smoke abstentions and accepted the reference answer on 8 of the 8 smoke instances. The primary
+of v1.5 is a committee label, correct when at least 3 of the 4 judges accept, with a 2-2 tie
+counted as not correct, read with the §15.4 table.
+
+| H4: E-dist(C2) − E-raw | E-dist(C2) | E-raw | estimate | 95% interval | discordant pairs | §15.4 row |
+|---|---|---|---|---|---|---|
+| judge 1 | 0.818 | 0.872 | −5.4 pp | [−10.3, −0.8] | 11 / 24 | loss |
+| judge 2 | 0.835 | 0.884 | −5.0 pp | [−9.9, 0.0] | 12 / 24 | non-inferior |
+| judge 3 | 0.835 | 0.893 | −5.8 pp | [−10.4, −1.2] | 9 / 23 | loss |
+| judge 4 | 0.839 | 0.901 | −6.2 pp | [−10.8, −1.7] | 9 / 24 | loss |
+| committee, at least 3 of 4 | 0.839 | 0.897 | −5.8 pp | [−10.4, −1.2] | 10 / 24 | loss |
+
+The committee's interval lies below zero, so under v1.5 the C2 units lose to the raw evidence
+of the same sessions, by about 6 pp. Its lower bound misses the −10 pp margin, so
+non-inferiority is not shown. Three of the four judges land in that row on their own; judge 2
+is the only one that does not. The 3 tied rows (1 in E-dist(C2), 2 in E-raw) would move the
+estimate by −0.4 pp if counted as correct, so the reading does not depend on the tie rule.
+Pairwise agreement between judges ranges from 0.957 (judges 1 and 2) to 0.981 (judges 3 and 4).
+The run made 976 calls. This settles the reading of the arm under the rule registered for it;
+it does not change what H4 compares (§6.6).
 
 ## 7. Discussion
 
@@ -517,14 +549,16 @@ conclusions of the studies in §2 was not tested here.
 The v1.4 arm compares accuracy on two materials under perfect retrieval, with new responses on
 the same 242 instances, so its result is at most compatible with the prediction and cannot
 adjudicate it. Descriptively, the gap between units and raw evidence of the same sessions was
-35.5 pp for C1 in development, 8.5 pp for C2 in development and 5.4 pp for C2 on the 242. These
+35.5 pp for C1 in development, 8.5 pp for C2 in development and 5.4 pp for C2 on the 242 under
+judge 1 (5.8 pp under the committee). These
 come from different samples and criteria, and no run estimates C2 against C1 on new data. For
 context, 2601.00821's near-verbatim extraction trails verbatim chunks by about 11 points on
-LoCoMo, under retrieval and a different pipeline. On the 242, under judge 1 the loss is
-significant and under judge 2 it is not, and both intervals reach from about −10 pp to about
-zero. A larger sample would narrow the intervals, and both readings could then hold at once. A
-third language-model judge would add a measurement, not a ground truth. The step that would
-resolve the judge dependence is the blind human grading of the discordant pairs (§8).
+LoCoMo, under retrieval and a different pipeline. On the 242, the committee of v1.5 puts the
+loss at −5.8 pp [−10.4, −1.2], and three of the four judges show a loss on their own. The
+committee was added after the first two judges disagreed, with its rule fixed before the new
+judges ran, and it is four language models, two of them in the reader's family. It adds
+measurements, not a ground truth; the blind human grading of the discordant pairs (§8) is still
+the step that would validate it.
 
 **The window.** The production finding that motivated the window factor is a property of a
 deployed system. The benchmark imposes it by construction. The descriptive split in §6.4 is
@@ -543,10 +577,12 @@ not prevent them.
 
 ## 8. Limitations
 
-- **Judges:** both judges are language models, and R3 and judge 2 are both Gemini. The bracket
-  is read on contrasts. The blind human pass the plan provides for has not been done, so the
-  conclusions are conditional on the judges. It matters most for H4, whose two judges part on
-  0.3 pp and on 35 to 36 discordant pairs.
+- **Judges:** the confirmatory contrasts have two judges and H4 has four, all language models.
+  R3, judge 2 and judge 4 are all Gemini models. The bracket is read on contrasts. The blind
+  human pass the plan provides for has not been done, so the conclusions are conditional on the
+  judges. It matters most for H4: its first two judges parted on 0.3 pp and on 35 to 36
+  discordant pairs, and the committee that settled the split was registered after the split
+  was seen.
 - **Margin of H4:** the 10 pp margin was fixed after the development gap of C2 (8.5 pp) was known. It
   is a registered threshold, not a margin of practical irrelevance, and a non-inferiority result
   at 10 pp would still allow a loss larger than the one observed in development.
@@ -588,8 +624,12 @@ not prevent them.
   manifests and runner. `lme-analyze.py --check` reproduces the analysis without any API key.
 - Raw-evidence arm result with data, as a new version of that record: 10.5281/zenodo.23964931.
   `raw-arm.py --analyze` reproduces its analysis without any API key.
+- Pre-registration v1.5, two more judges on H4: 10.5281/zenodo.23966699 (deposited after the
+  run; the tag `paper3-prereg-v1.5` precedes it).
+- Four-judge H4 result with data, as version 1.2 of the result record: 10.5281/zenodo.23966704.
+  `h4-judges.py --analyze` reproduces its analysis without any API key.
 - Code: the public repository `totobusnello/memoria-nox`, directory `paper3-construction/`, at
-  tags `paper3-prereg-v1.0` through `paper3-prereg-v1.4`.
+  tags `paper3-prereg-v1.0` through `paper3-prereg-v1.5`.
 
 ## 10. Sources of the numbers in this text
 
@@ -605,6 +645,7 @@ not prevent them.
 | §6.1–§6.3, §6.5 | `CONFIRM-RESULT.md`, `runs/confirm-2026-11-04/analysis.txt` |
 | §6.3 cell accuracies, §6.4 | `manuscript-tables.py` (descriptive, keyless) |
 | §5 (v1.4), §6.6, §7 | `PREREGISTRATION-DRAFT.md` §15, `RAW-ARM-RESULT.md`, `runs/raw-arm-2026-11-04/raw-arm.txt` |
+| §5 (v1.5), §6.7, §7, §8 | `PREREGISTRATION-DRAFT.md` §16, `H4-JUDGES-RESULT.md`, `runs/h4-judges-2026-11-04/h4-judges.txt` |
 
 ## References
 

@@ -1,0 +1,13 @@
+H4 WITH FOUR JUDGES · registered v1.5 (§16) · 484 rows of the v1.4 arm
+preflight j3: abstentions accepted 0/16, references accepted 8/8 -> PASS
+preflight j4: abstentions accepted 0/16, references accepted 8/8 -> PASS
+
+label       E-dist   E-raw   H4 = E-dist - E-raw        discordant   reading
+j1           0.818   0.872   -5.4 pp [-10.3, -0.8]    11/24      units lose to raw evidence
+j2           0.835   0.884   -5.0 pp [-9.9, +0.0]    12/24      non-inferior at 10 pp
+j3           0.835   0.893   -5.8 pp [-10.4, -1.2]     9/23      units lose to raw evidence
+j4           0.839   0.901   -6.2 pp [-10.8, -1.7]     9/24      units lose to raw evidence
+committee    0.839   0.897   -5.8 pp [-10.4, -1.2]    10/24      units lose to raw evidence
+
+2-2 ties (counted as not correct by the committee): 3 of 484 rows
+pairwise agreement: j1-j2 0.957 · j1-j3 0.965 · j1-j4 0.967 · j2-j3 0.967 · j2-j4 0.977 · j3-j4 0.981
