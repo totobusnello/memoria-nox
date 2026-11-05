@@ -113,3 +113,16 @@ The measured facts in this audit stand (60.0% of gold entries do not answer thei
 queries had none valid; the three judge failure modes; the category split). **The inference about the
 score does not.** See `2026-10-27-v3-scored-and-my-prediction-refuted.md`. The title of this file is
 wrong and is kept as written, because the record of the error is the point.
+
+---
+
+## ⚠️ ERRATUM — 2026-11-05: 60.0% is the share of gold entries ACCEPTED, not the share that fails
+
+The table in `2026-10-27-the-ruler-is-deflated-not-inflated.md` reads «gold entries accepted
+**57 of 95 = 60.0%**» and «gold entries rejected **38**». The judge accepted 57 of the 95 v2 gold
+entries as answering their own question and rejected 38 (40.0%). Every sentence in these two audits
+that says «60% / 60.0% of gold entries do not answer their question» inverts the table, and so does
+the negative control's «60% is not blind severity», which should read 40%. The other figures are
+unaffected: 15 of 55 queries (27.3%) had every gold entry rejected, and that is what zeroes the
+strict arm. Found on 2026-11-05 while resolving the open items of Paper A; the text above is kept as
+written, as with the addendum.
