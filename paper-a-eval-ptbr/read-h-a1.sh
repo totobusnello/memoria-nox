@@ -44,7 +44,13 @@ if (h.get("smoke"), h.get("n"), h.get("holdout_sha256"), h.get("score_sha256"), 
 PY
 fi
 EXPECT=$(python3 -c "import json;print(json.load(open('$W/score.json'))['summary']['ndcg_at_10'])")
-python3 "$W/code/audits/2026-10-27-v3-rescore.py" "$W/score.json" "$W/labels.json" "$EXPECT" > "$W/rescore.txt"
+# the control script stops on a division by zero when a threshold (0.3, 0.5 or 0.7) leaves its
+# `bounded` arm with no query; that failure is recorded, not fatal, and holdout-analyze.py then
+# applies the rule of PREREGISTRATION.md §5 (fourth review)
+rc=0
+python3 "$W/code/audits/2026-10-27-v3-rescore.py" "$W/score.json" "$W/labels.json" "$EXPECT" \
+  > "$W/rescore.txt" 2> "$W/rescore.err" || rc=$?
+[ "$rc" = 0 ] || echo "CONTROL SCRIPT FAILED rc=$rc: $(tail -1 "$W/rescore.err")" >> "$W/rescore.txt"
 if [ "${SMOKE:-0}" = 1 ]; then
   python3 "$P/holdout-analyze.py" "$W/score.json" "$W/labels.json" "$HOLDOUT" "$W/commitment.json" \
     "$W/rescore.txt" --smoke | tee "$W/h-a1.txt"

@@ -39,6 +39,12 @@ else
   git -C "$REPO" rev-parse -q --verify "refs/tags/$TAG" >/dev/null || { echo "tag $TAG not found" >&2; exit 1; }
   git -C "$REPO" merge-base --is-ancestor "$TAG" "$REF" || { echo "$REF does not descend from $TAG" >&2; exit 1; }
   git -C "$REPO" merge-base --is-ancestor "$REF" origin/main || { echo "$REF is not on origin/main" >&2; exit 1; }
+  # the commitment comes after the tag (fourth review: the tag's own commit was accepted as REF)
+  [ "$(git -C "$REPO" rev-parse "$TAG^{commit}")" != "$(git -C "$REPO" rev-parse "$REF^{commit}")" ] \
+    || { echo "the holdout commitment is the tag's own commit" >&2; exit 1; }
+  if git -C "$REPO" cat-file -e "$TAG:paper-a-eval-ptbr/HOLDOUT-COMMITMENT.json" 2>/dev/null; then
+    echo "the tag already carries a HOLDOUT-COMMITMENT.json" >&2; exit 1
+  fi
   git -C "$REPO" rev-parse "$REF^{commit}" > "$W/ref.txt"
   git -C "$REPO" archive "$TAG" | tar -x -C "$W/code"
   git -C "$REPO" show "$REF:paper-a-eval-ptbr/HOLDOUT-COMMITMENT.json" > "$W/commitment.json"
@@ -54,6 +60,10 @@ if c.get("smoke") is not smoke:
     sys.exit(f"commitment smoke={c.get('smoke')} in a {'smoke' if smoke else 'registered'} run")
 if sha(sys.argv[2]) != c["holdout_sha256"]:
     sys.exit("holdout does not match the commitment")
+reg = json.load(open(f"{sys.argv[3]}/quotas.json"))
+if not smoke and (c["n"], c["per_stratum"]) != (reg["n"], reg["quota"]):
+    # fourth review: refuse before paying the judge, not only in the analysis
+    sys.exit(f"commitment n {c['n']} / {c['per_stratum']} is not the registered sample")
 for key, f in (("prompt_sha256", "holdout-prompt.txt"), ("script_sha256", "holdout-generate.py")):
     if c[key] != sha(f"{sys.argv[3]}/{f}"):
         sys.exit(f"commitment {key} is not the hash of {f} at the tag")

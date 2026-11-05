@@ -61,8 +61,20 @@ def check_n(a):
         sys.exit(f"refusing: the registered sample is {N} pairs; --n {a.n} needs --smoke")
 
 
+def registered_db(a):
+    # fourth review: the passage was compared with whatever database was given
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("draw", pathlib.Path(__file__).resolve().parent
+                                                  / "holdout-draw.py")
+    dr = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(dr)
+    if dr.file_sha(a.db) != dr.SNAPSHOT_DB_SHA:
+        sys.exit("refusing: --db is not the registered snapshot")
+
+
 def make(a):
     check_n(a)
+    registered_db(a)
     if inside_repo(a.out):
         sys.exit("refusing: --out is inside a git repository")
     pick, npairs = registered_pick(a.labels, a.n)
@@ -80,7 +92,13 @@ def make(a):
 
 def read_sheet(a):
     check_n(a)
-    rows = list(csv.DictReader(open(a.sheet, encoding="utf-8")))
+    # a spreadsheet program may add a byte-order mark or save with ';' (the Brazilian locale's
+    # default); both are read, and anything else fails on the header below (fourth review)
+    text = open(a.sheet, encoding="utf-8-sig", newline="").read()
+    delim = ";" if text.split("\n", 1)[0].count(";") > text.split("\n", 1)[0].count(",") else ","
+    rows = list(csv.DictReader(text.splitlines(keepends=True), delimiter=delim))
+    if not rows or not {"item", "query_id", "chunk_id", "pergunta", "trecho", "relevante"} <= set(rows[0]):
+        sys.exit("refusing: the sheet does not have the columns make wrote")
     got = [(int(r["query_id"]), int(r["chunk_id"])) for r in rows]
     want, _ = registered_pick(a.labels, a.n)
     if sorted(got) != sorted(want) or len(set(got)) != len(got):
@@ -88,6 +106,7 @@ def read_sheet(a):
     if a.mode == "commit":
         if not (a.holdout and a.db and a.score):
             sys.exit("refusing: commit needs --holdout, --db and --score")
+        registered_db(a)
         ws = lambda t: re.sub(r"\s+", " ", t).strip()
         q = {int(json.loads(l)["query_id"]): json.loads(l)["query"] for l in open(a.holdout)}
         con = sqlite3.connect(f"file:{a.db}?mode=ro", uri=True)

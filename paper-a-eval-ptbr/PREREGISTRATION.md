@@ -91,10 +91,12 @@ does not.** A natural experiment on the first daily snapshot of 2026-11-18
 (`holdout-persistence.py`). A reference persists if it leads to an active chunk whose text still
 contains the evidence span: by id, the chunk with the gold id; by anchor, any active chunk of the
 same source file (more than one is reported as ambiguous). The frozen database is checked by its
-hash and the commitment must be the registered one; the later snapshot is the daily `.gz` whose
+hash; the commitment is read from its commit on `origin/main`, and the holdout must have its n,
+per-stratum counts and unique ids; the later snapshot is the daily `.gz` whose
 name carries the date 2026-11-18 (one fixed day, so there is no later snapshot to choose), the
 earliest of that day by the time in its name, and it must appear in a listing of the backup
-directory; its hash is reported. Daily snapshots are kept 6 days, so the copy is taken by
+directory taken in the same session as the copy; the listing and the snapshot's hash are
+reported. Daily snapshots are kept 6 days, so the copy is taken by
 2026-11-23; if no snapshot of 2026-11-18 exists, H-A2 is reported as not tested. Precondition:
 at least 10% of the queries exposed, that is, with a gold id that no longer names an active chunk
 with identical text (a gap of 10 points can only come from exposed queries); below that, H-A2 is
@@ -110,7 +112,7 @@ author grades it blind (`relevante`: s/n) before H-A1 is read: `score-holdout.sh
 reading, and `read-h-a1.sh` refuses to run until `HUMAN-COMMITMENT.json` (the graded sheet's
 sha256 and the counts, from `human-sample.py commit`) is in a commit that descends from the holdout
 commitment. The sheet must be exactly the 60 drawn pairs, each with the question and passage the
-judge saw (compared whitespace-normalised), and the analysis refuses a `labels.json` whose sha256
+judge saw (compared whitespace-normalised, against the registered snapshot), and the analysis refuses a `labels.json` whose sha256
 is not the one in the human commitment. `human-sample.py agree` reports
 agreement and Cohen's kappa with the judge at p > 0.5. No threshold is registered; if kappa is
 below 0.4, the paper states that its judge-dependent conclusions are not validated by a human.
@@ -143,10 +145,12 @@ overlap tercile and by stratum; replacements and rejection reasons; rankings sho
    smoke run reads only a smoke commitment. `holdout-analyze.py` checks the input contract
    (the registered n and quotas, not only the commitment's; the human commitment; the committed
    question texts; the exact label set; the judge configuration) and refuses to print a reading
-   unless it reproduces `audits/2026-10-27-v3-rescore.py`. That control script divides by the
-   number of queries with a relevant chunk in their top-10; if no query has one, it stops on a
-   division by zero, and H-A1 is then read as does not hold (with nothing relevant in any top-10,
-   strict and pooled are both 0).
+   unless it reproduces `audits/2026-10-27-v3-rescore.py`. That control script also computes the
+   exploratory thresholds 0.3 and 0.7 and a `bounded` arm, and stops on a division by zero when a
+   threshold leaves that arm with no query. If it stops that way after its own strict check has
+   passed, the reading goes ahead with strict checked against `run-gold-eval.mjs` only, and the
+   paper states that the pooled figure had no second implementation in this run. Any other failure
+   of the control stops the reading.
 6. H-A2 on or after 2026-11-18.
 7. Every number in the paper has an entry in `PROVENANCE.json`.
 
@@ -156,6 +160,12 @@ That the findings hold on another corpus, another language or another system; th
 model writes from a passage behave like questions people ask; that the judge is right beyond what
 the human sample measures; or anything about relevant documents the system never returned, since
 the pool is this system's own top-10.
+
+The order of §5 is enforced by the scripts on the registered path and evidenced by the public
+commit history. The scripts cannot stop the person who runs them from computing a reading
+privately, for example by calling the analysis directly with a local human commitment, or from
+handing H-A2 an incomplete listing of the backup directory; what they guarantee is that the
+reported reading came from the published, ordered commitments and the registered files.
 
 ## 7. Deviations
 
@@ -194,3 +204,13 @@ caller-supplied listing, that a churn of 5% could pass with no gold exposed, and
 not checked to answer its question; DeepSeek found the same-day snapshot, the unchecked labels
 hash, and that the graded sheet's text was not compared with what the judge saw. Each is fixed
 above, or stated where it cannot be fixed (the gold's answerability), and each fix was tested.
+
+A fourth pass, by the same two voices, found that the rule for a failed control was wrong (the
+control script can stop on its exploratory 0.7 threshold while the registered contrast holds),
+that H-A2 took a local commitment and did not count the holdout against it, that the human
+sample's passages were compared with any database given, that the tag's own commit was accepted
+as the holdout commitment, that the scoring wrapper did not refuse a commitment with the wrong
+quotas before paying the judge, and that a sheet saved with a byte-order mark or with `;` was
+refused. Each is fixed and tested. Two remaining points are limits of any script run by the
+author, not defects of these: the analysis can be called directly with a local human
+commitment, and H-A2 trusts the listing it is given; §6 states both.

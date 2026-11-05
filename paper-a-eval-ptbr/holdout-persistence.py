@@ -5,7 +5,11 @@
       --later-gz <daily-main-main-20261118…db.gz, the first snapshot of 2026-11-18> \
       --listing <file listing the daily-main directory when the later snapshot was taken> \
       --workdir <private directory outside the repository> \
-      --holdout <holdout.jsonl> --commitment <HOLDOUT-COMMITMENT.json>
+      --holdout <holdout.jsonl> --commitment <commit that pushed HOLDOUT-COMMITMENT.json>
+
+--commitment is a commit of the public repository (a *.smoke.json path with --smoke): the file is
+read from that commit, which must be on origin/main, and the holdout must have the commitment's n,
+per-stratum counts and unique query ids (fourth review: a local commitment for a subset passed).
 
 The frozen database must have the registered sha256, and the commitment must be the registered
 (non-smoke) one. The later snapshot is given as the .gz the host wrote, and the date in its name
@@ -69,7 +73,17 @@ def main():
     spec.loader.exec_module(dr)
     if dr.file_sha(a.frozen_db) != dr.SNAPSHOT_DB_SHA:
         sys.exit("refusing: --frozen-db is not the registered snapshot")
-    c = json.load(open(a.commitment))
+    if a.smoke:
+        c = json.load(open(a.commitment))
+    else:
+        repo = str(here.parent)
+        subprocess.run(["git", "-C", repo, "fetch", "-q", "origin", "main"], check=True)
+        if subprocess.run(["git", "-C", repo, "merge-base", "--is-ancestor", a.commitment,
+                           "origin/main"]).returncode != 0:
+            sys.exit(f"refusing: {a.commitment} is not on origin/main")
+        c = json.loads(subprocess.run(
+            ["git", "-C", repo, "show", f"{a.commitment}:paper-a-eval-ptbr/HOLDOUT-COMMITMENT.json"],
+            check=True, capture_output=True, text=True).stdout)
     reg = json.loads((here / "quotas.json").read_text())
     if not a.smoke and (c.get("smoke") is not False or c["n"] != reg["n"]
                         or c["per_stratum"] != reg["quota"]):
@@ -101,6 +115,12 @@ def main():
     if hashlib.sha256(hb).hexdigest() != c["holdout_sha256"]:
         sys.exit("holdout does not match the commitment")
     hold = [json.loads(l) for l in hb.decode("utf-8").splitlines()]
+    per_st = {}
+    for h in hold:
+        per_st[h["stratum"]] = per_st.get(h["stratum"], 0) + 1
+    if len(hold) != c["n"] or len({h["query_id"] for h in hold}) != len(hold) \
+            or per_st != c["per_stratum"]:
+        sys.exit("refusing: the holdout's size, ids or strata differ from the commitment")
     fz, lt = ro(a.frozen_db), ro(str(later_db))
     files = sorted({h["gold"][0]["source_file"] for h in hold})
     same = total = 0
