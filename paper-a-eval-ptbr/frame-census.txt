@@ -1,0 +1,10 @@
+frame census · min_chars 200 · superseded excluded
+  A                                files   675  chunks   8179  quota 15
+  B                                files   125  chunks   1314  quota 10
+  C                                files   949  chunks   1309  quota 9
+  D                                files   174  chunks    291  quota 8
+  E                                files   177  chunks   1036  quota 12
+  F                                files   571  chunks   3369  quota 6
+  out: nox-mem source tree         files  2812  chunks  10677
+  out: other                       files    99  chunks    330
+  out: private document vault      files  4721  chunks  25875
