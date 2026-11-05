@@ -1,7 +1,7 @@
 # Paper A: evaluating retrieval on a living PT-BR agent memory
 
 Working title: *Five ways the ruler misleads: evaluating retrieval on a living Portuguese agent
-memory.* Status: setup. Not deposited. The plan lives in `../PLANO.md` (section "Os quatro papers",
+memory.* Status: manuscript draft (`PAPER.md`), H-A2 pending until 2026-11-18. Not deposited. The plan lives in `../PLANO.md` (section "Os quatro papers",
 row A); this file is the paper's own scope.
 
 ## What the paper is
@@ -38,6 +38,7 @@ A methods paper in two parts, kept apart in the text:
 | file | what |
 |---|---|
 | `PROVENANCE.json` | every number the text may print, with its audit, locator, commit and `superseded_by` |
+| `PAPER.md` | the manuscript draft (2026-11-05): five retrospective findings, the pre-registered test, H-A2 pending |
 | `RESULTS.md` | the prospective results as read: H-A1 (2026-11-05), the human sample, descriptives; H-A2 pending |
 | `results/` | the registered run's printed outputs, copied unchanged from the serving host, and the hashes of its private outputs |
 | `HOLDOUT-COMMITMENT.json`, `HUMAN-COMMITMENT.json` | the two commitments, each written once on `origin/main` after the tag |

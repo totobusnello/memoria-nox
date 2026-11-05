@@ -2,7 +2,8 @@
  "text": [
   "README.md",
   "PREREGISTRATION.md",
-  "RESULTS.md"
+  "RESULTS.md",
+  "PAPER.md"
  ],
  "ignore": [
   "0.04",
@@ -343,7 +344,8 @@
    "superseded_by": "v3-strict-ndcg",
    "note": "Not an error: correct for v2 gold and remains the registered v2 figure. Replaced as the operative figure by v3 (different gold version and query set).",
    "history": [
-    "[0.2428, 0.5114]"
+    "[0.2428, 0.5114]",
+    "It rose from 0.2428 to 0.2567"
    ]
   },
   {
@@ -779,7 +781,10 @@
    "locator": "the −6.8% first reported",
    "commit": "cb29f44",
    "superseded_by": "bounded-drop",
-   "note": "First version, understated by an ideal built from the ranking."
+   "note": "First version, understated by an ideal built from the ranking.",
+   "history": [
+    "appeared to lower pooled by −6.8%"
+   ]
   },
   {
    "id": "bounded-drop",
@@ -1600,7 +1605,8 @@
    "superseded_by": "v3-reread-flip-rate",
    "note": "Sampling artefact: over-weights unstable bands (54 of 620 pairs).",
    "history": [
-    "a re-judge flip rate of 20.0%"
+    "a re-judge flip rate of 20.0%",
+    "suggested a flip rate of 20.0%"
    ]
   },
   {
@@ -1769,7 +1775,10 @@
    "locator": "The +25 to +37.5% range is withdrawn",
    "commit": "a47235e",
    "superseded_by": "v3-strict-ndcg",
-   "note": "Withdrawn; claim made in 2026-10-27-the-ruler-is-deflated-not-inflated.md (outside this set)."
+   "note": "Withdrawn; claim made in 2026-10-27-the-ruler-is-deflated-not-inflated.md (outside this set).",
+   "history": [
+    "raise strict nDCG by up to\n37.5%"
+   ]
   },
   {
    "id": "deflation-point-prediction",
@@ -2370,6 +2379,30 @@
    "artifact": "audits/2026-10-27-the-ruler-is-deflated-not-inflated.md",
    "commit": "a01c9f7",
    "superseded_by": null
+  },
+  {
+   "id": "negative-control-random-chunk",
+   "value": "1.8%",
+   "what": "Negative control: v2 queries paired with a random chunk that the bounded judge accepted",
+   "population": "55 accepted v2 queries, one random chunk each",
+   "date": "2026-10-27",
+   "artifact": "audits/2026-10-27-the-ruler-is-deflated-not-inflated.md",
+   "locator": "accepted **1.8%** of 55",
+   "commit": "a01c9f7",
+   "superseded_by": null,
+   "note": "same digits as v3-no-valid-gold (1 of 57), a different quantity"
+  },
+  {
+   "id": "v3-flip-band-range",
+   "value": "0.4–0.9",
+   "what": "Probability bands where 23 of the 28 re-read flips concentrate",
+   "population": "620 v3 labels, full re-read",
+   "date": "2026-10-27",
+   "artifact": "audits/2026-10-27-the-v3-interval.md",
+   "locator": "0.4–0.9 bands",
+   "commit": "ae270f0",
+   "superseded_by": null,
+   "note": ""
   }
  ]
 }
