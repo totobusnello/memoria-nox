@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# memoria-nox's own pre-commit checks, called by the global hook (which runs gitleaks first).
+# The repository is public: the privacy gate blocks private-corpus identifiers in what is staged.
+# See tools/privacy-gate.py for what it blocks, what it cannot see, and the escape hatch.
+set -euo pipefail
+root="$(git rev-parse --show-toplevel)"
+python3 -I "$root/tools/privacy-gate.py" --staged
