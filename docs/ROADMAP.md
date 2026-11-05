@@ -140,8 +140,10 @@ O número é o identificador do item (citado em DECISIONS, HANDOFF e memória); 
 
 ## 4. GTM Phase 2 — novembro/2026
 
-> ⏸️ **Adiado em 2026-11-03 (D-2026-11-03)** até o resultado do estágio 1 do Paper 3, que decide o
-> discurso. O texto abaixo é o estado de 14/10.
+> ▶️ **Reaberto em 2026-11-04 (D-2026-11-04):** fosso operacional + «publicamos onde perdemos» agora;
+> «a memória que constrói certo» só depois que o C2 estiver no produto (paper D). Primeiro passo:
+> corrigir o discurso do `nox-supermem`. (Adiado em 2026-11-03 pelo D-2026-11-03.) O texto abaixo é o
+> estado de 14/10.
 
 Continua no calendário. Os dois pré-requisitos foram cumpridos em 14/10: docs = produto (#577) e
 npm 3.5.2 publicado. Assets, pricing Stripe-first (D44) e `COMPARISON.md` existem desde

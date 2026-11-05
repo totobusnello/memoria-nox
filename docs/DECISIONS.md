@@ -3323,6 +3323,29 @@ caracteres são amostradas por duas janelas de 20k, logo o tax delas é medido s
 `audits/2026-10-26-replay-{build,generate,answer,judge,report}.py`.
 
 
+### D-2026-11-04 — GTM Phase 2 reaberto: fosso operacional agora, construção como segunda onda
+
+**Contexto.** O D-2026-11-03 adiou o GTM até o Paper 3 decidir entre «a memória perde para BM25» e
+«a memória com a construção consertada empata ou vence». O Paper 3 saiu em 04/11 (manuscrito v1.1,
+`10.5281/zenodo.23966758`) e a resposta não é nenhuma das duas puras: consertar janela e critério leva
+a memória extraída de 0,153 a 0,818 no LongMemEval (pré-registrado), mas as unidades do C2 ainda
+perdem 5,8 pp [−10,4, −1,2] para a evidência crua das mesmas sessões com recuperação perfeita, e o C2
+não está no produto. Nada medido mede retenção.
+
+**Decidido pelo Toto (2026-11-04):** lançar agora com o fosso operacional (um arquivo, $0/query no
+caminho do KG, sem serviço externo, provider à escolha) e com «publicamos onde a nossa memória perde»
+(−21,2 pp para BM25 com orçamento igual em produção; −5,8 pp para a evidência crua no benchmark). A
+construção entra como linha de pesquisa com DOI, não como promessa de produto. Segunda onda, «a
+memória que constrói certo», só se o paper D (C2 em replay offline e depois no produto) confirmar.
+
+**Por quê:** é o único discurso que o npm de hoje sustenta inteiro. Vender a construção antes de o C2
+estar no produto repetiria o erro que o D-2026-11-03 encontrou (discurso à frente do produto).
+
+**Primeiro passo:** corrigir o discurso do repo-produto (`nox-supermem`): tirar o tile «+78,8%
+nDCG@10» (ganho sobre a versão anterior do próprio sistema), a tabela «SOTA» sem ressalvas de
+backbone, o «769×» (só existe no harness) e qualquer uso de «retenção» como resultado de pesquisa.
+Pricing (Hotmart contra D44b) é a decisão seguinte, fora desta.
+
 ### D-2026-11-03 — GTM Phase 2 adiado até o resultado do estágio 1 do Paper 3
 
 **Contexto.** O ROADMAP §4 marcava o GTM Phase 2 para novembro/2026. A auditoria de prontidão de
