@@ -234,7 +234,18 @@ plan and Toto's explicit go-ahead.
 Decided on 2026-11-05 (19:2x BRT): **D2** no C1 arm and **D3** no as-built arm, so the paper compares
 C0 and C2 only; **D8** the blind human sample of 60 pairs, graded by the author, is mandatory;
 **D9** the protocol is frozen as a tagged pre-registration before the session draw, as Paper A was.
-Still open: D1, D4 (after a smoke), D5, D6, D7.
+Decided the same evening, in one block: **D1** questions generated under C0's declared categories
+(the deployed promise), reported by category, with C2's two extra classes (verbatim identifiers,
+concrete facts said in passing) as a labelled secondary set never pooled into the primary, and a
+writer from a third family (`glm-5.3`); **D5** freeze on the day the protocol is tagged, eligible
+sessions from 2026-08-15 (start of the action archive) to the freeze date minus 7 days, excluding
+the 20 sessions spent on 2026-10-26/27 and the smoke's sessions; **D6** the production reader
+(`ANSWER_SYSTEM`, `gemini-2.5-flash-lite`); **D7** the contrast is read only if arm A (raw
+transcript) reaches accuracy ≥ 0.70; positive control (evidence removed) ≤ 0.10; counterfactual:
+answers with the original number ≤ 10% and fewer than with the altered number (Paper 3 §4.6);
+re-implementation fidelity: re-distilled C0 aggregate within 5 points of the units production
+stored. A paid smoke (about 5 sessions, under US$ 1) sizes the sample (D4); its sessions are
+excluded from the draw. All decisions are now taken except D4.
 
 - **D1. Question criterion.** C0's declared categories (proposed, with C2's two extra classes as a
   labelled secondary), C2's, or the union.
