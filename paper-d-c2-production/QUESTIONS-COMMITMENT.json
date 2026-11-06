@@ -1,0 +1,45 @@
+{
+ "smoke": false,
+ "freeze_commitment_sha256": "16d0736c5cb5f5aa5fe1adb711b1c1e2fc52b7a820b6a6c9f1e4a8954063ab24",
+ "questions_sha256": "422c4f8814b9ad033f3c63d9fc9538be8b7c70d405297129537b10add7db4a59",
+ "prompts_sha256": "503633403594b06a01da232d78fb9c667892b59dd9276bc227032187e32714eb",
+ "script_sha256": "6ea3b6abc6a70c20cceaebfa89be61cc3531367322a487e42968d0cd65ffeb60",
+ "prompts_script_sha256": "6d4b2a669d5c97d659053eee6551e5babbc778b10b8bb766dbc4fba3f5b7e564",
+ "writer_model": "glm-5.3",
+ "writer_served": {
+  "glm-5.3": 162
+ },
+ "writer_calls_this_run": 162,
+ "writer_cache_sha256": "f45ca74f54da66f37926bbfa79bbf376d79f2e3c0258d55767d0359710c7206c",
+ "sessions_used": 80,
+ "extension_sessions": 0,
+ "sessions_with_questions": 80,
+ "questions": {
+  "primary": 255,
+  "secondary": 221
+ },
+ "by_category": {
+  "primary": {
+   "decision": 56,
+   "lesson": 117,
+   "context": 76,
+   "preference": 6
+  },
+  "secondary": {
+   "identificador": 129,
+   "passagem": 92
+  }
+ },
+ "drops": {
+  "primary": {
+   "no_citation": 12,
+   "citation_not_verbatim": 38,
+   "answer_too_long": 17
+  },
+  "secondary": {
+   "citation_not_verbatim": 10,
+   "answer_too_long": 1,
+   "no_citation": 5
+  }
+ }
+}

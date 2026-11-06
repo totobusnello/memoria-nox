@@ -110,9 +110,12 @@ de fidelidade às sessões que produção destilou. Os scripts (`d-freeze.py`, `
 tag sem vozes. Tag `paper-d-prereg-v1.0` publicada em 06/11 01:53 UTC (`5307a6f`); congelamento no
 mesmo dia, 03:05 UTC, sobre o snapshot de 06/11: enquadramento 418 (janela até 30/10; o censo de
 414 ia até 29/10), 290 sem unidade, 120 sessões copiadas, C0 em produção igual ao do Paper 3;
-`FREEZE-COMMITMENT.json` publicado. Próximo no D: `d-generate.py` (gerador pago), só com o ok dele.
-PR em aberto: compromisso de congelamento do D · branch `paper-d-freeze-commitment`
-Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-d-freeze-commitment`
+`FREEZE-COMMITMENT.json` publicado (`edbfda4`). Perguntas escritas em 06/11 com o ok dele («pode
+seguir»): 80 sessões, sem extensão, 255 primárias (alvo 232) e 221 secundárias, 162 chamadas ao
+glm-5.3; descartes 67 primárias e 16 secundárias (citação não literal é o maior motivo, 48).
+Próximo no D: `d-run.sh` (pago, teto US$ 10), só com o ok dele.
+PR em aberto: compromisso das perguntas do D · branch `paper-d-questions`
+Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-d-questions`
 Último resultado dos gates: 2026-11-06 · `d-test.py` 50 verificações, 0 falhas (cada recusa testada
 com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 89 números, 0 falhas
 (mutação: um número trocado no RESULTS reprova)
