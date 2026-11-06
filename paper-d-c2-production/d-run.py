@@ -17,8 +17,9 @@ Arms (§4), all over the same questions:
   C0, C2  every unit distilled under that criterion from the session's complete prose
   C2-cut  C2 on the prose with every evidence region of the session's questions removed
   P       the units production stored for the session (freeze-day snapshot)
-  V       C0 on the visible prefix (turns up to processed_at); a prefix in which production's own
-          parser counts fewer than 3 messages gets no unit (its rule, session-distill.ts)
+  V       C0 on the visible prefix (turns up to processed_at); a session whose log row records
+          fewer than 3 messages gets no unit: production skipped it without calling the model
+          (session-distill.ts). The recount of those messages from the transcript is reported
   C0-cf, C2-cf  §5.3: the session rewritten with the reference's digit run altered; checked by
           string match, not judged
 Reader R0 and both judges on every row of A, C0, C2, C2-cut, P and V. Every call is cached in
@@ -116,7 +117,7 @@ def main():
         sess[u] = {"ts": ts, "full": full, "date": qq[0]["date"],
                    "need": {"C0": ("C0", blocks_for(ts)), "C2": ("C2", blocks_for(ts)),
                             "C2-cut": ("C2", blocks_for(cut)),
-                            "V": ("C0", blocks_for(vis) if nmsg >= 3 else [])},
+                            "V": ("C0", blocks_for(vis) if prod[u]["message_count"] >= 3 else [])},
                    "visible_turns": len(vis), "turns": len(ts), "visible_messages": nmsg}
     elig = sorted((q for q in qs if q["set"] == "primary" and C.cf_run(q["ref"], q["citations"])),
                   key=lambda q: q["qid"])

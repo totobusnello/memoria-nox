@@ -1,0 +1,36 @@
+{
+ "window": [
+  "2026-08-15",
+  "2026-10-29"
+ ],
+ "min_chars": 3000,
+ "counts": {
+  "archive_sessions": 1726,
+  "eligible": 634,
+  "logged": 414,
+  "logged_zero_units": 288,
+  "logged_zero_units_skipped_lt3_messages": 287,
+  "recount_equals_log": 397,
+  "chunks_extracted_sum": 1159,
+  "chunks_present_sum": 1159,
+  "never_logged": 220,
+  "logged_with_units": 126,
+  "logged_with_units_sent": 126,
+  "excluded_spent": 20,
+  "recount_differs_from_log": 17,
+  "excluded_listed": 5,
+  "logged_zero_units_sent": 1
+ },
+ "logged_by_prose_band": {
+  "<50k": 410,
+  ">=200k": 1,
+  "50k-200k": 3
+ },
+ "never_logged_by_directory": {
+  "-root--openclaw-workspace-agents-boris": 106,
+  "-root--openclaw-workspace-agents-forge": 76,
+  "-root--openclaw-workspace-agents-cipher": 24,
+  "-root--openclaw-workspace-agents-nox": 13,
+  "-tmp": 1
+ }
+}

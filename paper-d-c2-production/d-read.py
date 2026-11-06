@@ -127,7 +127,7 @@ def main():
     # fidelity is read where production sent the session to the model: a prefix with fewer than 3
     # of its messages is never distilled, so P and V are empty there by rule and would agree
     # without measuring anything (CLAUDE.md rule 9: a guard that needs the missing data)
-    sent = {u for u, s in S.items() if s["visible_messages"] >= 3}
+    sent = {u for u, s in S.items() if s["message_count_log"] >= 3}
     prim_sent = [q for q in prim if qs[q]["uuid"] in sent]
 
     # ---------------------------------------------------------------- §5.1 controls, first

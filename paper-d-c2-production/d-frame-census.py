@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Paper D: census of the session frame. Read-only, no LLM, no cost. Counts only.
 
-Runs on the host that keeps the archive, with d-select.py beside it in /tmp:
+Runs on the host that keeps the archive, with d-select.py and d-common.py in /var/tmp/paper-d-census (not /tmp: tmpfs):
 
-  scp d-select.py <host>:/tmp/dsel.py && scp <exclude file> <host>:/tmp/d-exclude.txt
+  scp d-select.py <host>:/var/tmp/paper-d-census/dsel.py && scp d-common.py <host>:/var/tmp/paper-d-census/dcommon.py
+  scp <exclude file> <host>:/var/tmp/paper-d-census/d-exclude.txt
   ssh <host> python3 - --db <path to a database> --start 2026-08-15 --end 2026-10-29 < d-frame-census.py
 
 Applies d-select.py's eligibility (last event inside [start, end], cleaned prose >= 3,000 chars,
@@ -15,7 +16,12 @@ sessions by what the production distiller did with them, read from the database 
   never logged         no row in session_distill_log (the distiller never reached it)
 
 and, for the logged ones, by prose band. It also reports the sum of chunks_extracted against the
-chunks still present, so a unit lost after extraction would show. Prints no id and no text.
+chunks still present, so a unit lost after extraction would show. Since 2026-11-06 it also splits
+the logged sessions by the message_count production recorded (fewer than 3: production's rule
+skips the session without calling the model), and recounts that number from the transcript with
+production's parser up to processed_at (d-common.py prod_messages): a check of how well the
+visible prefix is reconstructed. Arm V takes the rule from the log's message_count. Prints no id
+and no text.
 """
 import argparse
 import collections
@@ -23,7 +29,11 @@ import json
 import os
 import sqlite3
 
-exec(open("/tmp/dsel.py").read().split("def main():")[0])  # noqa: S102  (ARCHIVE, UUID, scan, glob)
+exec(open("/var/tmp/paper-d-census/dsel.py").read().split("def main():")[0])  # noqa: S102  (ARCHIVE, UUID, scan, glob)
+import importlib.util  # noqa: E402
+_s = importlib.util.spec_from_file_location("dcommon", "/var/tmp/paper-d-census/dcommon.py")
+DC = importlib.util.module_from_spec(_s)
+_s.loader.exec_module(DC)
 
 
 def main():
@@ -33,7 +43,7 @@ def main():
     ap.add_argument("--end", required=True)
     ap.add_argument("--min-chars", type=int, default=3000)
     ap.add_argument("--spent", default="/root/medicoes/2026-10-26-memory-tax/replay-set.json")
-    ap.add_argument("--exclude", default="/tmp/d-exclude.txt")
+    ap.add_argument("--exclude", default="/var/tmp/paper-d-census/d-exclude.txt")
     a = ap.parse_args()
     if not os.path.exists(a.db):
         raise SystemExit(f"no database at {a.db}")          # sqlite3 would create an empty one
@@ -45,11 +55,15 @@ def main():
         m = UUID.search(sf)
         if m:
             present[m.group(1)] += 1
-    extracted = collections.defaultdict(int)
-    for k, ce in con.execute("SELECT session_key, chunks_extracted FROM session_distill_log"):
+    extracted, msgs, pat = collections.defaultdict(int), collections.defaultdict(int), {}
+    for k, ce, mc, pa in con.execute(
+            "SELECT session_key, chunks_extracted, message_count, processed_at FROM session_distill_log"):
         m = UUID.search(k or "")
         if m:
-            extracted[m.group(1)] += ce or 0
+            u = m.group(1)
+            extracted[u] += ce or 0
+            msgs[u] = max(msgs[u], mc or 0)
+            pat[u] = max(pat.get(u, ""), pa or "")
     best = {}
     for p in glob.glob(os.path.join(ARCHIVE, "*", "*.jsonl")):
         m = UUID.search(os.path.basename(p))
@@ -76,6 +90,10 @@ def main():
             continue
         c["logged"] += 1
         c["logged_with_units" if present[u] else "logged_zero_units"] += 1
+        sent = msgs[u] >= 3
+        c[f"logged_{'with_units' if present[u] else 'zero_units'}_{'sent' if sent else 'skipped_lt3_messages'}"] += 1
+        c["recount_equals_log" if DC.visible_count(DC.prod_messages(p), pat[u]) == msgs[u]
+          else "recount_differs_from_log"] += 1
         c["chunks_extracted_sum"] += extracted[u]
         c["chunks_present_sum"] += present[u]
         bands["<50k" if chars < 50_000 else "50k-200k" if chars < 200_000 else ">=200k"] += 1
