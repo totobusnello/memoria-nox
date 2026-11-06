@@ -1,0 +1,6 @@
+.draft-id-*
+__pycache__/
+*.pdf
+*.zip
+replaying-a-production-distiller-v*.md
+SHA256SUMS

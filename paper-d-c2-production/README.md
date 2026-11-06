@@ -33,6 +33,8 @@ replay shows an effect and a product decision needs it.
 | `d-distiller-reach.py`, `d-two-message-profile.py`, `DISTILLER-REACH-2026-11-06.json` | read-only, after the note's first draft: which eligible sessions the distiller logged, by week, and what the skipped two-message sessions contain; most of the unreached sessions are one backlog left before the 2026-09-08 address fix |
 | `NOTE.md` | the data note: the registered study ran in full and failed its fidelity control; the cause, what it exposed, and the distiller's coverage |
 | `PROVENANCE.json` | one entry per number printed in `NOTE.md`; `python3 tools/provenance.py --check paper-d-c2-production` |
+| `pdf-build/build-note-pdf.sh` | the note's PDF, with Paper 3's preamble and layout check; runs the provenance gate first |
+| `deposit/deposit-note.py` | the Zenodo record for the note; never publishes. `--plan` is read-only |
 | `d-run.sh`, `d-run.py` | step 4: every arm, from the code of the tag; prints counts, cost and a hash |
 | `d-human.py` | step 5: the blind human sample (`make`, `agree`, `commit`) |
 | `d-read.sh`, `d-read.py` | step 6: controls, H-D1, H-D2, descriptives; keyless |
