@@ -28,6 +28,7 @@ replay shows an effect and a product decision needs it.
 | `READING-2026-11-06.json`, `READING-2026-11-06.txt` | step 6 output (`d-read.sh`), aggregates only: the fidelity control failed (P 0.248, V 0.438 on the 30 sessions production sent), so H-D1 and H-D2 are not interpreted |
 | `d-fidelity-diagnosis.py` | written after the reading, not registered: rebuilds the text production's distiller sent and compares it with arm V's; classifies each question by whether its citations sit in a scheduled job's prompt |
 | `FIDELITY-DIAGNOSIS-2026-11-06.json` | its output: 82% of V's input on the sent sessions (301,441 of 367,003 chars) is `[cron:` prompts, which production drops before distilling; 138 of 255 primary questions cite only such prompts |
+| `d-frame-census-v11.py`, `FRAME-CENSUS-V11-2026-11-06.json` | read-only census of the frame under production's input rule, for a possible v1.1: 223 eligible sessions outside v1.0's sample, 19 of them sent to the model by production |
 | `d-run.sh`, `d-run.py` | step 4: every arm, from the code of the tag; prints counts, cost and a hash |
 | `d-human.py` | step 5: the blind human sample (`make`, `agree`, `commit`) |
 | `d-read.sh`, `d-read.py` | step 6: controls, H-D1, H-D2, descriptives; keyless |
