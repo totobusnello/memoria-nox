@@ -1,0 +1,370 @@
+{
+ "smoke": false,
+ "controls": {
+  "ceiling": {
+   "value": 0.749,
+   "judge2": 0.6,
+   "pass": true
+  },
+  "positive": {
+   "value": 0.0235,
+   "pass": true
+  },
+  "counterfactual": {
+   "eligible": 126,
+   "rows": 60,
+   "original": 1,
+   "altered": 16,
+   "original_rate": 0.0167,
+   "pass": true,
+   "status": "pass"
+  },
+  "fidelity": {
+   "P": 0.2476,
+   "V": 0.4381,
+   "sessions_sent": 30,
+   "questions": 105,
+   "all_sessions": {
+    "P": 0.102,
+    "V": 0.1804
+   },
+   "difference": 0.1905,
+   "pass": false
+  }
+ },
+ "interpret": false,
+ "hypotheses": {
+  "H-D1": {
+   "j1": {
+    "n_questions": 255,
+    "n_sessions": 80,
+    "estimate": -0.0431,
+    "ci95": [
+     -0.1128,
+     0.0275
+    ],
+    "reading": "not shown",
+    "excludes_plus_0.10": true
+   },
+   "j2": {
+    "n_questions": 255,
+    "n_sessions": 80,
+    "estimate": -0.0471,
+    "ci95": [
+     -0.1098,
+     0.0149
+    ],
+    "reading": "not shown",
+    "excludes_plus_0.10": true
+   },
+   "bracket": "judges agree: not shown",
+   "interpreted": false
+  },
+  "H-D2": {
+   "j1": {
+    "n_questions": 221,
+    "n_sessions": 79,
+    "estimate": 0.1403,
+    "ci95": [
+     0.0773,
+     0.2064
+    ],
+    "reading": "C2 better",
+    "excludes_plus_0.10": false
+   },
+   "j2": {
+    "n_questions": 221,
+    "n_sessions": 79,
+    "estimate": 0.1493,
+    "ci95": [
+     0.0877,
+     0.213
+    ],
+    "reading": "C2 better",
+    "excludes_plus_0.10": false
+   },
+   "bracket": "C2 better across judge families",
+   "interpreted": false
+  }
+ },
+ "descriptive": {
+  "accuracy": {
+   "primary": {
+    "j1": {
+     "A": 0.749,
+     "C0": 0.4078,
+     "C2": 0.3647,
+     "C2-cut": 0.0235,
+     "P": 0.102,
+     "V": 0.1804
+    },
+    "j2": {
+     "A": 0.6,
+     "C0": 0.3451,
+     "C2": 0.298,
+     "C2-cut": 0.0118,
+     "P": 0.0824,
+     "V": 0.149
+    }
+   },
+   "secondary": {
+    "j1": {
+     "A": 0.9231,
+     "C0": 0.2624,
+     "C2": 0.4027,
+     "C2-cut": 0.0226,
+     "P": 0.1041,
+     "V": 0.1357
+    },
+    "j2": {
+     "A": 0.9231,
+     "C0": 0.2579,
+     "C2": 0.4072,
+     "C2-cut": 0.0226,
+     "P": 0.0995,
+     "V": 0.1357
+    }
+   }
+  },
+  "contradiction_j1": {
+   "primary": {
+    "A": 0.0745,
+    "C0": 0.0824,
+    "C2": 0.0588,
+    "C2-cut": 0.0039,
+    "P": 0.0157,
+    "V": 0.0235
+   },
+   "secondary": {
+    "A": 0.0271,
+    "C0": 0.0362,
+    "C2": 0.0452,
+    "C2-cut": 0.0,
+    "P": 0.009,
+    "V": 0.0045
+   }
+  },
+  "mcnemar": {
+   "primary": {
+    "j1": {
+     "C2_only": 29,
+     "C0_only": 40,
+     "p_exact": 0.2284
+    },
+    "j2": {
+     "C2_only": 27,
+     "C0_only": 39,
+     "p_exact": 0.1753
+    }
+   },
+   "secondary": {
+    "j1": {
+     "C2_only": 38,
+     "C0_only": 7,
+     "p_exact": 0.0
+    },
+    "j2": {
+     "C2_only": 39,
+     "C0_only": 6,
+     "p_exact": 0.0
+    }
+   }
+  },
+  "by_category_j1": {
+   "context": {
+    "n_questions": 76,
+    "n_sessions": 54,
+    "estimate": 0.0132,
+    "ci95": [
+     -0.1098,
+     0.1408
+    ],
+    "reading": "not shown",
+    "excludes_plus_0.10": false
+   },
+   "decision": {
+    "n_questions": 56,
+    "n_sessions": 42,
+    "estimate": 0.0714,
+    "ci95": [
+     -0.0364,
+     0.1837
+    ],
+    "reading": "not shown",
+    "excludes_plus_0.10": false
+   },
+   "lesson": {
+    "n_questions": 117,
+    "n_sessions": 70,
+    "estimate": -0.1368,
+    "ci95": [
+     -0.2364,
+     -0.0417
+    ],
+    "reading": "C0 better",
+    "excludes_plus_0.10": true
+   },
+   "preference": {
+    "n_questions": 6,
+    "n_sessions": 6,
+    "estimate": 0.0,
+    "ci95": [
+     -0.5,
+     0.5
+    ],
+    "reading": "not shown",
+    "excludes_plus_0.10": false
+   }
+  },
+  "by_band_j1": {
+   "<50k": {
+    "n_questions": 249,
+    "n_sessions": 79,
+    "estimate": -0.0442,
+    "ci95": [
+     -0.1169,
+     0.0281
+    ],
+    "reading": "not shown",
+    "excludes_plus_0.10": true
+   },
+   ">=200k": {
+    "n_questions": 6,
+    "n_sessions": 1,
+    "estimate": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ],
+    "reading": "not shown",
+    "excludes_plus_0.10": true
+   }
+  },
+  "zero_production_units_j1": {
+   "never_sent": {
+    "sessions": 50,
+    "effect": {
+     "n_questions": 150,
+     "n_sessions": 50,
+     "estimate": -0.0533,
+     "ci95": [
+      -0.1491,
+      0.0435
+     ],
+     "reading": "not shown",
+     "excludes_plus_0.10": true
+    }
+   },
+   "sent_none_kept": {
+    "sessions": 0,
+    "effect": null
+   }
+  },
+  "sent_to_model_j1": {
+   "sessions": 30,
+   "effect": {
+    "n_questions": 105,
+    "n_sessions": 30,
+    "estimate": -0.0286,
+    "ci95": [
+     -0.1333,
+     0.0693
+    ],
+    "reading": "not shown",
+    "excludes_plus_0.10": true
+   }
+  },
+  "units_per_session": {
+   "C0": {
+    "mean": 17.24,
+    "median": 11.0
+   },
+   "C2": {
+    "mean": 20.2,
+    "median": 14.5
+   },
+   "C2-cut": {
+    "mean": 7.44,
+    "median": 1.5
+   },
+   "P": {
+    "mean": 3.05,
+    "median": 0.0
+   },
+   "V": {
+    "mean": 6.46,
+    "median": 0.0
+   }
+  },
+  "failed_blocks": {
+   "C0": 0,
+   "C2": 6,
+   "C2-cut": 3,
+   "V": 0
+  },
+  "blocks": {
+   "C0": 219,
+   "C2": 219,
+   "C2-cut": 93,
+   "V": 76
+  },
+  "V_units_vs_chunks_extracted": {
+   "V_units": 517,
+   "chunks_extracted": 244,
+   "P_units": 244
+  },
+  "V_message_count_matches_log": {
+   "sessions": 80,
+   "equal": 78
+  },
+  "generation": {
+   "questions": {
+    "primary": 255,
+    "secondary": 221
+   },
+   "drops": {
+    "primary": {
+     "no_citation": 12,
+     "citation_not_verbatim": 38,
+     "answer_too_long": 17
+    },
+    "secondary": {
+     "citation_not_verbatim": 10,
+     "answer_too_long": 1,
+     "no_citation": 5
+    }
+   },
+   "sessions_used": 80,
+   "extension": 0
+  },
+  "frame": {
+   "counts": {
+    "archive_sessions": 1726,
+    "eligible": 638,
+    "eligible_never_logged": 220,
+    "excluded_spent": 20,
+    "excluded_listed": 5,
+    "frame": 418,
+    "frame_zero_units": 290
+   },
+   "bands": {
+    "<50k": 414,
+    "50k-200k": 3,
+    ">=200k": 1
+   }
+  },
+  "human": {
+   "n": 60,
+   "agreement": 0.85,
+   "kappa": 0.6925,
+   "table": {
+    "yes_yes": 19,
+    "yes_no": 9,
+    "no_yes": 0,
+    "no_no": 32
+   },
+   "validated": true
+  },
+  "cost_usd": 0.7273
+ }
+}

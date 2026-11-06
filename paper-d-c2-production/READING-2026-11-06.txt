@@ -1,0 +1,9 @@
+CONTROLS (primary set, judge 1)
+  ceiling         {"value": 0.749, "judge2": 0.6, "pass": true}
+  positive        {"value": 0.0235, "pass": true}
+  counterfactual  {"eligible": 126, "rows": 60, "original": 1, "altered": 16, "original_rate": 0.0167, "pass": true, "status": "pass"}
+  fidelity        {"P": 0.2476, "V": 0.4381, "sessions_sent": 30, "questions": 105, "all_sessions": {"P": 0.102, "V": 0.1804}, "difference": 0.1905, "pass": false}
+  -> contrasts NOT INTERPRETED (instrument failure)
+H-D1 (primary): [not interpreted] judge 1 {"n_questions": 255, "n_sessions": 80, "estimate": -0.0431, "ci95": [-0.1128, 0.0275], "reading": "not shown", "excludes_plus_0.10": true} · judge 2 {"n_questions": 255, "n_sessions": 80, "estimate": -0.0471, "ci95": [-0.1098, 0.0149], "reading": "not shown", "excludes_plus_0.10": true} · judges agree: not shown
+H-D2 (secondary): [not interpreted] judge 1 {"n_questions": 221, "n_sessions": 79, "estimate": 0.1403, "ci95": [0.0773, 0.2064], "reading": "C2 better", "excludes_plus_0.10": false} · judge 2 {"n_questions": 221, "n_sessions": 79, "estimate": 0.1493, "ci95": [0.0877, 0.213], "reading": "C2 better", "excludes_plus_0.10": false} · C2 better across judge families
+human sample: n 60 · kappa 0.6925
