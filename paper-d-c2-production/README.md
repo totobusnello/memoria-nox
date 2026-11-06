@@ -1,8 +1,12 @@
 # Paper D: criterion C2 on the production corpus
 
-Status: 2026-11-06. All nine decisions taken (`PROTOCOL-DRAFT.md` §11); a paid smoke on 5 sessions
-sized the sample; the pre-registration is drafted and its scripts are written and pass the offline
-test (`d-test.py`). Nothing is fixed or tagged.
+Status: **closed as a data note, deposited** on Zenodo on 2026-11-06 as version 1.0, "Replaying a
+production memory distiller: a fidelity control that failed, and what it found",
+doi:10.5281/zenodo.24017487 (concept doi:10.5281/zenodo.24017486), after two passes by Codex and one
+by Kimi (#668, #670). The registered study ran in full (tag `paper-d-prereg-v1.0`) and failed its
+fidelity control; `NOTE.md` is the source of the deposited version. C2 now runs in shadow beside the
+production distiller (`SHADOW-PROTOCOL.md`), which is the route to a study whose input is
+production's by construction.
 
 ## Scope
 
