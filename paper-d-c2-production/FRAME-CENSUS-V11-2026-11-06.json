@@ -1,0 +1,23 @@
+{
+ "note": "d-frame-census-v11.py on the archive host, 2026-11-06, live database opened read-only. Same window and eligibility as v1.0, minus the 80 sessions used by v1.0 and the 5 listed (85 excluded plus the 20 spent = 105). Prose counted under production's input rule: turns starting with [cron:, HEARTBEAT or 'The conversation history before this point' dropped.",
+ "window": ["2026-08-15", "2026-10-30"],
+ "counts": {
+  "eligible_v1_rule": 558,
+  "lost_by_dropping_cron": 335,
+  "eligible_v11": 223,
+  "eligible_v11_with_cron_prompt": 27,
+  "v11_never_logged": 143,
+  "v11_logged": 80,
+  "v11_logged_skipped_lt3": 61,
+  "v11_logged_sent": 19,
+  "v11_sent_with_units": 19,
+  "excluded": 105
+ },
+ "v11_logged_by_band": {
+  "sent <20k": 12,
+  "sent 20k-50k": 4,
+  "sent >=50k": 3,
+  "skipped <20k": 54,
+  "skipped 20k-50k": 7
+ }
+}
