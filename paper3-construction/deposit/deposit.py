@@ -45,7 +45,10 @@ DESC = HERE / f"description-v{VERSION}.html"
 DRAFT_ID = HERE / f".draft-id-v{VERSION}"   # v1.5: per version, so a published draft id never blocks the next
 # creators are copied from an already-published record so authorship stays identical
 # across deposits rather than being retyped here.
-CREATORS_FROM = "23041503"          # Paper 1 v1.0.2
+# 2026-11-06: was 23041503 (Paper 1 v1.0.2), whose creator has NO ORCID, so every record built
+# from it (Paper 3 x4, and the C and D drafts) went out without one. 23147633 (nox-mem v1.0.6)
+# carries it; creators() now refuses a creator list without an ORCID.
+CREATORS_FROM = "23147633"          # nox-mem v1.0.6, creator with ORCID
 # v1.1 is a NEW VERSION of the v1.0 record (same concept DOI 10.5281/zenodo.23716612), not a new
 # record: --create-draft POSTs /records/<v1.0>/versions instead of /records.
 NEW_VERSION_OF = "23964906"     # v1.5 is a new version of v1.4 (concept 23716612); v1.4 was of v1.3
@@ -200,6 +203,8 @@ def creators():
                                       ("type", "name", "given_name", "family_name", "identifiers")
                                       if k in p},
                     "affiliations": [{"name": a["name"]} for a in c.get("affiliations", [])]})
+    assert out and all(any(i.get("scheme") == "orcid" for i in c["person_or_org"].get("identifiers") or [])
+                       for c in out), f"creators from {CREATORS_FROM} lack an ORCID"
     return out
 
 
