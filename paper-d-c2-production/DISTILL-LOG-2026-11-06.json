@@ -1,0 +1,14 @@
+{
+ "note": "Read on 2026-11-06 from the serving host's nightly maintenance log (not versioned; it carries session ids). The distiller runs in phase 4 of nightly-maintenance.sh only when the day of week is 7 (Sunday), with timeout 1800 s; session-distill.ts defaults: maxSessionsPerRun 50, lookbackDays 30. One row per [DISTILL] Done line in the log, which starts on 2026-08-23. deduped_share = deduped / (ingested + deduped).",
+ "schedule": {"day_of_week": 7, "max_sessions_per_run": 50, "lookback_days": 30},
+ "runs": [
+  {"date": "2026-09-13", "sessions": 9, "ingested": 76, "deduped": 2, "deduped_share": 0.026},
+  {"date": "2026-09-20", "sessions": 7, "ingested": 27, "deduped": 0, "deduped_share": 0.0},
+  {"date": "2026-09-27", "sessions": 8, "ingested": 79, "deduped": 7, "deduped_share": 0.081},
+  {"date": "2026-10-04", "sessions": 4, "ingested": 20, "deduped": 2, "deduped_share": 0.091},
+  {"date": "2026-10-11", "sessions": 9, "ingested": 288, "deduped": 52, "deduped_share": 0.153},
+  {"date": "2026-10-18", "sessions": 2, "ingested": 12, "deduped": 2, "deduped_share": 0.143},
+  {"date": "2026-10-25", "sessions": 7, "ingested": 85, "deduped": 3, "deduped_share": 0.034},
+  {"date": "2026-11-01", "sessions": 16, "ingested": 234, "deduped": 5, "deduped_share": 0.021}
+ ]
+}
