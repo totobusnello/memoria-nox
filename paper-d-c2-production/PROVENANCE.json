@@ -158,7 +158,7 @@
   },
   {
    "id": "hd1-j1-est",
-   "value": "0.043",
+   "value": "−0.043",
    "what": "registered contrast, not interpreted",
    "population": "Paper D v1.0 reading, 80 sessions, frame 2026-08-15 to 2026-10-30",
    "date": "2026-11-06",
@@ -170,7 +170,7 @@
   },
   {
    "id": "hd1-j1-lo",
-   "value": "0.113",
+   "value": "−0.113",
    "what": "registered contrast, not interpreted",
    "population": "Paper D v1.0 reading, 80 sessions, frame 2026-08-15 to 2026-10-30",
    "date": "2026-11-06",
@@ -194,7 +194,7 @@
   },
   {
    "id": "hd1-j2-est",
-   "value": "0.047",
+   "value": "−0.047",
    "what": "registered contrast, not interpreted",
    "population": "Paper D v1.0 reading, 80 sessions, frame 2026-08-15 to 2026-10-30",
    "date": "2026-11-06",
@@ -206,7 +206,7 @@
   },
   {
    "id": "hd1-j2-lo",
-   "value": "0.110",
+   "value": "−0.110",
    "what": "registered contrast, not interpreted",
    "population": "Paper D v1.0 reading, 80 sessions, frame 2026-08-15 to 2026-10-30",
    "date": "2026-11-06",
@@ -351,7 +351,7 @@
   {
    "id": "other-chars",
    "value": "59,759",
-   "what": "V input chars outside job prompts",
+   "what": "message text of the replay's turns that are not scheduled-job prompts, on the 30 sent sessions (content characters, not block characters; not a rebuilt replay input)",
    "population": "Paper D v1.0 reading, 80 sessions, frame 2026-08-15 to 2026-10-30",
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/FIDELITY-DIAGNOSIS-2026-11-06.json",
@@ -431,6 +431,18 @@
    "commit": "4abc6f2",
    "superseded_by": null,
    "note": "derived: 0.992"
+  },
+  {
+   "id": "ceiling-j2",
+   "value": "0.600",
+   "what": "ceiling, arm A, primary, judge 2 (reported, not a gate)",
+   "population": "Paper D v1.0 reading, 80 sessions, frame 2026-08-15 to 2026-10-30",
+   "date": "2026-11-06",
+   "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
+   "locator": "\"judge2\": 0.6",
+   "commit": "c83e32f",
+   "superseded_by": null,
+   "note": "added 2026-11-06 after Codex review"
   }
  ]
 }

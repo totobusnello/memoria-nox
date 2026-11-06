@@ -38,7 +38,9 @@
    },
    "commands": [
     "nox-mem session-distill sema"
-   ]
+   ],
+   "runs_distill": false,
+   "why": "disabled"
   },
   {
    "name": "end-of-day",
@@ -50,7 +52,9 @@
    },
    "commands": [
     "nox-mem session-distill --lookback-days 1"
-   ]
+   ],
+   "runs_distill": true,
+   "why": "prompt step: nox-mem session-distill --lookback-days 1"
   },
   {
    "name": "cipher-weekly-wrapup-prep",
@@ -63,7 +67,9 @@
    "commands": [
     "nox-mem session-distill.",
     "nox-mem session-distill. Respo"
-   ]
+   ],
+   "runs_distill": false,
+   "why": "prompt names the distiller only to forbid it: 'NÃO rode nox-mem session-distill'"
   }
  ],
  "nightly_maintenance": {
@@ -71,5 +77,6 @@
   "command": [
    "timeout 1800 node \"$NOXMEM_JS\" session-distill >> \"$LOG\" 2>&1 || fail \"Phase 4: session-distill TIMEOUT/ERRO (rc=$?) — seguindo\""
   ]
- }
+ },
+ "note_2026_11_06": "gateway_jobs_calling_distill lists every job whose prompt mentions the distiller; runs_distill says which one runs it. The log has no session_distill_log rows outside UTC hours 01 and 23 from 2026-09-13 to 2026-11-06 (checked read-only after review)."
 }
