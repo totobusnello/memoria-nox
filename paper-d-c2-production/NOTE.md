@@ -74,7 +74,7 @@ human rejected.
 Over all 80 sessions, P and V were 0.102 and 0.180; the registered figure is the one on the 30
 sessions production sent, because elsewhere both arms are empty by the same rule.
 
-## 4. Why the fidelity control failed
+## 4. Diagnosis of the fidelity-control failure
 
 The replay calls the same model with the same prompt, the same generation settings, the same
 2,000-character blocks, the same noise filter and the same importance threshold as the deployed
@@ -118,7 +118,7 @@ the 22 are those of the 85 that still pass the rule. Until 2026-09-08 the distil
 read a session address that a migration had emptied; the fix ran first on 2026-09-13. The distiller runs in two places (`DISTILLER-SCHEDULE-2026-11-06.json`): a weekly run on Sundays
 that looks back 30 days and takes at most 50 sessions, and a daily step of an agent's end-of-day
 job that looks back one day. A third job's prompt names the distiller only to forbid running it, and
-the log has no rows outside the hours of those two runs. Only the weekly run can reach a session more than a day old, and every one of its eight logged runs started with a full list of 50. Of the 145 eligible sessions it never logged, 118 ended in
+the log, from 2026-09-13 to 2026-11-06, has no rows outside the hours of those two runs. Only the weekly run can reach a session more than a day old, and every one of its eight logged runs started with a full list of 50. Of the 145 eligible sessions it never logged, 118 ended in
 the single week of 2026-08-23, while the address was empty. The weekly runs that followed were full
 on every run and did not reach them before they left the 30-day lookback; the log is consistent with
 that account but does not show which sessions each run chose. For sessions ending from 2026-09-20
@@ -135,8 +135,8 @@ would have yielded if distilled.
 
 The pre-registration requires every number to be reported when a control fails. Under judge 1,
 C2 − C0 on the primary set was −0.043 [−0.113, +0.028] over 255 questions in 80 sessions; under
-judge 2, −0.047 [−0.110, +0.015]. On the secondary set it was +0.140 [+0.077, +0.206] under judge
-1 and +0.149 [+0.088, +0.213] under judge 2. These are 95% cluster-bootstrap intervals over
+judge 2, −0.047 [−0.110, +0.015]. On the secondary set, 221 questions in 79 sessions, it was +0.140 [+0.077, +0.206] under judge 1
+and +0.149 [+0.088, +0.213] under judge 2. These are 95% cluster-bootstrap intervals over
 sessions. They are reported, as the pre-registration requires, and not interpreted: they compare the criteria
 on input that production does not send,
 on questions that are mostly about that input, and the control that would have certified the

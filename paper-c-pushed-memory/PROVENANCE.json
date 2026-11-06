@@ -19,7 +19,7 @@
   {
    "id": "7a-exposed-pairs",
    "value": "12,782",
-   "what": "exposed (message, brief item) pairs; 0 strict and 0 fuzzy hits",
+   "what": "exposed pairs, three roots; zero strict hits (the rerun table reports strict only for the exposed arm)",
    "population": "assistant messages 2026-09-21 to 2026-10-15, three transcript roots",
    "date": "2026-10-22",
    "artifact": "audits/2026-10-14-brief-usage.md",
@@ -211,6 +211,19 @@
    "commit": "f813bb1",
    "superseded_by": null,
    "note": "added 2026-11-06: same-day comparison against 1,524 with three roots"
+  },
+  {
+   "id": "7a-exposed-first",
+   "value": "9,398",
+   "what": "exposed pairs, first run, zero strict and zero fuzzy hits",
+   "population": "assistant messages 2026-09-21 to 2026-10-14, one root",
+   "date": "2026-10-14",
+   "artifact": "audits/2026-10-14-brief-usage.md",
+   "locator": "exposed      pairs=    9398  strict=    0 (  0.00/10k)  fuzzy=    0",
+   "commit": "f813bb1",
+   "superseded_by": null,
+   "note": "added 2026-11-06 after Codex second pass",
+   "history": []
   }
  ]
 }
