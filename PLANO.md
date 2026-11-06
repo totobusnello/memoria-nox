@@ -126,13 +126,18 @@ replay não descarta. Nas 30 sessões, 82% do texto de V é esse prompt (301 mil
 caracteres); sem ele, V teria 60 mil contra 66 mil de produção. E 68 das 80 sessões têm o prompt,
 com 138 das 255 perguntas primárias citando só ele: o D mediu, em boa parte, memória das
 instruções dos crons, que produção não destila por desenho. Censo v1.1 (`ece0727`): sem o prompt,
-223 sessões elegíveis fora da amostra, 19 mandadas ao modelo por produção (8,5%); 143 nunca
-alcançadas (job só aos domingos, teto 50, lookback 30 d) e 61 puladas por < 3 mensagens. Em 06/11 o
-Toto concordou («concordo c vc»): o D fecha como nota (`NOTE.md`, rascunho, proveniência 33 números,
-0 falhas) e a cobertura do destilador vira trabalho de produto antes de medir critério de novo
-(mudança em produção só com ok dele). Próximo no D: passe de estilo final e depósito, decisão dele.
-PR em aberto: nota do D · branch `paper-d-note2`
-Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-d-note2`
+223 sessões elegíveis fora da amostra, 19 mandadas ao modelo por produção (8,5%). Em 06/11 o Toto
+concordou («concordo c vc»): o D fecha como nota (`NOTE.md`, #659) e a cobertura seria trabalho de
+produto. Ao preparar essa proposta («pode»), a divisão por semana (#660) desfez o diagnóstico de
+cobertura: 118 dos 145 não alcançados terminaram na semana de 23/08, antes da correção do endereço
+do destilador em 08/09, um backlog que o cap de 50 deixou sair do lookback; desde 20/09 ele registrou
+65 e perdeu 6. Das 47 puladas por < 3 mensagens, 40 têm 2 e são invocações de tarefa por script
+(99,2% do texto é prompt): a regra está certa. Nota corrigida (proveniência 35 números, 0 falhas).
+Não há mudança de agenda a propor; o único risco é um novo backlog depois de uma pane, e o remédio
+(ordem de processamento ou cap maior só quando a lista enche) fica como item, sem urgência.
+Próximo no D: passe de estilo final e depósito, decisão do Toto.
+PR em aberto: correção da nota do D · branch `paper-d-note-fix`
+Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-d-note-fix`
 Último resultado dos gates: 2026-11-06 · `d-test.py` 50 verificações, 0 falhas (cada recusa testada
 com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 89 números, 0 falhas
 (mutação: um número trocado no RESULTS reprova)

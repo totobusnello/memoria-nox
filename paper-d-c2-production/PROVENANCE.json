@@ -407,6 +407,30 @@
    "commit": "a9d3f2d",
    "superseded_by": null,
    "note": "derived: 52 / 340"
+  },
+  {
+   "id": "two-user-median",
+   "value": "7,215",
+   "what": "median user-turn chars, 40 two-message skipped sessions",
+   "population": "sessions logged with 2 messages, last event 2026-09-20 to 2026-10-30, production's input rule",
+   "date": "2026-11-06",
+   "artifact": "paper-d-c2-production/DISTILLER-REACH-2026-11-06.json",
+   "locator": "\"user_chars_median\": 7215.0",
+   "commit": "4abc6f2",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "two-user-share",
+   "value": "99.2%",
+   "what": "user-turn share of chars, 40 two-message skipped sessions",
+   "population": "sessions logged with 2 messages, last event 2026-09-20 to 2026-10-30, production's input rule",
+   "date": "2026-11-06",
+   "artifact": "paper-d-c2-production/DISTILLER-REACH-2026-11-06.json",
+   "locator": "\"user_share_of_chars\": 0.992",
+   "commit": "4abc6f2",
+   "superseded_by": null,
+   "note": "derived: 0.992"
   }
  ]
 }
