@@ -99,7 +99,11 @@ humana → `HUMAN-COMMITMENT.json` `31d90b2` → leitura (saídas em `6120a37`).
 avaliador (§4).
 Em paralelo desde 05/11 (Toto: «em paralelo os 2»): C, nota de dados em
 `paper-c-pushed-memory/NOTE.md` (rascunho, proveniência 16 registros, 0 falhas), e o protocolo do D
-(`paper-d-c2-production/`, rascunho, sem rodar nada pago).
+(`paper-d-c2-production/`): decisões D1–D9 tomadas, smoke pago de 5 sessões (US$ 0,02), e o
+pré-registro em rascunho (`PREREGISTRATION.md`, 05/11). O censo do enquadramento mostrou 414
+sessões alcançadas pelo destilador (126 com unidades, 288 sem nenhuma), não as 634 do pool do smoke.
+Próximo no D: os scripts que o pré-registro nomeia (`d-freeze.py`, `d-generate.py`, `d-run.sh`,
+`d-human.py`, `d-read.sh`), testados; vozes se o Toto pedir; tag `paper-d-prereg-v1.0`.
 PR em aberto: o da nota C · branch `paper-c-note`; o do protocolo D, quando o rascunho for revisado
 Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-c-note`, `~/Claude-worktrees/memoria-nox/paper-d-protocol`
 Último resultado dos gates: 2026-11-05 · proveniência do A 197 registros, 89 números, 0 falhas
