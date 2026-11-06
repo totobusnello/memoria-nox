@@ -22,6 +22,8 @@ replay shows an effect and a product decision needs it.
 | `d-common.py` | what the registered scripts share: windows, cut, visible prefix, production's message count, counterfactual, serving, draw, the checks of the public order |
 | `d-freeze.py` | step 2: freeze and draw (`run` on the author's machine, `host` on the serving host, `commit`) |
 | `d-generate.py` | step 3: questions, validation, the extension rule, `QUESTIONS-COMMITMENT.json` |
+| `FREEZE-COMMITMENT.json` | step 2 output, public: window, seed, counts, and the sha256 of every frozen file |
+| `QUESTIONS-COMMITMENT.json` | step 3 output, public: counts, drops, and the sha256 of the questions, prompts, scripts and writer cache |
 | `d-run.sh`, `d-run.py` | step 4: every arm, from the code of the tag; prints counts, cost and a hash |
 | `d-human.py` | step 5: the blind human sample (`make`, `agree`, `commit`) |
 | `d-read.sh`, `d-read.py` | step 6: controls, H-D1, H-D2, descriptives; keyless |
