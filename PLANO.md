@@ -125,10 +125,14 @@ descarta a mensagem que começa com `[cron:` (o prompt do job agendado) antes de
 replay não descarta. Nas 30 sessões, 82% do texto de V é esse prompt (301 mil de 367 mil
 caracteres); sem ele, V teria 60 mil contra 66 mil de produção. E 68 das 80 sessões têm o prompt,
 com 138 das 255 perguntas primárias citando só ele: o D mediu, em boa parte, memória das
-instruções dos crons, que produção não destila por desenho. Próximo no D: decisão do Toto entre
-escrever a falha como nota ou pré-registrar uma v1.1 que replique a entrada de produção.
-PR em aberto: saídas da leitura e diagnóstico do D · branch `paper-d-reading`
-Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-d-reading`
+instruções dos crons, que produção não destila por desenho. Censo v1.1 (`ece0727`): sem o prompt,
+223 sessões elegíveis fora da amostra, 19 mandadas ao modelo por produção (8,5%); 143 nunca
+alcançadas (job só aos domingos, teto 50, lookback 30 d) e 61 puladas por < 3 mensagens. Em 06/11 o
+Toto concordou («concordo c vc»): o D fecha como nota (`NOTE.md`, rascunho, proveniência 33 números,
+0 falhas) e a cobertura do destilador vira trabalho de produto antes de medir critério de novo
+(mudança em produção só com ok dele). Próximo no D: passe de estilo final e depósito, decisão dele.
+PR em aberto: nota do D · branch `paper-d-note2`
+Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-d-note2`
 Último resultado dos gates: 2026-11-06 · `d-test.py` 50 verificações, 0 falhas (cada recusa testada
 com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 89 números, 0 falhas
 (mutação: um número trocado no RESULTS reprova)
