@@ -113,9 +113,13 @@ mesmo dia, 03:05 UTC, sobre o snapshot de 06/11: enquadramento 418 (janela até 
 `FREEZE-COMMITMENT.json` publicado (`edbfda4`). Perguntas escritas em 06/11 com o ok dele («pode
 seguir»): 80 sessões, sem extensão, 255 primárias (alvo 232) e 221 secundárias, 162 chamadas ao
 glm-5.3; descartes 67 primárias e 16 secundárias (citação não literal é o maior motivo, 48).
-Próximo no D: `d-run.sh` (pago, teto US$ 10), só com o ok dele.
-PR em aberto: compromisso das perguntas do D · branch `paper-d-questions`
-Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-d-questions`
+`QUESTIONS-COMMITMENT.json` publicado (`07caa54`). Braços rodados em 06/11 com o ok dele («pode
+rodar o passo a passo»): US$ 0,73, 2.856 linhas de resposta + 60 contrafactuais, 7 blocos de
+destilação sem texto (6 no C2, 3 no C2-cut, 0 no C0; contados, não refeitos, §4). Amostra humana de
+60 avaliada por ele às cegas: concordância 0,850, kappa 0,692 com o juiz 1 (o juiz nunca aceitou o
+que ele recusou; recusou 9 que ele aceitou). Próximo no D: `d-read.sh`, sem custo.
+PR em aberto: compromisso humano do D · branch `paper-d-human`
+Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-d-human`
 Último resultado dos gates: 2026-11-06 · `d-test.py` 50 verificações, 0 falhas (cada recusa testada
 com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 89 números, 0 falhas
 (mutação: um número trocado no RESULTS reprova)
