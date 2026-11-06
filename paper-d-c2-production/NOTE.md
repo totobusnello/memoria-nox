@@ -115,7 +115,8 @@ What remains is the skip rule. Of those 65, 18 were sent to the model and 47 ski
 fewer than 3 messages; 40 of the 47 had exactly 2. Those 40 are scripted task invocations, 39 of
 them from one agent: the user turn is a long prompt (median 7,215 characters) and the reply is short
 (median 72), so 99.2% of their text is prompt. Distilling them would store the same kind of
-standing instruction that the replay defect put into the question set. The rule is doing its job.
+standing instruction that the replay defect put into the question set. For these sessions the skip
+rule works as intended.
 
 ## 6. The registered contrasts, not interpreted
 

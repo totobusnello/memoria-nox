@@ -49,9 +49,8 @@ first version matched stems as substrings and counted dictionary words, and prod
 
 Result. Over 2026-09-21 to 2026-10-15, reading all three places where transcripts are kept:
 1,524 messages, 12,782 exposed pairs, zero strict and zero fuzzy hits. The future control produced
-57 fuzzy hits. In the first run, the hits of that control were read by hand: they were summaries
-derived from the same conversations that entered the brief afterwards, and so: the detector sees real overlap when it exists, and the exposed zero is not a
-blind instrument.
+57 fuzzy hits. In the first run, the hits of that control were read by hand: they were summaries derived from the same conversations, which entered the brief afterwards. The detector therefore sees overlap when it exists, and the exposed arm's zero does not come from a blind
+instrument.
 
 The base was understated at first. The first run read one of three transcript roots and
 reported 1,120 messages. Transcripts are kept in two live directories and an archive, and one of
@@ -69,8 +68,7 @@ zero fuzzy hits, and no message was discordant, so the paired comparison carried
 
 A positive control injected brief items into message text and re-ran the detector. It fired on
 95.7% of injected one-line summaries and on 100.0% of summaries with their file stem, and 99.6% of
-the items in the window were detectable by construction. If an agent had quoted an item, the
-detector would have seen it.
+the items in the window were detectable by construction. If an agent had quoted an item, the detector would almost always have seen it.
 
 ## 4. Measurement 3: the first action, behaviourally
 
@@ -94,9 +92,8 @@ The brief is the push channel. The pull channel is a search tool, and through 20
 agent. On 2026-10-23, an agent was given a recurring task whose answer depended on the corpus (a
 weekly sweep for contract deadlines, where an exhaustive query finds the candidates and the agent
 checks whether each was later amended). The prompt did not name the search tool. In two production
-runs it searched 11 and 6 times on its own. The audit's reading: zero traffic was never evidence
-that retrieval is unwanted; it was evidence that the questions being asked of the corpus were
-censuses.
+runs it searched 11 and 6 times on its own. The audit reads the zero traffic as a property of the questions put to the corpus, which were
+censuses, rather than as a sign that the agents had no use for retrieval.
 
 ## 6. What this note claims, and what it does not
 
@@ -111,15 +108,14 @@ quotation and close paraphrase, not influence.
 
 ## 7. Two things that transfer
 
-A measurement over transcripts is a measurement over a substrate someone else prunes. The same
-script, run a week apart, read different data, because a cleanup job deletes old sessions daily and
+Transcripts are pruned by a job the measurement does not control. The same script, run a week apart, read different data, because a cleanup job deletes old sessions daily and
 only an archive keeps them. The base of the first measurement was understated by 36% for this
 reason. Both scripts now read all three roots and print the roots and the directory count, so the
 base can be checked from the output.
 
-A null needs a positive control, and the control has to pass. Measurements 1 and 2 carry one
-that passes, so their zeros are facts about the agents. Measurement 3 carried one that failed, so
-its silence is a fact about the probe, and this note reports it that way.
+A null needs a positive control, and the control has to pass. Measurements 1 and 2 carry one that passes, so their zeros say something about the agents' replies.
+Measurement 3 carried one that failed, so its silence says something only about the probe, and this
+note reports it that way.
 
 ## 8. Data availability
 
