@@ -21,10 +21,11 @@ the registered rule, the two hypotheses are reported as not interpreted. A diagn
 the result found the cause. Production's distiller drops the message that opens a scheduled job
 (the job's prompt) before it distils; our replay did not. That prompt was 82% of the text our replay
 sent to the model, and 138 of the 255 primary questions cite only text inside it. A follow-up
-census under production's input rule found 223 eligible sessions outside the sample, of which
-production's distiller had sent 19 to the model in two and a half months. The replay defect is a
-fact about our instrument. The coverage figure is a fact about the deployment, and it bounds what
-any change of criterion can do there.
+census under production's input rule found that the distiller sent few eligible sessions to its
+model (19 of 223 outside the sample), for two reasons that do not call for a change of settings: a
+backlog left by a fix of the distiller's session address, which its weekly cap never drained, and
+a skip rule that correctly passes over scripted task invocations whose text is almost all prompt.
+The replay defect is a fact about our instrument; the low reach is mostly a one-time event.
 
 ## 1. Question and design
 
@@ -106,9 +107,21 @@ A census under production's input rule (`FRAME-CENSUS-V11-2026-11-06.json`), out
 sessions already used, asked how many sessions a corrected study could draw on. Of 558 sessions
 eligible under the original rule, 335 fall below the 3,000-character minimum once the job prompts
 are removed, leaving 223. Production's distiller had logged 80 of those 223 and sent 19 to its
-model (8.5%). The other 143 were never reached: the job runs once a week, on Sundays, takes at most
-50 sessions per run and looks back 30 days. Of the 80 it reached, 61 were skipped for having fewer than 3 messages,
-though each has at least 3,000 characters of its own prose.
+model (8.5%).
+
+That figure overstates the gap, and splitting it by week shows why (`DISTILLER-REACH-2026-11-06.json`,
+over all 245 eligible sessions in the window, the 80 used included). Until 2026-09-08 the distiller
+read a session address that a migration had emptied; the fix ran first on 2026-09-13. The
+distiller runs once a week, on Sundays, takes at most 50 sessions per run and looks back 30 days,
+and every one of its eight logged runs started with a full list of 50. Of the 145 eligible sessions
+it never logged, 118 ended in the single week of 2026-08-23, before the fix: a backlog that the cap
+let age out of the lookback. For sessions ending from 2026-09-20 on, it logged 65 and missed 6.
+
+What remains is the skip rule. Of those 65, 18 were sent to the model and 47 skipped for having
+fewer than 3 messages; 40 of the 47 had exactly 2. Those 40 are scripted task invocations, 39 of
+them from one agent: the user turn is a long prompt (median 7,215 characters) and the reply is short
+(median 72), so 99.2% of their text is prompt. Distilling them would store the same kind of
+standing instruction that the replay defect put into the question set. The rule is doing its job.
 
 ## 6. The registered contrasts, not interpreted
 
@@ -124,13 +137,15 @@ replay failed.
 
 It claims three things. The registered study is an instrument failure, and its cause is located: a
 replay input that kept the scheduled-job prompts production drops. More than half of the primary
-questions were about that prompt. And on this deployment, in this window, the production distiller
-sent 19 of 223 eligible sessions to its model.
+questions were about that prompt. And on this deployment the production distiller reached few
+eligible sessions, mostly because of a one-time backlog after a fix; since that backlog, it logs
+almost every eligible session and skips, by rule, the ones that are almost all prompt.
 
 It does not claim that C2 is better or worse than C0 on production sessions; this study cannot say.
-It does not claim that the coverage figure is permanent: it follows from three settings of a weekly
-job and one skip rule, all of which can be changed. Until they are, a change of criterion reaches
-about one session in twelve.
+It does not claim that the low reach is a standing property of the deployment. It does not claim
+that the sessions the rule skips hold nothing worth keeping; only that their text is almost all
+prompt. And a weekly cap that fills on every run would leave a new backlog behind the next outage,
+which is a fact about the job, not about either criterion.
 
 ## 8. Two things that transfer
 
@@ -147,7 +162,7 @@ shown, before the run, that the set was mostly about the scheduled-job prompts.
 ## 9. Data availability
 
 The sessions, the questions and the human sheet are private and are not released. The scripts, the
-four commitments, the reading, the diagnosis and the census are in the public repository under
+four commitments, the reading, the diagnosis, the census and the reach split are in the public repository under
 `paper-d-c2-production/`; each carries only counts, rates and hashes. Every number in this note has
 an entry in `PROVENANCE.json` naming its artifact, a locator string that must occur in it, and the
 commit that holds it.
