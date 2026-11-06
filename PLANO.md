@@ -107,10 +107,12 @@ mandadas ao modelo (menos de 3 mensagens quando o destilador as viu), o que rest
 de fidelidade às sessões que produção destilou. Os scripts (`d-freeze.py`, `d-generate.py`,
 `d-run.sh`, `d-human.py`, `d-read.sh`, mais `d-common.py`) estão escritos e passam o teste offline
 `d-test.py` (50 verificações, sem rede). Em 06/11 o Toto manteve o enquadramento de 414 e escolheu a
-tag sem vozes. Próximo no D: tag `paper-d-prereg-v1.0`, congelamento no mesmo dia UTC (depois do
-snapshot das 03:00 UTC), `FREEZE-COMMITMENT.json` publicado; as perguntas só com o ok dele.
-PR em aberto: preparação da tag do D · branch `paper-d-tag-prep`
-Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-d-tag-prep`
+tag sem vozes. Tag `paper-d-prereg-v1.0` publicada em 06/11 01:53 UTC (`5307a6f`); congelamento no
+mesmo dia, 03:05 UTC, sobre o snapshot de 06/11: enquadramento 418 (janela até 30/10; o censo de
+414 ia até 29/10), 290 sem unidade, 120 sessões copiadas, C0 em produção igual ao do Paper 3;
+`FREEZE-COMMITMENT.json` publicado. Próximo no D: `d-generate.py` (gerador pago), só com o ok dele.
+PR em aberto: compromisso de congelamento do D · branch `paper-d-freeze-commitment`
+Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-d-freeze-commitment`
 Último resultado dos gates: 2026-11-06 · `d-test.py` 50 verificações, 0 falhas (cada recusa testada
 com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 89 números, 0 falhas
 (mutação: um número trocado no RESULTS reprova)

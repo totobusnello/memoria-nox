@@ -1,0 +1,42 @@
+{
+ "smoke": false,
+ "tag": "paper-d-prereg-v1.0",
+ "freeze_date": "2026-11-06",
+ "window": [
+  "2026-08-15",
+  "2026-10-30"
+ ],
+ "seed": 20261106,
+ "min_chars": 3000,
+ "counts": {
+  "archive_sessions": 1726,
+  "eligible": 638,
+  "eligible_never_logged": 220,
+  "excluded_spent": 20,
+  "excluded_listed": 5,
+  "frame": 418,
+  "frame_zero_units": 290
+ },
+ "bands": {
+  "<50k": 414,
+  "50k-200k": 3,
+  ">=200k": 1
+ },
+ "copied": 120,
+ "listing_sha256": "7b210e8e3f4e961236b673c8dc5a98df38d8f67d2c003523ddc1dd2c02f55806",
+ "order_sha256": "22478ccd73eaabe6ec661f70c891b519f8aae3997410d52060acc069e96beb81",
+ "frame_sha256": "d99b57405811c6bf6a6f6455604b5d7bd300588e0fd03a1edec79e5f62c9be32",
+ "manifest_sha256": "0c7dbf96f2dabe74aa94845aef88ecb8234d8191f773236fd0c4bfc8861ccc78",
+ "production_sha256": "42484eef46db04ac7e411d73cccc8fad0ad6f46a3c6af4d341f7153076cf2acf",
+ "exclude_sha256": "ad76b363ce0d1214957c4f9d602b54b1c2bf494b37ae1b2d178080136ec370f4",
+ "snapshot": {
+  "name": "daily-main-main-20261106030002-3269917-a12b890e65d84fb38d099684c2f802bd.db.gz",
+  "sha256": "14f5000a1b4dfe6cd0a0f78e57c0295d52d39049ebeaed1fc707a961af8dac4c"
+ },
+ "deployed": {
+  "session_distill_ts_sha256": "f2f279b6bb13dffb6004cf1971f67cb866ab2a061648878856bd8118beaf0c6e",
+  "session_distill_js_sha256": "8b6da37169038b94282c90888ffc3d496835148381cf4cdf579bfe06a6c14a61",
+  "distill_system_equals_c0": true,
+  "distill_system_found": true
+ }
+}
