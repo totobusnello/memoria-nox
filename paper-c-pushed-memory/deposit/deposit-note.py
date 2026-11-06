@@ -57,9 +57,7 @@ CODE_FILES = ["paper-c-pushed-memory/NOTE.md", "paper-c-pushed-memory/PROVENANCE
               "audits/2026-10-23-item7-consumidor-construido.md"]
 SUBJECTS = ["agent memory", "memory brief", "system prompt", "positive control",
             "null result", "LLM agents", "data note"]
-STATUS_OLD = ("Status: working draft, not deposited, not peer reviewed. A data note, dated: every "
-              "measurement\nbelow covers 2026-09-21 to 2026-10-23 on one deployment. Every number has an "
-              "entry in\n`PROVENANCE.json`.")
+STATUS_OLD = 'Status: working draft, not deposited, not peer reviewed. A data note, dated: every measurement\nbelow covers 2026-09-21 to 2026-10-23 on one deployment. Every result with a decimal, a\npercentage or a thousands separator has an entry in `PROVENANCE.json`.'
 
 
 def status_new(doi):

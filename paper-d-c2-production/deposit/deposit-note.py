@@ -82,15 +82,13 @@ CODE_FILES = ["paper-d-c2-production/NOTE.md",
               "paper-d-c2-production/d-two-message-profile.py"]
 SUBJECTS = ["agent memory", "memory distillation", "pre-registration", "fidelity control",
             "instrument failure", "LLM agents", "data note"]
-STATUS_OLD = ("Status: working draft, not deposited, not peer reviewed. A data note on one deployment, with\n"
-              "measurements taken on 2026-11-06 over sessions whose last event falls between 2026-08-15 and\n"
-              "2026-10-30. Every number has an entry in `PROVENANCE.json`.")
+STATUS_OLD = 'Status: working draft, not deposited, not peer reviewed. A data note on one deployment, with\nmeasurements taken on 2026-11-06 over sessions whose last event falls between 2026-08-15 and\n2026-10-30. Every result with a decimal, a percentage or a thousands separator has an entry in\n`PROVENANCE.json`.'
 
 
 def status_new(doi):
     return (f"Version {VERSION} ({PUB_DATE}), doi:{doi}. Not peer reviewed. A data note on one deployment, "
             "with measurements taken on 2026-11-06 over sessions whose last event falls between 2026-08-15 "
-            "and 2026-10-30. Every number has an entry in `PROVENANCE.json`, in the code-and-data archive "
+            "and 2026-10-30. Every result with a decimal, a percentage or a thousands separator has an entry in `PROVENANCE.json`, in the code-and-data archive "
             "of this record.")
 
 

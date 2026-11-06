@@ -52,20 +52,9 @@
    "superseded_by": "7a-messages",
    "note": "understated: one of three roots",
    "history": [
-    "reported 1,120 messages"
+    "reported 1,120 messages",
+    "The first count of the first measurement, 1,120 messages"
    ]
-  },
-  {
-   "id": "7a-base-understated",
-   "value": "36%",
-   "what": "how much the first run understated the base (1,120 -> 1,524)",
-   "population": "assistant messages 2026-09-21 to 2026-10-15, three transcript roots",
-   "date": "2026-10-22",
-   "artifact": "audits/2026-10-14-brief-usage.md",
-   "locator": "understated by 36%",
-   "commit": "f813bb1",
-   "superseded_by": null,
-   "note": ""
   },
   {
    "id": "7a-fuzzy-threshold",
@@ -198,6 +187,30 @@
    "commit": "77982a7",
    "superseded_by": null,
    "note": ""
+  },
+  {
+   "id": "7a-past-control",
+   "value": "74,347",
+   "what": "past control pairs, first run, zero strict and zero fuzzy hits",
+   "population": "7a first run, one root, 2026-09-21 to 2026-10-14",
+   "date": "2026-10-22",
+   "artifact": "audits/2026-10-14-brief-usage.md",
+   "locator": "ctrl_past    pairs=   74347  strict=    0 (  0.00/10k)  fuzzy=    0",
+   "commit": "f813bb1",
+   "superseded_by": null,
+   "note": "added 2026-11-06 after Codex and Kimi review"
+  },
+  {
+   "id": "7a-rerun-one-root",
+   "value": "1,029",
+   "what": "messages, same window, one root, rerun the day of the archive-aware run",
+   "population": "7a rerun 2026-09-21 to 2026-10-15, one root",
+   "date": "2026-10-22",
+   "artifact": "audits/2026-10-14-brief-usage.md",
+   "locator": "| one root, rerun today | 5 | 1,029 |",
+   "commit": "f813bb1",
+   "superseded_by": null,
+   "note": "added 2026-11-06: same-day comparison against 1,524 with three roots"
   }
  ]
 }
