@@ -1,0 +1,73 @@
+{
+ "snapshot": {
+  "name": "daily-main-main-20261106030002-3269917-a12b890e65d84fb38d099684c2f802bd.db.gz",
+  "sha256": "14f5000a1b4dfe6cd0a0f78e57c0295d52d39049ebeaed1fc707a961af8dac4c"
+ },
+ "size": {
+  "entities": 15620,
+  "relations": 17694,
+  "relations_with_evidence": 17692,
+  "relations_with_live_evidence": 17667
+ },
+ "predicates": {
+  "distinct_relation_type": 8359,
+  "hapax_types": 6130,
+  "hapax_type_share": 0.7333,
+  "relations_with_hapax_type": 6130,
+  "relations_with_hapax_type_share": 0.3464,
+  "top10_type_relation_share": 0.1451
+ },
+ "relation_reason": {
+  "mentions": 8736,
+  "unknown": 5938,
+  "depends_on": 2513,
+  "derived_from": 257,
+  "opposes": 150,
+  "replaces": 54,
+  "extends": 46
+ },
+ "evidence_bucket": {
+  "relations": {
+   "document vault": 14592,
+   "workspace documents": 2165,
+   "daily notes": 738,
+   "other": 160,
+   "distilled sessions": 8,
+   "entity files": 4
+  },
+  "share": {
+   "document vault": 0.8259,
+   "workspace documents": 0.1225,
+   "daily notes": 0.0418,
+   "other": 0.0091,
+   "distilled sessions": 0.0005,
+   "entity files": 0.0002
+  },
+  "buckets": [
+   "document vault",
+   "entity files",
+   "daily notes",
+   "distilled sessions",
+   "workspace documents",
+   "other"
+  ]
+ },
+ "created_month": {
+  "2026-05": 202,
+  "2026-06": 21,
+  "2026-07": 17452,
+  "2026-08": 8,
+  "2026-09": 4,
+  "2026-10": 1,
+  "2026-11": 6
+ },
+ "created_since_2026_09_01": 11,
+ "extraction_method_null": 17694,
+ "extraction_method_null_share": 1.0,
+ "confidence_values": {
+  "0.80": 17682,
+  "0.70": 7,
+  "0.60": 5
+ },
+ "superseded": 0
+}

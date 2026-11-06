@@ -133,11 +133,23 @@ cobertura: 118 dos 145 não alcançados terminaram na semana de 23/08, antes da 
 do destilador em 08/09, um backlog que o cap de 50 deixou sair do lookback; desde 20/09 ele registrou
 65 e perdeu 6. Das 47 puladas por < 3 mensagens, 40 têm 2 e são invocações de tarefa por script
 (99,2% do texto é prompt): a regra está certa. Nota corrigida (proveniência 35 números, 0 falhas).
-Não há mudança de agenda a propor; o único risco é um novo backlog depois de uma pane, e o remédio
-(ordem de processamento ou cap maior só quando a lista enche) fica como item, sem urgência.
-Próximo no D: passe de estilo final e depósito, decisão do Toto.
-PR em aberto: correção da nota do D · branch `paper-d-note-fix`
-Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-d-note-fix`
+Não há mudança de agenda a propor; o único risco é um novo backlog depois de uma pane (remédio
+aplicado em 06/11, abaixo).
+Em 06/11 à tarde, com o ok do Toto («pode segue e apaga», «faca de 4 a 7»): referências do A
+conferidas (#662: Zobel 1998 e Gienapp 2026 reescritos). D: passe final e pacote de depósito
+(#663), com uma frase corrigida (falhas por braço: C2 6 blocos, C2-cut 3, C0 0); o destilador roda
+em dois lugares, semanal aos domingos e diário no `end-of-day` com lookback de 1 dia, e a nota foi
+corrigida (#664, `DISTILLER-SCHEDULE-2026-11-06.json`). Destilador em produção: ordem da mais
+antiga para a mais nova e linha de backlog no log (host `db47dae0`); C2 em shadow ao lado dele,
+gravando bloco, C0 e C2 num arquivo privado no host, sem tocar o banco (host `ac642951`, protocolo
+`paper-d-c2-production/SHADOW-PROTOCOL.md`, ligado em 06/11 17:26 UTC, desliga sozinho em
+2027-01-11). Incidente causado por mim no mesmo trabalho: um `git stash` no repo do workspace da
+VPS separou os `.sqlite` de quatro agentes do que o gateway tinha aberto; restaurado do inode
+antigo, gateway reiniciado com o ok do Toto, `quick_check` ok nos cinco. B começou: censo
+estrutural sem LLM (`paper-b-kg/CENSUS-2026-11-06.json`), o grafo não cresce desde julho.
+Próximo no D: depósito, decisão do Toto (`deposit/deposit-note.py --plan` pronto, falta `PUB_DATE`).
+Próximo no B: decidir se a nota afirma fidelidade (amostra nova paga + adjudicação humana) ou só
+estrutura.
 Último resultado dos gates: 2026-11-06 · `d-test.py` 50 verificações, 0 falhas (cada recusa testada
 com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 89 números, 0 falhas
 (mutação: um número trocado no RESULTS reprova)
