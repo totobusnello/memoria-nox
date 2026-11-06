@@ -12,6 +12,7 @@ numbers spread across audits.
 |---|---|
 | `b-census.py` | structural census, no model call, read-only on a snapshot; counts and shares only, evidence sources in fixed buckets, never raw paths |
 | `CENSUS-2026-11-06.json` | the census on the daily snapshot of 2026-11-06 03:00 UTC (name and sha256 inside) |
+| `PREREGISTRATION.md` | DRAFT, not fixed: faithfulness on a fresh uniform sample of 300, two judge families, the October principles fixed in advance, blind human adjudication; fixed only by the tag `paper-b-prereg-v1.0` |
 
 ## What the census of 2026-11-06 says
 
