@@ -43,7 +43,7 @@ FILES = [PDF, MD, CODE, "SHA256SUMS"]
 DESC = HERE / f"description-note-v{VERSION}.html"
 DRAFT_ID = HERE / f".draft-id-note-v{VERSION}"
 PUB_DATE = os.environ.get("PUB_DATE", "")
-TITLE = "Delivered, not quoted: no textual trace of a pushed memory brief in agent replies"
+TITLE = "No textual match to a pushed memory brief in agent replies"
 REPO_COMMIT = os.environ.get("NOTE_COMMIT", "")
 # paths relative to the repository root: the note, its provenance, and every source it cites
 CODE_FILES = ["paper-c-pushed-memory/NOTE.md", "paper-c-pushed-memory/PROVENANCE.json",
@@ -53,7 +53,7 @@ CODE_FILES = ["paper-c-pushed-memory/NOTE.md", "paper-c-pushed-memory/PROVENANCE
               "audits/2026-10-21-r1-recency-relevance.md", "audits/2026-10-21-r1-recency-relevance.py",
               "audits/2026-10-21-r1-positive-control.py",
               "audits/2026-10-15-7b-positive-control.md", "specs/2026-10-14-7b-brief-action-probe-design.md",
-              "eval/brief-action-probe/scripts/score_control.py",
+              "eval/brief-action-probe/scripts/score_control.py", "eval/brief-action-probe/probe/control.py",
               "audits/2026-10-23-item7-consumidor-construido.md"]
 SUBJECTS = ["agent memory", "memory brief", "system prompt", "positive control",
             "null result", "LLM agents", "data note"]
@@ -62,8 +62,9 @@ STATUS_OLD = 'Status: working draft, not deposited, not peer reviewed. A data no
 
 def status_new(doi):
     return (f"Version {VERSION} ({PUB_DATE}), doi:{doi}. Not peer reviewed. A data note, dated: every "
-            "measurement below covers 2026-09-21 to 2026-10-23 on one deployment. Every number has an "
-            "entry in `PROVENANCE.json`, in the code-and-data archive of this record.")
+            "measurement below covers 2026-09-21 to 2026-10-23 on one deployment. Every result with a "
+            "decimal, a percentage or a thousands separator has an entry in `PROVENANCE.json`, in the "
+            "code-and-data archive of this record.")
 
 
 def metadata():
