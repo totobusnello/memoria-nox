@@ -1,0 +1,16 @@
+{
+ "smoke": false,
+ "n": 60,
+ "agreement": 0.85,
+ "kappa": 0.6925,
+ "table": {
+  "yes_yes": 19,
+  "yes_no": 9,
+  "no_yes": 0,
+  "no_no": 32
+ },
+ "seed": 20261106,
+ "sheet_sha256": "511bf1eeaa73caf35a5eb5e1827706dc7d29c7519b654380d202faf68809d6f7",
+ "results_sha256": "f824abc4f77b25b1b82b6ac1f6bf68b36206a51d2ef2321cd3e6644ffa035552",
+ "questions_sha256": "422c4f8814b9ad033f3c63d9fc9538be8b7c70d405297129537b10add7db4a59"
+}
