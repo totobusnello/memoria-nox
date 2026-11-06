@@ -147,7 +147,11 @@ gravando bloco, C0 e C2 num arquivo privado no host, sem tocar o banco (host `ac
 VPS separou os `.sqlite` de quatro agentes do que o gateway tinha aberto; restaurado do inode
 antigo, gateway reiniciado com o ok do Toto, `quick_check` ok nos cinco. B começou: censo
 estrutural sem LLM (`paper-b-kg/CENSUS-2026-11-06.json`), o grafo não cresce desde julho.
-Próximo no D: depósito, decisão do Toto (`deposit/deposit-note.py --plan` pronto, falta `PUB_DATE`).
+Depósitos em 06/11 16:22: C, «No textual match to a pushed memory brief in agent replies»,
+doi:10.5281/zenodo.24017459, e D, doi:10.5281/zenodo.24017487, publicados pelo Toto depois do
+avoid-ai-writing (#666) e de vozes Codex e Kimi (1ª rodada, #668) e Codex (2ª rodada, #670). O
+ORCID passou a sair nos depósitos (#667), e a sessão site-labf pôs o ORCID nos 14 registros
+antigos sem ele e cadastrou 11 trabalhos no Scholar (6 → 17); C e D entram em seguida.
 Próximo no B: decidir se a nota afirma fidelidade (amostra nova paga + adjudicação humana) ou só
 estrutura.
 Último resultado dos gates: 2026-11-06 · `d-test.py` 50 verificações, 0 falhas (cada recusa testada
