@@ -1,0 +1,68 @@
+{
+ "note": "d-distiller-reach.py and d-two-message-profile.py on the archive host, 2026-11-06, live database read-only. Window 2026-08-15 to 2026-10-30, production's input rule. Weeks run Sunday to Saturday. The distiller's session address was fixed on 2026-09-08 (host commits 52a6335d, 0c2a0aa8); its first run after that was 2026-09-13.",
+ "eligible": 245,
+ "logged": 100,
+ "logged_sent": 27,
+ "by_week_of_last_event": {
+  "2026-08-23": {
+   "logged": 3,
+   "never_logged": 118
+  },
+  "2026-08-30": {
+   "logged": 5,
+   "never_logged": 10
+  },
+  "2026-09-06": {
+   "logged": 22,
+   "never_logged": 2
+  },
+  "2026-09-13": {
+   "logged": 5,
+   "never_logged": 9
+  },
+  "2026-09-20": {
+   "logged": 40,
+   "never_logged": 3
+  },
+  "2026-09-27": {
+   "logged": 2
+  },
+  "2026-10-04": {
+   "logged": 6
+  },
+  "2026-10-11": {
+   "logged": 3,
+   "never_logged": 1
+  },
+  "2026-10-18": {
+   "logged": 10,
+   "never_logged": 2
+  },
+  "2026-10-25": {
+   "logged": 4
+  }
+ },
+ "since_2026-09-20_logged": {
+  "sent | no_cron_prompt": 9,
+  "sent | with_cron_prompt": 9,
+  "skipped_lt3 | logged_message_count | 0": 4,
+  "skipped_lt3 | logged_message_count | 1": 3,
+  "skipped_lt3 | logged_message_count | 2": 40,
+  "skipped_lt3 | no_cron_prompt": 40,
+  "skipped_lt3 | with_cron_prompt": 7
+ },
+ "two_message_sessions_since_2026-09-20": {
+  "sessions": 40,
+  "user_chars_median": 7215.0,
+  "assistant_chars_median": 72.0,
+  "user_share_of_chars": 0.992,
+  "first_user_text": {
+   "other": 39,
+   "starts_with_bracket": 1
+  },
+  "dirs": {
+   "-root--openclaw-workspace-agents-forge": 39,
+   "-root--openclaw-workspace": 1
+  }
+ }
+}

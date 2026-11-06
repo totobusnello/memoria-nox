@@ -30,6 +30,7 @@ replay shows an effect and a product decision needs it.
 | `FIDELITY-DIAGNOSIS-2026-11-06.json` | its output: 82% of V's input on the sent sessions (301,441 of 367,003 chars) is `[cron:` prompts, which production drops before distilling; 138 of 255 primary questions cite only such prompts |
 | `d-frame-census-v11.py`, `FRAME-CENSUS-V11-2026-11-06.json` | read-only census of the frame under production's input rule, for a possible v1.1: 223 eligible sessions outside v1.0's sample, 19 of them sent to the model by production |
 | `DISTILL-LOG-2026-11-06.json` | counts of the production distiller's eight weekly runs read from the host's maintenance log: sessions, ingested, deduplicated |
+| `d-distiller-reach.py`, `d-two-message-profile.py`, `DISTILLER-REACH-2026-11-06.json` | read-only, after the note's first draft: which eligible sessions the distiller logged, by week, and what the skipped two-message sessions contain; most of the unreached sessions are one backlog left before the 2026-09-08 address fix |
 | `NOTE.md` | the data note: the registered study ran in full and failed its fidelity control; the cause, what it exposed, and the distiller's coverage |
 | `PROVENANCE.json` | one entry per number printed in `NOTE.md`; `python3 tools/provenance.py --check paper-d-c2-production` |
 | `d-run.sh`, `d-run.py` | step 4: every arm, from the code of the tag; prints counts, cost and a hash |
