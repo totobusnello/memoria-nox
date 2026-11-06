@@ -185,6 +185,8 @@ def main():
         "V_units_vs_chunks_extracted": {"V_units": sum(s["units"]["V"] for s in S.values()),
                                         "chunks_extracted": sum(s["chunks_extracted"] for s in S.values()),
                                         "P_units": sum(s["units"]["P"] for s in S.values())},
+        "V_message_count_matches_log": {"sessions": len(S), "equal": sum(
+            s["visible_messages"] == s["message_count_log"] for s in S.values())},
         "generation": {"questions": qc["questions"], "drops": qc["drops"],
                        "sessions_used": qc["sessions_used"], "extension": qc["extension_sessions"]},
         "frame": {"counts": fc["counts"], "bands": fc["bands"]},

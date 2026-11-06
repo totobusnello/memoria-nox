@@ -337,6 +337,20 @@ def main():
         check(q3["sessions_used"] == 4, "no extension when the target is reached")
         gen.C.N_SESSIONS, gen.C.BLOCK, gen.C.TARGET_PRIMARY, gen.C.N_MAX = 80, 10, 232, 120
 
+        tiny = T / "tiny.jsonl"
+        tiny.write_text("\n".join(json.dumps(e) for e in [
+            {"type": "user", "timestamp": "2026-09-01T10:00:00Z", "message": {"role": "user", "content": "x" * 4000}},
+            {"type": "assistant", "timestamp": "2026-09-01T10:01:00Z",
+             "message": {"role": "assistant", "content": [{"type": "text", "text": "HEARTBEAT_OK"}]}},
+            {"type": "assistant", "timestamp": "2026-09-01T10:02:00Z",
+             "message": {"role": "assistant", "content": [{"type": "tool_use", "id": "t"}]}},
+            {"type": "assistant", "timestamp": "2026-09-01T10:03:00Z",
+             "message": {"role": "assistant", "content": [{"type": "text", "text": "resposta longa o bastante"}]}},
+            {"type": "user", "timestamp": "2026-09-01T11:00:00Z", "message": {"role": "user", "content": "depois"}}]))
+        st = gen.C.prod_messages(tiny)
+        check(len(st) == 3 and gen.C.visible_count(st, "2026-09-01 10:30:00") == 2,
+              "production's message count: heartbeat and tool-only events dropped, prefix by processed_at")
+
         print("4. run")
         run = patch(load("drun_t", HERE / "d-run.py"))
         rc, out = call(run, "--repo", str(HERE.parent), "--private", str(P), "--smoke")

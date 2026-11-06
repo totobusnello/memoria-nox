@@ -17,8 +17,8 @@ Arms (§4), all over the same questions:
   C0, C2  every unit distilled under that criterion from the session's complete prose
   C2-cut  C2 on the prose with every evidence region of the session's questions removed
   P       the units production stored for the session (freeze-day snapshot)
-  V       C0 on the visible prefix (turns up to processed_at); a prefix of fewer than 3 turns
-          gets no unit, production's rule for sessions with fewer than 3 messages
+  V       C0 on the visible prefix (turns up to processed_at); a prefix in which production's own
+          parser counts fewer than 3 messages gets no unit (its rule, session-distill.ts)
   C0-cf, C2-cf  §5.3: the session rewritten with the reference's digit run altered; checked by
           string match, not judged
 Reader R0 and both judges on every row of A, C0, C2, C2-cut, P and V. Every call is cached in
@@ -111,12 +111,13 @@ def main():
         ts = C.turns(F / "sessions" / f"{u}.jsonl", S)
         full, spans = C.layout(ts)
         vis = C.visible_prefix(ts, prod[u]["processed_at"])
+        nmsg = C.visible_count(C.prod_messages(F / "sessions" / f"{u}.jsonl"), prod[u]["processed_at"])
         cut = C.cut_regions(ts, spans, [(q["ev_lo"], q["ev_hi"]) for q in qq])
         sess[u] = {"ts": ts, "full": full, "date": qq[0]["date"],
                    "need": {"C0": ("C0", blocks_for(ts)), "C2": ("C2", blocks_for(ts)),
                             "C2-cut": ("C2", blocks_for(cut)),
-                            "V": ("C0", blocks_for(vis) if len(vis) >= 3 else [])},
-                   "visible_turns": len(vis), "turns": len(ts)}
+                            "V": ("C0", blocks_for(vis) if nmsg >= 3 else [])},
+                   "visible_turns": len(vis), "turns": len(ts), "visible_messages": nmsg}
     elig = sorted((q for q in qs if q["set"] == "primary" and C.cf_run(q["ref"], q["citations"])),
                   key=lambda q: q["qid"])
     cf = random.Random(C.SEED).sample(elig, min(CF_MAX, len(elig)))
@@ -181,6 +182,8 @@ def main():
                                 for arm in ("C0", "C2", "C2-cut", "V")} | {"P": len(pu)},
                       "blocks": {arm: len(s["need"][arm][1]) for arm in ("C0", "C2", "C2-cut", "V")},
                       "failed_blocks": {arm: failed(*s["need"][arm]) for arm in ("C0", "C2", "C2-cut", "V")},
+                      "visible_messages": s["visible_messages"],
+                      "message_count_log": prod[u]["message_count"],
                       "chunks_extracted": prod[u]["chunks_extracted"]}
 
     def row(q, arm):

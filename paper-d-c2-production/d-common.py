@@ -133,6 +133,50 @@ def visible_prefix(ts, processed_at):
     return list(ts)
 
 
+HEARTBEAT = re.compile(r"^heartbeat[_ ]ok\b", re.I)
+
+
+def prod_messages(path):
+    """Timestamps of the messages production's distiller counts, extractMessages() of
+    src/session-distill.ts: events with a message, type message/user/assistant, role user or
+    assistant, non-empty text (a string, or the text parts joined), not heartbeat noise. Its rule
+    "fewer than 3 messages, never distilled" is applied on this count, not on cleaned turns."""
+    out = []
+    with open(path, encoding="utf-8", errors="replace") as f:
+        for line in f:
+            if not line.strip():
+                continue
+            try:
+                e = json.loads(line)
+            except Exception:
+                continue
+            m = e.get("message") if isinstance(e, dict) else None
+            if not m or e.get("type") not in ("message", "user", "assistant"):
+                continue
+            if not isinstance(m, dict) or m.get("role") not in ("user", "assistant"):
+                continue
+            c = m.get("content")
+            if isinstance(c, str):
+                text = c.strip()
+            elif isinstance(c, list):
+                text = "\n".join(x["text"] for x in c if isinstance(x, dict) and x.get("type") == "text"
+                                 and x.get("text")).strip()
+            else:
+                text = ""
+            if not text or text.startswith(("[cron:", "HEARTBEAT", "The conversation history before this point")) \
+                    or len(text) < 5 or HEARTBEAT.match(text):
+                continue
+            out.append(norm_ts(e.get("timestamp")))
+    return out
+
+
+def visible_count(stamps, processed_at):
+    for i, t in enumerate(stamps):
+        if t and t > processed_at:
+            return i
+    return len(stamps)
+
+
 DIGITS = re.compile(r"\d+")
 
 
