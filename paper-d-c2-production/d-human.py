@@ -36,12 +36,12 @@ def ws(t):
 
 
 def load(a):
+    if a.n != N and not a.smoke:
+        sys.exit(f"refusing: the registered sample is {N} rows; --n {a.n} needs --smoke")
     P = C.private(a.private)
     res = json.loads((P / "run" / "results.json").read_text(encoding="utf-8"))
     if res["meta"]["smoke"] is not bool(a.smoke):
         sys.exit(f"refusing: the results say smoke={res['meta']['smoke']}")
-    if a.n != N and not a.smoke:
-        sys.exit(f"refusing: the registered sample is {N} rows; --n {a.n} needs --smoke")
     qs = {q["qid"]: q for q in map(json.loads, open(P / "questions.jsonl", encoding="utf-8"))}
     rows = {(r["qid"], r["arm"]): r for r in res["rows"]}
     pairs = sorted(k for k in rows if k[1] in ("C0", "C2") and qs[k[0]]["set"] == "primary")

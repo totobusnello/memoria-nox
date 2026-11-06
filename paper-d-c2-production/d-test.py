@@ -15,7 +15,7 @@ counterfactual, visible prefix, serving, the human sheet, the order checks and t
   2. freeze `run` with ssh and scp shimmed to local commands (smoke, HEAD archive)
   3. generate (smoke): validation drops by reason; the extension rule with patched sizes
   4. run (smoke): estimate without --yes; every arm and the counterfactual; C2-cut loses the fact
-  5. human make / commit (smoke, n 8); a changed answer in the sheet is refused
+  5. human make / commit (smoke, n 20); a changed answer in the sheet is refused
   6. read (smoke): controls, hypotheses, descriptives
   7. the order of the public history, in a scratch repository with a local origin: the good
      order passes; a commitment written twice, one out of order, and one at the tag are refused
@@ -370,9 +370,9 @@ def main():
         print("5. human sample")
         hum = load("dhum_t", HERE / "d-human.py")
         H = [sys.executable, "-I", str(HERE / "d-human.py")]
-        r = subprocess.run(H + ["make", "--private", str(P), "--n", "8"], capture_output=True, text=True)
+        r = subprocess.run(H + ["make", "--private", str(P), "--n", "20"], capture_output=True, text=True)
         check(r.returncode != 0 and "--smoke" in r.stderr, "n other than 60 needs --smoke")
-        r = subprocess.run(H + ["make", "--private", str(P), "--n", "8", "--smoke"], capture_output=True, text=True)
+        r = subprocess.run(H + ["make", "--private", str(P), "--n", "20", "--smoke"], capture_output=True, text=True)
         check(r.returncode == 0, f"sheet made ({r.stderr[-160:]})")
         sheet = (P / "human-sample.csv").read_text()
         head = next(csv.reader(io.StringIO(sheet)))
@@ -388,10 +388,10 @@ def main():
         buf2 = io.StringIO()
         csv.writer(buf2).writerows(rows)
         (P / "human-sample.csv").write_text(buf2.getvalue())
-        r = subprocess.run(H + ["commit", "--private", str(P), "--n", "8", "--smoke"], capture_output=True, text=True)
+        r = subprocess.run(H + ["commit", "--private", str(P), "--n", "20", "--smoke"], capture_output=True, text=True)
         check(r.returncode != 0 and "texts" in r.stderr, "an edited answer in the sheet is refused")
         (P / "human-sample.csv").write_text(good)
-        r = subprocess.run(H + ["commit", "--private", str(P), "--n", "8", "--smoke"], capture_output=True, text=True)
+        r = subprocess.run(H + ["commit", "--private", str(P), "--n", "20", "--smoke"], capture_output=True, text=True)
         hc = json.loads((P / "HUMAN-COMMITMENT.json").read_text()) if r.returncode == 0 else {}
         check(r.returncode == 0 and hc.get("kappa") == 1.0, f"commit; human = judge here, kappa {hc.get('kappa')}")
 
@@ -432,11 +432,11 @@ def order_tests(T, C):
     d = repo / C.D
     d.mkdir()
 
-    def commit(name, body="{}"):
+    def commit(name, body="{}", to="main"):
         (d / name).write_text(body)
         g(repo, "add", str(d / name))
         g(repo, "commit", "-q", "--no-verify", "-m", name)
-        g(repo, "push", "-q", "origin", "HEAD:main")
+        g(repo, "push", "-q", "origin", f"HEAD:{to}")
         return g(repo, "rev-parse", "HEAD").stdout.strip()
 
     commit("PREREGISTRATION.md", "x")
@@ -465,8 +465,7 @@ def order_tests(T, C):
     tagc = g(repo, "rev-parse", f"{C.TAG}^{{commit}}").stdout.strip()
     check(refuses(lambda: C.ordered(repo, [("FREEZE", tagc)]), "own commit"), "a commitment at the tag is refused")
     g(repo, "checkout", "-q", "-b", "side", tagc)
-    s = commit("FREEZE-COMMITMENT.json", '{"a": 3}')
-    g(repo, "push", "-q", "origin", "HEAD:side")
+    s = commit("FREEZE-COMMITMENT.json", '{"a": 3}', to="side")
     check(refuses(lambda: C.ordered(repo, [("FREEZE", s)]), "not on origin/main"),
           "a commitment off origin/main is refused")
 
