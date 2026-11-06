@@ -313,9 +313,7 @@ does not, on the first daily snapshot of 2026-11-18. It is registered and not ye
 
 ## 5. Related work
 
-Incomplete judgments are an old problem in test-collection evaluation. Zobel (1998) showed how
-pooled collections under-count relevant documents for systems outside the pool, and measures such
-as bpref (Buckley and Voorhees, 2004) and condensed lists (Sakai, 2007) were proposed so that an
+Incomplete judgments are an old problem in test-collection evaluation. Zobel (1998) showed that pooled collections leave many relevant documents unjudged, so recall is overestimated, although in his leave-one-out test the relative ranking of systems held up. Measures such as bpref (Buckley and Voorhees, 2004) and condensed lists (Sakai, 2007) were proposed so that an
 unjudged document is not silently a miss. Our second finding is the same problem in a setting where the
 "pool" is one system and the gold was found by an LLM. nDCG (Järvelin and Kekäläinen, 2002)
 normalises by an ideal ranking, and our fourth finding is a reminder that the ideal has to be built from what is
@@ -324,8 +322,7 @@ known to be relevant, not from what was returned.
 LLMs are now widely used as relevance assessors. Thomas et al. (SIGIR 2024) found LLM labels close
 to searcher preferences, with LLM "relevant" verdicts more reliable than "not relevant" ones.
 Takehi, Voorhees, Sakai and Soboroff (SIGIR 2025) study when an LLM should assist human assessment
-rather than replace it. Gienapp et al. (SIGIR 2026) point out that a model used as a judge can also
-be used as a ranker, so an LLM may confirm its own ranking decisions, and Keller et al. (SIGIR 2026)
+rather than replace it. Gienapp et al. (SIGIR 2026) take up the criticism that the same model can be both ranker and judge, so an LLM may confirm its own ranking decisions, and propose topic-specific classifiers as judges instead; Keller et al. (SIGIR 2026)
 show that formalising the information need changes LLM judgments, including their bias toward
 positive labels. Our human sample agrees with Thomas et al. in direction on this corpus: the judge
 said "no" where the person said "yes" far more often than the reverse.
@@ -377,7 +374,7 @@ unless each one appears here exactly as generated.
 - Järvelin, K. and Kekäläinen, J. (2002). Cumulated gain-based evaluation of IR techniques. ACM TOIS.
 - Keller, J., Fröbe, M., Engelmann, B., Haak, F., Breuer, T., Larsen, B., et al. (2026).
   Formalized information needs improve large-language-model relevance judgments. SIGIR.
-- Sakai, T. (2007). Alternatives to bpref. SIGIR.
+- Sakai, T. (2007). Alternatives to Bpref. SIGIR.
 - Takehi, R., Voorhees, E. M., Sakai, T. and Soboroff, I. (2025). LLM-assisted relevance
   assessments: when should we ask LLMs for help? SIGIR.
 - Thomas, P., Spielman, S., Craswell, N. and Mitra, B. (2024). Large language models can accurately
