@@ -108,6 +108,14 @@ def make_world(T):
         sub = "agent-a" if i % 2 else "agent-b"
         (arc / sub / f"{uuid(i)}.jsonl").write_text("\n".join(lines) + "\n")
         sessions[i] = (n, day, logged)
+    # session 18: two long messages, processed when only the first existed (production's rule:
+    # fewer than 3 messages, never sent to the model)
+    big = lambda k0: " ".join(sentence(18, k) for k in range(k0, k0 + 40))
+    (arc / "agent-b" / f"{uuid(18)}.jsonl").write_text("\n".join(json.dumps(e) for e in [
+        {"type": "user", "timestamp": "2026-09-20T10:00:00.000Z", "message": {"role": "user", "content": big(0)}},
+        {"type": "assistant", "timestamp": "2026-09-20T10:05:00.000Z",
+         "message": {"role": "assistant", "content": [{"type": "text", "text": big(40)}]}}]) + "\n")
+    sessions[18] = (2, "2026-09-20", True)
     # a smaller duplicate copy of session 6 in the other directory: the larger one is kept
     (arc / "agent-a" / f"{uuid(6)}.jsonl").write_text(
         (arc / "agent-b" / f"{uuid(6)}.jsonl").read_text().split("\n", 1)[0] + "\n")
@@ -239,7 +247,7 @@ def main():
         counts = json.loads(r.stdout)["counts"] if r.returncode == 0 else {}
         check(counts.get("excluded_spent") == 1 and counts.get("excluded_listed") == 1,
               f"exclusions counted {counts}")
-        check(counts.get("eligible_never_logged") == 1 and counts.get("frame") == 12, "frame = eligible and logged")
+        check(counts.get("eligible_never_logged") == 1 and counts.get("frame") == 13, "frame = eligible and logged")
         check(not (P / "snapshot.db").exists(), "the decompressed snapshot is deleted")
         prod = json.loads((F / "production.json").read_text())
         check(prod[uuid(7)]["processed_at"].endswith("23:59:59") and prod[uuid(7)]["chunks_extracted"] == 3,
@@ -256,7 +264,7 @@ def main():
         r = subprocess.run(cm + ["--out", str(P / "FREEZE-COMMITMENT.json")], capture_output=True, text=True)
         check(r.returncode == 0 and "equal" in r.stdout, f"commit writes, deployed C0 equal ({r.stderr[-160:]})")
         fc = json.loads((P / "FREEZE-COMMITMENT.json").read_text())
-        check(fc["deployed"]["distill_system_equals_c0"] and fc["copied"] == 12, "commitment content")
+        check(fc["deployed"]["distill_system_equals_c0"] and fc["copied"] == 13, "commitment content")
         s0 = F / "sessions" / f"{fr['order'][0]['uuid']}.jsonl"
         keep = s0.read_bytes()
         s0.write_bytes(keep + b"\n")
@@ -369,6 +377,9 @@ def main():
               sum(r["has_altered"] for r in cf) > 0, f"counterfactual: {len(cf)} rows, altered number served")
         S = res["sessions"]
         check(any(s["visible_turns"] < s["turns"] for s in S.values()), "V reads a strict prefix where processed_at is earlier")
+        s18 = S.get(uuid(18))
+        check(s18 is not None and s18["visible_messages"] < 3 and s18["units"]["V"] == 0 and s18["units"]["C0"] > 0,
+              "a session production never sent to the model: V empty by rule, C0 distils its full prose")
         rc2, _ = call(run, "--repo", str(HERE.parent), "--private", str(P), "--smoke", "--yes")
         res2 = json.loads((P / "run" / "results.json").read_text())
         check(res2["meta"]["calls"]["cached"] > 0 and res2["meta"]["usd"] == 0, "a rerun is served from the cache")
@@ -415,6 +426,8 @@ def main():
         rj = json.loads((P / "read" / "reading.json").read_text())
         check(rc == 0 and "CONTROLS" in out and set(rj["controls"]) ==
               {"ceiling", "positive", "counterfactual", "fidelity"}, "controls read first")
+        fid = rj["controls"]["fidelity"]
+        check(fid["sessions_sent"] == len(res["sessions"]) - 1, f"fidelity read only where production distilled ({fid['sessions_sent']})")
         h1 = rj["hypotheses"]["H-D1"]["j1"]
         check(h1["estimate"] > 0 and h1["ci95"][0] <= h1["estimate"] <= h1["ci95"][1], f"H-D1 {h1}")
         check(rj["interpret"] == all(v["pass"] is not False for v in rj["controls"].values()),

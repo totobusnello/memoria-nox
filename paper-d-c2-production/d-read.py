@@ -123,6 +123,12 @@ def main():
         K[r["arm"]][r["qid"]] = int(bool(r["j1_contradiz_bin"]))
     sets = {s: sorted(q for q in qs if qs[q]["set"] == s) for s in ("primary", "secondary")}
     prim = sets["primary"]
+    S = res["sessions"]
+    # fidelity is read where production sent the session to the model: a prefix with fewer than 3
+    # of its messages is never distilled, so P and V are empty there by rule and would agree
+    # without measuring anything (CLAUDE.md rule 9: a guard that needs the missing data)
+    sent = {u for u, s in S.items() if s["visible_messages"] >= 3}
+    prim_sent = [q for q in prim if qs[q]["uuid"] in sent]
 
     # ---------------------------------------------------------------- §5.1 controls, first
     cf = res["counterfactual"]
@@ -134,7 +140,9 @@ def main():
         "counterfactual": {"eligible": res["meta"]["cf_eligible"], "rows": n_cf,
                            "original": orig, "altered": alt,
                            "original_rate": round(orig / n_cf, 4) if n_cf else None},
-        "fidelity": {"P": acc(prim, Y["j1"], "P"), "V": acc(prim, Y["j1"], "V")},
+        "fidelity": {"P": acc(prim_sent, Y["j1"], "P"), "V": acc(prim_sent, Y["j1"], "V"),
+                     "sessions_sent": len(sent), "questions": len(prim_sent),
+                     "all_sessions": {"P": acc(prim, Y["j1"], "P"), "V": acc(prim, Y["j1"], "V")}},
     }
     ctl["ceiling"]["pass"] = ctl["ceiling"]["value"] is not None and ctl["ceiling"]["value"] >= GATES["ceiling"]
     ctl["positive"]["pass"] = ctl["positive"]["value"] is not None and ctl["positive"]["value"] <= GATES["positive"]
@@ -162,7 +170,6 @@ def main():
         hyp[name] = h
 
     # ---------------------------------------------------------------- §5.5 descriptives
-    S = res["sessions"]
     zero_prod = {u for u, s in S.items() if s["units"]["P"] == 0}
     band = lambda u: "<50k" if S[u]["prose_chars"] < 50_000 else "50k-200k" if S[u]["prose_chars"] < 200_000 else ">=200k"
     desc = {
@@ -174,8 +181,12 @@ def main():
                            for c in sorted({qs[q]["category"] for q in prim})},
         "by_band_j1": {b: contrast([q for q in prim if band(qs[q]["uuid"]) == b], qs, Y["j1"])
                        for b in sorted({band(qs[q]["uuid"]) for q in prim})},
-        "zero_production_units_j1": {"sessions": len(zero_prod),
-                                     "effect": contrast([q for q in prim if qs[q]["uuid"] in zero_prod], qs, Y["j1"])},
+        "zero_production_units_j1": {
+            "never_sent": {"sessions": len(zero_prod - sent),
+                           "effect": contrast([q for q in prim if qs[q]["uuid"] in zero_prod - sent], qs, Y["j1"])},
+            "sent_none_kept": {"sessions": len(zero_prod & sent),
+                               "effect": contrast([q for q in prim if qs[q]["uuid"] in zero_prod & sent], qs, Y["j1"])}},
+        "sent_to_model_j1": {"sessions": len(sent), "effect": contrast(prim_sent, qs, Y["j1"])},
         "units_per_session": {arm: {"mean": round(statistics.mean(s["units"][arm] for s in S.values()), 2),
                                     "median": statistics.median(s["units"][arm] for s in S.values())}
                               for arm in ("C0", "C2", "C2-cut", "P", "V")},
