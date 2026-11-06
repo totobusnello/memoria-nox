@@ -106,10 +106,11 @@ não as 634 do pool do smoke; o censo de 06/11 mostrou que 287 das 288 sem unida
 mandadas ao modelo (menos de 3 mensagens quando o destilador as viu), o que restringiu o controle
 de fidelidade às sessões que produção destilou. Os scripts (`d-freeze.py`, `d-generate.py`,
 `d-run.sh`, `d-human.py`, `d-read.sh`, mais `d-common.py`) estão escritos e passam o teste offline
-`d-test.py` (50 verificações, sem rede). Próximo no D: vozes se o Toto pedir; tag
-`paper-d-prereg-v1.0` só com o ok dele, e o congelamento no mesmo dia UTC.
-PR em aberto: o dos scripts do D · branch `paper-d-scripts`
-Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-d-scripts`
+`d-test.py` (50 verificações, sem rede). Em 06/11 o Toto manteve o enquadramento de 414 e escolheu a
+tag sem vozes. Próximo no D: tag `paper-d-prereg-v1.0`, congelamento no mesmo dia UTC (depois do
+snapshot das 03:00 UTC), `FREEZE-COMMITMENT.json` publicado; as perguntas só com o ok dele.
+PR em aberto: preparação da tag do D · branch `paper-d-tag-prep`
+Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-d-tag-prep`
 Último resultado dos gates: 2026-11-06 · `d-test.py` 50 verificações, 0 falhas (cada recusa testada
 com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 89 números, 0 falhas
 (mutação: um número trocado no RESULTS reprova)
@@ -150,6 +151,8 @@ com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 
 | 2026-11-05 | D: perguntas pelo critério do C0 (classes do C2 como secundário), redator glm-5.3; congela na data da tag, sessões de 15/08 a tag − 7 dias; leitor de produção; limiares teto ≥ 0,70, positivo ≤ 0,10, contrafactual ≤ 10%, fidelidade ±5 pp; smoke pago < US$ 1 | aprovação em bloco do Toto |
 | 2026-11-05 | D: 80 sessões (D4); teto do braço A lido sob o juiz 1, como no Paper 3 (D7) | smoke de 5 sessões: discordância C0 × C2 de 2 em 17, teto 0,765 no juiz 1 e 0,529 no juiz 2; escolha do Toto |
 | 2026-11-04 | Zenodo + labf.bio | precedente dos Papers 1–3 |
+| 2026-11-06 | D: enquadramento fica nas 414 sessões registradas pelo destilador; as 127 que produção mandou ao modelo saem como descrição | Toto: «vamos seguir suas recomendacoes»; C0 e C2 leem a sessão inteira, então o contraste vale para as 287 que produção pulou, e restringir faria o sorteio de 80 consumir quase todas as 127 |
+| 2026-11-06 | D: tag `paper-d-prereg-v1.0` sem revisão adversarial antes | Toto escolheu «Tag hoje, sem vozes»; o pré-registro registra a ausência de revisão (§10) |
 
 ## Vozes
 
