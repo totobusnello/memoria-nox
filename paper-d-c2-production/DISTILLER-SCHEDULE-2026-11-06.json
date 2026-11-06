@@ -1,0 +1,75 @@
+{
+ "generated": "2026-11-06",
+ "window_processed_at": [
+  "2026-09-13",
+  "2026-11-06"
+ ],
+ "note": "session_distill_log rows by UTC hour of processed_at; weekday 0 = Sunday; sent = message_count >= 3",
+ "by_utc_hour": {
+  "01": {
+   "rows": 774,
+   "sent": 154,
+   "by_weekday": {
+    "0": 187,
+    "1": 41,
+    "2": 128,
+    "3": 78,
+    "4": 137,
+    "5": 116,
+    "6": 87
+   }
+  },
+  "23": {
+   "rows": 400,
+   "sent": 62,
+   "by_weekday": {
+    "0": 400
+   }
+  }
+ },
+ "gateway_jobs_calling_distill": [
+  {
+   "name": "nox-mem-session-distill",
+   "enabled": false,
+   "schedule": {
+    "kind": "cron",
+    "expr": "0 22 * * 6",
+    "tz": "America/Sao_Paulo"
+   },
+   "commands": [
+    "nox-mem session-distill sema"
+   ]
+  },
+  {
+   "name": "end-of-day",
+   "enabled": true,
+   "schedule": {
+    "kind": "cron",
+    "expr": "0 22 * * *",
+    "tz": "America/Sao_Paulo"
+   },
+   "commands": [
+    "nox-mem session-distill --lookback-days 1"
+   ]
+  },
+  {
+   "name": "cipher-weekly-wrapup-prep",
+   "enabled": true,
+   "schedule": {
+    "kind": "cron",
+    "expr": "20 3 * * 0",
+    "tz": "America/Sao_Paulo"
+   },
+   "commands": [
+    "nox-mem session-distill.",
+    "nox-mem session-distill. Respo"
+   ]
+  }
+ ],
+ "nightly_maintenance": {
+  "phase": "4, Sunday only (DOW 7)",
+  "command": [
+   "timeout 1800 node \"$NOXMEM_JS\" session-distill >> \"$LOG\" 2>&1 || fail \"Phase 4: session-distill TIMEOUT/ERRO (rc=$?) — seguindo\""
+  ]
+ }
+}

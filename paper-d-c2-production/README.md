@@ -31,6 +31,8 @@ replay shows an effect and a product decision needs it.
 | `d-frame-census-v11.py`, `FRAME-CENSUS-V11-2026-11-06.json` | read-only census of the frame under production's input rule, for a possible v1.1: 223 eligible sessions outside v1.0's sample, 19 of them sent to the model by production |
 | `DISTILL-LOG-2026-11-06.json` | counts of the production distiller's eight weekly runs read from the host's maintenance log: sessions, ingested, deduplicated |
 | `d-distiller-reach.py`, `d-two-message-profile.py`, `DISTILLER-REACH-2026-11-06.json` | read-only, after the note's first draft: which eligible sessions the distiller logged, by week, and what the skipped two-message sessions contain; most of the unreached sessions are one backlog left before the 2026-09-08 address fix |
+| `DISTILLER-SCHEDULE-2026-11-06.json` | read-only: the distiller's two callers (weekly Sunday run, 30-day lookback; daily end-of-day step, one-day lookback) and its log rows by UTC hour |
+| `SHADOW-PROTOCOL.md` | C2 in shadow beside the production distiller, from 2026-11-06: what is recorded on the host, bounds, switch; no analysis is fixed here |
 | `NOTE.md` | the data note: the registered study ran in full and failed its fidelity control; the cause, what it exposed, and the distiller's coverage |
 | `PROVENANCE.json` | one entry per number printed in `NOTE.md`; `python3 tools/provenance.py --check paper-d-c2-production` |
 | `pdf-build/build-note-pdf.sh` | the note's PDF, with Paper 3's preamble and layout check; runs the provenance gate first |

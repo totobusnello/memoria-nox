@@ -22,8 +22,7 @@ the result found the cause. Production's distiller drops the message that opens 
 (the job's prompt) before it distils; our replay did not. That prompt was 82% of the text our replay
 sent to the model, and 138 of the 255 primary questions cite only text inside it. A follow-up
 census under production's input rule found that the distiller sent few eligible sessions to its
-model (19 of 223 outside the sample), for two reasons that do not call for a change of settings: a
-backlog left by a fix of the distiller's session address, which its weekly cap never drained, and
+model (19 of 223 outside the sample), for two reasons that do not call for a change of settings: a backlog left by a fix of the distiller's session address, which neither its capped weekly run nor its one-day daily run drained, and
 a skip rule that correctly passes over scripted task invocations whose text is almost all prompt.
 The replay defect is a fact about our instrument; the low reach is mostly a one-time event.
 
@@ -108,9 +107,7 @@ model (8.5%).
 
 That figure overstates the gap, and splitting it by week shows why (`DISTILLER-REACH-2026-11-06.json`,
 over all 245 eligible sessions in the window, the 80 used included). Until 2026-09-08 the distiller
-read a session address that a migration had emptied; the fix ran first on 2026-09-13. The
-distiller runs once a week, on Sundays, takes at most 50 sessions per run and looks back 30 days,
-and every one of its eight logged runs started with a full list of 50. Of the 145 eligible sessions
+read a session address that a migration had emptied; the fix ran first on 2026-09-13. The distiller runs in two places (`DISTILLER-SCHEDULE-2026-11-06.json`): a weekly run on Sundays that looks back 30 days and takes at most 50 sessions, and a daily step of an agent's end-of-day job that looks back one day. Only the weekly run can reach a session more than a day old, and every one of its eight logged runs started with a full list of 50. Of the 145 eligible sessions
 it never logged, 118 ended in the single week of 2026-08-23, before the fix: a backlog that the cap
 let age out of the lookback. For sessions ending from 2026-09-20 on, it logged 65 and missed 6.
 
@@ -141,8 +138,7 @@ almost every eligible session and skips, by rule, the ones that are almost all p
 It does not claim that C2 is better or worse than C0 on production sessions; this study cannot say.
 It does not claim that the low reach is a standing property of the deployment. It does not claim
 that the sessions the rule skips hold nothing worth keeping; only that their text is almost all
-prompt. And a weekly cap that fills on every run would leave a new backlog behind the next outage,
-a property of the job's schedule and cap that holds under either criterion.
+prompt. And a weekly cap that fills on every run would leave a new backlog behind the next outage, a property of the job's schedule and cap that holds under either criterion. Since 2026-11-06, after these measurements, the distiller takes the oldest pending sessions first and logs how many it left for the next run.
 
 ## 8. Two things that transfer
 
