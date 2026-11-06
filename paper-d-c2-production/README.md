@@ -24,6 +24,7 @@ replay shows an effect and a product decision needs it.
 | `d-generate.py` | step 3: questions, validation, the extension rule, `QUESTIONS-COMMITMENT.json` |
 | `FREEZE-COMMITMENT.json` | step 2 output, public: window, seed, counts, and the sha256 of every frozen file |
 | `QUESTIONS-COMMITMENT.json` | step 3 output, public: counts, drops, and the sha256 of the questions, prompts, scripts and writer cache |
+| `HUMAN-COMMITMENT.json` | step 5 output, public: agreement and kappa of the blind human sample with judge 1, and the sha256 of the sheet, results and questions |
 | `d-run.sh`, `d-run.py` | step 4: every arm, from the code of the tag; prints counts, cost and a hash |
 | `d-human.py` | step 5: the blind human sample (`make`, `agree`, `commit`) |
 | `d-read.sh`, `d-read.py` | step 6: controls, H-D1, H-D2, descriptives; keyless |
