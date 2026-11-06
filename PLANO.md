@@ -117,9 +117,18 @@ glm-5.3; descartes 67 primárias e 16 secundárias (citação não literal é o 
 rodar o passo a passo»): US$ 0,73, 2.856 linhas de resposta + 60 contrafactuais, 7 blocos de
 destilação sem texto (6 no C2, 3 no C2-cut, 0 no C0; contados, não refeitos, §4). Amostra humana de
 60 avaliada por ele às cegas: concordância 0,850, kappa 0,692 com o juiz 1 (o juiz nunca aceitou o
-que ele recusou; recusou 9 que ele aceitou). Próximo no D: `d-read.sh`, sem custo.
-PR em aberto: compromisso humano do D · branch `paper-d-human`
-Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-d-human`
+que ele recusou; recusou 9 que ele aceitou). `HUMAN-COMMITMENT.json` publicado (`b0e740b`).
+Leitura em 06/11: **falha de instrumento**. Teto, positivo e contrafactual passam; a fidelidade
+reprova (P 0,248 × V 0,438 nas 30 sessões que produção mandou ao modelo), então H-D1 e H-D2 não
+são interpretados. Diagnóstico (`d-fidelity-diagnosis.py`, posterior ao resultado): produção
+descarta a mensagem que começa com `[cron:` (o prompt do job agendado) antes de destilar; o
+replay não descarta. Nas 30 sessões, 82% do texto de V é esse prompt (301 mil de 367 mil
+caracteres); sem ele, V teria 60 mil contra 66 mil de produção. E 68 das 80 sessões têm o prompt,
+com 138 das 255 perguntas primárias citando só ele: o D mediu, em boa parte, memória das
+instruções dos crons, que produção não destila por desenho. Próximo no D: decisão do Toto entre
+escrever a falha como nota ou pré-registrar uma v1.1 que replique a entrada de produção.
+PR em aberto: saídas da leitura e diagnóstico do D · branch `paper-d-reading`
+Worktrees abertas: `~/Claude-worktrees/memoria-nox/paper-d-reading`
 Último resultado dos gates: 2026-11-06 · `d-test.py` 50 verificações, 0 falhas (cada recusa testada
 com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 89 números, 0 falhas
 (mutação: um número trocado no RESULTS reprova)

@@ -1,0 +1,26 @@
+{
+ "sessions_used": 80,
+ "sessions_with_a_cron_prompt": 68,
+ "input_on_sessions_sent": {
+  "sessions_sent": 30,
+  "production_blocks": 48,
+  "production_chars": 66290,
+  "V_blocks": 76,
+  "V_chars": 367003,
+  "sessions_sent_with_a_cron_prompt": 28
+ },
+ "V_turns_on_sessions_sent": {
+  "V_cron_prompt_turns": 28,
+  "V_cron_prompt_chars": 301441,
+  "V_other_turns": 403,
+  "V_other_chars": 59759
+ },
+ "questions_by_citation_location": {
+  "primary:all_in_cron_prompt": 138,
+  "primary:mixed": 1,
+  "primary:none_in_cron_prompt": 116,
+  "secondary:all_in_cron_prompt": 107,
+  "secondary:mixed": 6,
+  "secondary:none_in_cron_prompt": 108
+ }
+}

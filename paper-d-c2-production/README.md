@@ -25,6 +25,9 @@ replay shows an effect and a product decision needs it.
 | `FREEZE-COMMITMENT.json` | step 2 output, public: window, seed, counts, and the sha256 of every frozen file |
 | `QUESTIONS-COMMITMENT.json` | step 3 output, public: counts, drops, and the sha256 of the questions, prompts, scripts and writer cache |
 | `HUMAN-COMMITMENT.json` | step 5 output, public: agreement and kappa of the blind human sample with judge 1, and the sha256 of the sheet, results and questions |
+| `READING-2026-11-06.json`, `READING-2026-11-06.txt` | step 6 output (`d-read.sh`), aggregates only: the fidelity control failed (P 0.248, V 0.438 on the 30 sessions production sent), so H-D1 and H-D2 are not interpreted |
+| `d-fidelity-diagnosis.py` | written after the reading, not registered: rebuilds the text production's distiller sent and compares it with arm V's; classifies each question by whether its citations sit in a scheduled job's prompt |
+| `FIDELITY-DIAGNOSIS-2026-11-06.json` | its output: 82% of V's input on the sent sessions (301,441 of 367,003 chars) is `[cron:` prompts, which production drops before distilling; 138 of 255 primary questions cite only such prompts |
 | `d-run.sh`, `d-run.py` | step 4: every arm, from the code of the tag; prints counts, cost and a hash |
 | `d-human.py` | step 5: the blind human sample (`make`, `agree`, `commit`) |
 | `d-read.sh`, `d-read.py` | step 6: controls, H-D1, H-D2, descriptives; keyless |
