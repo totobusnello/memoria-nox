@@ -53,8 +53,7 @@ production's C0, the two should answer the same questions about equally well.
 The draw took 80 sessions from a frame of 418. A writer model produced 255 primary questions
 (decisions, preferences, lessons, context) and 221 secondary ones (identifiers and passages) from
 windows of each session, each with a verbatim citation; 67 primary and 16 secondary facts were
-dropped by the registered validation. The model runs cost US$ 0.73. Seven distillation blocks
-returned no text, six under C2 and none under C0; they are counted, as registered, not redone.
+dropped by the registered validation. The model runs cost US$ 0.73. Some distillation calls returned no text. They cost the C2 arm six blocks and the C2-cut arm three (a block with nothing to cut is the same call in both arms), and C0 and V none; they are counted, as registered, not redone.
 
 The human grader marked 60 rows drawn at random from the C0 and C2 answers, without seeing the arm
 or the judge's verdict. Agreement with judge 1 was 0.850 and Cohen's kappa 0.692. In the 9
@@ -80,9 +79,7 @@ The replay calls the same model with the same prompt, the same generation settin
 code, and on the 30 sessions it produced 517 memory units where production stored 244. The 244
 equal the count production logged as extracted, so nothing was lost after extraction, and
 production's semantic deduplication removed between 0% and 15% of candidates per weekly run in
-its own log (`DISTILL-LOG-2026-11-06.json`). Neither explains a factor of two.
-
-The input does. Production's message parser skips any message whose text begins with `[cron:`,
+its own log (`DISTILL-LOG-2026-11-06.json`). Neither explains a factor of two. The difference is in the input. Production's message parser skips any message whose text begins with `[cron:`,
 which is how a scheduled job's prompt arrives in the transcript. Our replay built its input from
 the transcript's cleaned turns, which keep that prompt. Rebuilding, line by line, the text
 production's parser would have sent for the same 30 sessions (`d-fidelity-diagnosis.py`) gives
@@ -145,7 +142,7 @@ It does not claim that C2 is better or worse than C0 on production sessions; thi
 It does not claim that the low reach is a standing property of the deployment. It does not claim
 that the sessions the rule skips hold nothing worth keeping; only that their text is almost all
 prompt. And a weekly cap that fills on every run would leave a new backlog behind the next outage,
-which is a fact about the job, not about either criterion.
+a property of the job's schedule and cap that holds under either criterion.
 
 ## 8. Two things that transfer
 
