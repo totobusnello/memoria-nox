@@ -284,4 +284,8 @@ the result, with what was done and why. None turns a result that did not hold in
 
 ## 10. Review before fixing
 
-None yet.
+No adversarial review was run before the tag: on 2026-11-06 the author chose to fix the document
+without one. The scripts were tested offline only (`d-test.py`). Two decisions were taken that day
+on the draft as written: the frame stays at the 414 logged sessions, with the 127 that production
+sent to the model reported as a description (§5.5, §7); and the fidelity control is read on those
+127 only (§5.1, §9 item 8).
