@@ -1,0 +1,240 @@
+{
+ "B_F": {
+  "basis": "final label, all sampled rows",
+  "n": 300,
+  "rate": 0.9133,
+  "supported": 274,
+  "wilson95": [
+   0.876,
+   0.9402
+  ]
+ },
+ "commits": {
+  "FREEZE": "bb98fe6eaf8e5e92c006e8ecc043366230cf4b44",
+  "HUMAN": "c496e129f7bb4d20e8cab2ddd45ed665986dd2af",
+  "JUDGES": "ef017927b8011e3c842af1dcdd03339a10481cea",
+  "SHEET": "b8ee58a5655d8ee340928a79d4ff1deda27cab99"
+ },
+ "controls": {
+  "judge1": {
+   "kappa_vs_human_random": {
+    "below_limit": true,
+    "kappa": 0.1549,
+    "n": 60
+   },
+   "mismatched_evidence": {
+    "claimed": 0,
+    "n": 30,
+    "passes": true,
+    "rate": 0.0,
+    "verified": 0
+   },
+   "negative_citation": {
+    "passes": true,
+    "rate": 1.0,
+    "rejected": 255,
+    "tested": 255
+   },
+   "passes": true
+  },
+  "judge2": {
+   "kappa_vs_human_random": {
+    "below_limit": true,
+    "kappa": 0.1549,
+    "n": 60
+   },
+   "mismatched_evidence": {
+    "claimed": 0,
+    "n": 30,
+    "passes": true,
+    "rate": 0.0,
+    "verified": 0
+   },
+   "negative_citation": {
+    "passes": true,
+    "rate": 1.0,
+    "rejected": 214,
+    "tested": 214
+   },
+   "passes": true
+  }
+ },
+ "final_label_source": {
+  "human": 173,
+  "judges": 127
+ },
+ "reported_not_interpreted": {
+  "by_evidence_bucket": {
+   "daily notes": {
+    "n": 11,
+    "rate": 1.0,
+    "supported": 11,
+    "wilson95": [
+     0.7412,
+     1.0
+    ]
+   },
+   "document vault": {
+    "n": 252,
+    "rate": 0.9087,
+    "supported": 229,
+    "wilson95": [
+     0.8668,
+     0.9384
+    ]
+   },
+   "other": {
+    "n": 3,
+    "rate": 1.0,
+    "supported": 3,
+    "wilson95": [
+     0.4385,
+     1.0
+    ]
+   },
+   "workspace documents": {
+    "n": 34,
+    "rate": 0.9118,
+    "supported": 31,
+    "wilson95": [
+     0.7704,
+     0.9695
+    ]
+   }
+  },
+  "by_relation_reason": {
+   "depends_on": {
+    "n": 38,
+    "rate": 0.9737,
+    "supported": 37,
+    "wilson95": [
+     0.8651,
+     0.9953
+    ]
+   },
+   "derived_from": {
+    "n": 5,
+    "rate": 1.0,
+    "supported": 5,
+    "wilson95": [
+     0.5655,
+     1.0
+    ]
+   },
+   "mentions": {
+    "n": 147,
+    "rate": 0.9252,
+    "supported": 136,
+    "wilson95": [
+     0.871,
+     0.9577
+    ]
+   },
+   "opposes": {
+    "n": 6,
+    "rate": 1.0,
+    "supported": 6,
+    "wilson95": [
+     0.6097,
+     1.0
+    ]
+   },
+   "replaces": {
+    "n": 1,
+    "rate": 0.0,
+    "supported": 0,
+    "wilson95": [
+     0.0,
+     0.7935
+    ]
+   },
+   "unknown": {
+    "n": 103,
+    "rate": 0.8738,
+    "supported": 90,
+    "wilson95": [
+     0.796,
+     0.9247
+    ]
+   }
+  },
+  "claimed_ceiling": {
+   "ceiling": {
+    "n": 300,
+    "rate": 0.9433,
+    "supported": 283,
+    "wilson95": [
+     0.9111,
+     0.9643
+    ]
+   },
+   "rows_final_unsupported_but_claimed_by_a_judge": 9
+  },
+  "human_by_origin": {
+   "disagree": {
+    "n": 76,
+    "rate": 0.9342,
+    "supported": 71,
+    "wilson95": [
+     0.8551,
+     0.9716
+    ]
+   },
+   "marker": {
+    "n": 37,
+    "rate": 0.973,
+    "supported": 36,
+    "wilson95": [
+     0.8618,
+     0.9952
+    ]
+   },
+   "random": {
+    "n": 60,
+    "rate": 0.9667,
+    "supported": 58,
+    "wilson95": [
+     0.8864,
+     0.9908
+    ]
+   }
+  },
+  "judge1_claimed": {
+   "n": 300,
+   "rate": 0.8833,
+   "supported": 265,
+   "wilson95": [
+    0.8421,
+    0.9149
+   ]
+  },
+  "judge1_verified": {
+   "n": 300,
+   "rate": 0.8567,
+   "supported": 257,
+   "wilson95": [
+    0.8125,
+    0.8918
+   ]
+  },
+  "judge2_claimed": {
+   "n": 300,
+   "rate": 0.7167,
+   "supported": 215,
+   "wilson95": [
+    0.6632,
+    0.7647
+   ]
+  },
+  "judge2_verified": {
+   "n": 300,
+   "rate": 0.7167,
+   "supported": 215,
+   "wilson95": [
+    0.6632,
+    0.7647
+   ]
+  }
+ },
+ "tag_commit": "c6c86a1d4d86e579d1ad8329d7985726a868a8d8"
+}
