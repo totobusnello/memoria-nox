@@ -136,3 +136,55 @@ def repair_one(cache, led, item, text, caller=call_claude):
     v.update({k2: rec[k2] for k2 in ("served", "usd", "tin", "tout", "thinking", "stop")})
     cache.put(k, v)
     return v
+
+
+# ------------------------------------------------------------------ B2's own public history
+COMMITS = ("REPAIR", "JUDGES", "SHEET", "HUMAN")
+
+
+def _exists_at(repo, ref, name):
+    return B.git(repo, "cat-file", "-e", f"{ref}:{D}/{name}-COMMITMENT.json",
+                 check=False).returncode == 0
+
+
+def tag_commit(repo, tag=TAG, main="origin/main", fetch=True):
+    """B2's tag, on the public main branch, carrying none of B2's commitments."""
+    if fetch:
+        B.git(repo, "fetch", "-q", "--tags", "origin", "main")
+    if B.git(repo, "rev-parse", "-q", "--verify", f"refs/tags/{tag}", check=False).returncode:
+        raise SystemExit(f"tag {tag} not found")
+    t = B.commit_of(repo, tag)
+    if B.git(repo, "merge-base", "--is-ancestor", t, main, check=False).returncode:
+        raise SystemExit(f"tag {tag} is not on {main}")
+    for n in COMMITS:
+        if _exists_at(repo, t, n):
+            raise SystemExit(f"the tag already carries a {n}-COMMITMENT.json")
+    return t
+
+
+def ordered(repo, refs, tag=TAG, main="origin/main", fetch=True):
+    """Paper B's rule applied to B2's directory and steps: each commitment its own commit, after
+    the previous one, on main, written once, absent at the previous step."""
+    names = [n for n, _ in refs]
+    if names != list(COMMITS[:len(names)]):
+        raise SystemExit(f"commitments must come in the order {COMMITS}, got {names}")
+    prev_name, prev = "tag", tag_commit(repo, tag, main, fetch)
+    out = {"_tag": prev}
+    for name, ref in refs:
+        c = B.commit_of(repo, ref)
+        if c == prev:
+            raise SystemExit(f"the {name} commitment is the {prev_name}'s own commit")
+        if B.git(repo, "merge-base", "--is-ancestor", prev, c, check=False).returncode:
+            raise SystemExit(f"{ref} does not descend from the {prev_name} ({prev[:12]})")
+        if B.git(repo, "merge-base", "--is-ancestor", c, main, check=False).returncode:
+            raise SystemExit(f"{ref} is not on {main}")
+        if _exists_at(repo, prev, name):
+            raise SystemExit(f"{name}-COMMITMENT.json already exists at the {prev_name}")
+        hist = B.git(repo, "log", "--full-history", "--format=%H", main, "--",
+                     f"{D}/{name}-COMMITMENT.json").stdout.split()
+        if hist != [c]:
+            raise SystemExit(f"{name}-COMMITMENT.json on {main} was not written once, by {c[:12]}")
+        out[name] = json.loads(B.git(repo, "show", f"{c}:{D}/{name}-COMMITMENT.json").stdout)
+        out[name]["_commit"] = c
+        prev_name, prev = name, c
+    return out
