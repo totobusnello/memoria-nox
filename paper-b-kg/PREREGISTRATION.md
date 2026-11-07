@@ -1,16 +1,18 @@
-# Paper B: what an LLM-extracted knowledge graph keeps. Pre-registration (DRAFT, not fixed)
+# Paper B: what an LLM-extracted knowledge graph keeps. Pre-registration v1.0
 
 Written 2026-11-06, after the structural census (`CENSUS-2026-11-06.json`) and before any sample is
 drawn or any model is called for this paper. Nothing here is fixed until the tag
 `paper-b-prereg-v1.0` is on the public main branch. The author approved the complete design on
-2026-11-06 («melhor mais completa»); the tag, the draw and every paid call wait for his ok.
+2026-11-06 («melhor mais completa») and the tag on 2026-11-07 08:22 BRT («pode subir e taguea»).
+The tag `paper-b-prereg-v1.0` fixes this text and the scripts it names; any later change is a
+dated deviation.
 
 **Revised 2026-11-07, with the scripts.** Writing and testing the scripts offline (`b-test.py`,
 synthetic data, no draw, no model call) found two points the draft could not run as written and
 three it left unstated; each is marked **[2026-11-07]** below. The author decided the two open
 points on 2026-11-07 08:05 BRT («1. pode usar 2. ok»): judge 2 is `gpt-5.6-sol` (§4), and the
-marker rows of the sheet stay on the chunk (§5). Judge 2's price moves the spend cap (§7), which
-waits for his ok.
+marker rows of the sheet stay on the chunk (§5). Judge 2's price moves the spend cap (§7) to
+US$ 10, which he approved with the tag («pode subir»).
 
 ## 1. Questions
 

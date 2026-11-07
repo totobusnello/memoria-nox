@@ -157,7 +157,8 @@ com os scripts `b-freeze`/`b-judge`/`b-human`/`b-read`, testados offline em `b-t
 verificações, sem sorteio nem chamada paga). Cópia privada do snapshot tirada em 07/11 com sha256
 conferido, então o congelamento não depende mais da retenção do host. Decidido pelo Toto
 em 07/11: juiz 2 = `gpt-5.6-sol` e marcadores no trecho (~130–150 linhas para graduar); o teto
-sobe de US$ 1 para US$ 10 pelo preço do juiz 2 e espera o ok dele, junto com a tag. Estudo do
+sobe de US$ 1 para US$ 10 pelo preço do juiz 2; teto e tag aprovados em 07/11 08:22 («pode subir e
+taguea»), tag `paper-b-prereg-v1.0`. Estudo do
 shadow do C2: rascunho do pré-registro (#673) com o redator GLM sob exceção ao §3 do protocolo e a
 regra de parada aprovadas em 07/11; a tag espera o ok.
 Último resultado dos gates: 2026-11-07 · `b-test.py` 53 verificações, 0 falhas (mutações no
