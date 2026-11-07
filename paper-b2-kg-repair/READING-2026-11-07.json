@@ -1,0 +1,239 @@
+{
+ "B2_P": {
+  "difference": 0.0762,
+  "difference_bootstrap95": [
+   0.0465,
+   0.1067
+  ],
+  "precision_after": {
+   "n": 286,
+   "rate": 0.9895,
+   "supported": 283,
+   "wilson95": [
+    0.9696,
+    0.9964
+   ]
+  },
+  "precision_before": {
+   "n": 300,
+   "rate": 0.9133,
+   "supported": 274,
+   "wilson95": [
+    0.876,
+    0.9402
+   ]
+  }
+ },
+ "B2_R": {
+  "definition": "Paper B supported relations kept unchanged",
+  "n": 274,
+  "rate": 0.6496,
+  "supported": 178,
+  "wilson95": [
+   0.5914,
+   0.7037
+  ]
+ },
+ "commits": {
+  "HUMAN": "35e0cc0ae070f7ee154a926c9a6111df11685227",
+  "JUDGES": "4b531f9eac8c253c6b2ba365291d0cd8210cd4dc",
+  "REPAIR": "05a6292c2e80ff6cbe15c20d00ac6a4260db1a60",
+  "SHEET": "0be5b50288a78099cf276aa4dbb39e1bb8551c18"
+ },
+ "controls": {
+  "kappa_human_vs_judge_random_rewrites": {
+   "judge1": {
+    "kappa": null,
+    "n": 30
+   },
+   "judge2": {
+    "kappa": null,
+    "n": 30
+   }
+  },
+  "paper_b_judges_passing": [
+   "judge1",
+   "judge2"
+  ],
+  "positive_mismatch": {
+   "actions": {
+    "delete": 29,
+    "rewrite": 1
+   },
+   "kept": 0,
+   "n": 30,
+   "passes": true,
+   "rate": 0.0
+  },
+  "repairer_quote_check": {
+   "answers_keep_or_rewrite": 287,
+   "quote_ok": 285
+  }
+ },
+ "instrument": {
+  "interpreted": true,
+  "positive_control_passes": true,
+  "primary_available": true
+ },
+ "paper_b_commits": {
+  "FREEZE": "bb98fe6eaf8e5e92c006e8ecc043366230cf4b44",
+  "HUMAN": "c496e129f7bb4d20e8cab2ddd45ed665986dd2af",
+  "JUDGES": "ef017927b8011e3c842af1dcdd03339a10481cea",
+  "SHEET": "b8ee58a5655d8ee340928a79d4ff1deda27cab99"
+ },
+ "reported_not_interpreted": {
+  "actions": {
+   "delete": 14,
+   "keep": 180,
+   "rewrite": 106
+  },
+  "by_evidence_bucket": {
+   "daily notes": {
+    "keep": 8,
+    "rewrite": 3
+   },
+   "document vault": {
+    "delete": 13,
+    "keep": 153,
+    "rewrite": 86
+   },
+   "other": {
+    "keep": 3
+   },
+   "workspace documents": {
+    "delete": 1,
+    "keep": 16,
+    "rewrite": 17
+   }
+  },
+  "by_relation_reason": {
+   "depends_on": {
+    "delete": 1,
+    "keep": 21,
+    "rewrite": 16
+   },
+   "derived_from": {
+    "keep": 4,
+    "rewrite": 1
+   },
+   "mentions": {
+    "delete": 5,
+    "keep": 103,
+    "rewrite": 39
+   },
+   "opposes": {
+    "keep": 5,
+    "rewrite": 1
+   },
+   "replaces": {
+    "rewrite": 1
+   },
+   "unknown": {
+    "delete": 8,
+    "keep": 47,
+    "rewrite": 48
+   }
+  },
+  "correction_rate_on_paper_b_unsupported": {
+   "n": 26,
+   "rate": 0.8846,
+   "supported": 23,
+   "wilson95": [
+    0.7102,
+    0.96
+   ]
+  },
+  "damage_rate_on_paper_b_supported": {
+   "n": 274,
+   "rate": 0.0328,
+   "supported": 9,
+   "wilson95": [
+    0.0174,
+    0.0612
+   ]
+  },
+  "human_by_sheet_origin": {
+   "disagree": {
+    "n": 3,
+    "rate": 0.6667,
+    "supported": 2,
+    "wilson95": [
+     0.2077,
+     0.9385
+    ]
+   },
+   "marker": {
+    "n": 27,
+    "rate": 1.0,
+    "supported": 27,
+    "wilson95": [
+     0.8754,
+     1.0
+    ]
+   },
+   "random": {
+    "n": 30,
+    "rate": 1.0,
+    "supported": 30,
+    "wilson95": [
+     0.8865,
+     1.0
+    ]
+   }
+  },
+  "identical_rewrites_counted_as_keep": 0,
+  "list_price_usd": {
+   "repair_all_attempts": 7.9341,
+   "rewrite_judges": 1.3383
+  },
+  "no_answer": 0,
+  "precision_after_if_rewrites_were_deletes": {
+   "n": 180,
+   "rate": 0.9889,
+   "supported": 178,
+   "wilson95": [
+    0.9604,
+    0.9969
+   ]
+  },
+  "rewrite_label_source": {
+   "human": 60,
+   "judges": 46
+  },
+  "rewrite_pairs": {
+   "new": 37,
+   "same": 60,
+   "swapped": 9
+  },
+  "rewrites": 106,
+  "supported_output_retention_lenient": {
+   "n": 274,
+   "rate": 0.9672,
+   "supported": 265,
+   "wilson95": [
+    0.9388,
+    0.9826
+   ]
+  },
+  "supported_outputs_before_after": [
+   274,
+   283
+  ],
+  "transitions_from_paper_b_supported": {
+   "delete": 9,
+   "keep": 178,
+   "rewrite_new_supported": 30,
+   "rewrite_same_supported": 50,
+   "rewrite_swapped_supported": 7
+  },
+  "transitions_from_paper_b_unsupported": {
+   "delete": 5,
+   "keep": 2,
+   "rewrite_new_supported": 7,
+   "rewrite_same_supported": 9,
+   "rewrite_same_unsupported": 1,
+   "rewrite_swapped_supported": 2
+  }
+ },
+ "tag_commit": "18c20eea4c2742ce494c1ea58e6b6726d97ce83b"
+}
