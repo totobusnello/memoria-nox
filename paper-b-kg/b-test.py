@@ -126,7 +126,9 @@ def t_pure():
     check("wilson 135/150 matches October [0.842, 0.938]", all(abs(x - y) < 6e-4 for x, y in zip(C.wilson(135, 150), [0.842, 0.938])))
     check("kappa perfect = 1", C.kappa([1, 0, 1, 0], [1, 0, 1, 0]) == 1.0)
     check("kappa undefined on constant labels", C.kappa([1, 1], [1, 1]) is None)
-    check("judge 2 refuses to run unnamed", raises(C.ready, C.JUDGE2))
+    check("a judge without a model or prices refuses to run",
+          raises(C.ready, dict(C.JUDGE2, model=None)) and raises(C.ready, dict(C.JUDGE2, usd_out=None)))
+    check("judge 2 is the registered prose model", C.JUDGE2["model"] == "gpt-5.6-sol")
     check("judge 1 is ready", not raises(C.ready, C.JUDGE1))
     check("public writer refuses chunk text", raises(
         C.write_public, os.devnull, {"x": "A Entidade 1 contratou a Entidade 7 em 2026 " * 4}))

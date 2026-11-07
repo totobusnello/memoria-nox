@@ -7,8 +7,10 @@ drawn or any model is called for this paper. Nothing here is fixed until the tag
 
 **Revised 2026-11-07, with the scripts.** Writing and testing the scripts offline (`b-test.py`,
 synthetic data, no draw, no model call) found two points the draft could not run as written and
-three it left unstated; each is marked **[2026-11-07]** below. Two remain open for the author
-before the tag: judge 2 (§4) and the scope of the marker rows on the human sheet (§5).
+three it left unstated; each is marked **[2026-11-07]** below. The author decided the two open
+points on 2026-11-07 08:05 BRT («1. pode usar 2. ok»): judge 2 is `gpt-5.6-sol` (§4), and the
+marker rows of the sheet stay on the chunk (§5). Judge 2's price moves the spend cap (§7), which
+waits for his ok.
 
 ## 1. Questions
 
@@ -51,12 +53,16 @@ than the judges:
 
 - **Judge 1:** `gemini-2.5-flash-lite`, the October prompt (`audits/2026-10-22-kg-s1-precision.py`),
   so B-F is comparable in method to the October audit.
-- **Judge 2:** **OPEN [2026-11-07].** The draft named `gpt-6-luna`. That model answers only
-  through OpenAI's Decisions API, which returns probabilities for predicates and no text
+- **Judge 2:** `gpt-5.6-sol` (OpenAI), chat completions, the same prompt, JSON response.
+  **[2026-11-07]** The draft named `gpt-6-luna`. That model answers only through OpenAI's
+  Decisions API, which returns probabilities for predicates and no text
   (`audits/2026-10-26-bounded-judge.py`), so it cannot copy the eight-word quote this section
-  requires and could never produce a verified label. Judge 2 is an OpenAI model that writes prose,
-  called through chat completions with the same prompt; the tag fixes its name and list prices
-  (`JUDGE2` in `b-common.py`, which refuses to call it while either is missing).
+  requires and could never produce a verified label. No temperature is sent, as in the
+  repository's working call to this model (`eval/brief-action-probe/probe/llm.py`); the model the
+  provider served and its token counts, reasoning included, are recorded per call. The ledger
+  prices it at US$ 5 per million input tokens and US$ 30 per million output tokens, the list price
+  without the promotion that ends on 2026-11-30, so it can over-count the spend but not
+  under-count it.
 
 The prompt adds, before any call, the four October principles as explicit rules: a triple that
 inverts the relation does not count as supported (P1); an impoverished but not inverted predicate
@@ -76,12 +82,12 @@ quote. It holds:
 1. every relation where the two judges' verified labels disagree;
 2. every relation that both judges verify and whose chunk carries an exception marker (`exceto`,
    `except`, `unless`, `other than`) or an example marker (`Ex:`, `e.g.`, `por exemplo`), the
-   October enumeration for P1 and P3. **OPEN [2026-11-07].** October applied the markers to the
-   judge's *quote*; this draft applies them to the *chunk*. Measured on the population (no draw):
+   October enumeration for P1 and P3. **[2026-11-07]** October applied the markers to the
+   judge's *quote*; this protocol applies them to the *chunk* the judges saw (author, 2026-11-07,
+   «2. ok»). Measured on the population (no draw):
    3,900 of the 17,667 chunks carry a marker (22.1%: exception 3,194, example 607, both 99), so
    item 2 alone would put about 55 to 65 of the 300 on the sheet, and the sheet would hold about
-   130 to 150 rows. Applied to the quote, as in October, it would hold a handful. The scripts
-   implement the chunk rule as drafted;
+   130 to 150 rows. Applied to the quote, as in October, it would hold a handful;
 3. 60 relations drawn at random, with seed + 1, from the relations not already in 1 or 2.
 
 Rows are shuffled with seed + 2. The sheet's sha256 is committed before it is graded, and the
@@ -126,8 +132,10 @@ Tag `paper-b-prereg-v1.0`, then:
 1. **Freeze** (`b-freeze.py`): draw, then copy the 300 + 30 rows and their chunks from the
    snapshot to `~/Backups/paper-b-freeze-<date>/` (mode 700). Commit `FREEZE-COMMITMENT.json`,
    which holds counts, the seed and hashes, never text.
-2. **Judges** (`b-judge.py`): both judges on the 300 and on the 30 mismatched; cost cap US$ 1 for
-   the two together, abort above it. Commit `JUDGES-COMMITMENT.json` (calls, cost, the models the
+2. **Judges** (`b-judge.py`): both judges on the 300 and on the 30 mismatched; cost cap US$ 10 for
+   the two together (**[2026-11-07]**, was US$ 1, set for two flash-lite-class judges; at the
+   ledger's prices judge 2 costs about US$ 2 to 8 for 330 calls averaging 2,351 characters of
+   chunk, depending on its reasoning tokens), abort above it. Commit `JUDGES-COMMITMENT.json` (calls, cost, the models the
    providers served, hashes; no label and no rate) **[2026-11-07]**.
 3. **Human sheet** (`b-human.py make`, then `commit`): commit `SHEET-COMMITMENT.json` (the sheet's
    hash), grade, then commit `HUMAN-COMMITMENT.json`.
