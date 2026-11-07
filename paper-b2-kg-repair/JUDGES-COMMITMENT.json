@@ -1,0 +1,32 @@
+{
+ "cached_this_run": 0,
+ "calls_this_run": 212,
+ "cap_usd": 12.0659,
+ "judges": {
+  "judge1": {
+   "model": "gemini-2.5-flash-lite",
+   "served": [
+    "gemini-2.5-flash-lite"
+   ]
+  },
+  "judge2": {
+   "model": "gpt-5.6-sol",
+   "served": [
+    "gpt-5.6-sol"
+   ]
+  }
+ },
+ "judges_json_sha256": "75c46ade355eccd98acef349147a7873ce874c59d33b0cea9f4d20ac8f97a987",
+ "repair_commit": "05a6292c2e80ff6cbe15c20d00ac6a4260db1a60",
+ "script_sha256": {
+  "b2-common.py": "6537aff8016816a242bfd0121d2297c695dd894b6de91515f4a0cdb942361a26",
+  "b2.py": "b09cfead4164f0081d7262c9bf4e2fd14c174068c058f1ec74096c1477987c3f"
+ },
+ "step": "JUDGES",
+ "usd_all_verdicts": 1.3383,
+ "usd_this_run": 1.3383,
+ "verdicts": {
+  "judge1": 106,
+  "judge2": 106
+ }
+}
