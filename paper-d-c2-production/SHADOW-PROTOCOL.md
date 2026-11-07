@@ -44,6 +44,11 @@ The block text is private corpus text. It stays on the host, is never copied int
 or sent to any service other than the call above, and is deleted when the study that uses it is
 closed, or on 2027-06-30, whichever comes first. The host is not named in this repository.
 
+**Exception, 2026-11-07** (author: «excecao aqui»). For the study pre-registered in
+`SHADOW-PREREGISTRATION.md`, and only for it, the text of the blocks that study freezes may also be
+sent to its question writer's provider (Z.ai, `glm-5.3`), once per block. The rest of this section
+holds for that text too.
+
 Nothing is ingested and no memory is written to the database. The one database write is the
 provider-cost row that every tracked call makes, under caller `session-distill.shadow-c2`, so the
 shadow's spend shows in the same ledger as production's.

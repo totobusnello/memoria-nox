@@ -32,17 +32,17 @@ SNAPSHOT_NAME = "daily-main-main-20261106030002-3269917-a12b890e65d84fb38d099684
 SNAPSHOT_SHA256 = "14f5000a1b4dfe6cd0a0f78e57c0295d52d39049ebeaed1fc707a961af8dac4c"
 POPULATION = 17667          # relations with live evidence in CENSUS-2026-11-06.json
 N, N_MISMATCH, N_RANDOM = 300, 30, 60
-CAP_USD = 1.0
+CAP_USD = 10.0           # §7, revised 2026-11-07 with judge 2's price
 CHUNK_CHARS = 6000          # what the October judge saw
 COMMITS = ("FREEZE", "JUDGES", "SHEET", "HUMAN")
 
-# Judge 1 is fixed by §4. Judge 2 is the pre-registration's open choice: the model named in the
-# draft (gpt-6-luna) answers only through the Decisions API, which returns probabilities and no
-# text, so it cannot copy the eight-word quote §4 requires. The scripts refuse to call judge 2
-# until this block names a prose model and its list prices, which the tag then fixes.
+# §4. Judge 2 replaced the draft's gpt-6-luna, which answers only through the Decisions API (no
+# text, so no quote). Priced at the list price without the promotion ending 2026-11-30, so the
+# ledger can over-count but not under-count. `ready` refuses a judge without model or prices.
 JUDGE1 = {"name": "judge1", "family": "google", "model": "gemini-2.5-flash-lite",
           "usd_in": 0.10 / 1e6, "usd_out": 0.40 / 1e6}
-JUDGE2 = {"name": "judge2", "family": "openai", "model": None, "usd_in": None, "usd_out": None}
+JUDGE2 = {"name": "judge2", "family": "openai", "model": "gpt-5.6-sol",
+          "usd_in": 5.0 / 1e6, "usd_out": 30.0 / 1e6}
 
 
 def load(name, path):
@@ -376,7 +376,7 @@ def call_gemini(judge, text):
 
 def call_openai(judge, text):
     d = post("https://api.openai.com/v1/chat/completions",
-             {"model": judge["model"], "temperature": 0,
+             {"model": judge["model"], "max_completion_tokens": 4000,
               "response_format": {"type": "json_object"},
               "messages": [{"role": "user", "content": text}]},
              {"Content-Type": "application/json",
