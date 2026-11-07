@@ -5,6 +5,11 @@ drawn or any model is called for this paper. Nothing here is fixed until the tag
 `paper-b-prereg-v1.0` is on the public main branch. The author approved the complete design on
 2026-11-06 («melhor mais completa»); the tag, the draw and every paid call wait for his ok.
 
+**Revised 2026-11-07, with the scripts.** Writing and testing the scripts offline (`b-test.py`,
+synthetic data, no draw, no model call) found two points the draft could not run as written and
+three it left unstated; each is marked **[2026-11-07]** below. Two remain open for the author
+before the tag: judge 2 (§4) and the scope of the marker rows on the human sheet (§5).
+
 ## 1. Questions
 
 **B-S (structure, descriptive).** What the graph holds, where its evidence comes from, and when it
@@ -22,7 +27,10 @@ audit declares spent. B-F is measured on a fresh sample, with those principles f
 
 The daily snapshot `daily-main-main-20261106030002-…db.gz`, sha256
 `14f5000a1b4dfe6cd0a0f78e57c0295d52d39049ebeaed1fc707a961af8dac4c` (the census's). Its retention on
-the host is six days, so the freeze (§7) must run by 2026-11-11.
+the host is six days. **[2026-11-07]** A private copy of the gz was taken from the host on
+2026-11-07 and its sha256 checked equal to the one above (`~/Backups/paper-b-snapshot-2026-11-06/`,
+mode 700, outside every repository), so the freeze no longer depends on the host's retention.
+`b-freeze.py` refuses a file whose name or sha256 differs.
 
 Population: every row of `kg_relations` whose `evidence_chunk_id` resolves to a row of `chunks` in
 that snapshot (17,667 in the census). Superseded relations: none exist in the snapshot.
@@ -36,11 +44,19 @@ chosen before the protocol is public. At p = 0.90 the Wilson 95% half-width is a
 ## 4. Judges and the citation check
 
 Each sampled relation goes to two judges from different model families, temperature 0, with the
-triple (source entity, predicate, target entity) and the full evidence chunk:
+triple (source entity, predicate, target entity) and the evidence chunk. **[2026-11-07]** As in
+October, a judge sees the chunk's first 6,000 characters; 4 of the 17,667 population chunks are
+longer (the longest 15,517). The human sheet shows the same 6,000, so the human never sees less
+than the judges:
 
 - **Judge 1:** `gemini-2.5-flash-lite`, the October prompt (`audits/2026-10-22-kg-s1-precision.py`),
   so B-F is comparable in method to the October audit.
-- **Judge 2:** `gpt-6-luna` (OpenAI), the same prompt.
+- **Judge 2:** **OPEN [2026-11-07].** The draft named `gpt-6-luna`. That model answers only
+  through OpenAI's Decisions API, which returns probabilities for predicates and no text
+  (`audits/2026-10-26-bounded-judge.py`), so it cannot copy the eight-word quote this section
+  requires and could never produce a verified label. Judge 2 is an OpenAI model that writes prose,
+  called through chat completions with the same prompt; the tag fixes its name and list prices
+  (`JUDGE2` in `b-common.py`, which refuses to call it while either is missing).
 
 The prompt adds, before any call, the four October principles as explicit rules: a triple that
 inverts the relation does not count as supported (P1); an impoverished but not inverted predicate
@@ -60,7 +76,12 @@ quote. It holds:
 1. every relation where the two judges' verified labels disagree;
 2. every relation that both judges verify and whose chunk carries an exception marker (`exceto`,
    `except`, `unless`, `other than`) or an example marker (`Ex:`, `e.g.`, `por exemplo`), the
-   October enumeration for P1 and P3;
+   October enumeration for P1 and P3. **OPEN [2026-11-07].** October applied the markers to the
+   judge's *quote*; this draft applies them to the *chunk*. Measured on the population (no draw):
+   3,900 of the 17,667 chunks carry a marker (22.1%: exception 3,194, example 607, both 99), so
+   item 2 alone would put about 55 to 65 of the 300 on the sheet, and the sheet would hold about
+   130 to 150 rows. Applied to the quote, as in October, it would hold a handful. The scripts
+   implement the chunk rule as drafted;
 3. 60 relations drawn at random, with seed + 1, from the relations not already in 1 or 2.
 
 Rows are shuffled with seed + 2. The sheet's sha256 is committed before it is graded, and the
@@ -68,13 +89,21 @@ grades are committed (`HUMAN-COMMITMENT.json`) before the reading.
 
 ## 6. Estimate, controls and reading
 
-**Final label.** The human grade where there is one; otherwise the label both judges agree on.
+**Final label.** The human grade where there is one; otherwise the label both judges agree on
+(off the sheet they agree by construction, because every disagreement is on it). **[2026-11-07]**
+A judge that fails a control does not count: off the sheet the label is the passing judge's. If
+both fail, no row off the sheet has a final label, and B-F is estimated on the 60 random rows the
+human graded, with its own Wilson interval, and stated as such.
 
 **Primary estimate.** B-F = share of the 300 with a final label of supported, with a Wilson 95%
 interval. There is no hypothesis test and no threshold. The note reports the figure and its interval.
 
 **Controls.** Each must pass for its judge's labels to enter the final label. A judge that fails one
-is reported, and its labels are replaced by the human's on every row it would have decided.
+is reported, and its labels are replaced as the final-label rule above states. **[2026-11-07]** The
+two words of the negative control are drawn with seed + 4; a quote with no two different words is
+skipped and counted. A judge with no verified quote to test fails the control. "Accepts" in the
+mismatched control means a verified label (claim and quote check) on the other document's chunk;
+the bare claim rate is reported beside it.
 
 | control | measured | passes when |
 |---|---|---|
@@ -82,20 +111,30 @@ is reported, and its labels are replaced by the human's on every row it would ha
 | mismatched evidence | 30 sampled relations (seed + 3) shown with a live chunk from a different document | judge accepts at most 10% |
 | human agreement | Cohen's kappa, human against each judge, on the 60 random rows | reported; kappa below 0.40 is stated as a limit of that judge |
 
-**Reported, not interpreted.** Judge 1's and judge 2's verified rates alone; the substantive ceiling
-(P2 rows the judges rejected with an empty quote, counted as a ceiling, never as the estimate, as in
-October); the final rate by `relation_reason` and by evidence bucket of the census.
+**Reported, not interpreted.** Judge 1's and judge 2's verified and claimed rates alone; a claimed
+ceiling, the share of the 300 whose final label is supported or that at least one judge claimed to
+support with a quote that failed the check, never the estimate (**[2026-11-07]** October's ceiling
+was the P2 rows read by hand; here P2 is a rule in the prompt and on the sheet, so the rows it
+would restore are already in the estimate, and the ceiling bounds what the citation check costs);
+the human's rate by sheet origin; the final rate by `relation_reason` and by evidence bucket of the
+census.
 
 ## 7. Order and private data
 
 Tag `paper-b-prereg-v1.0`, then:
 
-1. **Freeze:** draw, then copy the 300 + 30 rows and their chunks from the snapshot to
-   `~/Backups/paper-b-freeze-<date>/` (mode 700). Commit `FREEZE-COMMITMENT.json`, which holds
-   counts, the seed and hashes, never text.
-2. **Judges:** both judges and both controls; cost cap US$ 1, abort above it.
-3. **Human sheet:** commit its hash, grade, then commit `HUMAN-COMMITMENT.json`.
-4. **Reading:** `READING-<date>.json`, then the note.
+1. **Freeze** (`b-freeze.py`): draw, then copy the 300 + 30 rows and their chunks from the
+   snapshot to `~/Backups/paper-b-freeze-<date>/` (mode 700). Commit `FREEZE-COMMITMENT.json`,
+   which holds counts, the seed and hashes, never text.
+2. **Judges** (`b-judge.py`): both judges on the 300 and on the 30 mismatched; cost cap US$ 1 for
+   the two together, abort above it. Commit `JUDGES-COMMITMENT.json` (calls, cost, the models the
+   providers served, hashes; no label and no rate) **[2026-11-07]**.
+3. **Human sheet** (`b-human.py make`, then `commit`): commit `SHEET-COMMITMENT.json` (the sheet's
+   hash), grade, then commit `HUMAN-COMMITMENT.json`.
+4. **Reading** (`b-read.py`): `READING-<date>.json`, then the note.
+
+`b-test.py` exercises all four offline, on a synthetic database with fake judges and a throwaway
+git repository, including mutations each check must catch.
 
 Each script refuses to run unless the previous commitment is on the public main branch and
 byte-equal to the private copy, as in Paper D. The triples, entity names and chunk text are private:

@@ -152,9 +152,14 @@ doi:10.5281/zenodo.24017459, e D, doi:10.5281/zenodo.24017487, publicados pelo T
 avoid-ai-writing (#666) e de vozes Codex e Kimi (1ª rodada, #668) e Codex (2ª rodada, #670). O
 ORCID passou a sair nos depósitos (#667), e a sessão site-labf pôs o ORCID nos 14 registros
 antigos sem ele e cadastrou 11 trabalhos no Scholar (6 → 17); C e D entram em seguida.
-Próximo no B: decidir se a nota afirma fidelidade (amostra nova paga + adjudicação humana) ou só
-estrutura.
-Último resultado dos gates: 2026-11-06 · `d-test.py` 50 verificações, 0 falhas (cada recusa testada
+B, 07/11: o Toto escolheu a versão completa (fidelidade); rascunho do pré-registro (#669) revisto
+com os scripts `b-freeze`/`b-judge`/`b-human`/`b-read`, testados offline em `b-test.py` (52
+verificações, sem sorteio nem chamada paga). Cópia privada do snapshot tirada em 07/11 com sha256
+conferido, então o congelamento não depende mais da retenção do host. Antes da tag, dois pontos do
+Toto: o juiz 2 (o `gpt-6-luna` do rascunho não escreve texto e não pode citar) e se os marcadores
+da planilha valem no trecho (~130–150 linhas para graduar) ou na citação, como em outubro.
+Último resultado dos gates: 2026-11-07 · `b-test.py` 52 verificações, 0 falhas (mutações no
+conferidor, na seleção da planilha e no sorteio reprovam); 2026-11-06 · `d-test.py` 50 verificações, 0 falhas (cada recusa testada
 com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 89 números, 0 falhas
 (mutação: um número trocado no RESULTS reprova)
 
