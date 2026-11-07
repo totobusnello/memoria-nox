@@ -1,0 +1,17 @@
+{
+ "by_origin": {
+  "disagree": 3,
+  "marker": 27,
+  "random": 30
+ },
+ "judges_commit": "4b531f9eac8c253c6b2ba365291d0cd8210cd4dc",
+ "rewrites": 106,
+ "rows": 60,
+ "script_sha256": {
+  "b2-common.py": "6537aff8016816a242bfd0121d2297c695dd894b6de91515f4a0cdb942361a26",
+  "b2.py": "b09cfead4164f0081d7262c9bf4e2fd14c174068c058f1ec74096c1477987c3f"
+ },
+ "selection_sha256": "7a70ee0a0a2281603a7b3c40fa15d2582d1cb87f3828232b9cd89adeff8f5ef3",
+ "sheet_sha256": "8ca1f1cf0f2da2e7af9e38203b7aab344d44d053718fd7cb62d71e63cbeda189",
+ "step": "SHEET"
+}
