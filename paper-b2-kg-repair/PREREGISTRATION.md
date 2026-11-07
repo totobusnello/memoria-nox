@@ -51,13 +51,20 @@ The note states the interval it gets.
 
 ## 3. The repair pass
 
-**Repairer:** `claude-opus-5-5` (Anthropic), Messages API. Its family differs from both of Paper
-B's judges (Google, OpenAI). The model takes no temperature and its thinking cannot be turned off;
-effort is set explicitly to `medium` (the model's default), and the provider's served model and
-token counts are recorded per call. With no temperature the output is not repeatable: each relation
-is asked **once**, the answer is cached, and a relation is asked again only after a transport error
-or an unreadable answer, which is counted. No server-side fallback to another model: a refusal is
-counted, and the relation is kept unchanged (the conservative action).
+**Repairer:** `claude-opus-5-5` (Anthropic). Its family differs from both of Paper B's judges
+(Google, OpenAI). **[2026-11-07]** No Anthropic API key exists on the author's machines, and the
+author chose to run the repairer through the Claude Code CLI on his subscription («Via claude -p»).
+Each call is `claude -p` with this protocol's system prompt replacing Claude Code's, no tools, no
+MCP server, no setting source (so no hook and no instruction file), no saved session, an empty
+working directory, and structured output against the schema in `b2-common.py`. The CLI implements
+structured output as a tool call, so each call has two turns, and it reports the served model, the
+tokens (thinking included) and a cost at list price, which this protocol records as the spend
+although the subscription does not bill it per token. The model takes no temperature and its
+thinking cannot be turned off; effort is `medium` (author, 2026-11-07, «02. Medium»). With no
+temperature the output is not repeatable: each relation is asked **once**, the answer is cached,
+and a relation is asked again only after a transport error, which is counted. No fallback to
+another model: a refusal or an answer that does not fit the schema is counted, and the relation is
+kept unchanged (the conservative action).
 
 **Input.** The triple (source entity, predicate, target entity) and the chunk. Nothing else: no
 label, no judge verdict, no human grade, no other relation. One sentence of purpose and the support
@@ -132,13 +139,14 @@ byte-equal to the private copy, and the reading also requires Paper B's four com
 entity names and chunk text stay in `~/Backups/paper-b2-repair-<date>/` (mode 700) and are sent
 only to the repairer and the two judge APIs.
 
-**Cost cap: US$ 20** for the repair and the rewrite judging together, abort above. Estimate at the
-list prices (US$ 4 per million input and US$ 20 per million output tokens for the repairer): about
-1,700 input tokens per call, or US$ 2.30 for 330 calls; output is mostly thinking, which effort
-`medium` does not bound, so 500 to 2,000 output tokens per call gives US$ 3.30 to 13.20. Rewrite
-judging costs at most what Paper B's judges cost per call (US$ 4.49 for 660). **[open]** A paid
-smoke on five relations drawn from outside Paper B's 330 (discarded afterwards) would measure the
-output tokens before the tag; it needs the author's approval.
+**Cost cap: US$ 20** for the repair and the rewrite judging together, at list price, abort above
+(author, 2026-11-07, «01. Ok»). **[2026-11-07] Smoke** (`b2-smoke.py`, approved with the cap): five
+relations drawn with the fixed public seed `paper-b2-smoke-2026-11-07` from the population outside
+Paper B's 330, then discarded. All five answers fit the schema, the served model was
+`claude-opus-5-5` on every call, and every quote passed the check. Median 3,233 input tokens (most
+of it the system prompt and the schema, written to the provider's cache), 578 output tokens of
+which 228 thinking; US$ 0.0279 per call at list price, so about US$ 9.20 for the 330 calls. Rewrite
+judging costs at most what Paper B's judges cost per call (US$ 4.49 for 660).
 
 ## 7. What a result can and cannot say
 
@@ -151,8 +159,8 @@ whether an agent answers better from the repaired graph.
 
 ## 8. Open before the tag
 
-1. Cap (US$ 20) and the smoke (five relations, under US$ 1).
-2. Effort `medium` or `low` for the repairer.
+1. ~~Cap and smoke~~ and ~~effort~~: decided 2026-11-07 (§3, §6).
+2. ~~Route~~: `claude -p` on the subscription, decided 2026-11-07 (§3).
 3. The scripts `b2-repair.py`, `b2-judge.py`, `b2-human.py`, `b2-read.py` and their offline test
    `b2-test.py` (synthetic data, fake repairer, mutations), written and green before the tag.
 4. Adversarial voices on this text: only if the author asks for them.
