@@ -3,8 +3,10 @@
 Written 2026-11-07, after the shadow was turned on (`SHADOW-PROTOCOL.md`) and before any record
 beyond the deviation in §9 was read. Nothing here is fixed until the tag
 `paper-d-shadow-prereg-v1.0` is on the public main branch. Proposed by the session on 2026-11-07;
-the author asked for it to be checked («checa a leitura do shadow que vc mencionou»). The design,
-the tag and every paid call wait for his ok. Two points are open for him (§2, §3).
+the author asked for it to be checked («checa a leitura do shadow que vc mencionou»), and decided
+its two open points on 2026-11-07 08:05 BRT («3. excecao aqui 4. ok»): the writer keeps Paper D's
+family under an exception to the protocol's privacy rule for this study only (§3), and the
+stopping rule stands (§2). The tag and every paid call wait for his ok.
 
 ## 1. Question
 
@@ -26,7 +28,7 @@ cannot recur. What the records cannot say is in §8.
 - **Excluded by date.** The file `c2-shadow-2026-11-07.jsonl` (3 sessions, 4 blocks), read beyond
   the permitted counts before this document existed (§9), and every later block of those three
   session keys.
-- **Stopping rule (proposed, OPEN).** Using only the counts `SHADOW-PROTOCOL.md` §5 permits
+- **Stopping rule.** Using only the counts `SHADOW-PROTOCOL.md` §5 permits
   (sessions, blocks, calls, failures, skips, cost), the freeze takes every record dated from
   2026-11-08 up to the first UTC date on which the eligible records reach 300 blocks from at least
   100 sessions, and not before 2026-12-01. If 2027-01-10 comes first, the freeze takes what exists
@@ -44,12 +46,13 @@ cannot recur. What the records cannot say is in §8.
 
 - **Unit.** The block: questions are written from one block's text and answered from units, so a
   question always has its evidence inside the material both arms were extracted from.
-- **Writer (OPEN).** Paper D used `glm-5.3` (Z.ai), a family that is neither distiller and reader
-  (Gemini) nor judge (OpenAI). `SHADOW-PROTOCOL.md` §3 says the block text is sent to no service
-  other than the C2 call. Two ways out, for the author: **(a)** amend §3 for this study only, to
-  send block text to the writer's provider, keeping the family separation; or **(b)** write with
-  `gemini-2.5-pro`, inside the provider §3 already allows, accepting that writer and distiller
-  share a family. The rest of this draft does not depend on the choice.
+- **Writer.** `glm-5.3` (Z.ai), temperature 0, as in Paper D: a family that is neither distiller
+  and reader (Gemini) nor judge (OpenAI). `SHADOW-PROTOCOL.md` §3 says the block text is sent to
+  no service other than the C2 call; the author made an exception for this study only
+  (2026-11-07, «excecao aqui»), recorded in §3 of the protocol: the text of the frozen eligible
+  blocks may also be sent to the writer's provider, once per block, to write the questions. Nothing
+  else changes in §3: the text stays private, out of this repository, and is deleted on the
+  protocol's date.
 - **Prompts.** Paper D's two prompts (`d-generate.py`), applied to a block instead of a 20,000-
   character window: **primary**, up to 2 facts per block in C0's declared categories; **secondary**,
   up to 2 facts per block in the two classes C2 adds (an exact identifier, a concrete fact said in
