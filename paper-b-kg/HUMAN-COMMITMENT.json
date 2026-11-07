@@ -1,0 +1,11 @@
+{
+ "graded_sheet_sha256": "37329b9444b4dd31da7e617685c5164e6cbae2bc85b89925b1b6920464f862f8",
+ "grades_sha256": "ec11a468ba99e514ed0f81ea795a2e297f5f3e37a8ca303c334ec1cc8ddc4495",
+ "rows": 173,
+ "script_sha256": {
+  "b-common.py": "dba5e2f15d124efb6631e70406d3b74571cdccff9796a6feae87ecaa11c8e31b",
+  "b-human.py": "4b316c98e31b78e1180d4839e23297c6699a1c415684f0d6b63a20f39c264e0e"
+ },
+ "sheet_commit": "b8ee58a5655d8ee340928a79d4ff1deda27cab99",
+ "step": "HUMAN"
+}
