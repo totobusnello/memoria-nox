@@ -230,3 +230,19 @@ whether an agent answers better from the repaired graph. **[v1.0, Codex]** Also:
 
 What neither voice could check: that the repairer's behaviour through the CLI matches the smoke's
 on the 330. The commitment records the served model, the turns and the attempts for that.
+
+## 10. Deviations after the tag
+
+**1. 2026-11-07, human sheet.** The author graded the 60-row sheet in a spreadsheet application and
+saved it as `.xlsx`. In that file the chunk cells of items 39, 40 and 55 are empty (checked in the
+file's own XML: inline strings of length 0), while the sheet `b2.py sheet` wrote holds 1,514, 2,428
+and 1,514 characters there, with no control character or other feature that sets them apart from
+the 57 rows that survived. The author confirmed he saw no chunk on those three rows when he graded
+them («Não, estava vazio»). Those three grades were made without the evidence, so they were
+discarded: the author regraded the three items blind from a plain-text file holding the triple and
+the full chunk, under the same rules, and all three grades changed. The committed sheet is the
+blank sheet's exact texts with the 57 original grades and the 3 new ones; `b2.py grades` checked
+every row's texts against what it wrote. The `.xlsx` export and the blank sheet are kept in the
+private directory. A row graded without its chunk cannot be detected by the text check, which reads
+the committed file, not what the grader saw; Paper B's sheet went through the same application and
+its texts were checked equal, but whether its grader saw every chunk is not recorded.
