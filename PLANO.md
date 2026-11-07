@@ -35,6 +35,22 @@
    consumidor medido (23/10) era uma tarefa sobre contratos.
 5. **D**, em paralelo desde já, mas só como replay offline até haver protocolo escrito.
 
+## Objetivo (2026-11-07): B2 e E
+
+Motivação: o post da Anthropic «The components of agent memory» (06/11) afirma, com uma corrida
+por braço e 24–25 perguntas, que um passe offline contra a fonte («dreaming») corrige notas, e
+que regra fixa sobre o que escrever ajuda modelo fraco e atrapalha modelo forte (registrar só
+falhas: −0,234 do ganho no Opus 5). Nenhuma das duas afirmações vem com controle ou intervalo.
+Temos a infraestrutura para medir as duas com pré-registro.
+
+| | objeto | formato | base que já existe | o que falta |
+|---|---|---|---|---|
+| **B2** | Passe de reparo do KG contra o trecho de evidência: manter, reescrever ou apagar cada relação | nota, rota Zenodo | as 300 relações congeladas do B (`FREEZE-COMMITMENT.json`, semente 3335023133), os dois juízes, o conferidor de citação e a nota humana | pré-registro com tag ANTES do `b-read.py` do B; reparador Claude Opus 5.5 (família distinta dos dois juízes); medidas: B_F depois × antes, pareado, e perda (relações sustentadas que o reparo apagou); controle positivo com relações sabidamente erradas; nota humana nas reescritas |
+| **E** | Critério de escrita × força do extrator | paper, rota Zenodo | Paper 3 v1.3: C2 contra C0 +24,8 a +27,3 pp, sempre com extrator `gemini-2.5-flash-lite`, que o manuscrito declara como limite; leitor R3 e juízes calibrados | fatorial critério {C0, C2, só propósito} × extrator {flash-lite, forte}; hipótese principal: a vantagem do C2 encolhe ou inverte com extrator forte (interação); escolher instâncias ainda não gastas do LongMemEval; smoke pago para o custo do extrator forte |
+
+O ablation de saliência no ranking ficou de fora: o G7 (20/05) mediu a fórmula v2 ligada contra
+desligada, nDCG 0,5845 × 0,5872 (n=100), e `pain` é tópico e degenerado (62.425 chunks em 0,2).
+
 ## Fora do escopo
 
 - Publicar texto do corpus privado, queries reais, nomes de arquivo do corpus ou endereço de host.
@@ -161,7 +177,10 @@ sobe de US$ 1 para US$ 10 pelo preço do juiz 2; teto e tag aprovados em 07/11 0
 taguea»), tag `paper-b-prereg-v1.0`. Em 07/11: congelamento (#676, semente 3335023133), juízes (#679,
 660 vereditos, US$ 4,49; desvios 1 e 2 no §10, #677/#678), planilha cega de 173 linhas (#680:
 76 divergências, 37 marcadores, 60 sorteadas) em `~/Backups/paper-b-freeze-2026-11-07/`.
-Próximo: o Toto gradua; depois `b-human.py commit` e `b-read.py`. Estudo do
+O Toto graduou as 173 linhas em 07/11 (Numbers, exportado para CSV; a planilha em branco ficou
+como `human-sheet.blank.csv`); `HUMAN-COMMITMENT.json` no #682. **`b-read.py` só depois da tag do
+pré-registro do B2** (decisão dele em 07/11). Objetivos novos B2 e E abertos em 07/11 (seção
+«Objetivo (2026-11-07)»). Próximo: rascunho do pré-registro e dos scripts do B2. Estudo do
 shadow do C2: rascunho do pré-registro (#673) com o redator GLM sob exceção ao §3 do protocolo e a
 regra de parada aprovadas em 07/11; a tag espera o ok.
 Último resultado dos gates: 2026-11-07 · `b-test.py` 53 verificações, 0 falhas (mutações no
@@ -206,6 +225,10 @@ com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 
 | 2026-11-05 | D: 80 sessões (D4); teto do braço A lido sob o juiz 1, como no Paper 3 (D7) | smoke de 5 sessões: discordância C0 × C2 de 2 em 17, teto 0,765 no juiz 1 e 0,529 no juiz 2; escolha do Toto |
 | 2026-11-04 | Zenodo + labf.bio | precedente dos Papers 1–3 |
 | 2026-11-06 | D: enquadramento fica nas 414 sessões registradas pelo destilador; as 127 que produção mandou ao modelo saem como descrição | Toto: «vamos seguir suas recomendacoes»; C0 e C2 leem a sessão inteira, então o contraste vale para as 287 que produção pulou, e restringir faria o sorteio de 80 consumir quase todas as 127 |
+| 2026-11-07 | Abrir B2 (reparo do KG) e E (critério × extrator) | Toto: «o ponto 3 pode virar um paper interessante! e vamos seguir sua recomendacao», depois do post da Anthropic de 06/11 |
+| 2026-11-07 | E = fatorial critério × extrator, não ablation de saliência no ranking | escolha do Toto; o G7 já mediu a saliência no ranking como neutra, e a regra fixa que move o resultado no nosso sistema é o critério de escrita |
+| 2026-11-07 | B2: reparador Claude Opus 5.5 | escolha do Toto; família distinta dos dois juízes do B, e é o «dreaming» como o post o descreve |
+| 2026-11-07 | B2 pré-registrado com tag antes do `b-read.py` do B | escolha do Toto; o desenho do reparo não pode conhecer o resultado do B. Atrasa a leitura do B em um a dois dias |
 | 2026-11-06 | D: tag `paper-d-prereg-v1.0` sem revisão adversarial antes | Toto escolheu «Tag hoje, sem vozes»; o pré-registro registra a ausência de revisão (§10) |
 
 ## Vozes
