@@ -185,6 +185,12 @@ def t_pipeline(tmp):
         v["verified"] == (v["claims"] and v["quote_ok"])
         for n in res for k in res[n].values() for v in k.values()))
     check("cap aborts", raises(C.Ledger(cap=0.0).add, 0.01))
+    jc = J.commitment({"_commit": "c" * 40, "freeze_json_sha256": "f" * 64}, res, led, "{}")
+    want = 330 * (100 * C.JUDGE1["usd_in"] + 20 * C.JUDGE1["usd_out"]) + \
+        330 * (100 * C.JUDGE2["usd_in"] + 20 * C.JUDGE2["usd_out"])
+    check("judges' commitment counts the spend of every verdict, not only the last run",
+          abs(jc["usd_all_verdicts"] - round(want, 4)) < 1e-9 and jc["calls_this_run"] == led.calls
+          and jc["tokens_all_verdicts"]["judge2"] == {"in": 33000, "out": 6600})
 
     sel = H.select(fz, res, fz["seed"])
     origins = dict(sel)

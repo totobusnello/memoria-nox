@@ -69,7 +69,18 @@ def commitment(fz_c, res, led, body):
             "judges": {j["name"]: {"model": j["model"], "served": served[j["name"]]}
                        for j in (C.JUDGE1, C.JUDGE2)},
             "verdicts": {name: {k: len(v) for k, v in r.items()} for name, r in res.items()},
-            "calls": led.calls, "cached": led.cached, "usd": round(led.usd, 4), "cap_usd": led.cap,
+            # Deviation 2 (PREREGISTRATION.md §10): the ledger counts one run; a resumed run sees
+            # only its own calls. The spend of the verdicts is recomputed from their token counts.
+            "calls_this_run": led.calls, "cached_this_run": led.cached,
+            "usd_this_run": round(led.usd, 4), "cap_usd": led.cap,
+            "usd_all_verdicts": round(sum(
+                v["tin"] * j["usd_in"] + v["tout"] * j["usd_out"]
+                for j in (C.JUDGE1, C.JUDGE2) for k in res[j["name"]].values() for v in k.values()), 4),
+            "tokens_all_verdicts": {j["name"]: {"in": sum(v["tin"] for k in res[j["name"]].values()
+                                                          for v in k.values()),
+                                                "out": sum(v["tout"] for k in res[j["name"]].values()
+                                                           for v in k.values())}
+                                    for j in (C.JUDGE1, C.JUDGE2)},
             "judges_json_sha256": C.sha_bytes(body.encode("utf-8")),
             "script_sha256": {p: C.sha_file(HERE / p) for p in ("b-common.py", "b-judge.py")}}
 
