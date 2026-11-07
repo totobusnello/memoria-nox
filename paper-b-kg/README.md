@@ -18,7 +18,7 @@ numbers spread across audits.
 | `b-judge.py` | step 2: both judges, cached and capped at US$ 1, `JUDGES-COMMITMENT.json` (no label, no rate) |
 | `b-human.py` | step 3: the blind sheet (`make`, `SHEET-COMMITMENT.json`) and the grades (`commit`, `HUMAN-COMMITMENT.json`) |
 | `b-read.py` | step 4: controls, final labels, B-F with its Wilson interval, `READING-<date>.json` |
-| `b-test.py` | offline tests (55 checks): synthetic database, fake judges, throwaway git repository; no network |
+| `b-test.py` | offline tests (56 checks): synthetic database, fake judges, throwaway git repository; no network |
 
 ## What the census of 2026-11-06 says
 

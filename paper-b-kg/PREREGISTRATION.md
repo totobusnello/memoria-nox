@@ -179,3 +179,10 @@ literally and the P4 check strips it as before. No verdict that was already read
 others were cached before the change), and the label rules are untouched. The change is tested in
 `b-test.py`, and the judges' commitment records the new hash of `b-common.py`.
 
+**2. 2026-11-07, judges' commitment.** The spend ledger counts one run. The judges ran three times
+(the first run, a resume that hit the same unreadable verdict, and a resume after deviation 1), and
+the last run's commitment would have recorded only its own call and cost. `b-judge.py` now records
+the run's own figures under `*_this_run` and the spend of all 660 verdicts recomputed from their
+token counts at the registered prices (`usd_all_verdicts`). The verdicts and the private
+`judges.json` are unchanged; the first run's own ledger printed US$ 4.4918 for its 660 calls.
+
