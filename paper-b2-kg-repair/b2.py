@@ -19,9 +19,11 @@ import csv
 import datetime
 import importlib.util
 import json
+import os
 import pathlib
 import random
 import sys
+import threading
 from concurrent.futures import ThreadPoolExecutor
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -82,6 +84,12 @@ def load_step(p2, refs, files, repo=C.ROOT):
     return com
 
 
+def same_freeze(com, fzc):
+    """The B2 chain must run on the Paper B freeze the repair used."""
+    if com["REPAIR"]["b_freeze_commit"] != fzc["_commit"]:
+        raise SystemExit("refusing: the repair ran on another Paper B freeze")
+
+
 def jread(p):
     return json.loads(p.read_text(encoding="utf-8"))
 
@@ -95,13 +103,31 @@ def repair_jobs(fz):
     return out
 
 
-def run_repair(fz, cache, led, caller=C.call_claude, workers=4):
+def attempt_log(path):
+    """Append-only private log of every call to the repairer (§3, §6)."""
+    lock = threading.Lock()
+
+    def log(rec):
+        with lock:
+            with open(path, "a", encoding="utf-8") as fh:
+                fh.write(json.dumps(rec) + "\n")
+            os.chmod(path, 0o600)
+    return log
+
+
+def read_attempts(path):
+    if not path.exists():
+        return []
+    return [json.loads(x) for x in path.read_text(encoding="utf-8").splitlines() if x.strip()]
+
+
+def run_repair(fz, cache, led, caller=C.call_claude, workers=4, log=None):
     res, errors = {"primary": {}, "mismatch": {}}, []
 
     def one(job):
         kind, rid, item, text = job
         try:
-            return kind, rid, C.repair_one(cache, led, item, text, caller)
+            return kind, rid, C.repair_one(cache, led, item, text, caller, log)
         except SystemExit:
             raise
         except Exception as e:
@@ -115,28 +141,37 @@ def run_repair(fz, cache, led, caller=C.call_claude, workers=4):
     return res, errors
 
 
-def repair(a, caller=C.call_claude, repo=C.ROOT):
+def repair(a, caller=C.call_claude, repo=C.ROOT, version=C.cli_version):
     p2, pb = B.private(a.private), pathlib.Path(a.b_private)
     if (p2 / "repairs.json").exists():
         sys.exit("refusing: repairs.json exists; the pass runs once")
     t = C.tag_commit(repo)
     fzc, fz = b_freeze(pb, a.b_freeze_ref, repo)
-    cache, led = B.Cache(p2 / "repair-cache.sqlite"), B.Ledger(cap=C.CAP_USD)
-    res, errors = run_repair(fz, cache, led, caller)
+    att = p2 / "attempts.jsonl"
+    cache = B.Cache(p2 / "repair-cache.sqlite")
+    led = B.Ledger(cap=C.CAP_USD)
+    led.usd = sum(r["usd"] for r in read_attempts(att))     # the cap counts earlier runs too
+    cli = version()
+    res, errors = run_repair(fz, cache, led, caller, log=attempt_log(att))
     print(f"calls {led.calls} · cached {led.cached} · US$ {led.usd:.4f} · errors {len(errors)}")
     if errors:
         sys.exit(f"{len(errors)} calls failed (first: {errors[0]}); rerun to resume from the cache")
     body = json.dumps(res, ensure_ascii=False, indent=1, sort_keys=True)
     B.write_private(p2 / "repairs.json", body)
     allv = [v for k in res.values() for v in k.values()]
+    atts = read_attempts(att)
     B.write_public(HERE / "REPAIR-COMMITMENT.json", {
         "step": "REPAIR", "tag_commit": t, "seed": B.seed_of(t),
         "b_freeze_commit": fzc["_commit"], "b_freeze_json_sha256": fzc["freeze_json_sha256"],
         "repairer": {"model": C.REPAIRER["model"], "effort": C.REPAIRER["effort"], "route": "claude -p",
-                     "served": sorted({m for v in allv for m in v["served"]})},
+                     "cli_version_last_run": cli,
+                     "served": sorted({m for v in allv for m in v["served"]}),
+                     "turns": dict(collections.Counter(str(v["turns"]) for v in allv))},
+        "attempts": dict(collections.Counter(r["status"] for r in atts)),
+        "usd_list_price_all_attempts": round(sum(r["usd"] for r in atts), 4),
         "answers": {k: len(v) for k, v in res.items()},
         "calls_this_run": led.calls, "cached_this_run": led.cached,
-        "usd_this_run": round(led.usd, 4), "cap_usd": led.cap,
+        "usd_cumulative": round(led.usd, 4), "cap_usd": led.cap,
         "usd_all_answers": round(sum(v["usd"] for v in allv), 4),
         "tokens_all_answers": {"in": sum(v["tin"] for v in allv), "out": sum(v["tout"] for v in allv),
                                "thinking": sum(v["thinking"] for v in allv)},
@@ -185,9 +220,10 @@ def judge(a, callers=None, repo=C.ROOT):
         for j in (B.JUDGE1, B.JUDGE2):
             B.ready(j)
     com = load_step(p2, a.refs, [("REPAIR", "repairs_json_sha256", "repairs.json")], repo)
-    _, fz = b_freeze(pb, a.b_freeze_ref, repo)
+    fzc, fz = b_freeze(pb, a.b_freeze_ref, repo)
+    same_freeze(com, fzc)
     rw = rewrites(fz, jread(p2 / "repairs.json"))
-    cap = round(C.CAP_USD - com["REPAIR"]["usd_all_answers"], 4)
+    cap = round(C.CAP_USD - com["REPAIR"]["usd_list_price_all_attempts"], 4)
     cache, led = B.Cache(p2 / "judge-cache.sqlite"), B.Ledger(cap=cap)
     res, errors = run_judges(rw, cache, led, callers)
     print(f"rewrites {len(rw)} · calls {led.calls} · cached {led.cached} · US$ {led.usd:.4f}")
@@ -212,11 +248,19 @@ def judge(a, callers=None, repo=C.ROOT):
 
 # ------------------------------------------------------------------ step 3: the blind sheet
 def select(rw, res, seed, n_random=N_RANDOM):
-    """[(relation_id, origin)] in sheet order: every rewrite the judges disagree on, and n_random
-    of the rest drawn with seed + 1; shuffled with seed + 2 (§4)."""
+    """[(relation_id, origin)] in sheet order (§4), Paper B's strata: every rewrite the judges
+    disagree on; every rewrite both verify whose chunk carries a marker; n_random of the rest drawn
+    with seed + 1; shuffled with seed + 2."""
     j1, j2 = res["judge1"], res["judge2"]
+    text = {rid: t for rid, _, t in rw}
     ids = sorted(rid for rid, _, _ in rw)
-    origin = {i: "disagree" for i in ids if j1[str(i)]["verified"] != j2[str(i)]["verified"]}
+    origin = {}
+    for i in ids:
+        v1, v2 = j1[str(i)]["verified"], j2[str(i)]["verified"]
+        if v1 != v2:
+            origin[i] = "disagree"
+        elif v1 and B.marker(text[i][:B.CHUNK_CHARS]):
+            origin[i] = "marker"
     rest = [i for i in ids if i not in origin]
     for i in random.Random(seed + 1).sample(rest, min(n_random, len(rest))):
         origin[i] = "random"
@@ -229,7 +273,8 @@ def _sheet_inputs(a, repo, upto):
     p2, pb = B.private(a.private), pathlib.Path(a.b_private)
     com = load_step(p2, a.refs[:upto], [("REPAIR", "repairs_json_sha256", "repairs.json"),
                                         ("JUDGES", "judges_json_sha256", "judges.json")], repo)
-    _, fz = b_freeze(pb, a.b_freeze_ref, repo)
+    fzc, fz = b_freeze(pb, a.b_freeze_ref, repo)
+    same_freeze(com, fzc)
     rw = rewrites(fz, jread(p2 / "repairs.json"))
     res = jread(p2 / "judges.json")
     sel = select(rw, res, com["REPAIR"]["seed"])
@@ -251,11 +296,16 @@ def read_sheet(path, rw, sel):
     text = open(path, encoding="utf-8-sig", newline="").read()
     first = text.split("\n", 1)[0]
     delim = ";" if first.count(";") > first.count(",") else ","
-    got = list(csv.DictReader(text.splitlines(keepends=True), delimiter=delim))
-    if not got or {"item", "tripla", "trecho"} - set(got[0]) or not any(
-            c.startswith("sustenta") for c in got[0]):
+    rd = csv.DictReader(text.splitlines(keepends=True), delimiter=delim)
+    got = list(rd)
+    cols = rd.fieldnames or []
+    if {"item", "tripla", "trecho"} - set(cols) or not any(c.startswith("sustenta") for c in cols):
         raise SystemExit("refusing: the sheet does not have the columns sheet wrote")
-    gcol = next(c for c in got[0] if c.startswith("sustenta"))
+    if not sel:
+        if got:
+            raise SystemExit("refusing: rows on a sheet whose selection is empty")
+        return []
+    gcol = next(c for c in cols if c.startswith("sustenta"))
     if sorted(int(r["item"]) for r in got) != list(range(1, len(sel) + 1)):
         raise SystemExit("refusing: the sheet's items are not the registered selection")
     by_id = {rid: (item, t) for rid, item, t in rw}
@@ -336,77 +386,94 @@ def bootstrap(pairs, seed, n=N_BOOT):
     return [round(diffs[int(0.025 * len(diffs))], 4), round(diffs[int(0.975 * len(diffs)) - 1], 4)]
 
 
-def reading(fz, fin_b, ctl_b, rep, rw, res, graded, seed):
+def reading(fz, fin_b, ctl_b, rep, rw, res, graded, seed, cost=None):
+    """§5. The universe is fixed: the 300 relations with Paper B's final labels. If any lacks one
+    (Paper B's fallback, both judges failed its controls), the primary figures are unavailable and
+    only the actions are reported."""
     human = {i: (o, g) for i, o, g in graded}
     ok = [n for n in ("judge1", "judge2") if ctl_b[n]["passes"]]
-    rlab = rewrite_labels(rw, res, human, ok)
     prim, mm = rep["primary"], rep["mismatch"]
-    pairs, excluded = {}, collections.Counter()
-    for r in fz["sample"]:
-        i = r["relation_id"]
-        if i not in fin_b:
-            excluded["no_paper_b_label"] += 1
-            continue
-        before, act = fin_b[i][0], prim[str(i)]["action"]
-        if act == "delete":
-            after = None
-        elif act == "rewrite":
-            if i not in rlab:
-                excluded["rewrite_without_label"] += 1
-                continue
-            after = rlab[i]
-        else:
-            after = before
-        pairs[i] = (before, after, act)
-    S = [i for i, (b, _, _) in pairs.items() if b == 1]
-    U = [i for i, (b, _, _) in pairs.items() if b == 0]
-    kept = [aft for _, aft, _ in pairs.values() if aft is not None]
+    by_id = {r["relation_id"]: r for r in fz["sample"]}
+    acts = {i: prim[str(i)]["action"] for i in by_id}
+    pairs_of = {i: prim[str(i)].get("pair") for i in by_id}
     keep_mm = sum(1 for v in mm.values() if v["action"] == "keep")
     mm_rate = keep_mm / len(mm) if mm else None
     positive_ok = mm_rate is not None and mm_rate <= MISMATCH_KEEP_MAX
-    rnd = sorted(i for i, (o, _) in human.items() if o == "random")
     answers = list(prim.values()) + list(mm.values())
-    return {
-        "instrument": {"positive_control_passes": positive_ok,
-                       "interpreted": positive_ok},
-        "B2_P": {"n_before": len(pairs), "precision_before": BR.rate([b for b, _, _ in pairs.values()]),
-                 "precision_after": BR.rate(kept),
-                 "difference": (round(sum(kept) / len(kept) - sum(b for b, _, _ in pairs.values())
-                                      / len(pairs), 4) if kept and pairs else None),
-                 "difference_bootstrap95": bootstrap([(b, a) for b, a, _ in pairs.values()], seed)},
-        "B2_R": BR.rate([int(pairs[i][1] == 1) for i in S]),
+    out = {
         "controls": {
             "positive_mismatch": {"n": len(mm), "kept": keep_mm,
+                                  "actions": dict(collections.Counter(v["action"] for v in mm.values())),
                                   "rate": None if mm_rate is None else round(mm_rate, 4),
                                   "passes": positive_ok},
             "repairer_quote_check": {
                 "answers_keep_or_rewrite": sum(1 for v in answers if v["action"] != "delete"
                                                and not v.get("no_answer")),
                 "quote_ok": sum(1 for v in answers if v["action"] != "delete" and v["quote_ok"])},
-            "kappa_human_vs_judge_random_rewrites": {
-                n: {"n": len(rnd), "kappa": B.kappa([human[i][1] for i in rnd],
-                                                    [int(res[n][str(i)]["verified"]) for i in rnd])}
-                for n in ("judge1", "judge2")},
             "paper_b_judges_passing": ok},
         "reported_not_interpreted": {
-            "actions": dict(collections.Counter(a for _, _, a in pairs.values())),
+            "actions": dict(collections.Counter(acts.values())),
+            "rewrite_pairs": dict(collections.Counter(str(pairs_of[i]) for i in by_id
+                                                      if acts[i] == "rewrite")),
             "no_answer": sum(1 for v in answers if v.get("no_answer")),
-            "correction_rate_on_paper_b_unsupported": BR.rate(
-                [int(pairs[i][1] is None or pairs[i][1] == 1) for i in U]),
-            "damage_rate_on_paper_b_supported": BR.rate(
-                [int(pairs[i][1] is None or pairs[i][1] == 0) for i in S]),
-            "excluded": dict(excluded),
-            "rewrites": len(rw), "rewrite_label_source": dict(collections.Counter(
-                "human" if i in human else "judges" for i in rlab)),
-            "by_relation_reason": _by(fz, pairs, "relation_reason"),
-            "by_evidence_bucket": _by(fz, pairs, "bucket")}}
+            "identical_rewrites_counted_as_keep": sum(1 for v in answers if v.get("rewrite_identical")),
+            "rewrites": len(rw),
+            "human_by_sheet_origin": {o: BR.rate([g for oo, g in human.values() if oo == o])
+                                      for o in sorted({o for o, _ in human.values()})},
+            "list_price_usd": cost,
+            "by_relation_reason": _by(fz, acts, "relation_reason"),
+            "by_evidence_bucket": _by(fz, acts, "bucket")}}
+    missing = [i for i in by_id if i not in fin_b]
+    if missing or not ok:
+        out["instrument"] = {"positive_control_passes": positive_ok, "primary_available": False,
+                             "interpreted": False,
+                             "reason": ("Paper B has no final label for %d relations" % len(missing))
+                             if missing else "no Paper B judge passed its controls"}
+        return out
+    rlab = rewrite_labels(rw, res, human, ok)
+    before = {i: fin_b[i][0] for i in by_id}
+    after = {i: (None if acts[i] == "delete" else rlab[i] if acts[i] == "rewrite" else before[i])
+             for i in by_id}
+    S = [i for i in by_id if before[i] == 1]
+    U = [i for i in by_id if before[i] == 0]
+    kept_lab = [after[i] for i in by_id if after[i] is not None]
+    filt = [before[i] for i in by_id if acts[i] == "keep"]
+    rnd = sorted(i for i, (o, _) in human.items() if o == "random")
+    tr = lambda ids: dict(collections.Counter(
+        "delete" if acts[i] == "delete" else "keep" if acts[i] == "keep"
+        else f"rewrite_{pairs_of[i]}_{'supported' if after[i] else 'unsupported'}" for i in ids))
+    out["instrument"] = {"positive_control_passes": positive_ok, "primary_available": True,
+                         "interpreted": positive_ok}
+    out["B2_P"] = {
+        "precision_before": BR.rate(list(before.values())),
+        "precision_after": BR.rate(kept_lab),
+        "difference": (round(sum(kept_lab) / len(kept_lab) - sum(before.values()) / len(before), 4)
+                       if kept_lab else None),
+        "difference_bootstrap95": bootstrap([(before[i], after[i]) for i in sorted(by_id)], seed)}
+    out["B2_R"] = BR.rate([int(acts[i] == "keep") for i in S])
+    out["B2_R"]["definition"] = "Paper B supported relations kept unchanged"
+    out["reported_not_interpreted"].update({
+        "supported_outputs_before_after": [sum(before.values()), sum(kept_lab)],
+        "precision_after_if_rewrites_were_deletes": BR.rate(filt),
+        "supported_output_retention_lenient": BR.rate([int(after[i] == 1) for i in S]),
+        "transitions_from_paper_b_supported": tr(S),
+        "transitions_from_paper_b_unsupported": tr(U),
+        "correction_rate_on_paper_b_unsupported": BR.rate(
+            [int(after[i] is None or after[i] == 1) for i in U]),
+        "damage_rate_on_paper_b_supported": BR.rate([int(after[i] is None or after[i] == 0) for i in S]),
+        "rewrite_label_source": dict(collections.Counter(
+            "human" if i in human else "judges" for i in rlab))})
+    out["controls"]["kappa_human_vs_judge_random_rewrites"] = {
+        n: {"n": len(rnd), "kappa": B.kappa([human[i][1] for i in rnd],
+                                            [int(res[n][str(i)]["verified"]) for i in rnd])}
+        for n in ("judge1", "judge2")}
+    return out
 
 
-def _by(fz, pairs, key):
+def _by(fz, acts, key):
     g = collections.defaultdict(list)
     for r in fz["sample"]:
-        if r["relation_id"] in pairs:
-            g[str(r[key])].append(pairs[r["relation_id"]][2])
+        g[str(r[key])].append(acts[r["relation_id"]])
     return {k: dict(collections.Counter(v)) for k, v in sorted(g.items())}
 
 
@@ -427,13 +494,16 @@ def read(a, repo=C.ROOT):
     graded = read_sheet(p2 / "human-sheet.csv", rw, sel)
     if B.sha_json(graded) != com["HUMAN"]["grades_sha256"]:
         sys.exit("refusing: the grades are not the committed ones")
-    out = reading(fz, fin_b, ctl_b, rep, rw, res, graded, seed)
+    cost = {"repair_all_attempts": com["REPAIR"]["usd_list_price_all_attempts"],
+            "rewrite_judges": com["JUDGES"]["usd_all_verdicts"]}
+    out = reading(fz, fin_b, ctl_b, rep, rw, res, graded, seed, cost)
     out["commits"] = {n: com[n]["_commit"] for n in C.COMMITS}
     out["paper_b_commits"] = bcommits
     out["tag_commit"] = com["_tag"]
     B.write_public(HERE / f"READING-{datetime.date.today().isoformat()}.json", out)
-    print(json.dumps({"B2_P": out["B2_P"]["difference"], "B2_R": out["B2_R"]["rate"],
-                      "positive_control": out["controls"]["positive_mismatch"]["passes"]}))
+    print(json.dumps({"instrument": out["instrument"],
+                      "B2_P": (out.get("B2_P") or {}).get("difference"),
+                      "B2_R": (out.get("B2_R") or {}).get("rate")}))
 
 
 def main(argv=None):

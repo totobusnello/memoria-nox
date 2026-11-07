@@ -106,36 +106,70 @@ def call_claude(msg, timeout=600, runner=subprocess.run):
            "tout": int(u.get("output_tokens") or 0),
            "thinking": int((u.get("output_tokens_details") or {}).get("thinking_tokens") or 0),
            "is_error": bool(d.get("is_error")), "subtype": d.get("subtype"),
-           "stop": d.get("stop_reason")}
+           "stop": d.get("stop_reason"), "turns": int(d.get("num_turns") or 0)}
     ans = d.get("structured_output")
     if not isinstance(ans, dict) or ans.get("acao") not in ("keep", "rewrite", "delete"):
         ans = None
     return ans, rec
 
 
-def repair_one(cache, led, item, text, caller=call_claude):
-    """§3: one action per relation, asked once and cached; a refusal or an unreadable answer is
-    counted and the relation is kept unchanged."""
+def norm(t):
+    return " ".join((t or "").split()).casefold()
+
+
+def pair_class(item, new):
+    """§4: how a rewrite's entities relate to the original's: the same pair in the same order,
+    the same pair swapped, or a new pair."""
+    a, b = norm(item["source"]), norm(item["target"])
+    x, y = norm(new["source"]), norm(new["target"])
+    return "same" if (x, y) == (a, b) else "swapped" if (x, y) == (b, a) else "new"
+
+
+def repair_one(cache, led, item, text, caller=call_claude, log=None):
+    """§3: one action per relation, asked once and cached. A refusal or an answer outside the
+    schema is counted and the relation is kept unchanged; a rewrite identical to the original is a
+    keep. Only a transport error (the CLI failing, or output that is not its JSON) leaves the
+    relation unanswered, so a rerun asks again. Every attempt is logged with its cost, and a served
+    model other than the registered one stops the run."""
     msg = user_message(item, text)
     k = B.sha_bytes(json.dumps([REPAIRER["model"], REPAIRER["effort"], SYSTEM, msg]).encode())
     hit = cache.get(k)
     if hit is not None:
         led.cached += 1
         return hit
-    ans, rec = caller(msg)
+    log = log or (lambda rec: None)
+    try:
+        ans, rec = caller(msg)
+    except (RuntimeError, ValueError, OSError, subprocess.TimeoutExpired) as e:
+        log({"key": k, "status": "transport_error", "error": str(e)[:200], "usd": 0.0})
+        raise RuntimeError(str(e)[:200])
+    log({"key": k, "status": "answered" if ans else "no_answer", "served": rec["served"],
+         "usd": rec["usd"], "tin": rec["tin"], "tout": rec["tout"], "turns": rec["turns"]})
     led.add(rec["usd"])
+    if rec["served"] != [REPAIRER["model"]]:
+        raise SystemExit(f"served model {rec['served']} is not {REPAIRER['model']}: stopping (§3)")
     if ans is None:
-        v = {"action": "keep", "no_answer": True, "quote": "", "quote_ok": False}
+        v = {"action": "keep", "no_answer": True, "quote": "", "quote_ok": False, "new": None}
     else:
         q = (ans.get("oito_palavras") or "").strip()
-        v = {"action": ans["acao"], "no_answer": False, "quote": q[:300],
-             "quote_ok": B.quote_ok(q, text) if ans["acao"] != "delete" else False,
-             "new": ({"source": ans["nova_origem"][:300], "predicate": ans["novo_predicado"][:200],
-                      "target": ans["novo_destino"][:300]} if ans["acao"] == "rewrite" else None),
+        new = ({"source": ans["nova_origem"][:300], "predicate": ans["novo_predicado"][:200],
+                "target": ans["novo_destino"][:300]} if ans["acao"] == "rewrite" else None)
+        act = ans["acao"]
+        if new and all(norm(new[f]) == norm(item[f]) for f in ("source", "predicate", "target")):
+            act, new = "keep", None              # a rewrite that changes nothing is a keep
+        v = {"action": act, "no_answer": False, "quote": q[:300],
+             "quote_ok": B.quote_ok(q, text) if act != "delete" else False, "new": new,
+             "pair": pair_class(item, new) if new else None,
+             "rewrite_identical": ans["acao"] == "rewrite" and act == "keep",
              "reason": str(ans.get("motivo") or "")[:300]}
-    v.update({k2: rec[k2] for k2 in ("served", "usd", "tin", "tout", "thinking", "stop")})
+    v.update({k2: rec[k2] for k2 in ("served", "usd", "tin", "tout", "thinking", "stop", "turns")})
     cache.put(k, v)
     return v
+
+
+def cli_version(runner=subprocess.run):
+    p = runner(["claude", "--version"], capture_output=True, text=True, timeout=60)
+    return (p.stdout or "").strip()[:80]
 
 
 # ------------------------------------------------------------------ B2's own public history

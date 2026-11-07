@@ -4,7 +4,8 @@
   python3 -I b2-test.py
 
 A fake `claude -p`, fake judges, a synthetic Paper B outcome built so every figure is known in
-advance, and a throwaway git repository with a bare origin. Checks that guard something are also
+advance, and throwaway git repositories with a bare origin, through which every subcommand runs end
+to end, with rewrites and with none. Checks that guard something are also
 run against an input built to break them.
 """
 import csv
@@ -97,13 +98,14 @@ def t_call():
 def t_repair_one(tmp):
     text = "A Entidade 1 contratou a Entidade 7 em 2026 pelo valor de R$ 1000 conforme cláusula 1."
     item = {"source": "Entidade 1", "predicate": "contratou", "target": "Entidade 7"}
-    calls = []
+    calls, logged = [], []
 
-    def caller(ans):
+    def caller(ans, served=("claude-opus-5-5",)):
+        served = list(served)
         def c(msg):
             calls.append(msg)
-            return ans, {"served": ["claude-opus-5-5"], "usd": 0.02, "tin": 1, "tout": 1,
-                         "thinking": 0, "stop": "end_turn"}
+            return ans, {"served": served, "usd": 0.02, "tin": 1, "tout": 1,
+                         "thinking": 0, "stop": "end_turn", "turns": 2}
         return c
 
     cache, led = B.Cache(tmp / "rc.sqlite"), B.Ledger(cap=1.0)
@@ -113,8 +115,10 @@ def t_repair_one(tmp):
     check("a keep carries a quote that passes the check", v["action"] == "keep" and v["quote_ok"])
     C.repair_one(cache, led, item, text, caller(keep))
     check("a repeat is served from the cache, not asked again", len(calls) == 1 and led.cached == 1)
-    check("the message carries the triple and the chunk only",
-          "Entidade 1" in calls[0] and "contratou" in calls[0] and "verified" not in calls[0])
+    check("the message is exactly the triple and the chunk (no label, verdict or grade)",
+          calls[0] == C.user_message(item, text) and calls[0] == (
+              "TRIPLA:  (Entidade 1) --[contratou]--> (Entidade 7)\n\nTRECHO (a evidência "
+              "registrada):\n---\n" + text + "\n---"))
     item2 = dict(item, target="Entidade 9")
     v = C.repair_one(cache, led, item2, text, caller(None))
     check("no answer keeps the relation unchanged and is counted",
@@ -123,6 +127,34 @@ def t_repair_one(tmp):
     v = C.repair_one(cache, led, dict(item, target="Entidade 8"), text, caller(bad))
     check("mutation: a quote not in the chunk fails the check", not v["quote_ok"])
     check("cap aborts", raises(B.Ledger(cap=0.0).add, 0.01))
+    same = dict(keep, acao="rewrite", nova_origem=" entidade 1", novo_predicado="Contratou",
+                novo_destino="Entidade 7 ")
+    v = C.repair_one(cache, led, dict(item, predicate="contratou "), text, caller(same))
+    check("a rewrite identical to the original is a keep",
+          v["action"] == "keep" and v["rewrite_identical"] and v["new"] is None)
+    sw = dict(keep, acao="rewrite", nova_origem="Entidade 7", novo_predicado="foi contratada por",
+              novo_destino="Entidade 1")
+    v = C.repair_one(cache, led, dict(item, target="Entidade 7", source="Entidade 1",
+                                      predicate="x"), text, caller(sw), logged.append)
+    check("a rewrite that swaps the pair is classed 'swapped'", v["pair"] == "swapped")
+    check("every attempt is logged with its cost", logged and logged[-1]["status"] == "answered"
+          and logged[-1]["usd"] == 0.02)
+    check("mutation: a served model other than the registered one stops the run",
+          raises(C.repair_one, cache, led, dict(item, target="Entidade 3"), text,
+                 caller(keep, ("claude-sonnet-5-5",)), logged.append))
+
+    def broken(msg):
+        raise RuntimeError("rc=1")
+    n0 = len(logged)
+    try:
+        C.repair_one(cache, led, dict(item, target="Entidade 4"), text, broken, logged.append)
+        ok = False
+    except RuntimeError:
+        ok = True
+    check("a transport error is logged, left unanswered and raised for a resume",
+          ok and logged[n0]["status"] == "transport_error"
+          and cache.get(B.sha_bytes(json.dumps([C.REPAIRER["model"], C.REPAIRER["effort"], C.SYSTEM,
+                        C.user_message(dict(item, target="Entidade 4"), text)]).encode())) is None)
 
 
 # ------------------------------------------------------------------ a Paper B outcome known in advance
@@ -138,6 +170,7 @@ def synthetic():
         fin[i] = (1, "judges") if i <= 270 else (0, "human")
         act = "keep" if i <= 265 else "delete" if i <= 270 else "delete" if i <= 290 else "rewrite"
         prim[str(i)] = {"action": act, "quote_ok": act != "delete", "no_answer": False,
+                        "pair": "same" if act == "rewrite" else None,
                         "new": ({"source": f"Entidade {i}", "predicate": "assinou com",
                                  "target": f"Entidade {i + 1}"} if act == "rewrite" else None)}
     mm = {str(i): {"action": "delete", "quote_ok": False, "no_answer": False} for i in range(1, 31)}
@@ -184,7 +217,14 @@ def t_reading(tmp):
           P["precision_after"]["supported"] == 275 and P["precision_after"]["n"] == 275)
     check("difference is +0.1 and its bootstrap interval holds it",
           P["difference"] == 0.1 and P["difference_bootstrap95"][0] <= 0.1 <= P["difference_bootstrap95"][1])
-    check("retention is 265/270", R["supported"] == 265 and R["n"] == 270)
+    check("retention (kept unchanged) is 265/270", R["supported"] == 265 and R["n"] == 270)
+    rn0 = out["reported_not_interpreted"]
+    check("decomposition: filter-only precision 265/265 and supported outputs 270 -> 275",
+          rn0["precision_after_if_rewrites_were_deletes"]["supported"] == 265
+          and rn0["precision_after_if_rewrites_were_deletes"]["n"] == 265
+          and rn0["supported_outputs_before_after"] == [270, 275])
+    check("transitions from unsupported: 20 deleted, 10 same-pair rewrites supported",
+          rn0["transitions_from_paper_b_unsupported"] == {"delete": 20, "rewrite_same_supported": 10})
     rn = out["reported_not_interpreted"]
     check("correction 30/30 and damage 5/270",
           rn["correction_rate_on_paper_b_unsupported"]["supported"] == 30
@@ -200,6 +240,17 @@ def t_reading(tmp):
     out_m = X.reading(fz, fin, ctl, rep_m, rw, res, graded, 7)
     check("mutation: keeping 4 of 30 mismatched fails the positive control",
           not out_m["controls"]["positive_mismatch"]["passes"] and not out_m["instrument"]["interpreted"])
+    rep_r = json.loads(json.dumps(rep))
+    for i in range(1, 11):                      # rewrite 10 supported relations into new facts
+        rep_r["primary"][str(i)].update(action="rewrite", pair="new", new={
+            "source": "Outra", "predicate": "p", "target": "Coisa"})
+    rw_r = X.rewrites(fz, rep_r)
+    res_r = {n: {str(rid): {"verified": True, "claims": True} for rid, _, _ in rw_r}
+             for n in ("judge1", "judge2")}
+    out_r = X.reading(fz, fin, ctl, rep_r, rw_r, res_r, [], 7)
+    check("mutation: replacing supported facts with other supported facts is not retention",
+          out_r["B2_R"]["supported"] == 255
+          and out_r["reported_not_interpreted"]["supported_output_retention_lenient"]["supported"] == 265)
     rep_d = json.loads(json.dumps(rep))
     for v in rep_d["primary"].values():
         v["action"] = "delete"
@@ -213,12 +264,28 @@ def t_reading(tmp):
     ctl_f = {"judge1": {"passes": False}, "judge2": {"passes": False}}
     only_dis = [g for g in graded if g[1] == "disagree"]       # 9 rewrites left off the sheet
     out_f = X.reading(fz, fin, ctl_f, rep, rw, res, only_dis, 7)
-    check("no passing judge: rewrites off the sheet are excluded and counted",
-          out_f["reported_not_interpreted"]["excluded"].get("rewrite_without_label", 0) == 9)
+    check("no passing Paper B judge: primary unavailable, universe not shrunk",
+          not out_f["instrument"]["primary_available"] and "B2_P" not in out_f)
+    fin_m = dict(fin)
+    del fin_m[5]
+    out_g = X.reading(fz, fin_m, ctl, rep, rw, res, graded, 7)
+    check("a relation without Paper B's label: primary unavailable",
+          not out_g["instrument"]["primary_available"] and "B2_R" not in out_g)
     out_p = X.reading(fz, fin, ctl, rep, rw, res, only_dis, 7)
     check("passing judges label the rewrites off the sheet",
-          not out_p["reported_not_interpreted"]["excluded"]
-          and out_p["reported_not_interpreted"]["rewrite_label_source"] == {"human": 1, "judges": 9})
+          out_p["reported_not_interpreted"]["rewrite_label_source"] == {"human": 1, "judges": 9})
+
+    empty = tmp / "e.csv"
+    X.write_sheet(empty, [], [])
+    check("zero rewrites: an empty sheet reads back as no grades", X.read_sheet(empty, [], []) == [])
+    with open(empty, "a", newline="", encoding="utf-8") as fh:
+        csv.writer(fh).writerow(["1", "x", "y", "s"])
+    check("mutation: a row on an empty selection is refused", raises(X.read_sheet, empty, [], []))
+    res_mk = json.loads(json.dumps(res))
+    rw_mk = [(rid, it, t + " exceto quando houver aditivo.") for rid, it, t in rw]
+    sel_mk = X.select(rw_mk, res_mk, 7)
+    check("marker stratum: agreed rewrites on a chunk with a marker all go on the sheet",
+          sum(o == "marker" for _, o in sel_mk) == 9)
 
 
 # ------------------------------------------------------------------ the public history
@@ -264,6 +331,114 @@ def t_order(tmp):
     check("a commitment rewritten later is refused", raises(C.ordered, work, [("REPAIR", r)]))
 
 
+def t_e2e(tmp, rewrite_some):
+    """Every subcommand through a throwaway repository: repair, judge, sheet, grades, read, each
+    commitment committed and pushed before the next step, Paper B's side replaced by a synthetic
+    outcome. Run with and without rewrites."""
+    import argparse
+    tag = f"e2e{int(rewrite_some)}"
+    origin, work = tmp / f"{tag}-origin.git", tmp / f"{tag}-work"
+    subprocess.run(["git", "init", "-q", "--bare", "-b", "main", str(origin)], check=True)
+    subprocess.run(["git", "clone", "-q", str(origin), str(work)], check=True, capture_output=True)
+    git(work, "config", "user.email", "t@t")
+    git(work, "config", "user.name", "t")
+    d = work / C.D
+    d.mkdir()
+    for f in X.SCRIPTS:
+        shutil.copy(HERE / f, d / f)
+
+    def push(msg):
+        git(work, "add", "-A")
+        git(work, "commit", "-q", "-m", msg)
+        git(work, "push", "-q", "origin", "main")
+        return git(work, "rev-parse", "HEAD")
+
+    push("base")
+    git(work, "tag", C.TAG)
+    git(work, "push", "-q", "origin", C.TAG)
+    fz, fin, ctl, _, _, _ = synthetic()
+    fz["mismatch"] = [{"relation_id": i, "chunk_text": "Outro documento sem as entidades."}
+                      for i in range(1, 31)]
+    fzc = {"_commit": "f" * 40, "freeze_json_sha256": "0" * 64}
+    old = (X.HERE, X.b_freeze, X.b_labels)
+    X.HERE = d
+    X.b_freeze = lambda pb, ref, repo: (fzc, fz)
+    X.b_labels = lambda pb, refs, repo: (fz, fin, ctl, {"FREEZE": fzc["_commit"]})
+
+    def repairer(msg):
+        i = int(msg.split("(Entidade ", 1)[1].split(")", 1)[0])
+        if "Outro documento" in msg:
+            act = "delete"
+        elif rewrite_some and i > 290:
+            act = "rewrite"
+        else:
+            act = "keep" if i <= 265 else "delete"
+        chunk = msg.split("---\n", 1)[1]
+        return ({"acao": act, "oito_palavras": "" if act == "delete" else " ".join(chunk.split()[:8]),
+                 "nova_origem": f"Entidade {i}" if act == "rewrite" else "",
+                 "novo_predicado": "assinou com" if act == "rewrite" else "",
+                 "novo_destino": f"Entidade {i + 1}" if act == "rewrite" else "", "motivo": "t"},
+                {"served": ["claude-opus-5-5"], "usd": 0.01, "tin": 10, "tout": 5, "thinking": 1,
+                 "stop": "end_turn", "turns": 2})
+
+    def judge_fake(judge, prompt):
+        chunk = prompt.split("---\n", 2)[1]
+        return (json.dumps({"sustenta": True, "oito_palavras": " ".join(chunk.split()[:8]),
+                            "erro": "nenhum", "motivo": "t"}), 10, 5, judge["model"])
+
+    p2, pb = tmp / f"{tag}-p2", tmp / f"{tag}-pb"
+    ns = lambda refs: argparse.Namespace(private=str(p2), b_private=str(pb), b_freeze_ref="x",
+                                         b_refs=["a", "b", "c", "d"], refs=refs)
+    try:
+        X.repair(ns([]), caller=repairer, repo=work, version=lambda: "test-cli")
+        rc = json.loads((d / "REPAIR-COMMITMENT.json").read_text())
+        check(f"[{tag}] repair commitment: 330 answers, attempts logged, no action count",
+              rc["answers"] == {"primary": 300, "mismatch": 30} and rc["attempts"] == {"answered": 330}
+              and "keep" not in json.dumps(rc) and rc["repairer"]["cli_version_last_run"] == "test-cli")
+        r = push("repair")
+        check(f"[{tag}] repair refuses to run twice", raises(
+            X.repair, ns([]), caller=repairer, repo=work, version=lambda: "x"))
+        X.judge(ns([r]), callers={"judge1": judge_fake, "judge2": judge_fake}, repo=work)
+        j = push("judges")
+        X.sheet(ns([r, j]), repo=work)
+        sc = json.loads((d / "SHEET-COMMITMENT.json").read_text())
+        check(f"[{tag}] sheet rows = rewrites", sc["rows"] == (10 if rewrite_some else 0))
+        s_ = push("sheet")
+        sheet = p2 / "human-sheet.csv"
+        rows = list(csv.reader(io.StringIO(sheet.read_text(encoding="utf-8"))))
+        with open(sheet, "w", newline="", encoding="utf-8") as fh:
+            csv.writer(fh).writerows([rows[0]] + [x[:-1] + ["s"] for x in rows[1:]])
+        X.grades(ns([r, j, s_]), repo=work)
+        h = push("human")
+        X.read(ns([r, j, s_, h]), repo=work)
+        out = json.loads(next(d.glob("READING-*.json")).read_text())
+        want_r = 265
+        check(f"[{tag}] reading end to end: positive control, retention {want_r}/270",
+              out["instrument"]["primary_available"] and out["controls"]["positive_mismatch"]["passes"]
+              and out["B2_R"]["supported"] == want_r and out["B2_R"]["n"] == 270
+              and out["B2_P"]["precision_after"]["n"] == (275 if rewrite_some else 265)
+              and out["reported_not_interpreted"]["list_price_usd"]["repair_all_attempts"] == 3.3)
+        pub = "".join(f.read_text() for f in d.glob("*.json"))
+        check(f"[{tag}] no public file carries an entity name or chunk text",
+              "Entidade" not in pub and "contratou" not in pub and "assinou" not in pub)
+        orig = (p2 / "repairs.json").read_text()
+        (p2 / "repairs.json").write_text(orig + " ")
+        check(f"[{tag}] mutation: a private file changed after its commitment is refused",
+              raises(X.read, ns([r, j, s_, h]), repo=work))
+        (p2 / "repairs.json").write_text(orig)
+        (p2 / "judges.json").rename(p2 / "judges.json.bak")
+        fzc_other = dict(fzc, _commit="e" * 40)
+        X.b_freeze = lambda pb, ref, repo: (fzc_other, fz)
+        try:
+            X.judge(ns([r]), callers={"judge1": judge_fake, "judge2": judge_fake}, repo=work)
+            msg = ""
+        except SystemExit as e:
+            msg = str(e)
+        check(f"[{tag}] mutation: another Paper B freeze is refused", "another Paper B freeze" in msg)
+    finally:
+        X.HERE, X.b_freeze, X.b_labels = old
+
+
 def t_cli():
     check("judge without its repair ref is refused",
           raises(X.main, ["judge", "--private", "/x", "--b-private", "/y", "--b-freeze-ref", "c"]))
@@ -278,6 +453,8 @@ def main():
         t_repair_one(tmp)
         t_reading(tmp)
         t_order(tmp)
+        t_e2e(tmp, True)
+        t_e2e(tmp, False)
         t_cli()
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
