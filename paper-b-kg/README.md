@@ -19,6 +19,9 @@ numbers spread across audits.
 | `b-human.py` | step 3: the blind sheet (`make`, `SHEET-COMMITMENT.json`) and the grades (`commit`, `HUMAN-COMMITMENT.json`) |
 | `b-read.py` | step 4: controls, final labels, B-F with its Wilson interval, `READING-<date>.json` |
 | `b-test.py` | offline tests (56 checks): synthetic database, fake judges, throwaway git repository; no network |
+| `READING-2026-11-07.json` | the reading: B-F 0.913 [0.876, 0.940], both judges pass both controls, kappa with the human 0.155 |
+| `b-disagreement-direction.py`, `DISAGREEMENT-DIRECTION-2026-11-07.json` | after the reading, not registered: which judge accepted on each disagreement row, against the human grade (counts only) |
+| `NOTE.md`, `PROVENANCE.json` | the data note covering Paper B and Paper B2 (`../paper-b2-kg-repair/`); gate `python3 -I tools/provenance.py --check paper-b-kg` |
 
 ## What the census of 2026-11-06 says
 

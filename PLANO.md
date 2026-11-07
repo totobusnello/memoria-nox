@@ -177,10 +177,7 @@ sobe de US$ 1 para US$ 10 pelo preço do juiz 2; teto e tag aprovados em 07/11 0
 taguea»), tag `paper-b-prereg-v1.0`. Em 07/11: congelamento (#676, semente 3335023133), juízes (#679,
 660 vereditos, US$ 4,49; desvios 1 e 2 no §10, #677/#678), planilha cega de 173 linhas (#680:
 76 divergências, 37 marcadores, 60 sorteadas) em `~/Backups/paper-b-freeze-2026-11-07/`.
-O Toto graduou as 173 linhas em 07/11 (Numbers, exportado para CSV; a planilha em branco ficou
-como `human-sheet.blank.csv`); `HUMAN-COMMITMENT.json` no #682. **`b-read.py` só depois da tag do
-pré-registro do B2** (decisão dele em 07/11). Objetivos novos B2 e E abertos em 07/11 (seção
-«Objetivo (2026-11-07)»). Próximo: rascunho do pré-registro e dos scripts do B2. Estudo do
+Em 07/11 à noite: B lido (#688, B-F 0,913 [0,876; 0,940], controles passam, kappa 0,155). B2: vozes Codex e DeepSeek antes da tag (Codex pediu bloquear; retenção redefinida, universo fixo, fluxo sem reescritas), tag `paper-b2-prereg-v1.0` (#687), reparo pelo `claude -p` (#689, US$ 7,93 a preço de lista), juízes nas 106 reescritas (#690), planilha de 60 (#691), desvio 1 (três trechos vazios no .xlsx, regraduados; #692), notas (#693), leitura (#694): precisão 0,913 → 0,990, retenção estrita 0,650, só filtrando 0,989. Nota do B e do B2 em `paper-b-kg/NOTE.md` (rascunho, proveniência 37 registros, 0 falhas, avoid-ai-writing feito); depósito no Zenodo é do Toto. Estudo do
 shadow do C2: rascunho do pré-registro (#673) com o redator GLM sob exceção ao §3 do protocolo e a
 regra de parada aprovadas em 07/11; a tag espera o ok.
 Último resultado dos gates: 2026-11-07 · `b-test.py` 53 verificações, 0 falhas (mutações no
