@@ -13,6 +13,12 @@ numbers spread across audits.
 | `b-census.py` | structural census, no model call, read-only on a snapshot; counts and shares only, evidence sources in fixed buckets, never raw paths |
 | `CENSUS-2026-11-06.json` | the census on the daily snapshot of 2026-11-06 03:00 UTC (name and sha256 inside) |
 | `PREREGISTRATION.md` | DRAFT, not fixed: faithfulness on a fresh uniform sample of 300, two judge families, the October principles fixed in advance, blind human adjudication; fixed only by the tag `paper-b-prereg-v1.0` |
+| `b-common.py` | what the scripts share: the draw, the October citation check and prompt with the four principles, the judges, the commitment order |
+| `b-freeze.py` | step 1: seed from the tag commit, the 300 + 30 draw, private freeze, `FREEZE-COMMITMENT.json` |
+| `b-judge.py` | step 2: both judges, cached and capped at US$ 1, `JUDGES-COMMITMENT.json` (no label, no rate) |
+| `b-human.py` | step 3: the blind sheet (`make`, `SHEET-COMMITMENT.json`) and the grades (`commit`, `HUMAN-COMMITMENT.json`) |
+| `b-read.py` | step 4: controls, final labels, B-F with its Wilson interval, `READING-<date>.json` |
+| `b-test.py` | offline tests (52 checks): synthetic database, fake judges, throwaway git repository; no network |
 
 ## What the census of 2026-11-06 says
 
