@@ -167,3 +167,15 @@ Computed by the census script on the same snapshot and reported as description:
 B-F says how often a cited chunk supports its triple in this graph, frozen in July and dominated by
 the document vault. It does not say how faithful a new extraction would be, nor how useful the graph
 is to an agent: §8 describes reach and form, and no consumer study is part of this protocol.
+
+## 10. Deviations after the tag
+
+**1. 2026-11-07, judges.** Of the 660 judge calls, judge 1's verdict on one sampled relation could
+not be read: the model copied into its quote a markdown escape from the chunk (`R\$`), which is not
+a valid JSON escape, and every reading of the October parser failed; a rerun at temperature 0
+returned the same text. `jload` in `b-common.py` gained a last attempt, run only when every earlier
+reading fails, that doubles a backslash not starting a valid JSON escape, so the string keeps it
+literally and the P4 check strips it as before. No verdict that was already read changes (the 659
+others were cached before the change), and the label rules are untouched. The change is tested in
+`b-test.py`, and the judges' commitment records the new hash of `b-common.py`.
+

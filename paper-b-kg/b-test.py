@@ -124,6 +124,11 @@ def t_pure():
     check("marker finds example", C.marker("Ex: Fulano de Tal") == "example")
     check("marker ignores 'excetuando'-like words", C.marker("excetuando nada") is None)
     check("wilson 135/150 matches October [0.842, 0.938]", all(abs(x - y) < 6e-4 for x, y in zip(C.wilson(135, 150), [0.842, 0.938])))
+    bad = '{"sustenta": true, "oito_palavras": "valor de R\\$ 50.000 pago em", "erro": "nenhum"}'
+    j = C.jload(bad)
+    check("deviation 1: a lone markdown escape in the quote is repaired, not dropped",
+          j is not None and j["sustenta"] is True and C.quote_ok(j["oito_palavras"], "o valor de R\\$ 50.000 pago em"))
+    check("deviation 1: valid JSON is read as before", C.jload('{"a": "x\\ny"}') == {"a": "x\ny"})
     check("kappa perfect = 1", C.kappa([1, 0, 1, 0], [1, 0, 1, 0]) == 1.0)
     check("kappa undefined on constant labels", C.kappa([1, 1], [1, 1]) is None)
     check("a judge without a model or prices refuses to run",
