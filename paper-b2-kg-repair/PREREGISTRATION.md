@@ -127,15 +127,24 @@ Paper B's `relation_reason`, evidence bucket and sheet origin; the cost.
 Tag `paper-b2-prereg-v1.0`. After the tag Paper B's reading may run: nothing in this protocol
 depends on its result, and the repairer never sees a label. Then:
 
-1. **Repair** (`b2-repair.py`): the 300 and the 30 mismatched. Commit `REPAIR-COMMITMENT.json`
-   (calls, cost, counts per action, served model, hashes; no triple and no text).
-2. **Judges on rewrites** (`b2-judge.py`): commit `B2-JUDGES-COMMITMENT.json`.
-3. **Sheet** (`b2-human.py make`, then `commit`): `B2-SHEET-COMMITMENT.json`, grade,
-   `B2-HUMAN-COMMITMENT.json`.
-4. **Reading** (`b2-read.py`): `READING-<date>.json`, then the note.
+One script, `b2.py`, one subcommand per step; the commitments live in this directory, so their
+names do not collide with Paper B's:
 
-Each script refuses to run unless the previous commitment is on the public main branch and
-byte-equal to the private copy, and the reading also requires Paper B's four commitments. Triples,
+1. **Repair** (`b2.py repair`): the 300 and the 30 mismatched. Commit `REPAIR-COMMITMENT.json`
+   (calls, cost, tokens, served model, answers per kind, hashes; no action count, no triple and
+   no text, so the human sheet is graded before any outcome is public).
+2. **Judges on rewrites** (`b2.py judge`): commit `JUDGES-COMMITMENT.json`; its cap is US$ 20
+   minus the repair's spend.
+3. **Sheet** (`b2.py sheet`, then `b2.py grades`): `SHEET-COMMITMENT.json`, grade,
+   `HUMAN-COMMITMENT.json`.
+4. **Reading** (`b2.py read`): `READING-<date>.json`, then the note.
+
+Each step refuses to run unless the previous commitment is on the public main branch, after the
+tag, written once and byte-equal to the private copy; the reading also recomputes Paper B's final
+labels under `b-read.py`'s own checks, from Paper B's four commitments. If no Paper B judge passed
+its controls, a rewrite off the sheet has no label; it is excluded from both figures and counted.
+`b2-test.py` exercises every step offline (fake `claude -p`, fake judges, a synthetic outcome whose
+figures are known in advance, a throwaway git repository) with mutations each check must catch. Triples,
 entity names and chunk text stay in `~/Backups/paper-b2-repair-<date>/` (mode 700) and are sent
 only to the repairer and the two judge APIs.
 
@@ -161,6 +170,6 @@ whether an agent answers better from the repaired graph.
 
 1. ~~Cap and smoke~~ and ~~effort~~: decided 2026-11-07 (§3, §6).
 2. ~~Route~~: `claude -p` on the subscription, decided 2026-11-07 (§3).
-3. The scripts `b2-repair.py`, `b2-judge.py`, `b2-human.py`, `b2-read.py` and their offline test
-   `b2-test.py` (synthetic data, fake repairer, mutations), written and green before the tag.
+3. ~~Scripts~~: `b2.py` and `b2-test.py` written; 41 checks, 0 failures (2026-11-07).
 4. Adversarial voices on this text: only if the author asks for them.
+5. The tag: the author's approval.
