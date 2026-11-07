@@ -1,0 +1,19 @@
+{
+ "commits": {
+  "FREEZE": "bb98fe6eaf8e5e92c006e8ecc043366230cf4b44",
+  "HUMAN": "c496e129f7bb4d20e8cab2ddd45ed665986dd2af",
+  "JUDGES": "ef017927b8011e3c842af1dcdd03339a10481cea",
+  "SHEET": "b8ee58a5655d8ee340928a79d4ff1deda27cab99"
+ },
+ "rows": {
+  "only_judge1_accepted": {
+   "human_supported": 55,
+   "human_unsupported": 4
+  },
+  "only_judge2_accepted": {
+   "human_supported": 16,
+   "human_unsupported": 1
+  }
+ },
+ "what": "Paper B disagreement rows by which judge accepted, against the human grade; computed after the reading, not registered"
+}
