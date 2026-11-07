@@ -306,6 +306,15 @@ def jload(txt):
                 return fix(json.loads(m.group(0), strict=False))
             except Exception:
                 pass
+    # Deviation 1 (PREREGISTRATION.md §10): a quote copied from a markdown chunk can carry an escape
+    # JSON does not allow (`R\$`). Only when every reading above failed, the lone backslash is
+    # doubled, so the string keeps it literally and the P4 check strips it as before.
+    rep = re.sub(r'\\(?!["\\/bfnrtu])', r"\\\\", txt or "")
+    if rep != txt:
+        try:
+            return fix(json.loads(rep, strict=False))
+        except Exception:
+            pass
     return None
 
 
