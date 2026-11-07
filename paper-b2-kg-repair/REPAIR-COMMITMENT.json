@@ -1,0 +1,42 @@
+{
+ "answers": {
+  "mismatch": 30,
+  "primary": 300
+ },
+ "attempts": {
+  "answered": 330
+ },
+ "b_freeze_commit": "bb98fe6eaf8e5e92c006e8ecc043366230cf4b44",
+ "b_freeze_json_sha256": "e133d2a176c9164bd1d3445f89b070a78270e07e23a275e5747630b1516d67c1",
+ "cached_this_run": 0,
+ "calls_this_run": 330,
+ "cap_usd": 20.0,
+ "repairer": {
+  "cli_version_last_run": "2.1.319 (Claude Code)",
+  "effort": "medium",
+  "model": "claude-opus-5-5",
+  "route": "claude -p",
+  "served": [
+   "claude-opus-5-5"
+  ],
+  "turns": {
+   "2": 330
+  }
+ },
+ "repairs_json_sha256": "25392ac77f4795d5a7c1ee849bf6ae1201af800515bc7af1d1f65ad30310acfe",
+ "script_sha256": {
+  "b2-common.py": "6537aff8016816a242bfd0121d2297c695dd894b6de91515f4a0cdb942361a26",
+  "b2.py": "b09cfead4164f0081d7262c9bf4e2fd14c174068c058f1ec74096c1477987c3f"
+ },
+ "seed": 415370986,
+ "step": "REPAIR",
+ "tag_commit": "18c20eea4c2742ce494c1ea58e6b6726d97ce83b",
+ "tokens_all_answers": {
+  "in": 983018,
+  "out": 177502,
+  "thinking": 72922
+ },
+ "usd_all_answers": 7.9341,
+ "usd_cumulative": 7.9341,
+ "usd_list_price_all_attempts": 7.9341
+}
