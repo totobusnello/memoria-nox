@@ -1,0 +1,38 @@
+{
+ "freeze_json_sha256": "e133d2a176c9164bd1d3445f89b070a78270e07e23a275e5747630b1516d67c1",
+ "mismatch_pairs_sha256": "3aee0632c9f61b66b3335187cb3e8986b033b2e9be1931de880567b25ccd36f6",
+ "n_mismatch": 30,
+ "n_sample": 300,
+ "population": 17667,
+ "sample_by_bucket": {
+  "daily notes": 11,
+  "document vault": 252,
+  "other": 3,
+  "workspace documents": 34
+ },
+ "sample_by_reason": {
+  "depends_on": 38,
+  "derived_from": 5,
+  "mentions": 147,
+  "opposes": 6,
+  "replaces": 1,
+  "unknown": 103
+ },
+ "sample_ids_sha256": "c971a5cc6bc8b366145bd4254c82e17fbb4187575acfb697faf80a81b6fd8d0a",
+ "sample_with_marker": {
+  "None": 239,
+  "example": 11,
+  "exception": 50
+ },
+ "script_sha256": {
+  "b-census.py": "19ce63a2bb01dae452d5231a4819a9a00da7374a6b7289f4954f9cd3ff399ec8",
+  "b-common.py": "d46f01d8188254d4aa240e9175734da3fb38fed5d928d20dcd1655fb0ac2a7dc",
+  "b-freeze.py": "27f9f85f09346a5929a54eec45f315705d3bd842ad087c168265113c299d22b2"
+ },
+ "seed": 3335023133,
+ "snapshot_name": "daily-main-main-20261106030002-3269917-a12b890e65d84fb38d099684c2f802bd.db.gz",
+ "snapshot_sha256": "14f5000a1b4dfe6cd0a0f78e57c0295d52d39049ebeaed1fc707a961af8dac4c",
+ "step": "FREEZE",
+ "tag": "paper-b-prereg-v1.0",
+ "tag_commit": "c6c86a1d4d86e579d1ad8329d7985726a868a8d8"
+}
