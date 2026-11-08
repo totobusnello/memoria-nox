@@ -83,3 +83,23 @@ two-sided and 80% power needs:
 Only 242 instances exist, so a 10 pp shrinkage is detectable only with positive correlation and
 the full sample. With 100 instances the design detects a shrinkage of about 15 to 20 pp, that is,
 an advantage cut by more than half.
+
+## Second smoke: `gemini-2.5-flash`, thinking off
+
+The pro arms priced the design above what the study is worth, so a second set (`e-smoke.py --set
+flash`, run `runs/smoke-flash-2026-11-08/`) priced the middle model of the same generation:
+`gemini-2.5-flash` with `thinkingBudget: 0`, on the same 40 blocks. Its request differs from the
+flash-lite one only by the model name and that thinking setting. List price US$ 0.30 in and
+US$ 2.50 out per million tokens, read 2026-11-08. Spend: US$ 0.08.
+
+| criterion | input tokens | output tokens | parse failures / 40 | units kept per block | US$ per call |
+|---|---|---|---|---|---|
+| C0 | 535 | 137 | 0 | 2.42 | 0.00050 |
+| C2 | 860 | 139 | 0 | 2.98 | 0.00061 |
+| P | 505 | 258 | 0 | 4.30 | 0.00080 |
+
+All 120 answers used the `{"memories": [...]}` form. With 70,067 distinct blocks on all 242
+instances, the three criteria cost about US$ 133 at the standard price and US$ 67 in batch, plus
+US$ 9 for flash-lite on P and about US$ 29 for reader and judges. The step from flash-lite to
+flash is smaller than the step to pro, so a null interaction here would not rule out one at a
+larger step.
