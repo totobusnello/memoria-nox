@@ -1,0 +1,167 @@
+{
+ "committed_grades": {
+  "correction_on_paper_b_unsupported": {
+   "n": 26,
+   "rate": 0.8846,
+   "supported": 23,
+   "wilson95": [
+    0.7102,
+    0.96
+   ]
+  },
+  "damage_on_paper_b_supported": {
+   "n": 274,
+   "rate": 0.0328,
+   "supported": 9,
+   "wilson95": [
+    0.0174,
+    0.0612
+   ]
+  },
+  "difference": 0.0762,
+  "difference_bootstrap95": [
+   0.0465,
+   0.1067
+  ],
+  "precision_after": {
+   "n": 286,
+   "rate": 0.9895,
+   "supported": 283,
+   "wilson95": [
+    0.9696,
+    0.9964
+   ]
+  },
+  "retention_lenient": {
+   "n": 274,
+   "rate": 0.9672,
+   "supported": 265,
+   "wilson95": [
+    0.9388,
+    0.9826
+   ]
+  },
+  "retention_strict": {
+   "definition": "Paper B supported relations kept unchanged",
+   "n": 274,
+   "rate": 0.6496,
+   "supported": 178,
+   "wilson95": [
+    0.5914,
+    0.7037
+   ]
+  },
+  "transitions_from_paper_b_supported": {
+   "delete": 9,
+   "keep": 178,
+   "rewrite_new_supported": 30,
+   "rewrite_same_supported": 50,
+   "rewrite_swapped_supported": 7
+  },
+  "transitions_from_paper_b_unsupported": {
+   "delete": 5,
+   "keep": 2,
+   "rewrite_new_supported": 7,
+   "rewrite_same_supported": 9,
+   "rewrite_same_unsupported": 1,
+   "rewrite_swapped_supported": 2
+  }
+ },
+ "deviation": "paper-b2-kg-repair/PREREGISTRATION.md §10, deviation 1",
+ "first_grades": {
+  "correction_on_paper_b_unsupported": {
+   "n": 26,
+   "rate": 0.8462,
+   "supported": 22,
+   "wilson95": [
+    0.6647,
+    0.9385
+   ]
+  },
+  "damage_on_paper_b_supported": {
+   "n": 274,
+   "rate": 0.0401,
+   "supported": 11,
+   "wilson95": [
+    0.0226,
+    0.0704
+   ]
+  },
+  "difference": 0.0657,
+  "difference_bootstrap95": [
+   0.0356,
+   0.0982
+  ],
+  "precision_after": {
+   "n": 286,
+   "rate": 0.979,
+   "supported": 280,
+   "wilson95": [
+    0.955,
+    0.9904
+   ]
+  },
+  "retention_lenient": {
+   "n": 274,
+   "rate": 0.9599,
+   "supported": 263,
+   "wilson95": [
+    0.9296,
+    0.9774
+   ]
+  },
+  "retention_strict": {
+   "definition": "Paper B supported relations kept unchanged",
+   "n": 274,
+   "rate": 0.6496,
+   "supported": 178,
+   "wilson95": [
+    0.5914,
+    0.7037
+   ]
+  },
+  "transitions_from_paper_b_supported": {
+   "delete": 9,
+   "keep": 178,
+   "rewrite_new_supported": 29,
+   "rewrite_new_unsupported": 1,
+   "rewrite_same_supported": 49,
+   "rewrite_same_unsupported": 1,
+   "rewrite_swapped_supported": 7
+  },
+  "transitions_from_paper_b_unsupported": {
+   "delete": 5,
+   "keep": 2,
+   "rewrite_new_supported": 6,
+   "rewrite_new_unsupported": 1,
+   "rewrite_same_supported": 9,
+   "rewrite_same_unsupported": 1,
+   "rewrite_swapped_supported": 2
+  }
+ },
+ "items": [
+  {
+   "committed_grade": 1,
+   "first_grade": 0,
+   "item": 39,
+   "paper_b_label": 1,
+   "sheet_origin": "random"
+  },
+  {
+   "committed_grade": 1,
+   "first_grade": 0,
+   "item": 40,
+   "paper_b_label": 1,
+   "sheet_origin": "marker"
+  },
+  {
+   "committed_grade": 1,
+   "first_grade": 0,
+   "item": 55,
+   "paper_b_label": 0,
+   "sheet_origin": "random"
+  }
+ ],
+ "registered": false,
+ "what": "B2 reading with the committed grades and with items 39, 40, 55 at their first grade"
+}
