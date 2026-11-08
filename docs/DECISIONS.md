@@ -3329,6 +3329,32 @@ caracteres são amostradas por duas janelas de 20k, logo o tax delas é medido s
 `audits/2026-10-26-replay-{build,generate,answer,judge,report}.py`.
 
 
+### D-2026-11-08c — Histórico público reescrito para tirar dado privado, preservando os hashes originais
+
+**Contexto.** 14 arquivos com material do corpus privado (inclusive dado de terceiros) já tinham saído
+do `main` (#636 em 04/11, #713 em 08/11), mas seguiam no histórico público.
+
+**Decidido pelo Toto (08/11):** «reescrever» (20h29), depois de ver o custo: as 13 tags de pré-registro a
+partir de 22/10 mudam de hash; escolheu «Reescrever e preservar».
+
+**Execução.**
+1. Preservação, antes de tocar no remoto: bundle local verificado
+   (`~/Backups/memoria-nox-pre-rewrite-2026-11-08/`, sha256 `dfb5d11c…`) e espelho **privado**
+   `totobusnello/memoria-nox-pre-rewrite-2026-11-08`, com as 25 refs conferidas uma a uma.
+2. `git filter-repo --invert-paths` nos 14 caminhos, limitado aos commits que descendem do primeiro que
+   adicionou um deles (`--refs … ^<base>`). A primeira tentativa, sem esse limite, mudava as 20 tags
+   (inclusive Paper 1 v1.0.2 e a datanote): o `filter-repo` remove a assinatura GPG que o GitHub põe nos
+   squash-merges e com isso troca o hash de todo commit. Limitado, mudaram só as 13 tags de pré-registro;
+   1.696 commits mantidos, a árvore do `main` idêntica, 168 commits remapeados.
+3. Push com a proteção da `main` aberta só durante o push e restaurada idêntica (conferido campo a campo).
+   Num clone novo do GitHub, nenhum dos 19 blobs privados é alcançável.
+4. Clone local alinhado; 34 branches locais com o histórico velho (todas de PR mergeado ou fechado)
+   apagadas, para que nenhum push as devolva.
+5. Shadow do C2 (único estudo em curso): semente mantida no valor registrado `0x6ac8272d`, desvio §10 do
+   pré-registro, tag `paper-d-shadow-prereg-v1.1`. Mapa público: `docs/HISTORY-REWRITE-2026-11-08.md`.
+
+**Falta (do Toto):** pedir ao GitHub a purga das refs de PR em cache (rascunho no HANDOFF).
+
 ### D-2026-11-08b — ROADMAP v7: integridade, quem usa, e só então o que aprender
 
 **Contexto.** Auditoria de 08/11 (inventário de ≈70 itens abertos, síntese de 29 alavancas medidas, estado

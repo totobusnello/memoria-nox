@@ -603,7 +603,8 @@ def order_tests(T):
         ok, got = False, {}
         print("   ", e)
     check(ok and set(got) == set(C.COMMITS), "CHAIN: tag -> freeze -> questions -> results -> human passes")
-    check(C.tag_seed(repo) == int(tagc[:8], 16), "the seed is the tag commit's first 8 hex digits")
+    check(C.tag_seed(repo) == 1791502125 == 0x6AC8272D and (tagc[:8] == "6ac8272d" or C.tag_seed(repo) != int(tagc[:8], 16)),
+          "§10: the seed is the registered 0x6ac8272d, not the digits of the commit the tag points to now")
     (PV / "SHADOW-RESULTS-COMMITMENT.json").write_text(bodies["SHADOW-RESULTS"].replace("2", "9"))
     check(refuses(lambda: C.chain(repo, PV, refs, False), "not the private copy"),
           "CHAIN: a private commitment that differs from the published one is refused")

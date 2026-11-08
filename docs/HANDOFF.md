@@ -1,3 +1,22 @@
+## ▶ Domingo 08/11, 21h45 BRT — histórico público reescrito (A2); shadow passa a ser a v1.1
+
+**Feito:** os 14 arquivos com dado privado saíram de todo o histórico público (D-2026-11-08c,
+`docs/HISTORY-REWRITE-2026-11-08.md`). Mudaram os hashes de 13 tags de pré-registro; as tags de antes de
+22/10 (Paper 1, datanote, Paper 2) ficaram iguais. Os originais estão no espelho privado
+`totobusnello/memoria-nox-pre-rewrite-2026-11-08` e no bundle em `~/Backups/memoria-nox-pre-rewrite-2026-11-08/`.
+O shadow do C2 segue com a semente registrada (1791502125), agora pela tag `paper-d-shadow-prereg-v1.1`.
+
+**Outros clones:** quem tem um clone antigo do memoria-nox (outra máquina, outra sessão) precisa de
+`git fetch --force --tags && git reset --hard origin/main` e **não** pode dar push de branch antiga
+(devolveria os arquivos). O ponteiro do submódulo no `~/Claude` precisa de bump.
+
+**Pendente do Toto: pedir ao GitHub a purga das páginas de PR em cache.** Em
+https://support.github.com/contact → «Remove sensitive data», texto sugerido:
+> I rewrote the history of the public repository totobusnello/memoria-nox on 2026-11-08 with git
+> filter-repo to remove files containing third-party data. Please remove cached views and dereference
+> the old commits from pull requests. The paths removed are listed in docs/HISTORY-REWRITE-2026-11-08.md
+> in the repository. The first affected commit is cae2e103b58b6e5eeda83a67185b72ddfca0b1d2.
+
 ## ▶ Domingo 08/11, 20h45 BRT — A3 fechado; OpenReview bloqueado; reescrita do histórico em análise
 
 **Decisões do Toto (20h29):** «reescrever» (A2, histórico privado); «fazer os itens do a3»;
