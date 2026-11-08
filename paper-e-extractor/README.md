@@ -9,19 +9,31 @@ Does the advantage of the rule-based criterion C2 over the deployed C0 (Paper 3:
 | `PREREGISTRATION.md` | the plan; frozen by the tag `paper-e-prereg-v1.0` |
 | `e_prompts.py` | criteria C0, C2 (Paper 3, byte for byte) and P; Paper E's parser |
 | `e_batch.py` | Gemini Batch API over REST: upload, create, poll, list, download |
-| `e-run.py` | runner: `plan`, `seed`, `batch-test`, `distill`, `read` |
+| `e-run.py` | runner: `plan`, `batch-test`, `distill`, `read` |
 | `e-analyze.py` | the registered analysis; `--check` reproduces it byte for byte |
 | `e-test.py` | offline tests, fake API, synthetic instances |
+| `review-codex-prereg.md`, `review-kimi-prereg.md` | the voices on the v1.0 draft |
 | `e-smoke.py`, `e-shape-probe.py` | the cost smokes and the JSON shape probe |
 | `SMOKE-RESULT.md` | what the smokes measured, cost projection, power |
 | `runs/` | smoke outputs (counts only) and the batch test |
 
 ## Tests
 
-`python3 -I e-test.py` runs 46 checks without network and ends with ALL PASS. Five planted
-defects were each caught: the parser refusing the list form, the duplicate-batch guard removed,
-batch spend at full price, the positive control keeping the answer sessions, and the primary
-contrast without its flash-lite term.
+`python3 -I e-test.py` runs 69 checks without network and ends with ALL PASS. Ten planted
+defects were each caught (exit 1):
+
+- the parser refusing the list form;
+- the duplicate-batch guard removed;
+- batch spend at full price;
+- re-ingest charging again;
+- invalid batch answers not retried;
+- the positive controls keeping the answer sessions;
+- the freeze check skipping the analysis, this plan and Paper 3's modules;
+- the analysis accepting a partial row set;
+- sync calls ignoring the cap;
+- the primary contrast without its flash-lite term.
+
+The freeze check is tested in a temporary git repository with both tags.
 
 ## Spend before the tag
 
