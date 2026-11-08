@@ -124,7 +124,7 @@ F_MH 3-7% gap on EverMemBench is **corpus-structural** (long conversation chains
 
 ---
 
-## KG path retrieval — Lab Q1 #4 (research harness, PR #379; not in the npm package or the reference deployment, audit 2026-11-08)
+## KG path retrieval — Lab Q1 #4 (research harness, PR #379; using the graph walk inside search ranking is not in the npm package or the reference deployment, audit 2026-11-08; the walk itself, `GET /api/kg/path`, is)
 
 > **Config:** Approach A — 1-hop boost via regex entity extraction + `kg_relations` SQL walk. 5-batch GPT-4.1-mini (n=3,121). $0/query (no LLM at query time).
 
