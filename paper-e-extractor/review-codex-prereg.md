@@ -1,3 +1,5 @@
+> Paths in this review were made repository-relative on 2026-11-08 before the Zenodo deposit; the text is otherwise the voice's output unchanged.
+
 **Eu não congelaria esta versão.** O contraste está correto, mas faltam garantias de integridade da execução e a interpretação proposta excede o que a comparação identifica.
 
 Li integralmente os cinco arquivos no commit `78e66a2`, além das funções importadas relevantes. Fiz verificações sintéticas locais, sem chamadas pagas nem alterações. Não tenho como atestar que pertenço a uma família diferente da que escreveu o desenho: a autoria não está estabelecida nesses arquivos.
@@ -10,7 +12,7 @@ Li integralmente os cinco arquivos no commit `78e66a2`, além das funções impo
 
    **Antes da tag:** tornar “força” uma interpretação hipotética e definir o estimando como interação entre *modelo/configuração* e critério.
 
-   Referências: [PREREGISTRATION.md:8–14](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/PREREGISTRATION.md:8), [43–48](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/PREREGISTRATION.md:43), [150–156](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/PREREGISTRATION.md:150); [SMOKE-RESULT.md:95–105](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/SMOKE-RESULT.md:95).
+   Referências: [PREREGISTRATION.md:8–14](paper-e-extractor/PREREGISTRATION.md:8), [43–48](paper-e-extractor/PREREGISTRATION.md:43), [150–156](paper-e-extractor/PREREGISTRATION.md:150); [SMOKE-RESULT.md:95–105](paper-e-extractor/SMOKE-RESULT.md:95).
 
 2. **[Alta] Reutilização cria uma comparação entre extrações históricas e novas; o pareamento não elimina isso.**
 
@@ -20,7 +22,7 @@ Li integralmente os cinco arquivos no commit `78e66a2`, além das funções impo
 
    **Antes da tag:** ou regenerar L_C0/L_C2 contemporaneamente, ou assumir explicitamente um estudo condicionado ao cache histórico, com auditoria de proveniência e uma ponte contemporânea pré-especificada. Reler e rejulgar elimina reutilização dos *desfechos*, mas não das extrações.
 
-   Referências: [PREREGISTRATION.md:70–73](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/PREREGISTRATION.md:70); [e-run.py:78–80](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:78), [182–202](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:182), [408–414](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:408).
+   Referências: [PREREGISTRATION.md:70–73](paper-e-extractor/PREREGISTRATION.md:70); [e-run.py:78–80](paper-e-extractor/e-run.py:78), [182–202](paper-e-extractor/e-run.py:182), [408–414](paper-e-extractor/e-run.py:408).
 
 3. **[Alta] As 242 instâncias permitem uma extensão pareada, não uma nova confirmação independente do achado original.**
 
@@ -30,7 +32,7 @@ Li integralmente os cinco arquivos no commit `78e66a2`, além das funções impo
 
    **Antes da tag:** registrar a inferência como extensão prospectiva em amostra reutilizada, explicitar a população-alvo e restringir a frase “H_E1 confirmed” ao contraste operacional nesse desenho.
 
-   Referências: [PREREGISTRATION.md:18–22](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/PREREGISTRATION.md:18), [70–82](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/PREREGISTRATION.md:70), [99–104](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/PREREGISTRATION.md:99).
+   Referências: [PREREGISTRATION.md:18–22](paper-e-extractor/PREREGISTRATION.md:18), [70–82](paper-e-extractor/PREREGISTRATION.md:70), [99–104](paper-e-extractor/PREREGISTRATION.md:99).
 
 4. **[Alta] A regra principal pode “confirmar encolhimento” porque F piorou C2.**
 
@@ -40,7 +42,7 @@ Li integralmente os cinco arquivos no commit `78e66a2`, além das funções impo
 
    **Antes da tag:** pré-especificar e reportar F_C0−L_C0 e F_C2−L_C2, com intervalos, e separar o veredito estatístico da interpretação mecanística. Esses contrastes não constam da lista secundária.
 
-   Referências: [PREREGISTRATION.md:77–95](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/PREREGISTRATION.md:77); [e-analyze.py:88–115](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-analyze.py:88).
+   Referências: [PREREGISTRATION.md:77–95](paper-e-extractor/PREREGISTRATION.md:77); [e-analyze.py:88–115](paper-e-extractor/e-analyze.py:88).
 
 5. **[Alta] A trava da tag não congela o instrumento completo.**
 
@@ -50,7 +52,7 @@ Li integralmente os cinco arquivos no commit `78e66a2`, além das funções impo
 
    **Antes da tag:** verificar hashes de toda a cadeia executável, análise, protocolo e dados; registrar o commit resolvido da tag no recibo.
 
-   Referências: [e-run.py:50–54](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:50), [104–110](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:104), [127–138](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:127); [e_prompts.py:14–16](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e_prompts.py:14), [29–31](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e_prompts.py:29); [e-analyze.py:28–32](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-analyze.py:28).
+   Referências: [e-run.py:50–54](paper-e-extractor/e-run.py:50), [104–110](paper-e-extractor/e-run.py:104), [127–138](paper-e-extractor/e-run.py:127); [e_prompts.py:14–16](paper-e-extractor/e_prompts.py:14), [29–31](paper-e-extractor/e_prompts.py:29); [e-analyze.py:28–32](paper-e-extractor/e-analyze.py:28).
 
 6. **[Alta] A análise não exige as 1.492 linhas nem os 40 controles prometidos.**
 
@@ -62,7 +64,7 @@ Li integralmente os cinco arquivos no commit `78e66a2`, além das funções impo
 
    **Antes da tag:** validar exatamente o conjunto esperado de pares `(qid, cell)`, rejeitar duplicatas e fixar uma única política coerente para incompletude.
 
-   Referências: [PREREGISTRATION.md:102–104](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/PREREGISTRATION.md:102), [124–125](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/PREREGISTRATION.md:124); [e-analyze.py:45–61](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-analyze.py:45), [74–86](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-analyze.py:74), [146–152](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-analyze.py:146).
+   Referências: [PREREGISTRATION.md:102–104](paper-e-extractor/PREREGISTRATION.md:102), [124–125](paper-e-extractor/PREREGISTRATION.md:124); [e-analyze.py:45–61](paper-e-extractor/e-analyze.py:45), [74–86](paper-e-extractor/e-analyze.py:74), [146–152](paper-e-extractor/e-analyze.py:146).
 
 7. **[Alta] Recuperação de falhas e relatório não implementam o protocolo.**
 
@@ -74,7 +76,7 @@ Li integralmente os cinco arquivos no commit `78e66a2`, além das funções impo
 
    Isso deixa tratamento desigual de falhas e pode converter problemas de formato em aparente efeito de critério.
 
-   Referências: [PREREGISTRATION.md:122–133](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/PREREGISTRATION.md:122); [e-run.py:209–210](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:209), [260–264](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:260), [320–335](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:320), [370–373](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:370), [408–412](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:408).
+   Referências: [PREREGISTRATION.md:122–133](paper-e-extractor/PREREGISTRATION.md:122); [e-run.py:209–210](paper-e-extractor/e-run.py:209), [260–264](paper-e-extractor/e-run.py:260), [320–335](paper-e-extractor/e-run.py:320), [370–373](paper-e-extractor/e-run.py:370), [408–412](paper-e-extractor/e-run.py:408).
 
 8. **[Alta, operacional] US$160 não é um teto rígido; retomada pode recontar gastos.**
 
@@ -84,7 +86,7 @@ Li integralmente os cinco arquivos no commit `78e66a2`, além das funções impo
 
    **Antes da tag:** parada compartilhada antes de novas chamadas, cancelamento de pendências, contabilização idempotente por requisição e distinção explícita entre teto operacional estimado e cobrança efetiva.
 
-   Referências: [PREREGISTRATION.md:127–129](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/PREREGISTRATION.md:127); [e-run.py:145–178](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:145), [248–307](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:248), [320–335](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:320); [lme-run.py:276–281](/Users/lab/Claude/Projetos/memoria-nox/paper3-construction/lme-run.py:276).
+   Referências: [PREREGISTRATION.md:127–129](paper-e-extractor/PREREGISTRATION.md:127); [e-run.py:145–178](paper-e-extractor/e-run.py:145), [248–307](paper-e-extractor/e-run.py:248), [320–335](paper-e-extractor/e-run.py:320); [lme-run.py:276–281](paper3-construction/lme-run.py:276).
 
 9. **[Média] P é uma comparação legítima de prompts, mas não uma ablação pura de regras.**
 
@@ -94,7 +96,7 @@ Li integralmente os cinco arquivos no commit `78e66a2`, além das funções impo
 
    **Antes da tag:** limitar a conclusão à política completa; se houver intenção mecanística, acrescentar diagnóstico pré-especificado de retenção e orçamento de memória.
 
-   Referências: [e_prompts.py:18–27](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e_prompts.py:18); [PREREGISTRATION.md:50–61](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/PREREGISTRATION.md:50); [SMOKE-RESULT.md:95–99](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/SMOKE-RESULT.md:95); [lme-run.py:472–481](/Users/lab/Claude/Projetos/memoria-nox/paper3-construction/lme-run.py:472).
+   Referências: [e_prompts.py:18–27](paper-e-extractor/e_prompts.py:18); [PREREGISTRATION.md:50–61](paper-e-extractor/PREREGISTRATION.md:50); [SMOKE-RESULT.md:95–99](paper-e-extractor/SMOKE-RESULT.md:95); [lme-run.py:472–481](paper3-construction/lme-run.py:472).
 
 10. **[Média] Aceitar lista e objeto é justo; o parser não cumpre integralmente seu contrato.**
 
@@ -104,7 +106,7 @@ Li integralmente os cinco arquivos no commit `78e66a2`, além das funções impo
 
     **Antes da tag:** definir esquema válido, distinguir vazio legítimo de formato inválido e retirar qualquer leitura daquela porcentagem como garantia de impacto desprezível nos desfechos.
 
-    Referências: [e_prompts.py:44–67](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e_prompts.py:44); [PREREGISTRATION.md:63–73](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/PREREGISTRATION.md:63); [SMOKE-RESULT.md:50–55](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/SMOKE-RESULT.md:50).
+    Referências: [e_prompts.py:44–67](paper-e-extractor/e_prompts.py:44); [PREREGISTRATION.md:63–73](paper-e-extractor/PREREGISTRATION.md:63); [SMOKE-RESULT.md:50–55](paper-e-extractor/SMOKE-RESULT.md:50).
 
 11. **[Média] Os controles não distinguem falha do instrumento de explicações alternativas.**
 
@@ -114,7 +116,7 @@ Li integralmente os cinco arquivos no commit `78e66a2`, além das funções impo
 
     **Antes da tag:** tratar falha como bloqueio conservador de interpretação, sem atribuir sua causa; especificar auditoria e, idealmente, controles correspondentes nos dois extratores.
 
-    Referências: [PREREGISTRATION.md:88–95](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/PREREGISTRATION.md:88); [e-run.py:339–365](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:339); [e-analyze.py:74–101](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-analyze.py:74).
+    Referências: [PREREGISTRATION.md:88–95](paper-e-extractor/PREREGISTRATION.md:88); [e-run.py:339–365](paper-e-extractor/e-run.py:339); [e-analyze.py:74–101](paper-e-extractor/e-analyze.py:74).
 
 12. **[Média] A potência apresentada não corresponde integralmente ao teste cluster-robust planejado.**
 
@@ -124,7 +126,7 @@ Li integralmente os cinco arquivos no commit `78e66a2`, além das funções impo
 
     **Antes da tag:** reportar número/tamanho dos clusters, avaliar sobreposição de blocos e qualificar os números de potência como aproximações sob as hipóteses declaradas.
 
-    Referências: [PREREGISTRATION.md:99–113](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/PREREGISTRATION.md:99); [e-analyze.py:54–68](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-analyze.py:54); [lme-analyze.py:43–72](/Users/lab/Claude/Projetos/memoria-nox/paper3-construction/lme-analyze.py:43).
+    Referências: [PREREGISTRATION.md:99–113](paper-e-extractor/PREREGISTRATION.md:99); [e-analyze.py:54–68](paper-e-extractor/e-analyze.py:54); [lme-analyze.py:43–72](paper3-construction/lme-analyze.py:43).
 
 13. **[Média] A adoção de batches por nome não identifica univocamente a execução.**
 
@@ -132,6 +134,6 @@ Li integralmente os cinco arquivos no commit `78e66a2`, além das funções impo
 
     **Antes da tag:** usar identidade persistente da execução e hash do chunk, verificando correspondência antes de adotar.
 
-    Referências: [e-run.py:213–238](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:213), [285–290](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:285), [435–436](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:435), [499](/Users/lab/Claude/Projetos/memoria-nox/paper-e-extractor/e-run.py:499).
+    Referências: [e-run.py:213–238](paper-e-extractor/e-run.py:213), [285–290](paper-e-extractor/e-run.py:285), [435–436](paper-e-extractor/e-run.py:435), [499](paper-e-extractor/e-run.py:499).
 
 O núcleo aproveitável é claro: seis células pareadas, contraste com sinal correto, controle por remoção implementado conforme a seleção de sessões e ausência de alegação de equivalência quando o IC inclui zero. **Eu liberaria a tag após corrigir as garantias de execução e reformular a conclusão como comparação condicionada entre pipelines específicos — mantendo “força do extrator” como explicação a investigar.**

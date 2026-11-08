@@ -1,0 +1,6 @@
+.draft-id-*
+__pycache__/
+*.pdf
+*.zip
+writing-rules-two-extractors-v*.md
+SHA256SUMS
