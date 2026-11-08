@@ -18,6 +18,18 @@ e números: `DECISIONS.md` **D-2026-11-08**.
    pelo npm e não configura nada.
 5. Opcional: nota de dados da avaliação.
 
+**Linha de papers proposta (08/11, nada decidido): o USO da memória pelo agente**, o lado que os
+papers de construção (B, B2, C, D, E, Memory Tax) não cobrem:
+- **A memória que o agente nunca consulta**: o texto de «quando buscar» funciona nas `instructions`
+  do MCP, e não na `description` da tool; o escopo corta o falso gatilho; cortar a saída da busca
+  em 200 caracteres limitava qualquer ganho. Os dados existem e foram pré-registrados. Pode virar
+  nota de dados depois de 15/11.
+- **Memória empurrada não é lida, puxada não é pedida**: estudo de campo com o que já foi medido
+  (0 buscas dos agentes, 7a com 0 de 9.398, 7b) mais o antes/depois de 15/11.
+- **Escrita**: depende de um braço que funcione, já que 4 deram nulo.
+- **Escopo como variável**: escopo derivado do banco contra frase escrita à mão, em mais de um
+  modelo e de um cliente. Custo estimado de US$ 100 a 300, com pré-registro antes de gastar.
+
 ## ▶ Terça 03/11, 11h BRT — v1.1 do pré-registro PUBLICADA e o estágio 1 RODANDO
 
 **v1.1 [`10.5281/zenodo.23914868`](https://doi.org/10.5281/zenodo.23914868)** (13:41 UTC, `is_latest`,
