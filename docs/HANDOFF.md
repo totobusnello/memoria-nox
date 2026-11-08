@@ -1,4 +1,4 @@
-## ▶ Domingo 08/11, 20h30 BRT — 3.10.0 publicada; tag do shadow do C2; A3 (b, c, d) aplicados em produção
+## ▶ Domingo 08/11, 20h30 BRT — 3.10.0 publicada; tag do shadow do C2; R1 desligado e A3 (c, d) aplicados em produção
 
 **Feito hoje à noite:**
 - **npm:** `nox-mem@3.10.0` é `latest` (aprovada pelo Toto); smoke do registry ok (`compact` sem
