@@ -1,5 +1,7 @@
 # E13 — Temporal-aware Ranking
 
+> **Estado verificado em 2026-11-08:** cortado por decisão (module dead). Evidência: `lib/temporal-detector.ts` imported only by its test (N and P); ROADMAP v6: `NOX_TEMPORAL_BOOST_MODE` removed 14/10; NÃO FAZEMOS #33. Falta: none; INDEX wrong. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > Inverte `section_boost` pra section=`timeline` quando query é temporal (`quando`, `que dia`, `primeira/última`, `deployado`, etc). Hoje timeline é demotada (×0.8) — exatamente onde a info temporal mora — e queries temporais sofrem nDCG ~0.466 vs concept 0.656. Quick win: detector regex + condicional simples no pipeline existente.
 
 **Status:** Design spec

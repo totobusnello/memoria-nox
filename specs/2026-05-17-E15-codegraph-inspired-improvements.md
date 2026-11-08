@@ -1,5 +1,7 @@
 # E15 — CodeGraph-inspired retrieval improvements (3 ideias arquiteturais)
 
+> **Estado verificado em 2026-11-08:** não começado. Evidência: spec = tier-aware, overflow protection, indexing tiers; no code; ROADMAP §5 "saiu do roadmap"; (impact.ts is E07, unrelated). Falta: nothing, retired. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **ID:** E15
 **Status:** 📋 QUEUED — pós-R03 ou paralelo a D01 v3
 **Owner:** Toto (decisão); Maestro (execução)

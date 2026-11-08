@@ -1,5 +1,7 @@
 # P2 — Auto-capture de conversas via Claude Code hooks (zero manual ingest)
 
+> **Estado verificado em 2026-11-08:** só em produção (fora do npm) (partial). Evidência: P `lib/hooks/*`, `plugins/nox-hooks`, `cli/hooks.ts`, `/api/hooks/*`; N only `api/ingest-event.ts` (digest). DECISIONS 2026-06-04: full autocapture GATED/NÃO FAZEMOS; ROADMAP #10 reopens it. Falta: full capture stays gated. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **ID:** P2
 **Pilar:** **P2 — Captura passiva sem fricção** (Q/A/P framework: Quality/Autonomy/Passivity)
 **Status:** Proposto — spec implementation-ready

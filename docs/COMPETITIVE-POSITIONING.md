@@ -73,7 +73,7 @@
 - **🥇 Classical multi-hop QA dual SOTA without specialized training.** MuSiQue F1 58.62% beats IRCoT iterative SOTA by +22.82pp and paper supervised EX(SA) by +8.92pp (PR #407). HotPotQA ans_F1 73.37% above DPR+FiD reader SOTA band (PR #408). Both without HotPotQA / MuSiQue fine-tuning.
 - **🥇 Memory benchmark SOTA.** EverMemBench Overall 63.28% +20.73pp vs MemOS 42.55%, MA composite 88.42% +32.74pp vs MemOS 55.68% (Backbone Matrix Gemini-3-flash, PR #397, D70).
 - **🥇 LoCoMo cross-bench retrieval SOTA.** evidence_hit@10 strict 74.52% above Mem0 SOTA F1 66.88%, multi_hop 82.21% (PR #396). F1 constrained 51.85% rank-5 above Zep/LangMem (PR #404).
-- **🥇 Production SOTA on 4 dimensions.** Sub-10ms KG path p50 (2.5ms), $0/query KG path (~667× cheaper than Mem0 Cloud), self-hosted single-process 399MB RSS (PR #403).
+- **Measured in the research harness, not shipped:** KG path p50 2.5ms and $0/query (~667× cheaper than Mem0 Cloud). Shipped: self-hosted single-process, 399MB RSS (PR #403).
 - **🥇 HotPotQA SP-F1 LLM extractor (opt-in retrieval-side, PR #413).** joint_F1 +5.66pp / SP_F1 +5.96pp on top of dual SOTA reader.
 - **🥇 Q3 IterB ReAct F_MH ceiling break (opt-in orchestration-stage, PR #419).** +2.01pp clean F_MH lift on Gemini-3-flash bare baseline (8.03% standalone). **Breaks Wave A/B/C single-stage retrieval ceiling 7.25% (D69) by +0.78pp standalone.** First system to add orchestration-stage F_MH lift on top of strongest backbone. SHIP_OPT_IN via `NOX_ITERB_GEMINI=1`; cost $0.00295/q within budget; MA composite -3.53pp borderline-fail trade-off (similar to Phase G rerank pattern).
 - **1.6× more backbone-portable** than MemOS (D67).
@@ -100,7 +100,7 @@
 - **One SQLite file.** `cp nox-mem.db backup.db` is your backup. No daemon, no Docker, no Postgres, no Qdrant. The entire memory store is one file on your disk.
 - **Provider-agnostic embedding.** Gemini (default), OpenAI, or local — swap via `NOX_EMBED_PROVIDER`. The store doesn't care. Provider abstraction overhead: 0.0025ms per call (A3 benchmark, PR #39).
 - **MIT license, zero usage caps, zero telemetry phone-home.** Your data stays on your infrastructure.
-- **KG path is opt-in, preserves core SQLite-only pitch.** The default path never requires a graph DB — `kg_relations` is stored in the same SQLite file. Neo4j not required, not even optional.
+- **KG path (research harness, not in the package) would preserve the SQLite-only pitch.** The default path never requires a graph DB — `kg_relations` is stored in the same SQLite file. Neo4j not required, not even optional.
 - **AES-256-GCM export.** A2 ships round-trip preservation (nDCG@10 ±0.001, PR #286).
 
 **vs Zep:** Zep's Go server hardcodes OpenAI embedding. Fork required to swap provider. nox-mem: any provider, zero code changes.
@@ -136,7 +136,7 @@
 | Embedding | **OpenAI hardcoded** (Go server) | **Provider-agnostic** (swap via env) |
 | Methodology | vendor-reported (no CI bounds) | **5-batch + 95% CI, open harness** |
 | Temporal | KG temporal chains (structural strength) | `--as-of` / `--changed-since` hard pre-filters |
-| Multi-hop | Stronger on structured KG traversal | KG path opt-in (+2.81pp F_MH at $0/query) |
+| Multi-hop | Stronger on structured KG traversal | KG path +2.81pp F_MH at $0/query, research harness only |
 | License | Apache 2.0 | **MIT** |
 | **Honest gap** | Zep's temporal KG is architecturally stronger for complex temporal chains | Acknowledged — temporal is moderate (55%) |
 
@@ -153,7 +153,7 @@
 | LoCoMo retrieval (§6 canonical, n=100) | **0.4686 nDCG@10** (mem0 wins) | 0.4263 nDCG@10 |
 | Storage | Postgres + Qdrant | **SQLite file** |
 | Cost/ingest at 50k chunks | ~$3.40–4.00 OpenAI embedding | **$0 marginal** |
-| Multi-hop research | active roadmap | **Lab Q1 active** (KG path +2.81pp shipped) |
+| Multi-hop research | active roadmap | **Lab Q1** (KG path +2.81pp in the research harness, not shipped) |
 | Community | 53k+ stars | emerging |
 | License | Apache 2.0 | **MIT** |
 
@@ -173,7 +173,7 @@
 | License | enterprise-oriented | **MIT** |
 | Honest gap | MemOS leads F_MH | Acknowledged — active Lab Q1 research |
 
-**Pitch:** "nox-mem beats MemOS overall on BOTH backbones tested — 5-batch validated, no single-batch overclaims. MemOS leads on multi-hop (F_MH) — we don't hide this. Our KG path retrieval (opt-in) closes 17% of that gap today, with adaptive classifier and multi-query expansion in Lab Q1. And if you swap your LLM backend, nox-mem degrades 1.6× less than MemOS."
+**Pitch:** "nox-mem beats MemOS overall on BOTH backbones tested — 5-batch validated, no single-batch overclaims. MemOS leads on multi-hop (F_MH) — we don't hide this. In the research harness, KG path retrieval closed 17% of that gap (not in the package), with adaptive classifier and multi-query expansion in Lab Q1. And if you swap your LLM backend, nox-mem degrades 1.6× less than MemOS."
 
 ---
 

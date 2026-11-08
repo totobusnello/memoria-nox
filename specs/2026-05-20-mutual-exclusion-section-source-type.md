@@ -1,5 +1,7 @@
 # Design Spec: Mutual Exclusion `sectionDelta` ↔ `sourceTypeDelta`
 
+> **Estado verificado em 2026-11-08:** no npm (e em produção). Evidência: N+P `search.ts:65,153` default ON (`NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE`). Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Status:** DRAFT  
 **Data:** 2026-05-20  
 **Autores:** Spec baseado nos resultados do G8 (PR #177)  

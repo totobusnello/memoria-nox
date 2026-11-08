@@ -1,5 +1,7 @@
 # E10 Followup: Pain Ablation Execution Plan
 
+> **Estado verificado em 2026-11-08:** medição concluída. Evidência: DECISIONS D29 has E10 results (REFUTED); no `NOX_PAIN` code. Falta: close. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Spec ID:** E10-followup-pain-ablation-execution
 **Status:** Blocked — requires explicit authorization from Toto before execution
 **Effort:** ~12 minutes active execution + 2× ~60s prod API downtime (~2 min total)

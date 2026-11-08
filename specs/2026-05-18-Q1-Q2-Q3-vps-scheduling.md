@@ -1,5 +1,7 @@
 # Q1+Q2+Q3 VPS Scheduling — Operational Spec
 
+> **Estado verificado em 2026-11-08:** medição concluída. Evidência: eval/locomo, longmemeval, latency exist; COMPARISON.md; Q4 consumed them. Falta: close. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > **Data:** 2026-05-18
 > **Status:** SPEC (pendente execução supervisionada)
 > **Gate:** Q4 COMPARISON abre quando Q1+Q2+Q3 produzem números verificados

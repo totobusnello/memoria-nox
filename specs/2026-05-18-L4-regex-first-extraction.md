@@ -1,5 +1,7 @@
 # L4 — Regex-first typed-link extraction with Gemini fallback (gbrain-inspired)
 
+> **Estado verificado em 2026-11-08:** código existe, não alcançável (code present, unreachable). Evidência: N and P `lib/regex-extract/*` 9 files, 0 importers outside module; `production-wire.ts` header says "ingestFile() router imports this", but `ingest-router.ts` never did (`git log -S"regex-extract"` empty); `kg-llm.ts` doesn't call it. Falta: wire into ingest/kg-build or drop; DECISIONS D52 "L4 fires 05-24" not supported by code. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **ID:** L4
 **Status:** 📋 SPEC — implementation-ready, shadow-mode default
 **Owner:** Toto (decisão); Maestro (execução)

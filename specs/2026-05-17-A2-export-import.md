@@ -1,5 +1,7 @@
 # A2 — Schema Export/Import Portability
 
+> **Estado verificado em 2026-11-08:** só em produção (fora do npm) (HTTP POST /api/export and /api/import, confirmed on the VPS 2026-11-08; no CLI). Evidência: P `api/export.ts`, `lib/archive/*`, wire-up `/api/export`+`/api/import` (503 if `lib/archive/server-deps.js` absent; present in P dist); no CLI registered in P `index.ts`; N none; ROADMAP v6 says ❌ in prod (contradicts); in git since 7fdaab4f 2026-05-19. Falta: confirm on VPS; npm port. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **ID:** A2 (Autonomy pillar — Q/A/P framework)
 **Status:** 📐 Spec aberto 2026-05-17. Implementação NÃO iniciada — autorização explícita pendente.
 **Owner:** Toto (decisão) — Forge (execução proposta)

@@ -1,5 +1,7 @@
 # D01 — Cross-encoder Reranker (Shadow)
 
+> **Estado verificado em 2026-11-08:** cortado por decisão (residual dead module). Evidência: spec says "sem dead code" but `lib/reranker.ts` exists in N and P; only use is startup pre-warm when `NOX_RERANKER_MODE`!=off (`api-server.ts:503`); `search.ts` never calls it. Falta: delete `lib/reranker.ts` + prewarm, or admit it. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > Adiciona cross-encoder local (BGE-reranker-base via `@xenova/transformers` ONNX-in-Node) como camada pós-RRF do hybrid pipeline. Reordena top-N=50 candidatos via cross-attention query×chunk e devolve top-K=10. Default `off`; padrão obrigatório de shadow→active gated em 7d telemetria. Quebra o teto empírico de nDCG@10=0.5831 (R01c-v1.1) ao trazer relevância contextual além de BM25+vetor independente.
 
 > ## ⛔ VERDICT: CUT v1 (2026-05-08 ~12:20 BRT)

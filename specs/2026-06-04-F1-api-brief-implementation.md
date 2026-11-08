@@ -1,5 +1,7 @@
 # F1 — `GET /api/brief` Implementation Spec
 
+> **Estado verificado em 2026-11-08:** no npm (e em produção). Evidência: N+P `api/brief.ts` imported by `api-server.ts`. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Status:** ✅ COMPLETO 2026-06-04 — LIVE em prod (PR #1 fac47c74 + v1.1 polish PR #2 e4c794c0)
 **Data:** 2026-06-04
 **PRD:** `2026-06-04-session-priming-loop.md` (§6 contrato, §9 Fase 1)

@@ -1,5 +1,7 @@
 # P2 Implementation Kickoff — Claude Code Hooks Auto-Capture
 
+> **Estado verificado em 2026-11-08:** segue a spec-mãe P2. Evidência: . Falta: INDEX stale. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Doc type:** Implementation task breakdown (not re-spec)
 **Owner:** Engineering executor (post PR #4 review + A1 PR #5 merge)
 **Date:** 2026-05-18

@@ -1,5 +1,7 @@
 # Per-method Benchmark Phase B — intra-system method-config ablation matrix (Lab Q1)
 
+> **Estado verificado em 2026-11-08:** não começado. Evidência: same as above. Falta: same. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > **Phase B = nox-mem internal method-config matrix.** Same corpus, same gold, vary only the retrieval method (FTS5-only / vec0-only / hybrid RRF / +salience / +section_boost / +source_type_boost / +hard_mutex / +temporal_spike v2 / +reranker-off). Output: cross-method nDCG@10 / MRR / Recall@10 table + per-category breakdown.
 >
 > Sister spec to `2026-05-21-per-method-benchmark-comparison.md` (Phase A inter-system Mem0/Zep/EverCore/HyperMem). **Distinct scope, complementary purpose.** Naming kept "per-method" for memory-line continuity; an equally valid name is "method-config ablation matrix v2 (Wave A canonical config validation)".

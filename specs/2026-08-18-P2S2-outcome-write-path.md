@@ -1,5 +1,7 @@
 # P2S2 — write path de falha adjudicada (componente 1)
 
+> **Estado verificado em 2026-11-08:** só em produção (fora do npm). Evidência: P `paper2/write-path.ts`, `api-server.ts:25,536` `/internal/paper2/adjudicated-failure`; spec says "Nada implantado". Falta: ensaio closed 21/09; consider removal. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > **Estado:** spec. Nada implantado. Código vai por PR em `totobusnello/nox-workspace`;
 > este documento vive no repo de pesquisa porque é decisão de desenho, não de produto.
 >

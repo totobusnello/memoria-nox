@@ -1,5 +1,7 @@
 # R01a — Eval Harness Skeleton
 
+> **Estado verificado em 2026-11-08:** só em produção (fora do npm). Evidência: P `lib/eval.ts`, `eval-metrics.ts`, imported by `api-server.ts:18`; harness in memoria-nox/eval; not in N. Falta: none (npm omission is by choice?). Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > Schema v11 + tabela `eval_queries` + métricas nDCG@10/MRR/Recall@k + CLI + JSONL output.
 > Foundation pra medir delta de qualquer mudança de ranking (E05, E10, D01) cientificamente — baseline-first.
 

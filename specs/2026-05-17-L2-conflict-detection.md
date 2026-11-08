@@ -1,5 +1,7 @@
 # L2 — KG conflict / contradiction detection (memanto-inspired)
 
+> **Estado verificado em 2026-11-08:** só em produção (fora do npm). Evidência: P `lib/conflict/*`, `api/conflict.ts`, `cli/conflict.ts`, `mcp/tools/conflict.ts`, wire-up `/api/conflict`; N only a string in `api/brief.ts`; HANDOFF/DECISIONS silent on live use. Falta: no usage evidence; README says "specced". Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **ID:** L2 (Lab, NOT pillar)
 **Status:** 📋 SPEC — implementation-ready, blocked on schema extension (Phase 0)
 **Owner:** Toto (decisão); Maestro (execução)

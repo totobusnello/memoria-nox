@@ -1,5 +1,7 @@
 # E05b — Reason-aware Ranking Boost
 
+> **Estado verificado em 2026-11-08:** cortado por decisão. Evidência: P `search.ts:606` "CUT E05b reason-boost"; only trace is `reason_boost_*` columns in `db.ts:213`; grep search.ts NONE. Falta: none; INDEX wrong. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > Phase 2 do edge typing: usa `kg_relations.relation_reason` (já populado pela Phase 1) como sinal aditivo de ranking. Chunks ligados a entities via relations estruturais (`depends_on`, `replaces`, `extends`) ganham boost; relations fracas (`mentions`) contribuem pouco; `unknown` é ignorado. Aditivo, com cap, shadow-mode obrigatório.
 
 **Status:** Design spec (CANDIDATE)

@@ -1,5 +1,7 @@
 # Self-Evolving Hooks — Spec
 
+> **Estado verificado em 2026-11-08:** código existe, não alcançável (module orphan). Evidência: `seh-detector.ts` in N and P, 0 non-test importers, no CLI/cron/route; header cites F15b. Falta: wire or delete. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > Sistema de feedback loop automático que transforma correções do usuário em regras permanentes para Claude Code.
 
 **Status:** Proposto

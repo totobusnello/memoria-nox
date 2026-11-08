@@ -1,5 +1,7 @@
 # Cipher × nox-mem Simbiose — Itens 1+2+3 Implementation Plan
 
+> **Estado verificado em 2026-11-08:** no npm (e em produção) (item 2 churn); items 1/3 = data/SOUL docs in VPS workspace. Evidência: N+P `churn.ts`, `index.ts` `--changed-since`. Falta: items 1/3 unverifiable here. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Cipher vira 1º cliente interno dos primitivos avançados: escrita 3-seções via `ingest-entity` (item 1), política answer/search nos 6 SOULs (item 3), e `churn --changed-since` com detecção por embedding (item 2).
