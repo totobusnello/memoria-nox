@@ -19,7 +19,7 @@ Does the advantage of the rule-based criterion C2 over the deployed C0 (Paper 3:
 
 ## Tests
 
-`python3 -I e-test.py` runs 69 checks without network and ends with ALL PASS. Ten planted
+`python3 -I e-test.py` runs 71 checks without network and ends with ALL PASS. Ten planted
 defects were each caught (exit 1):
 
 - the parser refusing the list form;

@@ -287,7 +287,7 @@ def distill_batch(out, cache, sp, todo, prefix, max_inflight, wait, poll):
     while True:
         inflight = [c for c in chunks if c["state"] == "submitted"]
         est_inflight = sum(c["est_usd"] for c in inflight)
-        held = False
+        held = quota_held = False
         for ch in chunks:
             if ch["state"] != "new" or len(inflight) >= max_inflight:
                 continue
@@ -300,8 +300,16 @@ def distill_batch(out, cache, sp, todo, prefix, max_inflight, wait, poll):
             if ch["id"] in existing:          # created by a process that died before recording it
                 ch["batch"] = existing[ch["id"]]
             else:
-                fname = e_batch.upload_jsonl(out / "chunks" / f"{ch['id']}.jsonl", ch["id"])
-                ch["batch"] = e_batch.create(MODELS[ch["ext"]], fname, ch["id"])
+                try:
+                    fname = e_batch.upload_jsonl(out / "chunks" / f"{ch['id']}.jsonl", ch["id"])
+                    ch["batch"] = e_batch.create(MODELS[ch["ext"]], fname, ch["id"])
+                except RuntimeError as ex:    # queue quota: hold, retry on a later pass
+                    if "HTTP 429" not in str(ex) and "RESOURCE_EXHAUSTED" not in str(ex):
+                        raise
+                    print(f"  {ch['id']}: held by the provider's queue quota ({str(ex)[:90]})",
+                          flush=True)
+                    quota_held = True
+                    break
             ch["state"] = "submitted"
             save_chunks(out, chunks)
             inflight.append(ch)
@@ -326,7 +334,7 @@ def distill_batch(out, cache, sp, todo, prefix, max_inflight, wait, poll):
         if not running and held:
             print("  nothing in flight and the next chunk would pass the cap; stopping")
             break
-        if running:
+        if running or quota_held:
             time.sleep(poll)
     return chunks
 

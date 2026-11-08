@@ -182,6 +182,8 @@ shrinkage at a larger step.
      chunk. If a process dies between creating a chunk and recording it, the next process adopts
      the chunk by its display name.
    - Re-ingesting a chunk charges nothing.
+   - If the provider refuses a chunk for its queue quota (HTTP 429), the chunk waits for a later
+     pass; any other creation error stops the run.
 3. Run `distill --via sync` at the standard price on what the batches left: requests that
    returned an error or no line, expired chunks, and answers that were invalid under §3.4. Each
    gets one sync attempt, after the HTTP retries of Paper 3's `post`. A block that still fails is
