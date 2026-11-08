@@ -1,5 +1,7 @@
 # Multi-Query Expansion — Lab Q1 #3 NEW
 
+> **Estado verificado em 2026-11-08:** só no harness de eval. Evidência: `aggregate-phaseMQ.py`, RESULTS-PHASEMQ-5BATCH; `NOX_MQ_ENABLED` N/P NONE (prod `search-expansion.ts` is different, FTS query expansion). Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Status:** SPEC (não implementado) — Lab Q1 priority #3, alternative multi-hop attack
 **Date:** 2026-05-28
 **Author:** Toto (via agent session 2026-05-28 BRT)

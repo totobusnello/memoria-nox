@@ -1,5 +1,7 @@
 # P5 Implementation Kickoff — Real-time Viewer (SSE + 4 panels)
 
+> **Estado verificado em 2026-11-08:** segue a spec-mãe P5 (prod-only). Evidência: . Falta: INDEX stale. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Status:** ready to start (planning artifact, not implementation)
 **Date:** 2026-05-18
 **Owner:** overnight automode push (memoria-nox)

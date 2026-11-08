@@ -1,5 +1,7 @@
 # GTM — README Hero Visual Upgrade (post-Q4 gate)
 
+> **Estado verificado em 2026-11-08:** parcial (partial, hero only). Evidência: memoria-nox/README.md has banner/badges/demo.gif/assets/readme; but D-2026-11-03/-04: GTM gate re-evaluated, first step = fix discourse. Falta: fix numbers in hero before GTM. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Spec ID:** 2026-05-17-GTM-readme-hero-upgrade
 **Status:** READY-TO-EXECUTE (gated on Q4 COMPARISON wins)
 **Author:** Prometheus (overnight automode 2026-05-17)

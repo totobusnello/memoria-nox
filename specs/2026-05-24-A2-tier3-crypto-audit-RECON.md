@@ -1,5 +1,7 @@
 # A2 Tier 3 — At-rest Encryption + Audit Trail (RECON)
 
+> **Estado verificado em 2026-11-08:** só em produção (fora do npm) (P1-P4; P5 deferred). Evidência: DECISIONS D54-58, memoria-nox CLAUDE.md; P `lib/archive`, `op-audit-extension`, `atomic-snapshot`, `cli/snapshot-main.ts`. Falta: P5 deferred. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Data:** 2026-05-24
 **Branch:** `recon/a2-tier3-crypto-audit-2026-05-24` (original) → `feat/a2-tier3-sqlcipher-spike-p0` (P0 spike + resolved decisions)
 **Pillar:** Autonomy (Q/A/P framework)

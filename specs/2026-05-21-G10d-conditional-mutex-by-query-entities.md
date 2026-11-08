@@ -1,5 +1,7 @@
 # Design Spec: G10d — Conditional Hard Mutex by `query_entities` Count
 
+> **Estado verificado em 2026-11-08:** no npm (e em produção). Evidência: N+P `search.ts` conditional by `countQueryEntities` (`query-entity-count.ts` imported), `NOX_MUTEX_QUERY_ENTITY_THRESHOLD`, `NOX_DISABLE_CONDITIONAL_MUTEX`. Falta: INDEX wrong. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Status:** Design spec — implementation-ready, gated em ablation eval
 **Data:** 2026-05-21
 **Autores:** Spec follow-up de G10b/G10c ablations (audits 2026-05-21)

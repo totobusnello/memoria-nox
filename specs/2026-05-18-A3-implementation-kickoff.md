@@ -1,5 +1,7 @@
 # A3 Implementation Kickoff — Provider Abstraction Layer
 
+> **Estado verificado em 2026-11-08:** no npm (e em produção). Evidência: N `providers/`, `NOX_EMBEDDING_PROVIDER` in `search.ts`, `embed.ts`; P has `providers/` but `embed.ts` does not use it (ROADMAP v6 ❌ prod). Falta: port to prod. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Date:** 2026-05-18
 **Status:** KICKOFF (planning only, NOT implementation)
 **Spec source:** A3 design spec — PR #8 `overnight/2026-05-17/A3-provider-abstraction-spec` (4,171 words)

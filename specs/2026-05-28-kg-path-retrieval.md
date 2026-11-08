@@ -1,5 +1,7 @@
 # KG Path Retrieval — Lab Q1 #4 NEW
 
+> **Estado verificado em 2026-11-08:** só no harness de eval. Evidência: `adapter_nox_mem_phaseAC_kg.py`; grep `NOX_KG_PATH_ENABLED` N/P NONE; D75 −0.01pp. Falta: port only if ROADMAP #1 candidate. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Status:** SPEC (não implementado) — Lab Q1 priority #4, alternative multi-hop attack via KG
 **Date:** 2026-05-28
 **Author:** Toto (via agent session 2026-05-28 BRT)

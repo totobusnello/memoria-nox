@@ -1,5 +1,7 @@
 # D51 Template — Conditional Hard Mutex (G10d) active vs current Hard Mutex (G10)
 
+> **Estado verificado em 2026-11-08:** superado by G10d shipped. Evidência: G10d row. Falta: close. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > **Status:** TEMPLATE pré-aberto (2026-05-21). Decisão final D51 vai ser tomada após G10d ablation eval.
 
 ---

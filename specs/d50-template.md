@@ -1,5 +1,7 @@
 # D50 Template — Temporal proximity rerank active vs off
 
+> **Estado verificado em 2026-11-08:** superado. Evidência: D-2026-10-14b NÃO FAZEMOS #33. Falta: close. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > **Status:** TEMPLATE pré-aberto (2026-05-20), enriched 2026-05-21. **Decisão final D50 ETA ~2026-05-27** (7d shadow baseline desde phase 2 ativação 2026-05-20).
 >
 > **Atual:** NOX_TEMPORAL_PATH=shadow ATIVO em prod via systemd. Cron scrape `/root/.openclaw/workspace/scripts/scrape-temporal-shadow.sh` rodando diariamente meia-noite UTC. journalctl mostra temporal_path events sendo emitidos (signalSource: adverbial/month_year, confidence tiers).

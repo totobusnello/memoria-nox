@@ -201,11 +201,13 @@ A derived layer over `chunks`, refreshed by a nightly cron. The KG is not on the
 nightly cron (Sunday + delta_24h on weeknights)
    │
    ▼
-[1] regex-first extractor — fast, deterministic, covers ~70% of entity types
-   │                        (people, projects, decisions, files, dates).
+[1] `kg-build` — regex over fixed name lists (people, projects, decisions,
+   │   files, dates). Adds ~0 rows today: the lists are saturated (audit
+   │   2026-10-13). The L4 typed-link extractor (`lib/regex-extract`) is not
+   │   called here (audit 2026-11-08).
    ▼
-[2] Gemini fallback — gemini-2.5-flash for chunks the regex layer didn't
-   │                  cover. Optional via NOX_KG_EXTRACT_MODE=regex_first|gemini|both.
+[2] `kg-llm` — LLM extraction with a cursor (`kg_llm_last_chunk_id`); there
+   │   is no NOX_KG_EXTRACT_MODE switch. Cursor last moved 2026-05-16.
    ▼
 [3] normalize → 17 canonical entity types (D52 plural-normalisation)
    │   person · project · decision · lesson · feedback · system · ...

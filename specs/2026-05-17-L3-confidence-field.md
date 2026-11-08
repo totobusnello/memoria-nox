@@ -1,5 +1,7 @@
 # Lab L3 — Confidence + provenance field (schema v19 candidate)
 
+> **Estado verificado em 2026-11-08:** cortado por decisão (ranking) + partial shipped. Evidência: NÃO FAZEMOS #34 (D-2026-10-20: 100% default values); P keeps `lib/confidence/db-shim`, `mark`, `/api/health/confidence`; ranking modules deleted (nox-workspace#65). Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **ID:** Lab L3 (memanto-inspired Six Gaps #3 — "Confidence + provenance metadata on every memory")
 **Status:** 📋 SPEC — implementation-ready, ranking integration GATED
 **Owner:** Toto (decisão); Maestro (execução)

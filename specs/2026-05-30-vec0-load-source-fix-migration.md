@@ -1,5 +1,7 @@
 # vec0 Load Source Fix Migration
 
+> **Estado verificado em 2026-11-08:** no npm (e em produção). Evidência: N `db.ts:106` and P `db.ts:78` load sqlite-vec before schema. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Status:** SPEC (ready to apply next session) — tactical patch documented for source migration
 **Date:** 2026-05-30
 **Branch when applied:** `fix/db-vec0-load-source-migration`

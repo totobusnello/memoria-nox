@@ -1,5 +1,7 @@
 # P4 Implementation Kickoff — `nox-mem connect <ide>`
 
+> **Estado verificado em 2026-11-08:** não começado. Evidência: . Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Status:** ready to start (planning artifact, not implementation)
 **Date:** 2026-05-18
 **Owner:** overnight automode push (memoria-nox)

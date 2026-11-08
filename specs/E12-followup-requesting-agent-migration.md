@@ -1,5 +1,7 @@
 # E12 Followup: `requesting_agent` Column Migration
 
+> **Estado verificado em 2026-11-08:** no npm (e em produção). Evidência: `search.ts` writes it N+P; `E12-followup-implementation/deployment-log.md` 2026-05-04; nox-workspace#55, nox-mem#43. Falta: INDEX wrong. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Spec ID:** E12-followup-requesting-agent-migration
 **Status:** Ready for implementation — no authorization gate required
 **Effort:** ~1h implementation + 2-week telemetry collection window + ~5min re-evaluation

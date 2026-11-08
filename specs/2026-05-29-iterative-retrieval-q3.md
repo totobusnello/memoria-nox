@@ -1,5 +1,7 @@
 # Lab Q3 — Iterative Retrieval Mechanism
 
+> **Estado verificado em 2026-11-08:** só no harness de eval. Evidência: RESULTS-Q3-ITER*; ROADMAP §5 "saiu do roadmap". Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Status:** SPEC (não implementado) — Lab Q3 priority, sequenced após Wave C results
 **Date:** 2026-05-29
 **Author:** Toto (via agent session 2026-05-29 evening BRT)

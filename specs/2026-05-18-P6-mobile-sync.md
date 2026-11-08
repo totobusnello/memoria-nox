@@ -1,5 +1,7 @@
 # P6 — Mobile Sync Architecture Spec
 
+> **Estado verificado em 2026-11-08:** código existe, não alcançável. Evidência: `staged/P6-mobile` (app, packages) only. Falta: no decision. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > **Status:** Spec (2026-05-18) — P6 candidate (pillar P, Roadmap §5)
 > **Tagline:** *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 > **Pillar:** P — Product UX

@@ -30,7 +30,7 @@ curl -X POST http://localhost:18802/api/answer \
 | **Core** | `GET /api/health`, `GET /api/search`, `POST /api/search`, `GET /api/agents`, `GET /api/reflect`, `GET /api/procedures`, `POST /api/crystallize`, `POST /api/crystallize/validate` | Always available |
 | **Answer (P1)** | `POST /api/answer` | Gated: `NOX_ANSWER_ENABLED=1` |
 | **Knowledge Graph** | `GET /api/kg`, `GET /api/kg/path`, `GET /api/cross-kg` | Always available |
-| **Export/Import (A2)** | `POST /api/export`, `POST /api/import` | Gated: `NOX_ARCHIVE_ENABLED=1` |
+| **Export/Import (A2)** | `POST /api/export`, `POST /api/import` | No env gate in the deployed code; answers 503 if `lib/archive/server-deps.js` is missing (present in the reference deployment, 2026-11-08). Not in the npm package. |
 | **Viewer (P5)** | `GET /api/events/stream`, `GET /viewer/{file}` | Gated: `NOX_VIEWER_ENABLED=1` |
 | **Conflict Detection (L2)** | `GET /api/kg/conflicts`, `POST /api/kg/conflicts/scan`, etc. | Gated: `NOX_KG_CONFLICTS_ENABLED=1` |
 | **Confidence (L3)** | `POST /api/chunk/{id}/mark`, `POST /api/chunk/{id}/supersede` | Always available |

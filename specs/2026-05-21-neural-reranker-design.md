@@ -1,5 +1,7 @@
 # Design Spec — Neural Reranker (D01-v3 candidate) — `bge-reranker-v2-m3` via vLLM Local
 
+> **Estado verificado em 2026-11-08:** cortado por decisão. Evidência: D-2026-09-21c; ROADMAP §5 "reranker no caminho default" out; NÃO FAZEMOS #31, DECISIONS §2. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Status:** Design spec — parking-lot Lab Q1, gated em (1) D49/D50 closed; (2) per-method benchmark Phase A complete
 **Data:** 2026-05-21
 **Branch spec:** `spec/neural-reranker-design`

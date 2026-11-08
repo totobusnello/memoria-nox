@@ -1,5 +1,7 @@
 # P5 — Real-time Viewer Upgrade (SSE + 4 panels)
 
+> **Estado verificado em 2026-11-08:** só em produção (fora do npm). Evidência: P `lib/viewer/*`, `api/events-stream*.ts`, `viewer-static.ts`, `cli/viewer.ts`, `/api/events/stream`; N none; staged/P5. Falta: npm gap; `lib/events/bus` has no importers. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > **Tagline:** *"See your memory grow as it grows."*
 >
 > Live observability surface pra **uma instância** de nox-mem. SSE-driven event feed + 4 painéis (live feed, counters, charts, heatmap) servidos pelo próprio `nox-mem-api` em `/viewer`. Complementa F10 (time-series no `agent-hub-dashboard`), não substitui.

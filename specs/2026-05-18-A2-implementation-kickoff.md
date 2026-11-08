@@ -1,5 +1,7 @@
 # A2 Implementation Kickoff — Export/Import (Encrypt-by-Default)
 
+> **Estado verificado em 2026-11-08:** segue a spec-mãe A2 (SHIPPED-prod-only) + A2 Tier 3. Evidência: see A2 / RECON rows. Falta: INDEX stale. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **ID:** A2-impl (Autonomy pillar centerpiece — Q/A/P framework)
 **Status:** Kickoff aberto 2026-05-18. Implementation pending T1 start.
 **Owner:** Toto (gate) — Forge (execução, sprint paralelo a P1)

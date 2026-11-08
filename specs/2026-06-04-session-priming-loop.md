@@ -1,5 +1,7 @@
 # PRD — Session Priming Loop (auto-recall + auto-ingest cross-agente)
 
+> **Estado verificado em 2026-11-08:** só em produção (fora do npm) (Phase 1 only). Evidência: brief + `nox-mem-brief-refresh.sh` cron (P tools/nox-mem, not in N); `session-distill` in index; 7b/ROADMAP #7 shows brief does not steer first action. Falta: Phases 2-4 unclear. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Status:** Aprovado (review Toto 2026-06-04, §12) — Fase 1 implementada (PR nox-workspace#1, T7 gate pendente); Fases 2-4 a iniciar
 **Data:** 2026-06-04
 **Origem:** conversa Toto × Forge × Claude sobre simbiose desperdiçada Cipher × nox-mem; ideia do Toto de auto-search no início de sessão para agentes e LLMs.
