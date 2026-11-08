@@ -1,3 +1,46 @@
+## ▶ Domingo 08/11, 20h30 BRT — 3.10.0 publicada; tag do shadow do C2; A3 (b, c, d) aplicados em produção
+
+**Feito hoje à noite:**
+- **npm:** `nox-mem@3.10.0` é `latest` (aprovada pelo Toto); smoke do registry ok (`compact` sem
+  `--destructive` sai rc=2; sem `@xenova`, sem L4/reranker no pacote).
+- **A6, tag do pré-registro:** `paper-d-shadow-prereg-v1.0` em `6ac8272d` (#717), semente
+  `0x6ac8272d`. **Contagem semanal na produção:** cron `c2-shadow-count`, domingo 12:31 UTC
+  (openclaw-vps#81), rodando o `s-count.py` da tag extraído com `git archive` (sha256 conferido).
+  Primeira contagem, 08/11 23:12 UTC: 53 registros, **49 blocos elegíveis de 14 sessões**; regra de
+  parada longe (300 de 100). Só contagens. Falha alerta no Discord (negativo testado).
+- **A3, R1:** shadow do R1 desligado. O drop-in `r1-recency-shadow.conf` do `nox-mem-api` foi para
+  `/root/.openclaw/disabled-dropins/`; a API foi reiniciada e o brief das 23:22 UTC saiu normal; o
+  log do shadow está parado desde 23:07.
+- **A3 (c), `npm test` de produção:** as 14 falhas eram 6 `.js` de testes que o `tsconfig` exclui
+  mas que tinham ficado no `dist/`. Saíram com mais 6 órfãos sem fonte (`focus`, `reason-boost` e
+  os dois diretórios `bak` de abril), movidos para `/root/.openclaw/disabled-dist/nox-mem-2026-11-08/`.
+  Numa cópia isolada: 22 → 8 falhas. As 8 restantes vêm do isolamento: o guarda de caminho do
+  op-audit recusa fora de `/root/.openclaw`, e sem a variável de workspace passam 7/7. **Ficam no
+  `dist/`, de propósito:** `mcp-instructions.js`, que é o T2 (importado pelo `mcp-server.js`; o `src/`
+  de produção não tem o `.ts`), `ocr-batch.js` (usado por scripts) e `reranker.js` (pré-aquecimento
+  do `api-server.js`; sai quando a 3.10.0 for portada para a produção).
+- **A3 (d), notas com o bloco falso:** eram 22 notas diárias. As 4 que eram só o modelo saíram do
+  disco; nas outras 18, saíram só as três linhas falsas (versão, contagem de plugins, «nenhuma
+  tarefa»). Originais em `/root/_archive/template-block-daily-notes-20261108.tgz`. No banco, os 9
+  chunks com o bloco eram de 9 notas do nox de outubro sob a chave antiga `../agents/nox/memory/…`.
+  Reingeridas, entram na chave canônica `agents/…`, e as 48 linhas antigas saíram por
+  `/root/nox-purge-legacy-nox-notes-2026-11-08.mjs` (`ops_audit` 418, snapshot em `pre-op/`, 7/7
+  invariantes). O banco está com 0 chunks com o bloco.
+
+**Achado novo, fora do escopo de hoje:** a chave antiga `../agents/<agente>/memory/…` ainda tem **89
+fontes e 715 chunks**. O ingest atual normaliza para `agents/…`, então reingerir uma dessas notas
+duplica em vez de substituir, e já havia **7 fontes duplicadas** antes de hoje. Precisa de uma
+migração de chave, com dry-run e snapshot. Ainda sem item no ROADMAP.
+
+**Próximo:**
+1. A2, histórico privado: falta a decisão do Toto (aceitar e registrar, ou reescrever).
+2. A3: (a) retenção (`NULL` explícito, `distilled` fora do `ELSE 90`), que é mudança de código no
+   npm e em produção; (b) separar a abstenção no discurso; (e) tirar do README os números do L4.
+3. A4, prazos no morning report; A7, conta do OpenReview e passe do manuscrito do Paper 1 contra a
+   auditoria de 08/11.
+4. 15/11 09h47: relatório de uso real do T2. Domingo 15/11 12:31 UTC: segunda contagem do shadow
+   (conferir a linha nova em `counts.jsonl`). 18/11: snapshot do H-A2.
+
 ## ▶ Domingo 08/11, 17h40 BRT — ROADMAP v7 aprovado; nox-mem 3.10.0 aguarda aprovação no npm
 
 **Estado.** O `docs/ROADMAP.md` é a **v7** (aprovada pelo Toto; decisões em `DECISIONS.md`
