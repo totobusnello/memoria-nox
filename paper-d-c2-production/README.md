@@ -37,7 +37,8 @@ replay shows an effect and a product decision needs it.
 | `d-distiller-reach.py`, `d-two-message-profile.py`, `DISTILLER-REACH-2026-11-06.json` | read-only, after the note's first draft: which eligible sessions the distiller logged, by week, and what the skipped two-message sessions contain; most of the unreached sessions are one backlog left before the 2026-09-08 address fix |
 | `DISTILLER-SCHEDULE-2026-11-06.json` | read-only: the distiller's two callers (weekly Sunday run, 30-day lookback; daily end-of-day step, one-day lookback) and its log rows by UTC hour |
 | `SHADOW-PROTOCOL.md` | C2 in shadow beside the production distiller, from 2026-11-06: what is recorded on the host, bounds, switch; no analysis is fixed here |
-| `SHADOW-PREREGISTRATION.md` | DRAFT, not fixed: C2 against production's own C0 on the shadow's blocks; open points for the author (writer vs the protocol's privacy rule, stopping rule); records a deviation of 2026-11-07 and excludes its blocks |
+| `SHADOW-PREREGISTRATION.md` | C2 against production's own C0 on the shadow's blocks; binding at the tag `paper-d-shadow-prereg-v1.0` (author's ok 2026-11-08); records a deviation of 2026-11-07 and excludes its blocks |
+| `s-common.py`, `s-count.py`, `s-freeze.py`, `s-generate.py`, `s-run.py`, `s-human.py`, `s-read.py`, `s-test.py` | the shadow study's scripts, in the order of its §6, tested offline by `s-test.py` (synthetic records, stubbed calls); each refuses to run unless the previous commitment is on the public main branch |
 | `NOTE.md` | the data note: the registered study ran in full and failed its fidelity control; the cause, what it exposed, and the distiller's coverage |
 | `PROVENANCE.json` | one entry per number printed in `NOTE.md`; `python3 tools/provenance.py --check paper-d-c2-production` |
 | `pdf-build/build-note-pdf.sh` | the note's PDF, with Paper 3's preamble and layout check; runs the provenance gate first |
