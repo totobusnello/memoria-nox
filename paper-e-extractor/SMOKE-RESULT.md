@@ -103,3 +103,7 @@ instances, the three criteria cost about US$ 133 at the standard price and US$ 6
 US$ 9 for flash-lite on P and about US$ 29 for reader and judges. The step from flash-lite to
 flash is smaller than the step to pro, so a null interaction here would not rule out one at a
 larger step.
+
+Note added 2026-11-08, after the pre-registration draft: the reader-and-judges figures above
+assumed four new cells per instance (968 rows). The registered design reads every cell, 1,532
+rows, so `PREREGISTRATION.md` §8 estimates about US$ 43 for reading.

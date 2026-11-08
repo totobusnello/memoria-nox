@@ -41,10 +41,17 @@ if __name__ == "__main__":
     print("\n--- P ---\n" + DISTILL_SYSTEM_P)
 
 
+
+def _num(x):
+    return isinstance(x, (int, float)) and not isinstance(x, bool)
+
+
 def parse_memories(txt):
-    """Paper E's parser (SMOKE-RESULT.md): an object's "memories" list, or a top-level list.
-    Returns (units kept at importance >= 0.5, parsed?). Anything else is a failed block, served
-    empty, as in Paper 3."""
+    """Paper E's parser (PREREGISTRATION.md §3.4). Valid: an object whose "memories" is a list,
+    or a top-level list. Anything else (not JSON, {}, "memories" missing or not a list, a scalar)
+    is a failed block. Inside a valid list, an item is kept only if it is an object with a string
+    "text" and a numeric (not boolean) "importance" >= 0.5; other items are dropped.
+    Returns (units, valid)."""
     import json
     if not txt:
         return [], False
@@ -52,16 +59,14 @@ def parse_memories(txt):
         j = json.loads(txt)
     except Exception:
         return [], False
-    if isinstance(j, dict):
-        mem = j.get("memories") or []
+    if isinstance(j, dict) and isinstance(j.get("memories"), list):
+        mem = j["memories"]
     elif isinstance(j, list):
         mem = j
     else:
         return [], False
-    if not isinstance(mem, list):
-        return [], False
-    units = [{"text": m.get("text", ""), "category": m.get("category"),
-              "importance": m.get("importance")} for m in mem
-             if isinstance(m, dict) and isinstance(m.get("importance") or 0, (int, float))
-             and (m.get("importance") or 0) >= 0.5]
+    units = [{"text": m["text"], "category": m.get("category"), "importance": m["importance"]}
+             for m in mem
+             if isinstance(m, dict) and isinstance(m.get("text"), str)
+             and _num(m.get("importance")) and m["importance"] >= 0.5]
     return units, True

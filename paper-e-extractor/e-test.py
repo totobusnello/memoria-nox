@@ -8,7 +8,7 @@ import argparse
 import importlib.util
 import json
 import pathlib
-import sqlite3
+import subprocess
 import sys
 import tempfile
 
@@ -46,7 +46,7 @@ def fake_units_text(block, shape):
 
 class FakeGemini:
     """Files, batches, list, download. Response shape per request key: '0'-'3' list form,
-    'e' error line, 'f' missing from the output, anything else the object form."""
+    'e' error line, 'f' missing from the output, 'd' invalid JSON, anything else the object form."""
 
     def __init__(self, polls_before_done=1):
         self.files, self.batches, self.creates, self.polls_before_done = {}, {}, 0, polls_before_done
@@ -90,7 +90,8 @@ class FakeGemini:
                 if k[-1] == "e":
                     lines.append({"key": k, "error": {"code": 13, "message": "internal"}})
                     continue
-                txt = fake_units_text(block, "list" if k[-1] in "0123" else "dict")
+                txt = ("not json" if k[-1] == "d" else
+                       fake_units_text(block, "list" if k[-1] in "0123" else "dict"))
                 lines.append({"key": k, "response": {
                     "candidates": [{"content": {"parts": [{"text": txt}]}, "finishReason": "STOP"}],
                     "usageMetadata": {"promptTokenCount": 1000, "candidatesTokenCount": 100},
@@ -159,6 +160,13 @@ def t_prompts_and_parser():
     check("empty text is a failed block", EP.parse_memories("") == ([], False))
     check("non-numeric importance dropped, block parsed",
           EP.parse_memories('{"memories": [{"text": "d", "importance": "0.9"}]}') == ([], True))
+    check("{} is a failed block", EP.parse_memories("{}") == ([], False))
+    check("memories not a list is a failed block", EP.parse_memories('{"memories": false}') == ([], False))
+    check("boolean importance dropped",
+          EP.parse_memories('{"memories": [{"text": "x", "importance": true}]}') == ([], True))
+    check("non-string text dropped",
+          EP.parse_memories('[{"text": 5, "importance": 0.9}, {"text": "y", "importance": 0.9}]')[0]
+          == [{"text": "y", "category": None, "importance": 0.9}])
 
 
 def t_bodies_and_keys():
@@ -175,26 +183,6 @@ def t_bodies_and_keys():
     check("six distinct keys per block", len(keys) == 6)
 
 
-def t_seed(tmp):
-    print("seed from Paper 3")
-    src = tmp / "p3.sqlite"
-    db = sqlite3.connect(src)
-    db.execute("CREATE TABLE c (k TEXT PRIMARY KEY, kind TEXT, v TEXT)")
-    db.execute("INSERT INTO c VALUES (?,?,?)", (LME.h("distill", "C0", LME.PROMPTS["C0"], "b1"), "distill",
-                                                json.dumps({"units": [{"text": "u"}], "failed": False})))
-    db.execute("INSERT INTO c VALUES (?,?,?)", (LME.h("distill", "C2", LME.PROMPTS["C2"], "b1"), "distill",
-                                                json.dumps({"units": [], "failed": True})))
-    db.commit()
-    ER.P3_CACHE = src
-    cache = LME.Cache(str(tmp / "seed-cache.sqlite"))
-    need = {("L", "C0", "b1"), ("L", "C2", "b1"), ("L", "P", "b1"), ("F", "C0", "b1")}
-    n, skipped = ER.seed(cache, need)
-    check("copies a good flash-lite distillation", n == 1 and cache.get(ER.dkey("L", "C0", "b1"))["via"] == "paper3")
-    check("leaves a Paper 3 failure to distill again", skipped == 1 and cache.get(ER.dkey("L", "C2", "b1")) is None)
-    check("never seeds P or the flash extractor",
-          cache.get(ER.dkey("L", "P", "b1")) is None and cache.get(ER.dkey("F", "C0", "b1")) is None)
-
-
 def t_batch(tmp):
     print("batch path")
     out = tmp / "run"
@@ -205,6 +193,10 @@ def t_batch(tmp):
     cache = LME.Cache(str(out / "cache.sqlite"))
     sp = ER.Spend(out, 5.0)
     blocks = [f"bloco {i} " + "x" * 50 for i in range(10)]
+    # keys are sha256 hex: make sure every response class of FakeGemini occurs in this sample
+    lasts = {ER.dkey(e, "P", b)[-1] for e in "LF" for b in blocks}
+    check("sample covers list, object, error, missing and invalid answers",
+          {"d", "e", "f"} <= lasts and lasts & set("0123") and lasts - set("0123def"), sorted(lasts))
     need = {(e, "P", b) for e in "LF" for b in blocks}
     todo = ER.todo_of(cache, need)
     check("20 requests to do", len(todo) == 20)
@@ -221,13 +213,21 @@ def t_batch(tmp):
     left = ER.todo_of(cache, need)
     exp_left = sum(1 for k, *_ in todo if k[-1] in "ef")
     check("error and missing lines stay to do", len(left) == exp_left, f"{len(left)} vs {exp_left}")
+    inv = [k for k, *_ in todo if k[-1] == "d"]
+    check("an invalid batch answer is stored failed", inv and all(cache.get(k)["failed"] for k in inv))
+    retry = ER.todo_of(cache, need, retry_invalid=True)
+    check("and is retried once by the sync pass", len(retry) == exp_left + len(inv))
     lst = [cache.get(k) for k, *_ in todo if k[-1] in "0123"]
     check("list-form answers parsed", lst and all(v and not v["failed"] and len(v["units"]) == 1 for v in lst))
-    v = next(cache.get(k) for k, *_ in todo if k[-1] not in "0123ef")
+    v = next(cache.get(k) for k, *_ in todo if k[-1] not in "0123def")
     check("object-form answers parsed, low importance dropped", len(v["units"]) == 1 and v["via"] == "batch")
     n_ok = len(todo) - exp_left
     exp_usd = sum((1000 * ER.PRICE[e][0] + 100 * ER.PRICE[e][1]) * 0.5
                   for k, e, *_ in todo if k[-1] not in "ef")
+    st = json.loads((out / "batches.json").read_text())
+    usd0 = sp.led.usd
+    ER.ingest(out, cache, sp, st[0], EB.download(f"files/out-{st[0]['batch'][8:]}"))
+    check("re-ingesting a chunk charges nothing", sp.led.usd == usd0)
     check("batch spend at half the list price", abs(sp.led.usd - exp_usd) < 1e-9, f"{sp.led.usd} vs {exp_usd}")
     before = fake.creates
     ER.distill_batch(out, cache, sp, ER.todo_of(cache, need), "t", max_inflight=2, wait=True, poll=0)
@@ -239,8 +239,28 @@ def t_batch(tmp):
     ER.distill_batch(out, cache, sp, [], "t", max_inflight=2, wait=True, poll=0)
     st = json.loads((out / "batches.json").read_text())
     check("duplicate guard adopts the batch by display name", fake.creates == before and st[0]["batch"] == "batches/b1")
-    ER.distill_sync(cache, sp, ER.todo_of(cache, need), workers=2)
-    check("sync clears the residue", ER.todo_of(cache, need) == [])
+    check("chunk names carry the run id", all(ER.run_id(out) in c["id"] for c in st))
+    out2 = tmp / "run2"
+    out2.mkdir()
+    sp2 = ER.Spend(out2, 5.0)
+    ER.distill_batch(out2, LME.Cache(str(out2 / "cache.sqlite")), sp2, todo[:4], "t",
+                     max_inflight=2, wait=True, poll=0)
+    st2 = json.loads((out2 / "batches.json").read_text())
+    check("another run never adopts this run's batch",
+          fake.creates == before + len(st2) and not {c["batch"] for c in st2} & {c["batch"] for c in st})
+    sp2.lockf.close()
+    ER.distill_sync(cache, sp, ER.todo_of(cache, need, retry_invalid=True), workers=2)
+    check("sync clears the residue", ER.todo_of(cache, need, retry_invalid=True) == [])
+    real = LME.post
+
+    def boom(*a, **k):
+        raise RuntimeError("HTTP 500")
+    LME.post = boom
+    k0 = ER.dkey("F", "P", "never seen")
+    ER.distill_sync(cache, sp, [(k0, "F", "P", "never seen")], workers=1)
+    LME.post = real
+    v = cache.get(k0)
+    check("a sync failure is recorded failed, to be served empty", v and v["failed"] and v["via"] == "sync")
     sp.save()
     sp.lockf.close()
 
@@ -256,6 +276,14 @@ def t_cap(tmp):
     need = {("F", "P", f"b{i}") for i in range(4)}
     ER.distill_batch(out, cache, sp, ER.todo_of(cache, need), "c", max_inflight=4, wait=True, poll=0)
     check("a chunk past the cap is held, not submitted", fake.creates == 0)
+    sp.led.usd = 1.0
+    calls = []
+    real = LME.post
+    LME.post = lambda *a, **k: calls.append(1) or real(*a, **k)
+    ER.distill_sync(cache, sp, ER.todo_of(cache, need), workers=2)
+    LME.post = real
+    check("past the cap, sync makes no call", calls == [])
+    sp.led.usd = 0.0
     sp.lockf.close()
     sp2 = ER.Spend(out, 1.0)
     check("spend is cumulative across processes", sp2.prior == sp.led.usd - sp.prior)
@@ -267,14 +295,57 @@ def t_cap(tmp):
     sp2.lockf.close()
 
 
-def t_frozen():
+def t_frozen(tmp):
     print("freeze")
     try:
-        ER.frozen_check()
-        check("distill/read refuse before the tag exists", ER.TAG in ER.subprocess.run(
-            ["git", "-C", str(HERE), "tag", "-l", ER.TAG], capture_output=True, text=True).stdout)
+        ER.frozen_check("/dev/null", {"sha256": "x"})
+        check("distill/read refuse before the tag exists", False)
     except SystemExit as e:
         check("distill/read refuse before the tag exists", "does not exist" in str(e))
+    repo = tmp.resolve() / "repo"
+    (repo / "paper-e-extractor").mkdir(parents=True)
+    (repo / "paper3-construction").mkdir()
+    for f in ER.FROZEN:
+        (repo / "paper-e-extractor" / f).write_text(f"frozen {f}\n")
+    for f in ER.P3_FROZEN:
+        (repo / "paper3-construction" / f).write_text(f"p3 {f}\n")
+    ds = tmp.resolve() / "data.json"
+    ds.write_text("[]")
+    import hashlib
+    man = {"sha256": hashlib.sha256(b"[]").hexdigest()}
+    g = ["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false"]
+    subprocess.run(g + ["init", "-q"], check=True)
+    subprocess.run(g + ["add", "-A"], check=True)
+    subprocess.run(g + ["commit", "-qm", "x", "--no-verify"], check=True, env={**__import__("os").environ, "COMMIT_TO_NON_MAIN_OK": "1"})
+    subprocess.run(g + ["tag", ER.TAG], check=True)
+    subprocess.run(g + ["tag", ER.P3_TAG], check=True)
+    here, p3 = ER.HERE, ER.P3
+    ER.HERE, ER.P3 = repo / "paper-e-extractor", repo / "paper3-construction"
+    try:
+        c = ER.frozen_check(str(ds), man)
+        check("passes on the registered chain, returns the tag's commit", len(c) == 40)
+
+        def refused(mutate, restore, why):
+            mutate()
+            try:
+                ER.frozen_check(str(ds), man)
+                check(why, False)
+            except SystemExit:
+                check(why, True)
+            restore()
+        f1 = ER.HERE / "e-analyze.py"
+        refused(lambda: f1.write_text("changed"), lambda: f1.write_text("frozen e-analyze.py\n"),
+                "refuses when the analysis differs from the tag")
+        f2 = ER.HERE / "PREREGISTRATION.md"
+        refused(lambda: f2.write_text("changed"), lambda: f2.write_text("frozen PREREGISTRATION.md\n"),
+                "refuses when the pre-registration differs from the tag")
+        f3 = ER.P3 / "lme-run.py"
+        refused(lambda: f3.write_text("changed"), lambda: f3.write_text("p3 lme-run.py\n"),
+                "refuses when a Paper 3 module differs from its tag")
+        refused(lambda: ds.write_text("[1]"), lambda: ds.write_text("[]"),
+                "refuses when the dataset hash differs")
+    finally:
+        ER.HERE, ER.P3 = here, p3
 
 
 def t_read(tmp):
@@ -292,54 +363,81 @@ def t_read(tmp):
         ER.read(a, out, man, data, sblocks, cache, sp, need)
         check("read refuses with distillations missing", False)
     except SystemExit as e:
-        check("read refuses with distillations missing", "no distillation" in str(e))
+        check("read refuses with distillations missing", "no final distillation" in str(e))
     ER.distill_batch(out, cache, sp, ER.todo_of(cache, need), "r", 4, True, 0)
-    ER.distill_sync(cache, sp, ER.todo_of(cache, need), 2)
+    if any(cache.get(k).get("failed") for k, *_ in ER.todo_of(cache, need, retry_invalid=True)
+           if cache.get(k)):
+        try:
+            ER.read(a, out, man, data, sblocks, cache, sp, need)
+            check("read refuses an invalid batch answer not yet retried", False)
+        except SystemExit:
+            check("read refuses an invalid batch answer not yet retried", True)
+    ER.distill_sync(cache, sp, ER.todo_of(cache, need, retry_invalid=True), 2)
     ER.read(a, out, man, data, sblocks, cache, sp, need)
     rows = [json.loads(l) for l in open(out / "rows.ndjson")]
-    check("6 cells per instance plus the positive control", len(rows) == 3 * 6 + 1, len(rows))
-    pos = [r for r in rows if r["cell"] == "F_C2_pos"]
-    check("positive control only on control_subsample", [r["qid"] for r in pos] == ["q1"])
-    check("positive control holds no answer session", pos[0]["evidence_kept"] == 0 and not pos[0]["correct"])
-    main = [r for r in rows if r["cell"] != "F_C2_pos"]
+    check("6 cells per instance plus two positive controls", len(rows) == 3 * 6 + 2, len(rows))
+    pos = [r for r in rows if r["cell"] in ER.POS]
+    check("positive controls only on control_subsample, one per extractor",
+          sorted((r["qid"], r["cell"]) for r in pos) == [("q1", "F_C2_pos"), ("q1", "L_C2_pos")])
+    check("positive controls hold no answer session",
+          all(r["evidence_kept"] == 0 and not r["correct"] for r in pos))
+    main = [r for r in rows if r["cell"] not in ER.POS]
     check("every full-window cell answers (fake extractor keeps the code)",
           all(r["correct"] and r["correct_j2"] for r in main))
     check("extractor recorded per row", {r["extractor"] for r in main} == set(ER.MODELS.values()))
     rc = json.loads((out / "receipt.json").read_text())
     check("receipt counts the distillations by source",
-          sum(rc["distill_by_source"].values()) == len(need) and rc["rows"] == 19)
+          sum(rc["distill_by_source"].values()) == len(need) and rc["rows"] == 20)
+    check("receipt reports failures per extractor x criterion",
+          len(rc["failures_by_cell"]) == 6 and all("over_1pct" in d for d in rc["failures_by_cell"].values()))
     sp.lockf.close()
 
 
 def t_analysis():
     print("analysis")
-    data = {}
-    rows = []
-    # 40 instances in 20 clusters of 2 (shared answer session); designed cells:
-    #   L_C0 = 0, L_C2 = 1 for all; F_C0 = 1 for half, F_C2 = 1 for all -> I = -0.5 exactly
-    for i in range(40):
-        q = f"q{i:02d}"
+    data, rows = {}, []
+    qids = [f"q{i:02d}" for i in range(40)]
+    ctrl = qids[:10]
+    # 20 clusters of 2 (shared answer session); L_C0 = 0, L_C2 = 1; F_C0 = 1 for half,
+    # F_C2 = 1 -> I = -0.5 exactly
+    for i, q in enumerate(qids):
         data[q] = {"answer_session_ids": [f"s{i // 2}"]}
         y = {"L_C0": 0, "L_C2": 1, "L_P": 1, "F_C0": i % 2, "F_C2": 1, "F_P": 1}
         for c, v in y.items():
             rows.append({"qid": q, "cell": c, "correct": v, "correct_j2": v, "abstained": not v,
                          "served_chars": 100, "question_type": "t"})
-        if i < 10:
-            rows.append({"qid": q, "cell": "F_C2_pos", "correct": 0, "correct_j2": 0,
-                         "abstained": True, "served_chars": 50, "question_type": "t"})
-    txt, J = EA.analyze(rows, data)
+        if q in ctrl:
+            for c in EA.POS:
+                rows.append({"qid": q, "cell": c, "correct": 0, "correct_j2": 0,
+                             "abstained": True, "served_chars": 50, "question_type": "t"})
+    rec = {"failures_by_cell": {"gemini-2.5-flash|C2": {"blocks": 100, "failed": 2, "failed_share": 0.02,
+                                                       "over_1pct": True, "units_per_block": 3.0}}}
+    txt, J = EA.analyze(rows, data, qids, ctrl, rec)
     check("interaction estimate exact", abs(J["primary"]["est"] + 0.5) < 1e-9, J["primary"])
-    check("clusters from shared answer sessions", J["clusters"] == 20)
+    check("clusters from shared answer sessions", J["clusters"] == 20 and J["largest_cluster"] == 2)
     check("controls pass on designed cells", J["controls"]["interpret"])
     check("verdict: shrinks", "shrinks" in J["primary"]["verdict"])
-    rows2 = [dict(r, correct=1) if r["cell"] == "F_C2_pos" else r for r in rows]
-    _, J2 = EA.analyze(rows2, data)
-    check("failed positive control blocks interpretation",
-          not J2["controls"]["interpret"] and J2["primary"]["verdict"] == "not interpreted")
-    rows3 = [r for r in rows if not (r["qid"] == "q00" and r["cell"] == "F_P")]
-    _, J3 = EA.analyze(rows3, data)
-    check("instance missing a cell is left out and named", J3["n"] == 39 and J3["incomplete"] == ["q00"])
-    txt_b, _ = EA.analyze(rows, data)
+    check("which term moved is reported",
+          J["secondary"]["F_C0 - L_C0"]["j1"]["est"] == 0.5 and J["secondary"]["F_C2 - L_C2"]["j1"]["est"] == 0)
+    check("a failure share over 1% is flagged beside the primary", "OVER 1%" in txt)
+    for c in EA.POS:
+        rows2 = [dict(r, correct=1) if r["cell"] == c else r for r in rows]
+        _, J2 = EA.analyze(rows2, data, qids, ctrl)
+        check(f"failed positive control {c} blocks interpretation",
+              not J2["controls"]["interpret"] and J2["primary"]["verdict"] == "not interpreted")
+
+    def refuses(rs, why):
+        try:
+            EA.analyze(rs, data, qids, ctrl)
+            check(why, False)
+        except ValueError:
+            check(why, True)
+    refuses([r for r in rows if not (r["qid"] == "q00" and r["cell"] == "F_P")], "refuses a missing cell")
+    refuses([r for r in rows if r["qid"] != "q39"], "refuses a missing instance")
+    refuses([r for r in rows if not (r["qid"] == "q00" and r["cell"] == "L_C2_pos")], "refuses a missing control row")
+    refuses(rows + [rows[0]], "refuses a duplicated row")
+    refuses(rows + [dict(rows[0], qid="zz")], "refuses an unexpected row")
+    txt_b, _ = EA.analyze(rows, data, qids, ctrl, rec)
     check("analysis is deterministic", txt_b == txt)
 
 
@@ -349,10 +447,9 @@ def main():
         tmp = pathlib.Path(d)
         t_prompts_and_parser()
         t_bodies_and_keys()
-        t_seed(tmp)
         t_batch(tmp)
         t_cap(tmp)
-        t_frozen()
+        t_frozen(tmp)
         t_read(tmp)
         t_analysis()
     print("\nALL PASS" if not FAILS else f"\n{len(FAILS)} FAILED: {FAILS}")
