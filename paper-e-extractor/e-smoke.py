@@ -15,7 +15,7 @@ What it writes: token counts, unit counts, parse failures and latency per call. 
 no memory text, so the repo gains no corpus content and nobody reads an extraction before the
 pre-registration.
 
-  python3 -I e-smoke.py --out <dir>               plan only, spends nothing
+  python3 -I e-smoke.py --out <dir> [--set pro|flash]   plan only, spends nothing
   GEMINI_API_KEY=... python3 -I e-smoke.py --out <dir> --yes [--cap-usd 5]
 """
 import argparse
@@ -39,10 +39,15 @@ P3 = HERE.parent / "paper3-construction"
 SEED = "paper-e-smoke-v1"
 N_BLOCKS = 40
 PRICE = {"gemini-2.5-pro": (1.25e-6, 10.0e-6),        # ai.google.dev pricing, read 2026-11-08,
-         "gemini-2.5-flash-lite": (0.10e-6, 0.40e-6)}  # standard tier, prompts <= 200k tokens
+         "gemini-2.5-flash": (0.30e-6, 2.50e-6),       # standard tier, prompts <= 200k tokens
+         "gemini-2.5-flash-lite": (0.10e-6, 0.40e-6)}
 ARMS = [("gemini-2.5-pro", "dyn", None, c) for c in ("C0", "C2", "P")] + \
        [("gemini-2.5-pro", "b128", {"thinkingBudget": 128}, c) for c in ("C0", "C2", "P")] + \
        [("gemini-2.5-flash-lite", "base", None, "P")]
+# --set flash (added after the pro arms priced the design out): the middle model of the same
+# generation, thinking off, so the body is the flash-lite body with only the model name changed
+ARM_SETS = {"pro": ARMS,
+            "flash": [("gemini-2.5-flash", "t0", {"thinkingBudget": 0}, c) for c in ("C0", "C2", "P")]}
 
 
 def all_blocks(data, qids):
@@ -68,16 +73,18 @@ def call(model, think, crit, block):
     c = (d.get("candidates") or [{}])[0]
     txt = "".join(p.get("text", "") for p in (c.get("content") or {}).get("parts") or [])
     u = d.get("usageMetadata") or {}
-    try:
-        mem = json.loads(txt).get("memories") or [] if txt else []
-        parse_ok = bool(txt)
+    try:  # parse_ok: the Paper 3 parser ({"memories": [...]} only); mem: Paper E's, which also
+        j = json.loads(txt) if txt else None  # accepts a top-level list (SMOKE-RESULT.md)
+        parse_ok = isinstance(j, dict)
+        mem = (j.get("memories") or []) if isinstance(j, dict) else (j if isinstance(j, list) else [])
+        shape = "dict" if isinstance(j, dict) else ("list" if j else "empty_list" if j == [] else "none")
     except Exception:
-        mem, parse_ok = [], False
+        mem, parse_ok, shape = [], False, "unparseable"
     kept = [m for m in mem if isinstance(m, dict) and (m.get("importance") or 0) >= 0.5]
     return {"tin": u.get("promptTokenCount", 0) or 0,
             "tcand": u.get("candidatesTokenCount", 0) or 0,
             "tthink": u.get("thoughtsTokenCount", 0) or 0,
-            "units_raw": len(mem), "units_kept": len(kept), "parse_ok": parse_ok,
+            "shape": shape, "units_raw": len(mem), "units_kept": len(kept), "parse_ok": parse_ok,
             "finish": c.get("finishReason"), "model_version": d.get("modelVersion"),
             "secs": round(time.time() - t0, 2)}
 
@@ -89,8 +96,10 @@ def main():
         "~/datasets/longmemeval/longmemeval_s_cleaned.json"))
     ap.add_argument("--cap-usd", type=float, default=5.0)
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--set", choices=sorted(ARM_SETS), default="pro")
     ap.add_argument("--yes", action="store_true")
     a = ap.parse_args()
+    ARMS_ = ARM_SETS[a.set]
     if a.cap_usd > 10:
         sys.exit("the smoke's cap is at most US$ 10")
 
@@ -102,7 +111,7 @@ def main():
     sample = random.Random(SEED).sample(pool, N_BLOCKS)
     est_in = sum(len(b) for b in sample) / N_BLOCKS
     print(f"pool {len(pool)} spent-only blocks; sample {N_BLOCKS}; mean block {est_in:.0f} chars")
-    print(f"arms {len(ARMS)}, calls {len(ARMS) * N_BLOCKS}, cap US$ {a.cap_usd:.2f}")
+    print(f"arms {len(ARMS_)}, calls {len(ARMS_) * N_BLOCKS}, cap US$ {a.cap_usd:.2f}")
     for c in e_prompts.PROMPTS:
         print(f"  prompt {c} sha256 {e_prompts.sha(c)[:16]}")
     if not a.yes:
@@ -129,10 +138,10 @@ def main():
 
     t0 = time.time()
     with ThreadPoolExecutor(a.workers) as ex:
-        list(ex.map(lambda x: job(*x), [(arm, i) for arm in ARMS for i in range(N_BLOCKS)]))
+        list(ex.map(lambda x: job(*x), [(arm, i) for arm in ARMS_ for i in range(N_BLOCKS)]))
 
     summ = {}
-    for model, tag, _, crit in ARMS:
+    for model, tag, _, crit in ARMS_:
         rs = [r for r in recs if r["model"] == model and r["arm"] == tag and r["crit"] == crit]
         ok = [r for r in rs if "error" not in r]
         summ[f"{model}|{tag}|{crit}"] = {
@@ -148,7 +157,7 @@ def main():
             "secs_median": round(st.median(r["secs"] for r in ok), 2) if ok else None,
             "model_versions": sorted({r["model_version"] for r in ok if r.get("model_version")}),
         }
-    res = {"seed": SEED, "n_blocks": N_BLOCKS, "pool": len(pool),
+    res = {"set": a.set, "seed": SEED, "n_blocks": N_BLOCKS, "pool": len(pool),
            "prompt_sha256": {c: e_prompts.sha(c) for c in e_prompts.PROMPTS},
            "runner_sha256": hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest(),
            "prices_per_token": PRICE, "spent_usd": round(spent[0], 4),

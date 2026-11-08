@@ -1,0 +1,78 @@
+{
+ "arms": {
+  "gemini-2.5-flash|t0|C0": {
+   "calls": 40,
+   "errors": 0,
+   "finish_not_stop": 0,
+   "model_versions": [
+    "gemini-2.5-flash"
+   ],
+   "parse_fail": 0,
+   "secs_median": 1.21,
+   "tcand_mean": 136.6,
+   "tin_mean": 534.8,
+   "tthink_max": 0,
+   "tthink_mean": 0,
+   "units_kept_mean": 2.42,
+   "usd_per_call": 0.000502
+  },
+  "gemini-2.5-flash|t0|C2": {
+   "calls": 40,
+   "errors": 0,
+   "finish_not_stop": 0,
+   "model_versions": [
+    "gemini-2.5-flash"
+   ],
+   "parse_fail": 0,
+   "secs_median": 1.33,
+   "tcand_mean": 138.9,
+   "tin_mean": 859.8,
+   "tthink_max": 0,
+   "tthink_mean": 0,
+   "units_kept_mean": 2.98,
+   "usd_per_call": 0.000605
+  },
+  "gemini-2.5-flash|t0|P": {
+   "calls": 40,
+   "errors": 0,
+   "finish_not_stop": 0,
+   "model_versions": [
+    "gemini-2.5-flash"
+   ],
+   "parse_fail": 0,
+   "secs_median": 1.76,
+   "tcand_mean": 257.9,
+   "tin_mean": 504.8,
+   "tthink_max": 0,
+   "tthink_mean": 0,
+   "units_kept_mean": 4.3,
+   "usd_per_call": 0.000796
+  }
+ },
+ "n_blocks": 40,
+ "pool": 45472,
+ "prices_per_token": {
+  "gemini-2.5-flash": [
+   3e-07,
+   2.5e-06
+  ],
+  "gemini-2.5-flash-lite": [
+   1e-07,
+   4e-07
+  ],
+  "gemini-2.5-pro": [
+   1.25e-06,
+   1e-05
+  ]
+ },
+ "prompt_sha256": {
+  "C0": "72208f90119405c6a83b28a8506e2c6d50ba3112492fc6fb11de3539a223cd27",
+  "C2": "325342a36e742f1e844b7c3792dae3eb47a76879c501678b576cd6df2cc8089d",
+  "P": "9e7668b2a12a1b0c5c122e62fc35520318e9c2b8bfdfa3d932a94e442d1000db"
+ },
+ "runner_sha256": "0cb9cadda1ec90c3a91a9b2af7fea6f3d93c1bfc8bc3df87038658e1f74d1e3c",
+ "seconds": 46.1,
+ "seed": "paper-e-smoke-v1",
+ "set": "flash",
+ "spent_usd": 0.0761
+}
