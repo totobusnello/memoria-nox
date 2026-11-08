@@ -265,6 +265,46 @@ def t_batch(tmp):
     sp.lockf.close()
 
 
+def t_quota(tmp):
+    print("provider queue quota")
+    out = tmp / "quota"
+    out.mkdir()
+    fake = FakeGemini(polls_before_done=0)
+    real = fake.__call__
+    state = {"refuse": 1}
+
+    def transport(method, url, body=None, headers=None, timeout=300):
+        if ":batchGenerateContent" in url and state["refuse"]:
+            state["refuse"] -= 1
+            return 429, {}, b'{"error": {"status": "RESOURCE_EXHAUSTED"}}'
+        return real(method, url, body, headers, timeout)
+    EB.TRANSPORT = transport
+    cache = LME.Cache(str(out / "cache.sqlite"))
+    sp = ER.Spend(out, 5.0)
+    need = {("F", "P", f"q{i}") for i in range(3)}
+    ER.distill_batch(out, cache, sp, ER.todo_of(cache, need), "q", 4, True, 0)
+    st = json.loads((out / "batches.json").read_text())
+    check("a 429 on create holds the chunk and a later pass submits it",
+          state["refuse"] == 0 and fake.creates == 1 and st[0]["state"] == "done")
+
+    def bad(method, url, body=None, headers=None, timeout=300):
+        if ":batchGenerateContent" in url:
+            return 400, {}, b'{"error": "bad request"}'
+        return real(method, url, body, headers, timeout)
+    EB.TRANSPORT = bad
+    out2 = tmp / "quota2"
+    out2.mkdir()
+    sp2 = ER.Spend(out2, 5.0)
+    try:
+        ER.distill_batch(out2, LME.Cache(str(out2 / "cache.sqlite")), sp2,
+                         ER.todo_of(LME.Cache(str(out2 / "c2.sqlite")), need), "q", 4, True, 0)
+        check("any other create error still stops the run", False)
+    except RuntimeError:
+        check("any other create error still stops the run", True)
+    sp.lockf.close()
+    sp2.lockf.close()
+
+
 def t_cap(tmp):
     print("cap")
     out = tmp / "cap"
@@ -448,6 +488,7 @@ def main():
         t_prompts_and_parser()
         t_bodies_and_keys()
         t_batch(tmp)
+        t_quota(tmp)
         t_cap(tmp)
         t_frozen(tmp)
         t_read(tmp)
