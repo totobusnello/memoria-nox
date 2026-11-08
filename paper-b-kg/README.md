@@ -22,6 +22,9 @@ numbers spread across audits.
 | `READING-2026-11-07.json` | the reading: B-F 0.913 [0.876, 0.940], both judges pass both controls, kappa with the human 0.155 |
 | `b-disagreement-direction.py`, `DISAGREEMENT-DIRECTION-2026-11-07.json` | after the reading, not registered: which judge accepted on each disagreement row, against the human grade (counts only) |
 | `NOTE.md`, `PROVENANCE.json` | the data note covering Paper B and Paper B2 (`../paper-b2-kg-repair/`); gate `python3 -I tools/provenance.py --check paper-b-kg` |
+| `../paper-b2-kg-repair/b2-regrade-sensitivity.py`, `../paper-b2-kg-repair/REGRADE-SENSITIVITY-2026-11-07.json` | after the reading, not registered: Paper B2's figures with sheet items 39, 40 and 55 at their first grade (B2 deviation 1); counts only |
+| `pdf-build/build-note-pdf.sh` | the note's PDF, with Paper 3's preamble, table pass and layout check; refuses if the provenance gate fails |
+| `deposit/deposit-note.py`, `deposit/description-note-v1.0.html` | the Zenodo record of the note: `--plan`, `--create-draft`, `--build`, `--fill`, `--readback`; never publishes |
 
 ## What the census of 2026-11-06 says
 
@@ -32,13 +35,8 @@ evidence chunk still exists, 82.6% cite the document vault (`memory/mac-docs/`),
 documents, 4.2% daily notes, and 8 relations cite a distilled session. `extraction_method` is NULL
 on every relation, and 17,682 carry the same confidence, 0.80. Nothing is superseded.
 
-## What the note still needs
+## The note
 
-- A decision on scope: the note can describe structure from this census alone, or also state
-  faithfulness. The October figure (0.900, 135 of 150, after the citation checker was calibrated)
-  used the same sample that defined the criteria, so stating faithfulness needs a fresh sample,
-  judged and adjudicated independently. That costs judge calls and a human pass, and is the
-  author's decision.
-- The consumer question from PLANO.md: the graph reads as a contract graph because its evidence is
-  mostly the document vault, and the only measured consumer (2026-10-23) was a task about
-  contracts.
+`NOTE.md` covers both studies. Before the deposit, Codex (`gpt-6-astra`) and Kimi read it at the
+author's request (2026-11-07); their findings changed the abstract, §1 to §4 and §6, and added the
+regrade sensitivity above.
