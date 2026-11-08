@@ -92,3 +92,13 @@ eval/golden-queries-v3.jsonl
 eval/gold-proposals-2026-10-27.jsonl
 eval/golden-negatives-v1.jsonl
 eval/golden-negatives-v2.jsonl
+# Removidos do main em 2026-11-08: trechos literais do corpus (âncoras), respostas do sistema
+# geradas a partir dele e caminhos privados, achados comparando o histórico com o backup acima.
+# Cópia em ~/Backups/memoria-nox-privado-2026-11-08 (SHA256SUMS lá). A proveniência do Paper A
+# os lê no commit registrado, não no disco, e continua passando.
+audits/2026-10-27-v3-build.py
+audits/2026-10-27-the-ruler-is-deflated-not-inflated.md
+audits/2026-10-27-does-the-recorded-gold-answer-the-question.py
+audits/2026-10-27-the-oracle-pass-and-what-the-judge-got-wrong.md
+audits/2026-10-27-abstention-the-durable-fix.md
+audits/2026-10-22-abstention-baseline.md

@@ -589,7 +589,9 @@
    "locator": "23 of 30 survived",
    "commit": "f47c552",
    "superseded_by": null,
-   "note": ""
+   "note": "",
+   "artifact_private": true,
+   "sha256": "84865fd80cc9851bb3106f9558f16e46a7f5a86af40ab59c80753a0b87bd0f70"
   },
   {
    "id": "abstention-neg-baseline",
@@ -601,7 +603,9 @@
    "locator": "negative abstention from 0.696",
    "commit": "f47c552",
    "superseded_by": null,
-   "note": "Remains the registered figure (printed 0.6957 in later audits); 2026-10-26 shows it is a floor. Decided 2026-11-05 (Toto, README item 3): the registered figure stays the primary; the judge figure is the reference, not a correction."
+   "note": "Remains the registered figure (printed 0.6957 in later audits); 2026-10-26 shows it is a floor. Decided 2026-11-05 (Toto, README item 3): the registered figure stays the primary; the judge figure is the reference, not a correction.",
+   "artifact_private": true,
+   "sha256": "84865fd80cc9851bb3106f9558f16e46a7f5a86af40ab59c80753a0b87bd0f70"
   },
   {
    "id": "abstention-pos-baseline",
@@ -613,7 +617,9 @@
    "locator": "| 25 | **0.200** |",
    "commit": "f47c552",
    "superseded_by": null,
-   "note": "Registered figure; understated per 2026-10-26. Decided 2026-11-05 (Toto, README item 3): the registered figure stays the primary; the judge figure is the reference, not a correction."
+   "note": "Registered figure; understated per 2026-10-26. Decided 2026-11-05 (Toto, README item 3): the registered figure stays the primary; the judge figure is the reference, not a correction.",
+   "artifact_private": true,
+   "sha256": "84865fd80cc9851bb3106f9558f16e46a7f5a86af40ab59c80753a0b87bd0f70"
   },
   {
    "id": "abstention-gap-baseline",
@@ -625,7 +631,9 @@
    "locator": "| **0.496** |",
    "commit": "f47c552",
    "superseded_by": null,
-   "note": "Printed 0.4957 in 2026-10-26/27. Decided 2026-11-05 (Toto, README item 3): the registered figure stays the primary; the judge figure is the reference, not a correction."
+   "note": "Printed 0.4957 in 2026-10-26/27. Decided 2026-11-05 (Toto, README item 3): the registered figure stays the primary; the judge figure is the reference, not a correction.",
+   "artifact_private": true,
+   "sha256": "84865fd80cc9851bb3106f9558f16e46a7f5a86af40ab59c80753a0b87bd0f70"
   },
   {
    "id": "nonabstentions-cited",
@@ -637,7 +645,9 @@
    "locator": "Seven of 23 unanswerable questions",
    "commit": "f47c552",
    "superseded_by": "fabrication-rate-judge",
-   "note": "The baseline called all seven fabrications; the 2026-10-26 judge finds 2 of them are refusals and 4 of 23 assert a datum."
+   "note": "The baseline called all seven fabrications; the 2026-10-26 judge finds 2 of them are refusals and 4 of 23 assert a datum.",
+   "artifact_private": true,
+   "sha256": "84865fd80cc9851bb3106f9558f16e46a7f5a86af40ab59c80753a0b87bd0f70"
   },
   {
    "id": "false-abstentions",
@@ -649,7 +659,9 @@
    "locator": "Five of 25 answerable ones were refused",
    "commit": "f47c552",
    "superseded_by": "abstention-pos-judge",
-   "note": ""
+   "note": "",
+   "artifact_private": true,
+   "sha256": "84865fd80cc9851bb3106f9558f16e46a7f5a86af40ab59c80753a0b87bd0f70"
   },
   {
    "id": "hard-gate-fired",
@@ -661,7 +673,9 @@
    "locator": "the gate fired **zero** times",
    "commit": "f47c552",
    "superseded_by": null,
-   "note": "Restated as 0 of 48 in 2026-10-27-abstention-the-durable-fix.md."
+   "note": "Restated as 0 of 48 in 2026-10-27-abstention-the-durable-fix.md.",
+   "artifact_private": true,
+   "sha256": "84865fd80cc9851bb3106f9558f16e46a7f5a86af40ab59c80753a0b87bd0f70"
   },
   {
    "id": "bounded-judged-pairs",
@@ -1072,7 +1086,9 @@
    "locator": "0.8754",
    "commit": "88c3870",
    "superseded_by": null,
-   "note": ""
+   "note": "",
+   "artifact_private": true,
+   "sha256": "c286396932e643b9c1f8496a0994b9c44dab09b15808b79c0bb437033e70d2c5"
   },
   {
    "id": "abstention-pos-structural",
@@ -1084,7 +1100,9 @@
    "locator": "0.2800",
    "commit": "88c3870",
    "superseded_by": null,
-   "note": "Alternative detector; registered 0.2000 kept."
+   "note": "Alternative detector; registered 0.2000 kept.",
+   "artifact_private": true,
+   "sha256": "c286396932e643b9c1f8496a0994b9c44dab09b15808b79c0bb437033e70d2c5"
   },
   {
    "id": "abstention-gap-structural",
@@ -1096,7 +1114,9 @@
    "locator": "+0.4157",
    "commit": "88c3870",
    "superseded_by": null,
-   "note": "See ambiguity on abstention-gap-judge."
+   "note": "See ambiguity on abstention-gap-judge.",
+   "artifact_private": true,
+   "sha256": "c286396932e643b9c1f8496a0994b9c44dab09b15808b79c0bb437033e70d2c5"
   },
   {
    "id": "invented-43-of-97",
@@ -1240,7 +1260,9 @@
    "locator": "the −14.1% is really −3.5%",
    "commit": "c39bfe3",
    "superseded_by": null,
-   "note": "Projection on v2 labels; superseded as operative score by v3 scoring but not as a finding."
+   "note": "Projection on v2 labels; superseded as operative score by v3 scoring but not as a finding.",
+   "artifact_private": true,
+   "sha256": "b600227ab3130af0836946e0ab7f2a8c804068fdfb5293e9541f63ea3a3aac7d"
   },
   {
    "id": "nine-oracle-strict",
@@ -1252,7 +1274,9 @@
    "locator": "0.2343",
    "commit": "c39bfe3",
    "superseded_by": null,
-   "note": "Not the v3 score: v3 (0.2567) also repairs 27 gold entries."
+   "note": "Not the v3 score: v3 (0.2567) also repairs 27 gold entries.",
+   "artifact_private": true,
+   "sha256": "b600227ab3130af0836946e0ab7f2a8c804068fdfb5293e9541f63ea3a3aac7d"
   },
   {
    "id": "nine-oracle-pooled",
@@ -1264,7 +1288,9 @@
    "locator": "0.4935",
    "commit": "c39bfe3",
    "superseded_by": null,
-   "note": ""
+   "note": "",
+   "artifact_private": true,
+   "sha256": "b600227ab3130af0836946e0ab7f2a8c804068fdfb5293e9541f63ea3a3aac7d"
   },
   {
    "id": "nine-oracle-strict-marginal",
@@ -1276,7 +1302,9 @@
    "locator": "0.2302 (−5.2%)",
    "commit": "c39bfe3",
    "superseded_by": null,
-   "note": ""
+   "note": "",
+   "artifact_private": true,
+   "sha256": "b600227ab3130af0836946e0ab7f2a8c804068fdfb5293e9541f63ea3a3aac7d"
   },
   {
    "id": "nine-bound-magnitude",
@@ -1288,7 +1316,9 @@
    "locator": "four times too large in magnitude",
    "commit": "c39bfe3",
    "superseded_by": null,
-   "note": ""
+   "note": "",
+   "artifact_private": true,
+   "sha256": "b600227ab3130af0836946e0ab7f2a8c804068fdfb5293e9541f63ea3a3aac7d"
   },
   {
    "id": "nine-not-retrieval-failures",
@@ -1300,7 +1330,9 @@
    "locator": "six of the nine are",
    "commit": "c39bfe3",
    "superseded_by": null,
-   "note": ""
+   "note": "",
+   "artifact_private": true,
+   "sha256": "b600227ab3130af0836946e0ab7f2a8c804068fdfb5293e9541f63ea3a3aac7d"
   },
   {
    "id": "oracle-judge-fp-rate",
@@ -1312,7 +1344,9 @@
    "locator": "a 50% false-positive rate on this task",
    "commit": "c39bfe3",
    "superseded_by": null,
-   "note": "Includes matching a word, a perishable question, and accepting a false-premise negative (judge cannot hold a negative)."
+   "note": "Includes matching a word, a perishable question, and accepting a false-premise negative (judge cannot hold a negative).",
+   "artifact_private": true,
+   "sha256": "b600227ab3130af0836946e0ab7f2a8c804068fdfb5293e9541f63ea3a3aac7d"
   },
   {
    "id": "oracle-positive-control",
@@ -1324,7 +1358,9 @@
    "locator": "4 of 6 passed",
    "commit": "c39bfe3",
    "superseded_by": null,
-   "note": "The 2 failures exposed invalid gold, one of them inside the published 55."
+   "note": "The 2 failures exposed invalid gold, one of them inside the published 55.",
+   "artifact_private": true,
+   "sha256": "b600227ab3130af0836946e0ab7f2a8c804068fdfb5293e9541f63ea3a3aac7d"
   },
   {
    "id": "closed-book-false-filter",
@@ -1336,7 +1372,9 @@
    "locator": "7 of the 9 as \"bad question\"",
    "commit": "c39bfe3",
    "superseded_by": null,
-   "note": "First run, discarded in the same file; no replacement count; closed-book answer made informative only."
+   "note": "First run, discarded in the same file; no replacement count; closed-book answer made informative only.",
+   "artifact_private": true,
+   "sha256": "b600227ab3130af0836946e0ab7f2a8c804068fdfb5293e9541f63ea3a3aac7d"
   },
   {
    "id": "repair-file-level",
@@ -2366,7 +2404,9 @@
    "date": "2026-10-27",
    "artifact": "audits/2026-10-27-the-ruler-is-deflated-not-inflated.md",
    "commit": "a01c9f7",
-   "superseded_by": null
+   "superseded_by": null,
+   "artifact_private": true,
+   "sha256": "146ced0728f1487c1f91f51ea3caa40b359e288405db11e19708187f6b11b858"
   },
   {
    "id": "gold-entries-rejected",
@@ -2378,7 +2418,9 @@
    "date": "2026-10-27",
    "artifact": "audits/2026-10-27-the-ruler-is-deflated-not-inflated.md",
    "commit": "a01c9f7",
-   "superseded_by": null
+   "superseded_by": null,
+   "artifact_private": true,
+   "sha256": "146ced0728f1487c1f91f51ea3caa40b359e288405db11e19708187f6b11b858"
   },
   {
    "id": "negative-control-random-chunk",
@@ -2390,7 +2432,9 @@
    "locator": "accepted **1.8%** of 55",
    "commit": "a01c9f7",
    "superseded_by": null,
-   "note": "same digits as v3-no-valid-gold (1 of 57), a different quantity"
+   "note": "same digits as v3-no-valid-gold (1 of 57), a different quantity",
+   "artifact_private": true,
+   "sha256": "146ced0728f1487c1f91f51ea3caa40b359e288405db11e19708187f6b11b858"
   },
   {
    "id": "v3-flip-band-range",

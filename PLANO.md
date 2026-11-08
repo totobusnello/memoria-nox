@@ -200,6 +200,18 @@ com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 
    (`memory/entities/people/<slug>`, 76 menções) e, em 10 arquivos, caminhos concretos do cofre,
    do log de eventos do Mac ou nomes de host. O gate impede menções novas; as existentes ficam
    para a mesma decisão do histórico.
+   **Varredura de 08/11** (todo o histórico, os 712 PRs por clone espelho, e as 174 versões de
+   arquivo dos 13 registros de memória no Zenodo, contra o backup de 04/11 por trechos de 8 palavras
+   e contra os padrões do gate; controle positivo passa, inclusive dentro de zip): Zenodo limpo,
+   0 forks, os refs de PR não trazem nada além do histórico do `main`. Achado no `main`: 6 audits de
+   26-27/10 com âncoras literais do corpus, respostas do sistema e caminhos privados, que o gate não
+   via (procura caminho e nome, não texto). **Feito em 08/11 (sua escolha «tira»): PR #713**, os 6
+   fora do `main`, no `.gitignore`, backup em `~/Backups/memoria-nox-privado-2026-11-08/`; os 22
+   registros do Paper A que os citam viraram `artifact_private` com o sha256 do arquivo no commit.
+   Ficam no `main`, de baixa sensibilidade: nomes de arquivos de notas diárias (E10, maio), texto
+   das perguntas, 26 IPs da tailnet num plano de 14/10 e nomes de host. Reescrever o histórico
+   troca o hash dos commits citados pelos pré-registros e pelos links `tree/<hash>` dos papers, e
+   não apaga os refs de PR sem pedido ao suporte do GitHub.
 2. **A: holdout.** Escrever queries novas antes de ver qualquer ranking delas; sem isso a parte nova
    se chama «remedição de estabilidade», não confirmação.
 3. **A: corpus sintético.** Pequeno, PT-BR, público, só para os testes de método. Os números de
