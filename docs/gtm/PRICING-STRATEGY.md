@@ -4,7 +4,7 @@
 > **Este documento apresenta hipóteses e frameworks — não decisões de pricing.**
 > As decisões cabem a Toto após validação com o mercado.
 >
-> **Status:** 2026-05-18 (Wave H — pré-GTM, hipóteses iniciais)
+> **Status:** **suspenso em 2026-11-08** (D-2026-11-08b): sem uso externo medido não há o que precificar; o pacote segue MIT e gratuito. O texto abaixo é de 2026-05-18 (Wave H, hipóteses iniciais) e fica como registro.
 > **Produto:** Nox-Supermem (repo `nox-supermem/`) — camada comercial sobre o OSS nox-mem
 > **Plataforma inicial:** Hotmart (mercado BR), com expansão para stripe global
 > **Cross-links:** `docs/cost-model.md` · `docs/COMPETITIVE-POSITIONING.md` · `docs/gtm/ROI-CALCULATOR.md`

@@ -80,6 +80,12 @@ crescer — e não `fail == 0`, que esta árvore nunca satisfez.
 | 32 | **`nox-mem compact` destrutivo** (troca os chunks de um arquivo por 1 resumo de LLM e apaga os originais) | Rodou todo domingo de 04 a 10/2026 sem decisão registrada: 10.204 chunks viraram 210 resumos, o conteúdo de arquivos ainda vivos em disco saiu da busca e 610 relações do KG perderam a evidência. Esquecer é rebaixar no ranking, nunca apagar sem métrica; os papers lidos em 13/10 (EnSIMem, JAM) guardam o bruto e indexam por cima. | Resumo **ao lado** do original (chunk novo, sem apagar) com eval mostrando ganho, ou política de retenção medida (S1/item 7 do ROADMAP v6) | D-2026-10-14 |
 | 33 | **Rerank temporal implícito** (D49/D50: `NOX_TEMPORAL_PATH`, proximidade de data inferida da pergunta) | Cinco meses em shadow sem decisão; nenhuma evidência de demanda (a métrica `was_temporal_query` nem tinha escritor); o modo `active` não muda ranking; ativar exige 7 d de shadow + 5 batches + A/A. O produto temporal são os filtros explícitos `--as-of` / `--changed-since` (npm 3.4.0+). | Os dois juntos: (a) fração relevante de buscas reais com expressão temporal, medida pelo `was_temporal_query`; (b) gold temporal em que o rerank implícito vence o filtro explícito | D-2026-10-14b |
 | 34 | **Ler `chunks.confidence` / `chunks.provenance_kind` no ranking** (item 11 do ROADMAP v6) | Censo de 2026-10-20 no banco de produção: **61.256 chunks com `provenance_kind` NULL em 100% e `confidence` = 0.8 (o `DEFAULT`) em 100%** — um único valor distinto em cada coluna, sem histórico; `superseded_by` nulo em todas e **zero** `op_name` de mark/supersede no `ops_audit`. Não é "parou de escrever": nunca escreveu. Não há sinal a ler, e sem o gold (item 9) não há métrica que mostre que rebaixar por confiança melhora algo — vale a mesma condição que congelou o item 6: os agentes não buscam. Os três módulos que implementavam a leitura (`write-hooks`, `ranking`, `search-filter`) não tinham importador e saíram (nox-workspace#65); as duas colunas e o `mark` ficam. | Os dois juntos: (a) consumidor real buscando, medido por `search_telemetry.requesting_agent`; (b) o golden set do item 9 existindo | D-2026-10-20 |
+| 35 | **P6 app mobile** | Nenhuma demanda medida e nenhum consumidor; uso externo do pacote é ~2 downloads/dia fora de release (ROADMAP v7 §0). | Usuário externo pedindo, registrado em issue | D-2026-11-08b |
+| 36 | **P7 extensão de navegador** | Idem P6: sem demanda medida nem consumidor. | Usuário externo pedindo, registrado em issue | D-2026-11-08b |
+| 37 | **E15 (CodeGraph como produto)** | Já saíra do roadmap em 14/10 (v6 §5); sem consumidor. Os números de eval continuam válidos onde foram publicados. | Consumidor que busca código pelo nox-mem | D-2026-11-08b |
+| 38 | **Os dois benchmarks por método** (comparações método a método fora dos papers) | Nenhuma decisão de produto depende deles; a pesquisa segue a regra de uma pergunta por vez com orçamento (ROADMAP v7 §5). | Uma pergunta de pesquisa aprovada que precise deles | D-2026-11-08b |
+| 39 | **profile-chunk** | Sem consumidor e sem medida de efeito. | Consumidor e uma pergunta medível | D-2026-11-08b |
+| 40 | **Shadow do R1 (brief por recência) ligado** | R1 reprovado em 21/10 (0/523 nos dois braços, com controle positivo); manter o shadow só custa. | Nova hipótese de composição do brief, pré-registrada | D-2026-11-08b |
 
 ## 2. Q5 Cross-encoder reranker — DEFERRED (5 razões)
 
@@ -3322,6 +3328,33 @@ caracteres são amostradas por duas janelas de 20k, logo o tax delas é medido s
 `audits/2026-10-26-faithfulness-replay.md`,
 `audits/2026-10-26-replay-{build,generate,answer,judge,report}.py`.
 
+
+### D-2026-11-08b — ROADMAP v7: integridade, quem usa, e só então o que aprender
+
+**Contexto.** Auditoria de 08/11 (inventário de ≈70 itens abertos, síntese de 29 alavancas medidas, estado
+do campo em 2026) e proposta de reorganização revista pelas vozes Codex e Kimi, que recusaram a primeira
+versão. A revisão 2 foi aprovada pelo Toto («ok segue tuas sugestões»).
+
+**Decisões.**
+1. **Critério de ordenação em três classes, nesta precedência:** integridade (destruir dado, expor dado
+   privado, afirmar o que o código não faz) → benefício a um consumidor identificado → aprendizado que muda
+   uma decisão. A fórmula efeito × alcance ÷ custo saiu: não tinha unidades comparáveis.
+2. **`nox-mem compact` exige `--destructive`** no npm (nox-mem#60, 3.10.0); a descrição diz que apaga.
+3. **L4 (`lib/regex-extract`) e `lib/reranker.ts` removidos do npm** (nox-mem#60), com a dependência
+   opcional `@xenova/transformers`. Os números de eval do L4 continuam no histórico.
+4. **Cortes:** NÃO FAZEMOS #35 a #40. P4 `connect` **não** é cortado: espera a observação de instalação do
+   zero (ROADMAP v7, B1).
+5. **Pricing suspenso** até haver uso externo medido; o pacote segue MIT e gratuito. Resolve a contradição
+   entre D44b (Stripe-first) e os documentos que diziam Hotmart. Lançamento na primeira quinzena de
+   dezembro, terça ou quinta, depois de A1–A3 e da auditoria dos `docs/launch-*.md`.
+6. **Relatório de prazos** entra no morning report, uma linha por obrigação dos próximos 14 dias; teste de
+   duas semanas decide se o lado pull tem consumidor.
+7. **Shadow do C2:** tag do pré-registro agora; opção experimental no npm só com janela + C2 juntos e depois
+   de versionar o runner e consertar fallback e seletor.
+8. **Pendente:** histórico público com trechos do corpus privado — aceitar e registrar, ou reescrever,
+   conforme o que houver no cofre.
+
+**Fontes.** `docs/ROADMAP.md` (v7), `docs/_archive/ROADMAP-v6-pre-v7-2026-11-08.md`, memoria-nox#716.
 
 ### D-2026-11-08 — «quando buscar» vai nas `instructions` do servidor MCP, com escopo; a skill fica arquivada
 
