@@ -43,13 +43,13 @@
 | buscas | 681 em 14 dias, média **1.081 ms**, sem cache de embedding da query | `search_telemetry` |
 | quem busca | `requesting_agent` gravado desde 14/10 (`<superfície>:<agente>`, `probe:*`); os agentes ainda não se identificam → `*:unknown` | nox-workspace#55 |
 | `compact` | **pausado** (`/root/.openclaw/DISABLE_COMPACT`); 1 resumo restante (waiver da Nuvini, sem backup anterior) | openclaw-vps#45 |
-| npm | **`nox-mem@3.7.0` = latest** (15/10: embedding do chunk inteiro + chunks ≤ 4.000; shasum `657ba5c3`) | nox-mem#51 |
+| npm | **`nox-mem@3.9.1` = latest** (08/11: `instructions` do MCP só com `NOX_MEM_SCOPE`); 3.7.0 de 15/10 trouxe o embedding do chunk inteiro e chunks ≤ 4.000 | nox-mem#57, nox-mem#51 |
 
 ---
 
 ## 2. O que o produto tem, contra o que o discurso dizia
 
-| item | produção (`nox-workspace`) | npm `nox-mem@3.5.2` | v5 dizia |
+| item | produção (`nox-workspace`) | npm `nox-mem@3.9.1` (tabela reconferida em 08/11, `specs/INDEX.md`) | v5 dizia |
 |---|---|---|---|
 | busca híbrida FTS5 + Gemini + RRF, boost stack, salience v2 | ✅ | ✅ | ✅ |
 | `/api/brief`, `/api/answer` com citação, privacy filter no ingest | ✅ | ✅ | ✅ |
@@ -57,7 +57,10 @@
 | `NOX_TEMPORAL_BOOST_MODE` | removida do `.env` em 14/10 (módulo só importado pelo teste) | ❌ | ativo |
 | `NOX_TEMPORAL_PATH=active` | existe, mas não muda o ranking (`search.ts:722`) | — | D49/D50 → NÃO FAZEMOS #33 (D-2026-10-14b) |
 | troca de provider de embedding (A3) | ❌ (Gemini direto no `embed.ts`) | ✅ `NOX_EMBEDDING_PROVIDER` | ✅ |
-| A2 export/import, P4 `nox-mem connect` | ❌ | ❌ | staged / spec |
+| A2 export/import | ✅ só HTTP (`POST /api/export` e `/api/import`, conferido na VPS em 08/11; sem CLI) | ❌ | staged / spec |
+| P4 `nox-mem connect` | ❌ | ❌ | staged / spec |
+| L2 conflito no KG, P5 viewer, hooks (P2 parcial), OCR (E12) | ✅ | ❌ | — |
+| L4 extração regex-first | código presente, sem chamador (`NOX_L4_REGEX_ENABLED` sem efeito) | idem | «95,8% P/R, 80% menos Gemini» |
 | abstenção (piso de confiança) | ❌ | ❌ | S2 gated |
 
 README, `CONFIGURATION.md`, `COMPARISON.md` e `COMPETITIVE-POSITIONING.md` corrigidos em 14/10

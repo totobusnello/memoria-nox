@@ -1,5 +1,7 @@
 # Lab Q1 #2 — MA-Protection Mechanism for Cross-Encoder Rerank
 
+> **Estado verificado em 2026-11-08:** só no harness de eval. Evidência: `aggregate_phaseMAP_5batch.py`, RESULTS-PHASEMAP-5BATCH; `NOX_MA_PROTECTION*` N/P NONE. Falta: Lab, parked. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Status:** SPEC (não implementado) — Lab Q1 priority #2, sequenced após Lab Q1 #1 (query classifier)
 **Date:** 2026-05-28
 **Author:** Toto (via agent session 2026-05-28 evening BRT)

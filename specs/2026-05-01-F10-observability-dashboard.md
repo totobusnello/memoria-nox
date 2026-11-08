@@ -1,5 +1,7 @@
 # F10 — Observability Dashboard
 
+> **Estado verificado em 2026-11-08:** só em produção (fora do npm). Evidência: DECISIONS D53: Phase A (#207) + B (#212) LIVE; P `observability/` 17 files, imported by `api-server.ts`; N has only slim `observability.ts`. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > Static-HTML dashboard sobre dados que JÁ existem em `nox-mem.db` + `/api/health` + audits/data-*/ + journalctl shadow events. Sem stack nova (Grafana/Prometheus/time-series DB): leitura direta do SQLite. Phased rollout, P0 (Prod Health) implementation-ready em ~4h.
 
 **Status:** REFRESH 2026-05-21 — design spec implementation-ready, Phase A scope-limited

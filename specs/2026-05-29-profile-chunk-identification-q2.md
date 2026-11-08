@@ -1,5 +1,7 @@
 # Lab Q2 — Profile-Chunk Identification Mechanism
 
+> **Estado verificado em 2026-11-08:** não começado. Evidência: no artifact (DECISIONS:1385 lists "profile-chunk" as untried mechanism class). Falta: Lab idea. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Status:** SPEC (não implementado) — Lab Q2 priority, sequenced após Wave C triple bench results
 **Date:** 2026-05-29
 **Author:** Toto (via agent session 2026-05-29 evening BRT)

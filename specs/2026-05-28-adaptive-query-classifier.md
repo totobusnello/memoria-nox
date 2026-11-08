@@ -1,5 +1,7 @@
 # Adaptive Query Classifier — Lab Q1 #1 NEW
 
+> **Estado verificado em 2026-11-08:** só no harness de eval. Evidência: `eval/evermembench/query_classifier.py`; grep `NOX_ADAPTIVE_CLASSIFIER` N/P NONE. Falta: ROADMAP: "resultado de pesquisa". Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Status:** SPEC (não dispatched) — Nova prioridade Lab Q1
 **Author:** Toto (via auto-mode session 2026-05-28)
 **Predecessores:** Phase D (PR #365, 62.22% baseline), Phase G 5-batch (PR #369, rerank opt-in verdict)

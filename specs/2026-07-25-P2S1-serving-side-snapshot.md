@@ -1,5 +1,7 @@
 # P2S1 — Serving-side snapshot (pré-requisito de engenharia do Paper 2)
 
+> **Estado verificado em 2026-11-08:** só em produção (fora do npm) retired. Evidência: P `lib/epoch-serving/shadow/snapshot.ts`; memoria-nox CLAUDE.md: epoch rotation disabled 2026-10-26 (openclaw-vps#63), `mode: "off"`. Falta: dead code candidate. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > **Status:** ✅ **FECHADA 2026-07-26** — T0–T10 concluídas, mecanismo em produção, rotação de boundary agendada. `NOX_EPOCH_SNAPSHOT=shadow` ligado (serve do vivo, só mede).
 > **Origem:** `paper2-interventional/PREREG-DRAFT.md` §0 (Route 2-lite) item §9.3. Era o **único bloqueador de engenharia** entre o desenho e o piloto — e continuou sendo até fechar.
 > **K1 passou com folga** (1,8% do espaço livre contra os ≥20% exigidos): Route 1 fica como fallback documentado e o claim causal do §1-H1 permanece.

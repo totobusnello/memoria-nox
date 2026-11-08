@@ -1,5 +1,7 @@
 # Phase H — EverMemBench GPT-4.1-mini Backbone Parity
 
+> **Estado verificado em 2026-11-08:** medição concluída. Evidência: RESULTS-PHASEH(-v2)(-5BATCH).md, DECISIONS ~1069-1130. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **Status:** SPEC (não dispatched) — gated em Phase G completion
 **Author:** Toto (via auto-mode session 2026-05-28)
 **Predecessors:** Phase D (PR #365, 5-batch 62.22% vs MemOS 59.27% on Gemini-2.5-flash)

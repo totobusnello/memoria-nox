@@ -1,5 +1,7 @@
 # Temporal Retrieval Path — Q1 R&D Spike
 
+> **Estado verificado em 2026-11-08:** cortado por decisão (code residual). Evidência: `temporal-retrieval.ts` in `search.ts` only logs, does not mutate; drop-in removed 14/10; NÃO FAZEMOS #33. Falta: optional cleanup. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > Spike paralelo (não bloqueia features atuais). Investiga camada de **proximity-rerank temporal** complementar a E13 (section-boost flip). Disparado pela surpresa #5 da G4 ablation (2026-05-19) onde queries temporais zeram nDCG e Q2 full results 2026-05-19 confirmaram multi-session/temporal como weak spot persistente (0.84–0.85 enquanto knowledge-update bate 1.0).
 
 **Status:** Research spike — design + spike isolado, **não deploy**

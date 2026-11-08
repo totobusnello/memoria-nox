@@ -1,5 +1,7 @@
 # Per-method Benchmark — nox-mem vs Mem0/Zep/EverCore/HyperMem
 
+> **Estado verificado em 2026-11-08:** não começado. Evidência: no artifact in eval/, docs, HANDOFF. Falta: gated on D49 phase 2, which is dead (#33). Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > **Apples-to-apples comparison** rodando nox-mem (post-Wave A) e 4 competitors no MESMO dataset, MESMO protocolo, MESMO evaluator. Fecha "benchmark gap" memory cravada há semanas.
 
 **Status:** SPEC — implementation pending, gated em D49 phase 2 completion (avoid disrupting shadow telemetry)

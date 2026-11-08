@@ -1,5 +1,7 @@
 # P4 — `nox-mem connect <ide>` — Multi-IDE Bridge
 
+> **Estado verificado em 2026-11-08:** não começado. Evidência: grep `connect` N/P/staged NONE; ROADMAP v6 ❌❌. Falta: spec only. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > **Status:** SPEC (não-implementado)
 > **Branch:** `overnight/2026-05-17/P4-connect-ide-spec`
 > **Pillar Q/A/P:** P4 — Multi-IDE Convergence

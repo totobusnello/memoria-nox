@@ -1,5 +1,7 @@
 # E14 — Retrieval Evolution (post-R03)
 
+> **Estado verificado em 2026-11-08:** medição concluída. Evidência: spec: levers A1/A2/FTS expansion refuted; lever D "language-aware RRF" only in eval (grep `NOX_LANG_AWARE_RRF` N/P NONE); ROADMAP v6 table; D01 v3 Wave 2 on hold -> ROADMAP §5 out. Falta: nothing as product. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **ID:** E14
 **Status:** ✅ **Wave 1 COMPLETA 2026-05-17 (3 dias antes do cronograma original)**. Wave 2 (D01 v3 Cohere) ON HOLD pendente decisão Toto.
 **Owner:** Toto (decisão); Forge (proposta v1→v3); Maestro (execução)

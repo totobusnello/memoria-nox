@@ -8,7 +8,7 @@
 > **Wave 2 closure (rev8, Tue 2026-06-02, PRs #423-#427):** 3-knob NO-REPLICATE pattern confirmed (D75) — single-stage retrieval knobs transfer at ~24-40% from gpt-4.1-mini to Gemini-3-flash (KG 0% / AC ~40% / MQ ~34%). D74 composability projection substantially refuted at single-stage layer. Orchestration-stage capstone (PR #426) aborted due to infrastructure constraint — Hostinger CPU steal 51-97% sustained (D76); infrastructure abort, NOT scientific failure. IterB ReAct (+2.01pp clean, PR #419) remains the only validated F_MH lever on Gemini-3-flash. Q1 priorities: HyDE bench + Claude Sonnet 4.6 / Opus 4.7 backbone bench.
 > **Prior (rev7, 2026-05-31):** 12 SOTA-tier dimensions consolidated (PRs #413 #419).
 > **Prior (rev6, 2026-05-30):** 9 SOTA claims (Backbone Matrix Gemini-3-flash · MuSiQue · HotPotQA · LoCoMo · Production SOTA · F_MH paradox RESOLVED).
-> **Prior baseline (rev5, 2026-05-29):** Phase H v2 5-batch +9.13pp vs MemOS · LongMemEval n=300 · KG path F_MH +2.81pp opt-in. **Prior (rev4):** Q4 smoke Sat — 4/6 systems. Gate D43 PASSED.
+> **Prior baseline (rev5, 2026-05-29):** Phase H v2 5-batch +9.13pp vs MemOS · LongMemEval n=300 · KG path F_MH +2.81pp (research harness, not in the package). **Prior (rev4):** Q4 smoke Sat — 4/6 systems. Gate D43 PASSED.
 > Updated 2026-06-02. Refs: `[[q3-iterB-fmh-ceiling-broken-2pp]]` · `[[backbone-matrix-gemini-3-flash-overall-ma-sota]]` · `[[musique-sota-crushing-beats-ircot-ex-sa]]` · `[[hotpotqa-full-73-37-above-dpr-fid-sota]]` · `[[locomo-crossbench-contradicts-fmh-retrieval-bound]]` · `[[production-sota-latency-cost-2026-05-30]]` · `[[wave-2-phase-1-5-ac-mq-no-replicate-gemini-3-flash]]` · `[[capstone-aborted-hostinger-throttling-indeterminate]]` · PRs #396-#413 + #419 + #423-#427.
 
 ---
@@ -124,7 +124,7 @@ F_MH 3-7% gap on EverMemBench is **corpus-structural** (long conversation chains
 
 ---
 
-## KG path retrieval — Lab Q1 #4 (opt-in, PR #379)
+## KG path retrieval — Lab Q1 #4 (research harness, PR #379; not in the npm package or the reference deployment, audit 2026-11-08)
 
 > **Config:** Approach A — 1-hop boost via regex entity extraction + `kg_relations` SQL walk. 5-batch GPT-4.1-mini (n=3,121). $0/query (no LLM at query time).
 
@@ -321,7 +321,7 @@ Zep OSS is 🚫 GATED: the Zep Go server hardcodes OpenAI for embedding. An hone
 
 Documented transparently — this comparison is not marketing:
 
-- **F_MH (multi-hop):** nox-mem 5.22–6.02% vs MemOS 18.94%. Backbone-invariant gap. Lab Q1 #1 (adaptive classifier) + #4 (KG path, ships opt-in +2.81pp) + #3 (multi-query expansion) are active research. We don't claim universal multi-hop WIN.
+- **F_MH (multi-hop):** nox-mem 5.22–6.02% vs MemOS 18.94%. Backbone-invariant gap. Lab Q1 #1 (adaptive classifier) + #4 (KG path, +2.81pp in the research harness, not shipped) + #3 (multi-query expansion) are active research. We don't claim universal multi-hop WIN.
 - **Single-session-preference (31.25% LongMemEval, n=16):** wide CI, preference handling weak. Signal for future research.
 - **Temporal multi-hop:** Zep's temporal KG is architecturally stronger on structured multi-hop temporal chains. Our `--as-of`/`--changed-since` flags address a different dimension (time-travel filtering, not KG traversal).
 - **Graph-native queries:** Zep's KG is more mature than nox-mem's `kg_relations` on complex structured graph traversal.

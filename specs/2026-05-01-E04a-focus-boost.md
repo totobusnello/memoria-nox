@@ -1,5 +1,7 @@
 # E04a — Session Focus Topic Boost
 
+> **Estado verificado em 2026-11-08:** cortado por decisão. Evidência: DECISIONS D36 (CUT permanent, code removed: focus.ts, CLI); grep NONE in N/P. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > Comando `nox-mem focus set <topic>` define um foco de sessão; search aplica 1.4× a chunks que tocam topic + 0.75× a chunks que NÃO tocam. Multiplicador aditivo ao section_boost atual, não stacking destrutivo.
 
 **Status:** Design spec (CANDIDATE)

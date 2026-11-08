@@ -1,5 +1,7 @@
 # Q4 COMPARISON Execution Plan — nox-mem vs 5 competidores
 
+> **Estado verificado em 2026-11-08:** medição concluída. Evidência: eval/q4-comparison, output-2026-09-10 `_aggregate.json`, paper §6.3.3; DECISIONS ~2047. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 **ID:** Q4-EXEC
 **Status:** READY-TO-EXECUTE (weekend sprint Sat 2026-05-24 / Sun 2026-05-25)
 **Owner:** Toto (kick off + narrative); agent (setup + execution)

@@ -1,5 +1,7 @@
 # Spec D2 — Brief diversity/novelty term
 
+> **Estado verificado em 2026-11-08:** no npm (e em produção) (default off), active in prod. Evidência: N+P `api/brief-diversity.ts`; HANDOFF:4181 `NOX_BRIEF_DIVERSITY=active`. Falta: pain-floor question open (DECISIONS ~2319). Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > **Status:** ✅ SHADOW DEPLOYED 2026-06-14 (PR nox-workspace **#17**). A+B implementados, `NOX_BRIEF_DIVERSITY=shadow` na VPS (drop-in `d2-brief-diversity-shadow.conf`). 45/45 testes. Aguarda 3-5d de shadow → gate (§6 redesenhado) → decisão Toto de flip `active`.
 > **Origem:** sessão 2026-06-07 (D1 — feedback loop do canário). Ver `docs/HANDOFF.md#Sun 2026-06-07` e memória `[[feedback_probe_search_must_not_feed_ranking_signals]]`.
 > **Repo de impl:** `nox-workspace/tools/nox-mem/src/api/brief.ts` + `brief-diversity.ts`.

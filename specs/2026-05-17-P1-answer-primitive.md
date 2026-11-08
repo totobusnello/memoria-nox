@@ -1,5 +1,7 @@
 # P1 — Answer Primitive (Grounded RAG with Citations)
 
+> **Estado verificado em 2026-11-08:** no npm (e em produção). Evidência: N+P `api/answer.ts`, `lib/answer/*`, `cli/answer.ts`, wire-up `/api/answer`; N MCP `mcp/tools/answer.ts`. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > Terceira primitiva canônica: `nox-mem answer "<question>"`. Recebe pergunta NL, monta contexto via hybrid retrieval (BM25+vec+KG+RRF salience-weighted), chama LLM com prompt anti-hallucination, retorna resposta + citações verificadas (chunk_id → file_path + line_range + snippet). Fecha o trio `remember / recall / **answer**`.
 >
 > *Pain-weighted hybrid memory with shadow discipline — yours by design.*

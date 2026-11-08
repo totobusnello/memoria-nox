@@ -1,5 +1,7 @@
 # E03a — Entity-Facts SPO Injection (`<vault-facts>` block)
 
+> **Estado verificado em 2026-11-08:** no npm (e em produção) (default shadow). Evidência: N+P `lib/spo-injection.ts`, `api-server.ts:17,401`; `NOX_VAULT_FACTS_MODE` default shadow, `active` only surfaces. Falta: E03b activation never decided. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > Read-only KG → context surface. Bloco `<vault-facts>` injetado no prompt com top-K SPO triples relevantes à query, derivados de `kg_entities` + `kg_relations` existentes.
 > Implementação v1 minimal: top-K simples, sem confidence filter.
 

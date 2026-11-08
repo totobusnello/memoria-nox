@@ -1,5 +1,7 @@
 # 7b — Brief action probe: does the injected brief change what agents do?
 
+> **Estado verificado em 2026-11-08:** medição concluída. Evidência: ROADMAP #7, MEMORY: 7b closed 15/10, positive control 0/10. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 Status: **v3.3** (2026-10-14; v3.3: same account with throttle, Toto's decision; v3.1 approved by Toto, v3.2 amendment §3/§4.1 approved by Toto after the render gate failed). ROADMAP v6 item 7(b).
 v1 challenged by Kimi (`adversary-receipt-kimi-2026-10-14T194124-93966.txt`) and Grok
 (`adversary-receipt-grok-2026-10-14T194125-94087.txt`); v2 reviewed by Kimi

@@ -1,5 +1,7 @@
 # P7 — Browser Extension Spec
 
+> **Estado verificado em 2026-11-08:** código existe, não alcançável. Evidência: `staged/P7-browser-extension` only. Falta: no decision. Critério: código alcançável no npm `nox-mem@3.9.1` ou no código de produção; ver `specs/INDEX.md`.
+
 > **Status:** Spec (2026-05-18) — P7 candidate (pillar P, Roadmap §5)
 > **Tagline:** *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 > **Pillar:** P — Product UX
