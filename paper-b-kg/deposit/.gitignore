@@ -1,0 +1,6 @@
+.draft-id-*
+__pycache__/
+*.pdf
+*.zip
+kg-faithfulness-and-repair-v*.md
+SHA256SUMS
