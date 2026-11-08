@@ -1,0 +1,49 @@
+Paper E analysis · 242 instances · 241 answer-session clusters (largest 2) · alpha 0.05
+
+0. CONTROLS
+   floor     acc(F_C2) = 0.793, acc(L_C2) = 0.806  (>= 0.50)  pass
+   positive  acc(L_C2_pos) = 0.000, acc(F_C2_pos) = 0.000  (n = 40 each, <= 0.10)  pass
+
+1. PRIMARY · I = E[(F_C2 - F_C0) - (L_C2 - L_C0)], judge 1
+   -4.1 pp [-12.3, +4.1]
+   inconclusive: the interval contains 0 (not an equivalence claim)
+
+2. BRACKET · I under judge 2
+   -5.0 pp [-13.4, +3.5]
+
+3. SECONDARY (intervals, no test claimed)          judge 1                judge 2
+   F_C0 - L_C0                                   +2.9 pp [-3.5, +9.3]     +6.6 pp [+0.1, +13.2]
+   F_C2 - L_C2                                   -1.2 pp [-6.4, +4.0]     +1.7 pp [-3.1, +6.4]
+   F_P - F_C2                                    -3.7 pp [-9.4, +1.9]     -5.0 pp [-10.1, +0.1]
+   P interaction (F_P - F_C0) - (L_P - L_C0)     +4.1 pp [-4.3, +12.6]    +0.8 pp [-7.0, +8.7]
+   L_P - L_C0                                    +13.2 pp [+7.5, +19.0]   +13.6 pp [+7.8, +19.5]
+   F_P - F_C0                                    +17.4 pp [+11.1, +23.6]  +14.5 pp [+8.7, +20.2]
+   F_C2 - F_C0                                   +21.1 pp [+14.8, +27.4]  +19.4 pp [+13.1, +25.8]
+   L_C2 - L_C0 (Paper 3: +24.8)                  +25.2 pp [+18.8, +31.6]  +24.4 pp [+17.7, +31.1]
+
+4. FAILED BLOCKS per extractor x criterion (receipt.json)
+   gemini-2.5-flash-lite|C0         59 of  70067 (0.08%)   units/block 2.63
+   gemini-2.5-flash-lite|C2         45 of  70067 (0.06%)   units/block 4.18
+   gemini-2.5-flash-lite|P         293 of  70067 (0.42%)   units/block 4.24
+   gemini-2.5-flash|C0              10 of  70067 (0.01%)   units/block 2.03
+   gemini-2.5-flash|C2               9 of  70067 (0.01%)   units/block 3.13
+   gemini-2.5-flash|P               16 of  70067 (0.02%)   units/block 4.22
+
+5. CELLS                 acc j1   acc j2   abstain   median chars
+   L_C0                   0.554    0.566     0.289       142,450
+   L_C2                   0.806    0.810     0.099       231,304
+   L_P                    0.686    0.702     0.198       222,106
+   F_C0                   0.583    0.632     0.260       104,243
+   F_C2                   0.793    0.826     0.083       175,468
+   F_P                    0.756    0.777     0.153       234,388
+   L_C2_pos               0.000    0.000     1.000       219,273
+   F_C2_pos               0.000    0.000     0.975       166,188
+
+   per question_type (judge 1)
+   type                            n   L_C0   L_C2    L_P   F_C0   F_C2    F_P
+   knowledge-update               30  0.767  0.867  0.867  0.833  0.933  0.967
+   multi-session                  68  0.559  0.838  0.691  0.662  0.882  0.809
+   single-session-assistant       28  0.500  0.786  0.643  0.429  0.679  0.607
+   single-session-preference      16  0.188  0.312  0.250  0.188  0.312  0.438
+   single-session-user            32  0.844  0.906  0.812  0.844  0.875  0.875
+   temporal-reasoning             68  0.426  0.824  0.662  0.426  0.765  0.691
