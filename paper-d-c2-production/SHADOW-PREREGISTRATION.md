@@ -128,7 +128,8 @@ judge; the effect by agent and by C0 category; contradiction per arm; tokens and
 
 Each script refuses to run unless the previous commitment is on the public main branch and
 byte-equal to its private file, as in Papers B and D. Scripts are written and tested offline
-(synthetic records, stubbed calls) before the tag.
+(synthetic records, stubbed calls) before the tag: `s-common.py`, `s-count.py`, `s-freeze.py`,
+`s-generate.py`, `s-run.py`, `s-human.py` and `s-read.py`, tested by `s-test.py`.
 
 ## 7. Cost
 
