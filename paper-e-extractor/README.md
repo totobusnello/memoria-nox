@@ -15,7 +15,8 @@ Does the advantage of the rule-based criterion C2 over the deployed C0 (Paper 3:
 | `review-codex-prereg.md`, `review-kimi-prereg.md` | the voices on the v1.0 draft |
 | `e-smoke.py`, `e-shape-probe.py` | the cost smokes and the JSON shape probe |
 | `SMOKE-RESULT.md` | what the smokes measured, cost projection, power |
-| `runs/` | smoke outputs (counts only) and the batch test |
+| `RESULT.md` | the registered run of 2026-11-08 and its analysis |
+| `runs/` | smoke outputs (counts only), the batch test, and `confirm-2026-11-08/` (rows, receipt, analysis) |
 
 ## Tests
 
@@ -44,3 +45,5 @@ The freeze check is tested in a temporary git repository with both tags.
 | smoke, `gemini-2.5-flash` | 0.08 |
 | batch test (60 requests, `runs/batch-test-2026-11-08/`) | 0.01 |
 | **total** | **2.10** |
+
+The registered run (`RESULT.md`) spent US$ 150.55, under the US$ 160 cap.

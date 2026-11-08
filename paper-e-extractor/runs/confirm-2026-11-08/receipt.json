@@ -1,0 +1,383 @@
+{
+ "answer_versions": [
+  "gemini-3.8-flash"
+ ],
+ "batches": [
+  {
+   "batch": "batches/hpr25gvrgcgr570m3ln5li2sub0jky2dj8qt",
+   "errors": 0,
+   "est_usd": 6.344613,
+   "ext": "F",
+   "id": "paper-e-0f8f6c5b20-F-000",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/0561chmm5irpfuanbgit8hk4awtkh1w6w0gl",
+   "errors": 0,
+   "est_usd": 6.343755499999999,
+   "ext": "F",
+   "id": "paper-e-0f8f6c5b20-F-001",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/9trgg865nw0lzs5a7gd8484c3vzx4bmi0dd6",
+   "errors": 0,
+   "est_usd": 6.3395965,
+   "ext": "F",
+   "id": "paper-e-0f8f6c5b20-F-002",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/7lsmtfbizzi5wlh5hv1c2odol7nzd4ucvkha",
+   "errors": 0,
+   "est_usd": 6.334822,
+   "ext": "F",
+   "id": "paper-e-0f8f6c5b20-F-003",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/qjisjydqc9o3rjdz6nh6b6aygy32b0hlrw1v",
+   "errors": 0,
+   "est_usd": 6.331633,
+   "ext": "F",
+   "id": "paper-e-0f8f6c5b20-F-004",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/n0bwwc8rrccloiku8f8vk60kopgmvdzp0s3f",
+   "errors": 0,
+   "est_usd": 6.342599,
+   "ext": "F",
+   "id": "paper-e-0f8f6c5b20-F-005",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/w0pbq3cfyhtuo2y6p88lp8b91n5w28n53zah",
+   "errors": 0,
+   "est_usd": 6.3577445,
+   "ext": "F",
+   "id": "paper-e-0f8f6c5b20-F-006",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/bg3hk7uatyen53gixigoj63o7itejifszvis",
+   "errors": 0,
+   "est_usd": 6.341094,
+   "ext": "F",
+   "id": "paper-e-0f8f6c5b20-F-007",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/jzyrvwaprs86v5mxmxf2uheeyshljfbqyvls",
+   "errors": 0,
+   "est_usd": 6.3489415,
+   "ext": "F",
+   "id": "paper-e-0f8f6c5b20-F-008",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/sxpn90z8b27z4csb7mfnnpqlrnyobunyzj1o",
+   "errors": 0,
+   "est_usd": 6.3417345,
+   "ext": "F",
+   "id": "paper-e-0f8f6c5b20-F-009",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/ejh3gj8082v21dpx21v09pcff9fqjwzuusig",
+   "errors": 0,
+   "est_usd": 3.242217,
+   "ext": "F",
+   "id": "paper-e-0f8f6c5b20-F-010",
+   "ingested": 10201,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 10201,
+   "state": "done"
+  },
+  {
+   "batch": "batches/mri6nobudw3ob0eyeofhbrzc42vgubm5r6x2",
+   "errors": 0,
+   "est_usd": 1.205004,
+   "ext": "L",
+   "id": "paper-e-0f8f6c5b20-L-000",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/wjvm918akzz9a8tlmfr5r91qbhmaw0ky93ql",
+   "errors": 0,
+   "est_usd": 1.2042125000000001,
+   "ext": "L",
+   "id": "paper-e-0f8f6c5b20-L-001",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/3olxg4v7laa9bzn5xglmfvcbuuc6udtw0mjz",
+   "errors": 0,
+   "est_usd": 1.203857,
+   "ext": "L",
+   "id": "paper-e-0f8f6c5b20-L-002",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/pgejm31jqsygrm66dyf9azdgqtmhaa9l9qqo",
+   "errors": 0,
+   "est_usd": 1.2043125000000001,
+   "ext": "L",
+   "id": "paper-e-0f8f6c5b20-L-003",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/wvzg5it23t3ptazwe8ompudym9lopqapx6eb",
+   "errors": 0,
+   "est_usd": 1.2028175,
+   "ext": "L",
+   "id": "paper-e-0f8f6c5b20-L-004",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/4zldh9rzr73xi0feutr3t3270yce1ij1m0u5",
+   "errors": 0,
+   "est_usd": 1.2030415,
+   "ext": "L",
+   "id": "paper-e-0f8f6c5b20-L-005",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/zbcawudnckd1ddmm1308f0qsxumrzgf2o726",
+   "errors": 0,
+   "est_usd": 1.202359,
+   "ext": "L",
+   "id": "paper-e-0f8f6c5b20-L-006",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/t1vcnqwi2ditdwy6bqr3ecj5v8ucwyp1q2jc",
+   "errors": 0,
+   "est_usd": 1.2024485,
+   "ext": "L",
+   "id": "paper-e-0f8f6c5b20-L-007",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/im6x2g5vf7gtwtgb0bnxiu1rcv14ijqg07qx",
+   "errors": 0,
+   "est_usd": 1.202454,
+   "ext": "L",
+   "id": "paper-e-0f8f6c5b20-L-008",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/56vbknfn4zaukcdpe5kg5g61khu0r8hskeev",
+   "errors": 0,
+   "est_usd": 1.203256,
+   "ext": "L",
+   "id": "paper-e-0f8f6c5b20-L-009",
+   "ingested": 20000,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 20000,
+   "state": "done"
+  },
+  {
+   "batch": "batches/m2nnzqkol9oat324a1zrqbw8rj0yo8lwua79",
+   "errors": 0,
+   "est_usd": 0.613331,
+   "ext": "L",
+   "id": "paper-e-0f8f6c5b20-L-010",
+   "ingested": 10201,
+   "last_state": "BATCH_STATE_SUCCEEDED",
+   "missing": 0,
+   "n": 10201,
+   "state": "done"
+  }
+ ],
+ "distill_by_source": {
+  "batch": 419520,
+  "sync": 882
+ },
+ "distill_failed": 432,
+ "distill_model_versions": [
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite"
+ ],
+ "extractors": {
+  "F": "gemini-2.5-flash",
+  "L": "gemini-2.5-flash-lite"
+ },
+ "failures_by_cell": {
+  "gemini-2.5-flash-lite|C0": {
+   "blocks": 70067,
+   "failed": 59,
+   "failed_share": 0.000842,
+   "over_1pct": false,
+   "units": 184177,
+   "units_per_block": 2.6286
+  },
+  "gemini-2.5-flash-lite|C2": {
+   "blocks": 70067,
+   "failed": 45,
+   "failed_share": 0.000642,
+   "over_1pct": false,
+   "units": 292610,
+   "units_per_block": 4.1761
+  },
+  "gemini-2.5-flash-lite|P": {
+   "blocks": 70067,
+   "failed": 293,
+   "failed_share": 0.004182,
+   "over_1pct": false,
+   "units": 296951,
+   "units_per_block": 4.2381
+  },
+  "gemini-2.5-flash|C0": {
+   "blocks": 70067,
+   "failed": 10,
+   "failed_share": 0.000143,
+   "over_1pct": false,
+   "units": 141914,
+   "units_per_block": 2.0254
+  },
+  "gemini-2.5-flash|C2": {
+   "blocks": 70067,
+   "failed": 9,
+   "failed_share": 0.000128,
+   "over_1pct": false,
+   "units": 219526,
+   "units_per_block": 3.1331
+  },
+  "gemini-2.5-flash|P": {
+   "blocks": 70067,
+   "failed": 16,
+   "failed_share": 0.000228,
+   "over_1pct": false,
+   "units": 296005,
+   "units_per_block": 4.2246
+  }
+ },
+ "files_sha256": {
+  "PREREGISTRATION.md": "d766003320e398b232dabe8c3815c2d0d8305aa025082ba7cedd8e59d7db40ce",
+  "e-analyze.py": "bc5d4a8f324d33748a85db9feb4957eac7c4a66b50ac34b5684702fb2595fccf",
+  "e-run.py": "c8575b525c27f8f51ba5da6d3bbb01e5e3e09e41121b915090e6c64c30038139",
+  "e-test.py": "11ac4a48e6f80fd6798e69e64c4bbc66a80c3a8edf0c9c68db1b86ec30d7c321",
+  "e_batch.py": "f08b060d4ceced11924bc5284bef38a9512b19b3e30405ad071d8cb99ce661d3",
+  "e_prompts.py": "9c0c97fee8084b87359f4a3c170ca52ce6c5c7cd2ce09db221d611d314661760"
+ },
+ "finished_at": "2026-11-08T17:25:28Z",
+ "generation_config": {
+  "F": {
+   "responseMimeType": "application/json",
+   "temperature": 0.1,
+   "thinkingConfig": {
+    "thinkingBudget": 0
+   }
+  },
+  "L": {
+   "responseMimeType": "application/json",
+   "temperature": 0.1
+  }
+ },
+ "instances": 242,
+ "judges": [
+  "gpt-6-luna",
+  "gemini-2.5-flash-lite"
+ ],
+ "manifest_sha256": "f9c7df69bc7d4f8ce77f2b1b138e73a12d67ebfd72cbeb95918f039b95688ff3",
+ "prompt_sha256": {
+  "C0": "72208f90119405c6a83b28a8506e2c6d50ba3112492fc6fb11de3539a223cd27",
+  "C2": "325342a36e742f1e844b7c3792dae3eb47a76879c501678b576cd6df2cc8089d",
+  "P": "9e7668b2a12a1b0c5c122e62fc35520318e9c2b8bfdfa3d932a94e442d1000db"
+ },
+ "reader": "R3",
+ "reader_spec": [
+  "gemini-3.8-flash",
+  "B",
+  {
+   "maxOutputTokens": 2048,
+   "temperature": 0.0,
+   "thinkingConfig": {
+    "thinkingLevel": "low"
+   }
+  }
+ ],
+ "rows": 1532,
+ "spend_usd_cumulative": 150.5455,
+ "tag": "paper-e-prereg-v1.0",
+ "tag_commit": "7113c3f22f1ac82a2cd6179b6ebc013da3a41eac"
+}
