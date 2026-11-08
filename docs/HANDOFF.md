@@ -1,3 +1,19 @@
+## ▶ Domingo 08/11, 17h40 BRT — ROADMAP v7 aprovado; nox-mem 3.10.0 aguarda aprovação no npm
+
+**Estado.** O `docs/ROADMAP.md` é a **v7** (aprovada pelo Toto; decisões em `DECISIONS.md`
+**D-2026-11-08b**, cortes em NÃO FAZEMOS #35–#40). No npm, a **3.10.0** está em *stage* (id
+`71590568-3604-4d26-a030-509467a092cd`): `compact` recusa sem `--destructive`, saem L4, reranker e
+`@xenova/transformers`. Publica quando o Toto rodar `npm stage approve <id>` num terminal comum.
+
+**Próximo, na ordem da fila AGORA do ROADMAP v7:**
+1. Histórico privado (A2): decisão pendente do Toto (aceitar e registrar, ou reescrever).
+2. A3 em produção: desligar o shadow do R1; os 14 `.js` órfãos do `dist/`; as 22 notas com bloco
+   falso; retenção (`NULL` explícito, `distilled` fora do `ELSE 90`).
+3. Relatório de prazos no morning report (A4); tag do pré-registro do shadow do C2 (A6); conta do
+   OpenReview (A7).
+4. 15/11 e 18/11 seguem como abaixo.
+5. Gerar a rastreabilidade do inventário de 08/11 (cada ID → destino → razão → gatilho).
+
 ## ▶ Domingo 08/11, 15h40 BRT — nox-mem 3.9.1: «quando buscar» nas `instructions` do MCP; próximos passos
 
 **Estado.** nox-mem **3.9.1** é `latest` no npm. Com `NOX_MEM_SCOPE` definido, o servidor MCP manda
