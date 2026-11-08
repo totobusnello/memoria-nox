@@ -154,10 +154,9 @@ belong to this note's record.
 ## 5. What the result says
 
 With flash, C2 kept an advantage over C0: +21.1 points, with a lower bound of +14.8 under judge 1.
-Whether that advantage differs from flash-lite's is the primary question, and it stays open. A new
-run on the same questions, with every memory, answer and grade remade, gave +25.2 points for C2
-over C0 with flash-lite, similar to the earlier +24.8. Because the questions are the same, this is
-a repeat of the measurement, not an independent replication.
+Whether that advantage differs from flash-lite's is the primary question, and it stays open. With
+flash-lite, this run gave +25.2 points for C2 over C0, similar to the earlier +24.8; on the same
+questions, that repeats the measurement rather than replicating it (§2).
 
 The interaction is the difference of two changes: −1.2 points under C2 minus +2.9 under C0, under
 judge 1. In the point estimates most of the small negative value comes from C0, but both intervals
@@ -178,8 +177,9 @@ inconclusive.
 - The questions were already used by the earlier study (§2).
 - Flash and flash-lite are whole configured models. They differ in size, but also in how they
   follow a prompt, how they score importance and how much they write. The comparison is between
-  these two configurations, not a measure of extractor strength. Thinking budget and model family
-  were not varied, and the inconclusive result at this step says nothing about a much larger model.
+  these two configurations and does not separate size from those other differences. Thinking
+  budget and model family were not varied, and the inconclusive result at this step says nothing
+  about a much larger model.
   `gemini-2.5-pro` was priced for this design at US$ 380 to 1,370 and dropped.
 - One reader, a Gemini model, answers every question, and both extractors are Gemini too. The reader
   may favour one extractor's way of writing. The two judges grade the answers of that same reader,
