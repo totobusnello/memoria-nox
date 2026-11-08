@@ -12,7 +12,8 @@ Does the advantage of the rule-based criterion C2 over the deployed C0 (Paper 3:
 | `e-run.py` | runner: `plan`, `batch-test`, `distill`, `read` |
 | `e-analyze.py` | the registered analysis; `--check` reproduces it byte for byte |
 | `e-test.py` | offline tests, fake API, synthetic instances |
-| `review-codex-prereg.md`, `review-kimi-prereg.md` | the voices on the v1.0 draft |
+| `review-codex-prereg.md`, `review-kimi-prereg.md` | the voices on the v1.0 draft of the plan |
+| `review-codex-note.md`, `review-kimi-note.md` | the voices on the first draft of the note |
 | `e-smoke.py`, `e-shape-probe.py` | the cost smokes and the JSON shape probe |
 | `SMOKE-RESULT.md` | what the smokes measured, cost projection, power |
 | `RESULT.md` | the registered run of 2026-11-08 and its analysis |
