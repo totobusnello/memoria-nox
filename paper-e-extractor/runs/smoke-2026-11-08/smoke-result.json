@@ -1,0 +1,137 @@
+{
+ "arms": {
+  "gemini-2.5-flash-lite|base|P": {
+   "calls": 40,
+   "errors": 0,
+   "finish_not_stop": 0,
+   "model_versions": [
+    "gemini-2.5-flash-lite"
+   ],
+   "parse_fail": 0,
+   "secs_median": 1.33,
+   "tcand_mean": 202.0,
+   "tin_mean": 504.8,
+   "tthink_max": 0,
+   "tthink_mean": 0,
+   "units_kept_mean": 4.55,
+   "usd_per_call": 0.000131
+  },
+  "gemini-2.5-pro|b128|C0": {
+   "calls": 40,
+   "errors": 0,
+   "finish_not_stop": 0,
+   "model_versions": [
+    "gemini-2.5-pro"
+   ],
+   "parse_fail": 25,
+   "secs_median": 3.58,
+   "tcand_mean": 100.2,
+   "tin_mean": 534.8,
+   "tthink_max": 110,
+   "tthink_mean": 71.2,
+   "units_kept_mean": 1,
+   "usd_per_call": 0.002382
+  },
+  "gemini-2.5-pro|b128|C2": {
+   "calls": 40,
+   "errors": 0,
+   "finish_not_stop": 0,
+   "model_versions": [
+    "gemini-2.5-pro"
+   ],
+   "parse_fail": 14,
+   "secs_median": 3.65,
+   "tcand_mean": 177.3,
+   "tin_mean": 859.8,
+   "tthink_max": 83,
+   "tthink_mean": 65.8,
+   "units_kept_mean": 1.88,
+   "usd_per_call": 0.003505
+  },
+  "gemini-2.5-pro|b128|P": {
+   "calls": 40,
+   "errors": 0,
+   "finish_not_stop": 0,
+   "model_versions": [
+    "gemini-2.5-pro"
+   ],
+   "parse_fail": 1,
+   "secs_median": 4.11,
+   "tcand_mean": 261.3,
+   "tin_mean": 504.8,
+   "tthink_max": 92,
+   "tthink_mean": 69.5,
+   "units_kept_mean": 4.35,
+   "usd_per_call": 0.003938
+  },
+  "gemini-2.5-pro|dyn|C0": {
+   "calls": 40,
+   "errors": 0,
+   "finish_not_stop": 0,
+   "model_versions": [
+    "gemini-2.5-pro"
+   ],
+   "parse_fail": 13,
+   "secs_median": 9.7,
+   "tcand_mean": 129.1,
+   "tin_mean": 534.8,
+   "tthink_max": 1778,
+   "tthink_mean": 941.7,
+   "units_kept_mean": 1.45,
+   "usd_per_call": 0.011376
+  },
+  "gemini-2.5-pro|dyn|C2": {
+   "calls": 40,
+   "errors": 0,
+   "finish_not_stop": 0,
+   "model_versions": [
+    "gemini-2.5-pro"
+   ],
+   "parse_fail": 13,
+   "secs_median": 10.11,
+   "tcand_mean": 186.2,
+   "tin_mean": 859.8,
+   "tthink_max": 1714,
+   "tthink_mean": 1008.7,
+   "units_kept_mean": 1.57,
+   "usd_per_call": 0.013023
+  },
+  "gemini-2.5-pro|dyn|P": {
+   "calls": 40,
+   "errors": 0,
+   "finish_not_stop": 0,
+   "model_versions": [
+    "gemini-2.5-pro"
+   ],
+   "parse_fail": 2,
+   "secs_median": 10.88,
+   "tcand_mean": 274.3,
+   "tin_mean": 504.8,
+   "tthink_max": 2006,
+   "tthink_mean": 1033.7,
+   "units_kept_mean": 3.92,
+   "usd_per_call": 0.01371
+  }
+ },
+ "n_blocks": 40,
+ "pool": 45472,
+ "prices_per_token": {
+  "gemini-2.5-flash-lite": [
+   1e-07,
+   4e-07
+  ],
+  "gemini-2.5-pro": [
+   1.25e-06,
+   1e-05
+  ]
+ },
+ "prompt_sha256": {
+  "C0": "72208f90119405c6a83b28a8506e2c6d50ba3112492fc6fb11de3539a223cd27",
+  "C2": "325342a36e742f1e844b7c3792dae3eb47a76879c501678b576cd6df2cc8089d",
+  "P": "9e7668b2a12a1b0c5c122e62fc35520318e9c2b8bfdfa3d932a94e442d1000db"
+ },
+ "runner_sha256": "e51637fcba864a16a179038dac3e27f9101eaabb4956645cbdf419a47ce6842a",
+ "seconds": 461.3,
+ "seed": "paper-e-smoke-v1",
+ "spent_usd": 1.9227
+}
