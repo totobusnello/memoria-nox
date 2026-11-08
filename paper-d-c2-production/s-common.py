@@ -77,16 +77,15 @@ def utc_today():
 
 
 # ------------------------------------------------------------------ the record
-# The record as these scripts read it (SHADOW-PROTOCOL.md §3). The field names are this module's
-# reading of the protocol, not copied from distill-shadow.ts; they must be checked against the
-# host's module before the tag. Every read of a record goes through the functions below, so a
-# rename is one edit here.
-#   session_key, agent, block_index, block_count, message_count, file_time
+# The record as distill-shadow.ts writes it (SHADOW-PROTOCOL.md §3; field names checked against the
+# host module, record version v: 1, on 2026-11-07). Every read of a record goes through the
+# functions below, so a rename is one edit here.
+#   v, ts, session_key, agent, block_index, n_blocks, message_count, session_mtime
 #   block            the block text as sent to production's model
 #   block_sha256     sha256 of the block text (UTF-8), hex
-#   c0: {units: [{text, category, importance}, ...]}        production's C0 units, before dedup
-#   c2: {ok, error, prompt_sha256, model_version, usage: {promptTokenCount, candidatesTokenCount},
-#        units: [{text, category, importance}, ...]}
+#   c0_units: [{text, category, importance}, ...]           production's C0 units, before dedup
+#   c2: {ok, units, model, model_version, prompt_sha256, usage: {promptTokenCount,
+#        candidatesTokenCount, ...}, error}
 REASONS = ("malformed", "excluded_session", "c2_failed", "prompt_hash", "block_hash", "short_block")
 
 
@@ -103,7 +102,7 @@ def r_block(r):
 
 
 def r_c0_units(r):
-    return r["c0"]["units"]
+    return r["c0_units"]
 
 
 def r_c2(r):
@@ -124,7 +123,7 @@ def well_formed(r):
     try:
         return (isinstance(r, dict) and isinstance(r.get("session_key"), str) and r["session_key"] != ""
                 and isinstance(r.get("block"), str) and isinstance(r.get("block_sha256"), str)
-                and isinstance(r.get("c0"), dict) and isinstance(r["c0"].get("units"), list)
+                and isinstance(r.get("c0_units"), list)
                 and isinstance(r.get("c2"), dict)
                 and isinstance(r["c2"].get("units", []), (list, type(None))))
     except Exception:

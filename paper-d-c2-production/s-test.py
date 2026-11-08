@@ -133,9 +133,9 @@ class World:
     def record(self, key, agent, text, facts, **over):
         unit = lambda p, v, imp: {"text": f"o parametro {p} fica em {v} unidades", "category": "decision",
                                   "importance": imp}
-        r = {"session_key": key, "agent": agent, "block_index": 0, "block_count": 1, "message_count": 10,
-             "file_time": "2026-11-08T10:00:00Z", "block": text, "block_sha256": sha(text),
-             "c0": {"units": [unit(p, v, 0.7) for p, v, k in facts if k % 3 == 0]},
+        r = {"session_key": key, "agent": agent, "v": 1, "block_index": 0, "n_blocks": 1, "message_count": 10,
+             "session_mtime": "2026-11-08T10:00:00Z", "block": text, "block_sha256": sha(text),
+             "c0_units": [unit(p, v, 0.7) for p, v, k in facts if k % 3 == 0],
              "c2": {"ok": True, "error": None, "prompt_sha256": SC.C2_PROMPT_SHA256, "model_version": "stub",
                     "usage": {"promptTokenCount": 900, "candidatesTokenCount": 80},
                     "units": [unit(p, v, 0.6) for p, v, k in facts if k % 2 == 0]}}
