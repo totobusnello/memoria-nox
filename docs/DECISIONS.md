@@ -3323,6 +3323,41 @@ caracteres são amostradas por duas janelas de 20k, logo o tax delas é medido s
 `audits/2026-10-26-replay-{build,generate,answer,judge,report}.py`.
 
 
+### D-2026-11-08 — «quando buscar» vai nas `instructions` do servidor MCP, com escopo; a skill fica arquivada
+
+**Contexto.** Os agentes não buscam no nox-mem sem pedido (14/10). A avaliação da skill
+`nox-mem-memory` (Claude Code, Sonnet 5.5, 36 tarefas que dependem da memória e 20 de controle, 3
+réplicas, regra de decisão pré-registrada; protocolo e dados fora deste repo) mediu quatro braços
+contra nenhuma orientação (acerto 0,07):
+
+| braço | o que é | acerto (Δ, IC95%) | falso gatilho em controle | regra |
+|---|---|---|---|---|
+| S1 | skill (só a `description` carregou em 74% das corridas) | +0,25 [0,14; 0,37] | +10 pp | passa |
+| T | texto nas `instructions` do `initialize` do MCP, sem escopo | +0,49 [0,35; 0,63] | **+31,7 pp** | **reprova** (limite 15 pp) |
+| T2 | T + uma frase dizendo o escopo da memória | +0,46 [0,32; 0,61] | +1,7 pp | passa |
+
+T2 − S1 = +0,21 [0,10; 0,33] (controles não concorrentes). Nenhum braço fez o agente **escrever**
+(0 de 30 em todos).
+
+**Decidido pelo Toto (08/11).** O produto leva o texto T2: nox-mem 3.9.0 manda as `instructions`
+quando `NOX_MEM_SCOPE` está definido; a 3.9.1 deixou de mandar o texto T por padrão (só por opt-in
+`NOX_MEM_INSTRUCTIONS=unscoped`), porque foi o braço que reprovou. A skill fica **arquivada** e não é
+publicada. Em produção, o Claude Code do Toto recebe o T2 com uma frase de escopo que vive só num
+`.env` não versionado; os agentes do OpenClaw recebem `NOX_MEM_INSTRUCTIONS=off`, porque o T2 nunca
+foi medido neles.
+
+**Por quê:** o MCP adia o schema das tools, então a `description` de uma tool só é lida depois de o
+modelo decidir buscar; as `instructions` são o único texto do servidor sempre em contexto. E só a
+versão com escopo passou na regra.
+
+**Limites.** Um modelo, um cliente, um corpus; a fronteira do escopo foi fácil (controles eram
+Postgres/nginx/Redis); a frase de escopo foi escrita à mão, e derivá-la do banco não foi testado.
+
+**Próximos passos:** (1) 15/11 — ler a medida de uso real pré-registrada (antes/depois em sessões do
+Claude Code; linha de base congelada: 278 sessões, 0 buscas); (2) escrita, que nenhum texto moveu;
+(3) escopo nos agentes do OpenClaw como experimento próprio, depois do (1); (4) escopo derivado do
+banco, a única rota que serve quem instala pelo npm e não configura nada.
+
 ### D-2026-11-04 — GTM Phase 2 reaberto: fosso operacional agora, construção como segunda onda
 
 **Contexto.** O D-2026-11-03 adiou o GTM até o Paper 3 decidir entre «a memória perde para BM25» e
