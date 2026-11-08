@@ -14,17 +14,18 @@ relation cites the chunk of text it came from. We asked two questions, each unde
 pre-registration, on the same frozen sample of 300 relations. First, how often does the cited chunk
 support the relation as written? Two judges from different model families, a check that each
 judge's quote occurs in the chunk, and a blind human grade of 173 rows give 0.913 (274 of 300,
-Wilson 95% interval 0.876 to 0.940). Both judges passed both controls; their agreement with the
-human on 60 random rows was low (kappa 0.155). Second, does a repair pass that rereads each relation
+Wilson 95% interval 0.876 to 0.940). Both judges passed both controls; on 60 rows drawn at random
+from those the two judges agreed on, their agreement with the human was low (kappa 0.155). Second, does a repair pass that rereads each relation
 against its chunk, the offline "dreaming" step recently described for agent memory, fix what is
 wrong without losing what is right? Run once with `claude-opus-5-5`, it raised the share of
 supported relations among those it left from 0.913 to 0.990, a difference of +7.6 points
-(bootstrap 95% interval +4.7 to +10.7). It reached nearly the same precision, 0.989, through its
-deletions and unchanged relations alone. And it rewrote 87 of the 274 relations that were already
-supported, 30 of them into a relation between a different pair of entities. Of the supported
-relations, it kept 0.650 unchanged (0.591 to 0.704). The pass works as a filter. Its rewrites
-replace one supported fact with another about a third of the time, a cost that a precision figure
-alone does not show.
+(bootstrap 95% interval +4.7 to +10.7). The 180 relations it kept unchanged were
+already 0.989 supported, so most of the measured gain came from which relations it chose to leave
+alone, not from the content of its rewrites. It also rewrote 87 of the 274 relations that were already supported, 30 of them into a
+relation between a different pair of entities, and kept 0.650 of the supported relations unchanged
+(0.591 to 0.704). A third of the correct relations came out as a different supported fact, a cost
+that a precision figure alone does not show. Three of the human grades behind these figures were
+regraded after a spreadsheet error; with the first grades, precision after would be 0.979.
 
 ## 1. The graph
 
@@ -36,8 +37,8 @@ confidence, 0.80, so neither field says anything about a relation.
 Predicates are free text. There are 8,359 distinct ones; 6,130 of them are used by a single
 relation, which is 73.3% of the predicates and 34.6% of the relations. A closed field,
 `relation_reason`, sorts the relations into seven kinds, of which `mentions` and `unknown` hold
-most. The evidence comes mostly from one place: 82.6% of the relations cite a chunk from a vault of
-legal and corporate documents, 12.2% from workspace documents, and 4.2% from daily notes.
+most. The evidence comes mostly from one place: of the relations whose chunk still exists, 82.6% cite a chunk from a vault of
+legal and corporate documents, 12.3% from workspace documents, and 4.2% from daily notes.
 
 A relation is checkable only if its chunk still exists. In the snapshot, 17,667 relations cite a
 live chunk. That set is the population for both studies.
@@ -52,12 +53,13 @@ not supported; a poorer but not inverted predicate is; a placeholder in a worked
 entity; formatting never rejects. A judge's "supported" counts only when the first eight words it
 quotes occur in the chunk. The author graded, blind to the judges, every relation the judges
 disagreed on (76), every relation both accepted whose chunk carries an exception or example marker
-(37), and 60 drawn at random, 173 rows. A row's final label is the human grade where there is one,
+(37), and 60 drawn at random from the rest, 173 rows. A row's final label is the human grade where there is one,
 and the two judges' shared label elsewhere.
 
-**Controls.** Both judges rejected every quote whose words we swapped (negative citation control),
-and neither accepted any of 30 relations shown with a chunk from another document (mismatched
-evidence). Both passed.
+**Controls.** With the words of each judge's quotes swapped, the citation check rejected every one
+(negative citation control); this tests the check that gates the judges, not the judges' reading.
+Neither judge accepted any of 30 relations shown with a chunk from another document (mismatched
+evidence). Both controls passed for both judges.
 
 **Result.** B-F = 0.913 (274 of 300; 0.876 to 0.940). By evidence source, 229 of the 252 relations
 from the document vault are supported. The judges differed in strictness: judge 1 verified 0.857 of
@@ -67,8 +69,10 @@ judge 1 accepted, the human sided with judge 1 on 55; on the 17 only judge 2 acc
 on 16. Judge 2's extra rejections were mostly wrong by the human's reading.
 
 On the 60 random rows, the human's agreement with each judge was kappa 0.155, under the 0.40 the
-protocol names as a limit. The human graded 58 of the 60 as supported, and kappa is unstable when
-nearly every row falls in one class. Off the sheet, where the judges' shared label stands, that
+protocol names as a limit. Those rows were drawn from the ones both judges agreed on and whose chunk
+carries no marker, so the figure is the same for both judges and describes their shared label on
+the easier rows, not each judge on the 300. The human graded 58 of the 60 as supported, and kappa is
+unstable when nearly every row falls in one class. Off the sheet, where the judges' shared label stands, that
 label is a fallible reference.
 
 An October audit of an earlier draw of 150 relations gave 0.900. That figure is not an estimate: its rules
@@ -77,8 +81,8 @@ were decided on the same sample. The two numbers agree, and this note's is the o
 ## 3. What does a repair pass change?
 
 A post by Anthropic on 2026-11-06 describes "dreaming": an offline pass in which a model rereads
-its notes against the original record and corrects them. Its evidence for that step is single runs
-of a game and question sets of 24 and 25 items, without intervals or controls. The graph above
+its notes against the original record and corrects them. It compares conditions, but on single runs
+of a game and on question sets of 24 and 25 items, without intervals. The graph above
 keeps, for each relation, the record it was built from, so the claim can be tested here.
 
 **Design** (`paper-b2-kg-repair/PREREGISTRATION.md`, tag `paper-b2-prereg-v1.0`, written and
@@ -114,11 +118,12 @@ The pass kept 180 relations, rewrote 106 and deleted 14. Of the 26 relations Pap
 unsupported, it deleted 5, rewrote 19 (18 into a supported triple) and kept 2: 23 of 26 corrected.
 Of the 274 supported, it deleted 9 and rewrote 87: 50 kept the same pair of entities with a new
 predicate, 7 reversed the pair, and 30 named a different pair. Every one of those 87 rewrites was
-supported by the chunk.
+supported by the chunk, two of them by a grade that was regraded (§4).
 
-Precision went up, and almost all of the gain is available without rewriting: keeping and deleting
-alone give 0.989. What the rewrites add is mostly change to relations that were already
-right. A third of the correct relations came out different, and one in nine came out as a relation
+Precision went up, and most of the gain does not depend on the rewrites: the 180 relations the pass
+kept unchanged are 0.989 supported, against 0.990 for all 286 it left. That compares two subsets of
+one run. A pass allowed only to keep or delete was not run, and it might keep or delete differently.
+What the rewrites add is mostly change to relations that were already right. A third of the correct relations came out different, and one in nine came out as a relation
 between other entities in the same passage. Under the lenient definition, retention would read
 0.967 and the pass would look nearly free. Under the registered one it is 0.650.
 
@@ -142,8 +147,12 @@ Three deviations after the tags are on record. In Paper B, one judge verdict cou
 Paper B, the judges' commitment was corrected to count the cost of every verdict, not only the last
 run. In Paper B2, the graded sheet came back as a spreadsheet file in which the chunk cells of three
 rows were empty. The author confirmed grading those rows without seeing the chunk and regraded them
-from a plain-text file; all three grades changed. The text check that caught it compares the returned
-file with the written one; it cannot see what a grader saw on screen.
+from a plain-text file; all three grades changed from not supported to supported. The committed
+grades are the second ones. Had the first grades stood (computed after the reading, not registered,
+`paper-b2-kg-repair/REGRADE-SENSITIVITY-2026-11-07.json`), precision after would be 0.979 (280 of 286), the difference
++6.6 points (+3.6 to +9.8), and lenient retention 0.960; strict retention would not change, since
+all three are rewrites. The text check that caught it compares the returned file with the written
+one; it cannot see what a grader saw on screen.
 
 ## 5. Limits
 
@@ -161,7 +170,7 @@ file with the written one; it cannot see what a grader saw on screen.
 ## 6. What it means for memory systems
 
 The graph's citations are mostly faithful, and its structure is weak: a third of its relations use
-a predicate no other relation uses. A repair pass against the source filters well here: it corrected
+a predicate no other relation uses. A repair pass against the source worked as a filter here: it corrected
 23 of the 26 unsupported relations and kept none of the 30 shown with the wrong chunk. It also
 rewrites freely, so a system that runs one should measure retention of the original facts as well
 as the precision of what remains. In this run, the relations it kept or deleted already account for
