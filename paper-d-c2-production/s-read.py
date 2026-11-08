@@ -88,14 +88,12 @@ def integrity(recs):
 
 def reading_of(h, interpret):
     """§5.2: C2 better iff lower bound > 0; C0 better iff upper bound < 0; else not shown, with
-    whether the interval excludes +0.10 (d-read: upper bound below +0.10). Judge 2 is the bracket."""
+    whether the interval excludes +0.10, which d-read.contrast already returns as
+    `excludes_plus_0.10` (upper bound below +0.10). Judge 2 is the bracket."""
     if h["j1"] and h["j2"]:
         both = h["j1"]["ci95"][0] > 0 and h["j2"]["ci95"][0] > 0
         h["bracket"] = "C2 better across judge families" if both else (
             "judge-dependent" if h["j1"]["reading"] != h["j2"]["reading"] else "judges agree: " + h["j1"]["reading"])
-    for j in ("j1", "j2"):
-        if h[j]:
-            h[j]["lower_bound_above_plus_0.10"] = h[j]["ci95"][0] > 0.10
     h["interpreted"] = interpret
     return h
 

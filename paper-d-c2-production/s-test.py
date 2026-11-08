@@ -515,6 +515,11 @@ def run_all(T):
     check(h1["estimate"] > 0 and h1["ci95"][0] <= h1["estimate"] <= h1["ci95"][1] and
           h1["n_sessions"] == len({q["uuid"] for q in qs if q["set"] == "primary"}),
           f"H-S1 with sessions as clusters {h1}")
+    check(RD.DR.C.SEED == seed and seed != 20261106,
+          "the bootstrap runs on the seed of §3 (tag commit), not Paper D's 20261106")
+    check("excludes_plus_0.10" in h1 and h1["excludes_plus_0.10"] == (h1["ci95"][1] < 0.10)
+          and "lower_bound_above_plus_0.10" not in h1,
+          "§5.2: 'excludes +0.10' is the upper bound below +0.10, as in Paper D")
     check("bracket" in rj["hypotheses"]["H-S1"] and "H-S2" in rj["hypotheses"], "judge-2 bracket; H-S2 apart")
     dsc = rj["descriptive"]
     check(dsc["blocks_with_no_unit"]["C0"] >= 1 and set(dsc["by_agent_j1"]) and

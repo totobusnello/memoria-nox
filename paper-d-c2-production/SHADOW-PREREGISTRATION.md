@@ -1,4 +1,4 @@
-# C2 against C0 on production's own blocks: pre-registration (DRAFT, not fixed)
+# C2 against C0 on production's own blocks: pre-registration
 
 Written 2026-11-07, after the shadow was turned on (`SHADOW-PROTOCOL.md`) and before any record
 beyond the deviation in §9 was read. Nothing here is fixed until the tag
@@ -6,7 +6,9 @@ beyond the deviation in §9 was read. Nothing here is fixed until the tag
 the author asked for it to be checked («checa a leitura do shadow que vc mencionou»), and decided
 its two open points on 2026-11-07 08:05 BRT («3. excecao aqui 4. ok»): the writer keeps Paper D's
 family under an exception to the protocol's privacy rule for this study only (§3), and the
-stopping rule stands (§2). The tag and every paid call wait for his ok.
+stopping rule stands (§2). On 2026-11-08 at 18:17 BRT the author approved the tag («segue com os
+scripts do shadow»), after the scripts of §6 passed their offline tests; paid calls still wait for
+the steps of §6 in order.
 
 ## 1. Question
 
