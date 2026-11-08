@@ -1,3 +1,23 @@
+## ▶ Domingo 08/11, 15h40 BRT — nox-mem 3.9.1: «quando buscar» nas `instructions` do MCP; próximos passos
+
+**Estado.** nox-mem **3.9.1** é `latest` no npm. Com `NOX_MEM_SCOPE` definido, o servidor MCP manda
+nas `instructions` o texto que passou na avaliação (T2); sem escopo, não manda nada. Em produção: o
+Claude Code do Toto recebe o T2 com escopo (frase num `.env` não versionado do host); os agentes do
+OpenClaw estão com `NOX_MEM_INSTRUCTIONS=off`. A skill `nox-mem-memory` está **arquivada**. Decisão
+e números: `DECISIONS.md` **D-2026-11-08**.
+
+**Quando voltarmos, nesta ordem:**
+1. **15/11 (sáb), 09h47** — sai sozinho o relatório de uso real (launchd no Mac). Aplicar a regra
+   pré-registrada: «agora busca» se ≥ 20% das sessões novas buscam e +15 pp sobre antes (n ≥ 20);
+   «ansioso demais» se > 80% buscam ou a mediana devolvida passa de 20 mil caracteres. Ler 10
+   buscas à mão para a qualidade. Linha de base: 278 sessões, 0 buscas.
+2. **Escrita** — nenhum texto fez o agente gravar decisões (0/30). Candidatos: hook que propõe
+   `nox_mem_decision_set` quando uma decisão aparece, ou resultado de tool que peça o registro.
+3. **Agentes do OpenClaw** — rodar o T2 neles como experimento pré-registrado, só depois do (1).
+4. **Escopo derivado do banco** — testar contra a frase escrita à mão; é a rota para quem instala
+   pelo npm e não configura nada.
+5. Opcional: nota de dados da avaliação.
+
 ## ▶ Terça 03/11, 11h BRT — v1.1 do pré-registro PUBLICADA e o estágio 1 RODANDO
 
 **v1.1 [`10.5281/zenodo.23914868`](https://doi.org/10.5281/zenodo.23914868)** (13:41 UTC, `is_latest`,
