@@ -13,7 +13,7 @@
 |---|---|---|
 | 1 | Pré-registro do fatorial → **opção (c)**: produção para existência e magnitude, corpus público para a interação | desenho a escrever |
 | 2 | **v3 da régua** — aceitar Q108/Q72 (+Q52 marginal) e recortar as 38 âncoras rejeitadas por regra semântica | depois do 1 |
-| 3 | **`retention_days`** — não mudar o comportamento; escrever `NULL` explícito na INSERT e tirar `distilled` do `ELSE 90` de `db.ts:437-452` | ⏸️ **executa junto com o 5** — mesmo arquivo, mesmo deploy |
+| 3 | **`retention_days`** — não mudar o comportamento; escrever `NULL` explícito na INSERT e tirar `distilled` do `ELSE 90` de `db.ts:437-452` | ✅ **aplicado em 08/11** sem esperar o 5 (ROADMAP v7 A3): `NULL` explícito no INSERT do distilador (nox-mem#62; produção `5c1a0b1a` no workspace, `src` e `dist` com patch idêntico, sem rebuild) e `distilled` fora do backfill de 90 dias; comportamento inalterado |
 | 4 | Grading humano de 60 itens | do Toto |
 | 5 | Conserto do destilador (see-once + parágrafo do prompt), as duas juntas, só para frente | **depois** da corrida registrada |
 

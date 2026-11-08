@@ -163,7 +163,7 @@ memoria-nox is a research lab and a working product. The paper *nox-mem: Pain-We
 Five layers, one SQLite file:
 
 1. **Ingest** &mdash; router auto-detects entity files (`compiled` / `frontmatter` / `timeline` sections with `section_boost`), markdown, or graphify input. Privacy filter applies thirteen redaction patterns pre-storage (A1, `<private>` tag, 1.7% false-positive rate, 68 tests).
-2. **Store** &mdash; chunks land in SQLite with FTS5 index plus 3072-d Gemini vector via sqlite-vec. Retention is typed: `feedback` and `person` never decay, `lesson` 180d, `decision` and `project` 365d, default 90d. Schema v19 is additive and idempotent.
+2. **Store** &mdash; chunks land in SQLite with FTS5 index plus 3072-d Gemini vector via sqlite-vec. Each chunk carries a typed retention window (`feedback`, `person` and `distilled` none, `lesson` 180d, `decision` and `project` 365d, default 90d). It is used only as the recency half-life of the salience score; nothing is deleted or archived by age. Distilled memory never decays by an explicit choice, measured before it was made (DECISIONS 2026-10-27 #3). Schema v19 is additive and idempotent.
 3. **Retrieve** &mdash; query runs in parallel through FTS5 BM25 and Gemini semantic. RRF fusion (k=60) merges.
 4. **Rank** &mdash; salience (`recency × pain × importance`) composes additively with section_boost (`compiled 2.0 / frontmatter 1.5 / timeline 0.8`). Shadow mode is the default; flipping to active requires `NOX_SALIENCE_MODE=active` and seven days of baseline.
 5. **Answer** &mdash; CLI, MCP, and HTTP surfaces with citation footers, anti-hallucination guard, telemetry persistence, and a phase-broken-down latency budget.
@@ -236,7 +236,7 @@ UX that ships without compromising Q or A. P1 (`answer` primitive with CLI + HTT
 
 ### Lab &mdash; Retrieval research (40% capacity)
 
-Paper-grade work, no ship pressure. L2 (KG conflict and contradiction detection over opposing relations) is in the reference deployment (HTTP, CLI and MCP), not in the npm package. L3's ranking use was dropped (NÃO FAZEMOS #34: every row held the default value); the confidence column stays. L4 (regex-first typed-link extraction with Gemini fallback, gbrain-inspired) measured **95.8% precision/recall** on a synthetic corpus of 20 and **80% fewer Gemini calls** in that test; its module is in the source, but nothing calls it from ingest or KG extraction, so `NOX_L4_REGEX_ENABLED` has no effect (audit 2026-11-08). L1 (E15 CodeGraph-inspired A+B+C) is paused until Q1 closes.
+Paper-grade work, no ship pressure. L2 (KG conflict and contradiction detection over opposing relations) is in the reference deployment (HTTP, CLI and MCP), not in the npm package. L3's ranking use was dropped (NÃO FAZEMOS #34: every row held the default value); the confidence column stays. L4 (regex-first typed-link extraction, gbrain-inspired) was never called from ingest or KG extraction (audit 2026-11-08) and was removed from the npm package in 3.10.0; the synthetic-corpus numbers it was quoted with were never measured in use and are no longer cited. L1 (E15 CodeGraph-inspired A+B+C) is paused until Q1 closes.
 
 **D49 phase 1 (temporal retrieval spike)** ran 2026-05-20 in shadow mode (PR #167, `src/temporal-retrieval.ts`): ISO date detector + proximity rerank, logging `temporal_path` events with `applied: false`. D49/D50 was closed on 2026-10-14 without activation (NÃO FAZEMOS #33); the shadow code only logs. **Q105&ndash;Q110** (six temporal eval queries at gold rank 5&ndash;13) curated 2026-05-20 (PR #168) to measure proximity rerank lift without ceiling effects.
 
@@ -255,9 +255,8 @@ Each row names the artifact or paper section it comes from; dated rows are snaps
 | Internal golden nDCG@10 (n=78, honest set) | **0.6813** &mdash; +9.8pp / +16.9% over paper baseline 0.5831 | [`benchmark/baseline-2026-05-18.json`](benchmark/baseline-2026-05-18.json) (`metrics.L4`) |
 | Answer primitive p95 latency | **101.74ms** total (42&times; under 4.3s budget; mock LLM @ 100ms) | P1 benchmark, PR&nbsp;#40 |
 | Provider abstraction overhead | **0.0025ms** absolute per LLM call (target &lt;0.5ms) | A3 benchmark, PR&nbsp;#39 |
-| L4 regex-first typed-link extraction (not wired in ingest) | **95.8% precision/recall**, **80% fewer Gemini calls** in the test | synthetic corpus n=20, PR&nbsp;#38 |
 | P5 viewer frontend bundle | **11.7KB** total (HTML+JS+CSS, vanilla, no bundler) | PR&nbsp;#42 |
-| Wave B tests passing | **535+** across L4, A3, P1, A2, P5 | Wave B post-mortem |
+| Wave B tests passing | **535+** across L4 (removed in 3.10.0), A3, P1, A2, P5 | Wave B post-mortem |
 | Schema migrations | **v11 (telemetry) + v19 (confidence/provenance)** &mdash; additive, idempotent | PR&nbsp;#28 |
 | Monthly OPEX (Gemini embed + KG + VPS) | **&lt;$11/mo** all-in, Mar&ndash;May 2026 | operator's invoices (not published) |
 | Internal golden set nDCG@10 (G5 V3 A8, n=100) | **0.6237** (+78.8% over the pre-Wave-A baseline 0.3488) | paper §5, measured 2026-05-19 |
@@ -453,7 +452,6 @@ Top environment variables. Full reference: [`docs/CONFIGURATION.md`](docs/CONFIG
 | `GEMINI_API_KEY` | _optional_ | Default embedding provider key. BYO &mdash; never proxied. Without any embedding key, search is keyword-only (FTS5) and `answer` / `vectorize` are unavailable. |
 | `NOX_FTS_OR_FALLBACK` | `auto` | When a keyword (AND) query finds nothing, retry with OR of the content terms. `auto` = only when no embedding key is set; `on` / `off` force it. |
 | `NOX_DB_PATH` | `~/.nox-mem/nox.db` | SQLite store location (an existing `<package>/nox-mem.db` from ≤3.3 keeps being used). `cp` is your backup. |
-| `NOX_L4_REGEX_ENABLED` | `0` | Reserved for regex-first typed-link extraction (Lab L4). No effect today: the extractor is not called from ingest (audit 2026-11-08). |
 | `NOX_MUTEX_QUERY_ENTITY_THRESHOLD` | `1` | G10d Conditional Hard Mutex threshold (D51; the reference deployment sets `2`). Mutex applied when `query_entities ≤ N`; bypass on multi-entity queries to preserve chain signal. |
 | `NOX_DISABLE_CONDITIONAL_MUTEX` | `0` | Rollback to G10 always-on Hard Mutex (skip the conditional layer). |
 | `NOX_ALLOW_NO_SNAPSHOT` | `0` | Emergency override for destructive ops without pre-op snapshot. |
@@ -474,7 +472,7 @@ MIT. See [`LICENSE`](LICENSE). Your data, your disk, your provider, your rules.
 
 ## Acknowledgments
 
-memoria-nox stands on shoulders. The **Six Gaps** framing for agent memory was sharpened by reading the memanto research notes &mdash; their backend stays closed, but the gap taxonomy was a gift. The **regex-first typed-link extraction** in Lab sprint L4 is a clean lift of the pattern shipped by gbrain, adapted to our confidence-gate model. The **shadow-mode discipline** is our own scar tissue from incident v3.4 (multiplicative boost stacking), documented in [`docs/INCIDENTS.md`](docs/INCIDENTS.md) so the next person does not have to learn it the way we did. And to **Garry Tan and the YC orbit** &mdash; the halo of "ship reproducible work or don't ship" is the only reason this repo has a paper and a harness instead of a screenshot.
+memoria-nox stands on shoulders. The **Six Gaps** framing for agent memory was sharpened by reading the memanto research notes &mdash; their backend stays closed, but the gap taxonomy was a gift. The **regex-first typed-link extraction** tried in Lab sprint L4 (never wired in, removed in 3.10.0) was a lift of the pattern shipped by gbrain. The **shadow-mode discipline** is our own scar tissue from incident v3.4 (multiplicative boost stacking), documented in [`docs/INCIDENTS.md`](docs/INCIDENTS.md) so the next person does not have to learn it the way we did. And to **Garry Tan and the YC orbit** &mdash; the halo of "ship reproducible work or don't ship" is the only reason this repo has a paper and a harness instead of a screenshot.
 
 If you copy an idea from here, attribute it. If you find a number that does not hold up, open an issue.
 
