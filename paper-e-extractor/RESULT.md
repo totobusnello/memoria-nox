@@ -40,6 +40,9 @@ The estimate was about US$ 122. Reading cost US$ 0.045 per row against the US$ 0
 Paper 3, because full-window material is long (median 104,000 to 234,000 characters per cell).
 No row was read for its outcome, and the analysis did not run, until all 1,532 rows existed.
 
+The spend above is the runner's ledger at list price. §8 asks for the provider's invoice beside it;
+it was not reconciled at the time of writing and is reported when the billing period closes.
+
 ## Controls
 
 | control | result | required | |
