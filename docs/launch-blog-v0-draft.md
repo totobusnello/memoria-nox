@@ -126,7 +126,7 @@ Cinco camadas, um arquivo SQLite:
 
 1. **Ingest** — o router detecta automaticamente entity files (com seções `compiled` / `frontmatter` / `timeline` e `section_boost` diferenciado), markdown genérico ou input graphify. O filtro A1 aplica 13 padrões de redação pre-storage.
 
-2. **Store** — chunks em SQLite com índice FTS5 e vetores 3072d Gemini via sqlite-vec. Retenção tipada: `feedback` e `person` nunca decaem; `lesson` dura 180 dias; `decision` e `project` duram 365 dias. Schema v19, aditivo e idempotente.
+2. **Store** — chunks em SQLite com índice FTS5 e vetores 3072d Gemini via sqlite-vec. Cada chunk tem uma janela de retenção por tipo (`feedback`, `person` e memória destilada sem decaimento; `lesson` 180 dias; `decision` e `project` 365 dias), usada só como meia-vida da recência no score de saliência: nada é apagado nem arquivado por idade. Schema v19, aditivo e idempotente.
 
 3. **Retrieve** — FTS5 BM25 e Gemini semantic em paralelo. RRF fusion (k=60) funde os dois. Pesos ajustados por idioma: PT-BR tilts dense up (1.15) e FTS down (0.85).
 
@@ -203,7 +203,6 @@ Repositório: [github.com/totobusnello/memoria-nox](https://github.com/totobusne
 
 - **L2** — detecção de conflito e contradição no KG (relações opostas sobre o mesmo par de entidades).
 - **L3** — campo de confidence e provenance no schema, gated em lift de eval.
-- **L4** — extração de typed-links com regex-first e Gemini fallback (95.8% precision/recall no corpus sintético, 80% das chamadas Gemini eliminadas via confidence gate).
 - **EverMemBench** — rodar memoria-nox no benchmark público da EverMind-AI para fechar o gap de comparabilidade com competidores que publicam papers.
 
 **GTM Phase 2** está desbloqueada. Lançamento: quarta-feira 2026-06-03 com distribuição simultânea no arXiv, Product Hunt, Hacker News e LinkedIn.

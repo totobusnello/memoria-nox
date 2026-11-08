@@ -1,3 +1,34 @@
+## ▶ Domingo 08/11, 20h45 BRT — A3 fechado; OpenReview bloqueado; reescrita do histórico em análise
+
+**Decisões do Toto (20h29):** «reescrever» (A2, histórico privado); «fazer os itens do a3»;
+«openreview nao consegui a conta infelizmente».
+
+**A3 feito:**
+- **(a) retenção:** a memória destilada nunca decai, e agora isso está escrito: `retention_days =
+  NULL` explícito no INSERT do distilador e `distilled` fora do backfill de 90 dias. No npm, nox-mem#62
+  (teste novo, mutação confirmada; entra na próxima versão publicada). Em produção, o `src` e o `dist`
+  receberam patch idêntico, sem rebuild (`5c1a0b1a` no workspace). Backfill conferido num banco em
+  memória. Comportamento inalterado. O discurso de «retenção/esquecimento» passou a dizer que a
+  retenção é só a meia-vida da recência e que nada é apagado por idade.
+- **(b) abstenção:** o `COMPARISON.md` e o `COMPETITIVE-POSITIONING.md` vendiam o 83% de abstenção do
+  LongMemEval (harness) como recurso; agora separam isso de `model_abstained` (produto, desde 27/10) e
+  do piso de suficiência da evidência (não construído).
+- **(e) L4:** os números (95,8% P/R, 80% menos Gemini) saíram do README e do rascunho do blog; a
+  variável `NOX_L4_REGEX_ENABLED` saiu da tabela de configuração.
+- (c) e (d): ver a entrada das 20h30.
+
+🔴 **Não rodar `npm run build` no `tools/nox-mem` de produção.** O `src/mcp-server.ts` de lá não importa
+`mcp-instructions` (o T2 só existe no `dist/`). Um rebuild sobrescreve `dist/mcp-server.js` e tira o T2
+sem erro nenhum. Mudança em produção: patch idêntico em `src` e `dist`, até a 3.10.0 ser portada.
+
+**A7:** bloqueado, sem conta no OpenReview não há TMLR. Rota alternativa a decidir.
+
+**A2, reescrita:** antes de executar, achei um custo que não estava na recomendação. O primeiro
+commit com dado privado é de 22/10, então 158 commits mudam de hash, e com eles **13 tags de
+pré-registro** (Papers A, B, B2, D, shadow do D, E e as sete do Paper 3). Esses hashes estão citados
+nos papers depositados e nos compromissos de congelamento; a semente do shadow do C2 é o hash da tag; os
+scripts da cadeia conferem commit por hash. Opções levadas ao Toto em 08/11.
+
 ## ▶ Domingo 08/11, 20h30 BRT — 3.10.0 publicada; tag do shadow do C2; R1 desligado e A3 (c, d) aplicados em produção
 
 **Feito hoje à noite:**

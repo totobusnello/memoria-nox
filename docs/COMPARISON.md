@@ -115,10 +115,12 @@ F_MH 3-7% gap on EverMemBench is **corpus-structural** (long conversation chains
 | single-session-assistant | **87.10%** | STRONG | ✅ matches F_SH WIN |
 | single-session-user | **86.67%** | STRONG | ✅ matches F_SH WIN |
 | knowledge-update | **82.05%** | STRONG | ✅ matches MA_U WIN |
-| abstention | **82.61%** | STRONG | (no EverMemBench equiv) |
+| abstention | **82.61%** | STRONG | (no EverMemBench equiv) — LongMemEval category in the eval harness, not a product feature; see note below |
 | multi-session | 55.81% | moderate | ✅ matches F_MH gap |
 | temporal-reasoning | 54.76% | moderate | ✅ matches F_TP gap |
 | single-session-preference | 31.25% (n=16) | weak (wide CI) | (preference handling weak) |
+
+> **Abstention, two different things (2026-11-08).** The 82.61% above is the LongMemEval *abstention* question category scored in the eval harness. In the product, what exists is narrower: since 2026-10-27 `/api/answer` returns the canonical empty answer with `failed_reason: "model_abstained"` when the model's answer cites no chunk. A floor on the *sufficiency of the evidence* (abstaining because the retrieved material does not support an answer) is still open and not built.
 
 **Cross-bench conclusion:** Per-category fingerprint is **identical** to EverMemBench Phase D + H v2 profile. Strong where factual/single-context, moderate where multi-hop/temporal. Same pattern on two entirely different benchmark distributions = **structural advantage, not benchmark-specific tuning**.
 
