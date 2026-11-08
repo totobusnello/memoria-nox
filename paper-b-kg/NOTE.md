@@ -57,7 +57,8 @@ disagreed on (76), every relation both accepted whose chunk carries an exception
 and the two judges' shared label elsewhere.
 
 **Controls.** With the words of each judge's quotes swapped, the citation check rejected every one
-(negative citation control); this tests the check that gates the judges, not the judges' reading.
+(negative citation control). That control tests the check that gates the judges; the next one
+tests the judges themselves.
 Neither judge accepted any of 30 relations shown with a chunk from another document (mismatched
 evidence). Both controls passed for both judges.
 
@@ -70,8 +71,8 @@ on 16. Judge 2's extra rejections were mostly wrong by the human's reading.
 
 On the 60 random rows, the human's agreement with each judge was kappa 0.155, under the 0.40 the
 protocol names as a limit. Those rows were drawn from the ones both judges agreed on and whose chunk
-carries no marker, so the figure is the same for both judges and describes their shared label on
-the easier rows, not each judge on the 300. The human graded 58 of the 60 as supported, and kappa is
+carries no marker, so the figure is the same for both judges: it describes their shared label on
+those rows and says little about either judge on the other 240. The human graded 58 of the 60 as supported, and kappa is
 unstable when nearly every row falls in one class. Off the sheet, where the judges' shared label stands, that
 label is a fallible reference.
 
@@ -173,8 +174,8 @@ The graph's citations are mostly faithful, and its structure is weak: a third of
 a predicate no other relation uses. A repair pass against the source worked as a filter here: it corrected
 23 of the 26 unsupported relations and kept none of the 30 shown with the wrong chunk. It also
 rewrites freely, so a system that runs one should measure retention of the original facts as well
-as the precision of what remains. In this run, the relations it kept or deleted already account for
-nearly all of the precision gain. Whether a pass allowed only to keep or delete would have kept the
+as the precision of what remains. In this run, the relations it left unchanged were already nearly as
+precise as everything it left. Whether a pass allowed only to keep or delete would have kept the
 87 correct relations this one rewrote was not tested.
 
 ## Availability
