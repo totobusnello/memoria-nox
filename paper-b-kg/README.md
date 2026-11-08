@@ -37,6 +37,7 @@ on every relation, and 17,682 carry the same confidence, 0.80. Nothing is supers
 
 ## The note
 
-`NOTE.md` covers both studies. Before the deposit, Codex (`gpt-6-astra`) and Kimi read it at the
+`NOTE.md` covers both studies. Version 1.0 is deposited on Zenodo, doi:10.5281/zenodo.24046282
+(published 2026-11-07, files verified by checksum against `deposit/`). Before the deposit, Codex (`gpt-6-astra`) and Kimi read it at the
 author's request (2026-11-07); their findings changed the abstract, §1 to §4 and §6, and added the
 regrade sensitivity above.
