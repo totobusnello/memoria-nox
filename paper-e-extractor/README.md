@@ -17,6 +17,8 @@ Does the advantage of the rule-based criterion C2 over the deployed C0 (Paper 3:
 | `e-smoke.py`, `e-shape-probe.py` | the cost smokes and the JSON shape probe |
 | `SMOKE-RESULT.md` | what the smokes measured, cost projection, power |
 | `RESULT.md` | the registered run of 2026-11-08 and its analysis |
+| `pdf-build/build-note-pdf.sh` | builds the note PDF with Paper 3's preamble, after the provenance gate |
+| `deposit/deposit-note.py`, `deposit/description-note-v1.0.html` | the Zenodo deposit of the note (plan, draft, build, fill, readback; never publishes) |
 | `NOTE.md`, `PROVENANCE.json` | the research note (draft) and the source of each of its numbers (`tools/provenance.py --check paper-e-extractor`) |
 | `runs/` | smoke outputs (counts only), the batch test, and `confirm-2026-11-08/` (rows, receipt, analysis) |
 
