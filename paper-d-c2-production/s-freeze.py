@@ -131,9 +131,9 @@ def commit(a):
         C.DC.ordered(a.repo, [])            # the tag exists and carries no commitment of this study
         C.same_as_tag(a.repo)
         tag_commit = C.commit_of(a.repo, C.TAG)
-        seed = C.seed_from_commit(tag_commit)
+        seed = C.tag_seed(a.repo)          # §10: the registered seed, not this tag commit's digits
     out = {"smoke": bool(a.smoke), "tag": C.TAG, "tag_commit": tag_commit, "seed": seed,
-           "seed_source": "smoke --seed" if a.smoke else "int(first 8 hex digits of the tag commit, 16)",
+           "seed_source": "smoke --seed" if a.smoke else "registered (§3, §10): int('6ac8272d', 16), the original v1.0 tag commit",
            "secondary_seed": seed + 1, "window": fz["window"], "select_date": fz["select_date"],
            "stopping": fz["stopping"], "totals": fz["totals"], "per_date": fz["per_date"],
            "other_files": fz["other_files"], "excluded_file": fz["excluded_file"],

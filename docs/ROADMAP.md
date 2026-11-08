@@ -94,7 +94,7 @@ Decisões do Toto em 08/11 (§9): todas as sugeridas foram aceitas, menos a do h
 | # | classe | item | para quem / resultado | custo | decisão |
 |---|---|---|---|---|---|
 | A1 | integridade | **`nox-mem compact` no npm apaga os originais** (`compact.ts:155`), com descrição "Compress old chunks". Tirar do CLI ou exigir `--destructive` e mudar a descrição | quem instala pelo npm; impede repetir o 10.204 → 210 | S | sim |
-| A2 | integridade | **Privacidade do histórico público:** registrar a decisão (aceitar ou reescrever) **antes de qualquer divulgação**. O PLANO marca como BLOQUEANTE; reescrever muda os hashes citados nos pré-registros e os links `tree/<hash>` | quem lê o repo público | S para decidir; M para reescrever | sim |
+| A2 | integridade | ✅ **reescrito em 08/11** (D-2026-11-08c; `docs/HISTORY-REWRITE-2026-11-08.md`). **Privacidade do histórico público:** registrar a decisão (aceitar ou reescrever) **antes de qualquer divulgação**. O PLANO marca como BLOQUEANTE; reescrever muda os hashes citados nos pré-registros e os links `tree/<hash>` | quem lê o repo público | S para decidir; M para reescrever | sim |
 | A3 | integridade | ✅ **feito em 08/11** (a: nox-mem#62 + patch em produção; b, e: discurso; c, d: produção; ver HANDOFF). **Afirmações e dados que mentem, só o que tem efeito:** (a) retenção — tirar «retenção/esquecimento» do discurso e aplicar o `NULL` explícito + tirar `distilled` do `ELSE 90` (decidido em `DECISIONS.md:16-18`); (b) separar abstenção em «`model_abstained` em produção desde 27/10» e «piso de suficiência da evidência, ainda aberto»; (c) zerar as 14 falhas do `npm test` em produção (`.js` órfãos no `dist/`); (d) as 22 notas que ainda têm o bloco falso do `create-daily-notes.sh` e podem recriar chunks; (e) números do L4 fora do README | todo leitor e o próprio teste de regressão | S | não |
 | A4 | benefício | **Relatório de prazos: verificar se é lido e escolher o canal de entrega.** É o único consumidor com busca recorrente e consequência real | Toto; decide se o lado pull tem consumidor | S | sim (canal) |
 | A5 | benefício | **Ler o uso real do T2 em 15/11** pela regra pré-registrada, com as 10 buscas lidas à mão | Claude Code do Toto | S | — |
@@ -179,7 +179,7 @@ features do produto.
 | # | decisão | escolha |
 |---|---|---|
 | 1 | `compact` no npm | exigir `--destructive` (feito: nox-mem#60, 3.10.0) |
-| 2 | histórico com trechos do corpus privado | **pendente**: aceitar e registrar se o cofre não tem dado de terceiro sob sigilo; reescrever se tiver |
+| 2 | histórico com trechos do corpus privado | ✅ **reescrever** (Toto, 08/11 20h29), preservando os hashes originais num espelho privado (D-2026-11-08c) |
 | 3 | canal do relatório de prazos | dentro do morning report, uma linha por obrigação dos próximos 14 dias; teste de duas semanas |
 | 4 | shadow do C2 | tag do pré-registro agora; opção experimental (janela + C2) só depois de versionar o runner e consertar fallback e seletor |
 | 5 | OpenReview / TMLR | conferir a conta agora; antes de submeter, passar o manuscrito do Paper 1 contra a auditoria de 08/11 |

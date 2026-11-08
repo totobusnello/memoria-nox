@@ -27,7 +27,12 @@ def load(name, path):
 
 
 # ------------------------------------------------------------------ registered constants
-TAG = "paper-d-shadow-prereg-v1.0"
+TAG = "paper-d-shadow-prereg-v1.1"
+# §10 (deviation of 2026-11-08): the history rewrite that removed private data changed the commit of
+# the v1.0 tag (6ac8272d... -> e10454b4...). The seed stays the one registered from the ORIGINAL tag
+# commit and published in the v1.0 tag message before any record was read beyond counts:
+# int("6ac8272d", 16) = 1791502125. It no longer comes from whatever commit the tag points to.
+REGISTERED_SEED = 0x6AC8272D
 # SHADOW-PROTOCOL.md §2: sha256 of Paper 3's DISTILL_SYSTEM_V3, the only C2 prompt the shadow runs
 C2_PROMPT_SHA256 = "325342a36e742f1e844b7c3792dae3eb47a76879c501678b576cd6df2cc8089d"
 MIN_BLOCK_CHARS = 500                   # §2 eligible block
@@ -325,7 +330,8 @@ def same_as_tag(repo):
 
 
 def tag_seed(repo):
-    return seed_from_commit(commit_of(repo, TAG))
+    """§3 as amended by §10: the registered seed, fixed before the rewrite changed the tag commit."""
+    return REGISTERED_SEED
 
 
 def chain(repo, P, refs, smoke):

@@ -8,7 +8,8 @@ its two open points on 2026-11-07 08:05 BRT («3. excecao aqui 4. ok»): the wri
 family under an exception to the protocol's privacy rule for this study only (§3), and the
 stopping rule stands (§2). On 2026-11-08 at 18:17 BRT the author approved the tag («segue com os
 scripts do shadow»), after the scripts of §6 passed their offline tests; paid calls still wait for
-the steps of §6 in order.
+the steps of §6 in order. Amended the same day by §10 (history rewrite; seed kept at its
+registered value); binding from the tag `paper-d-shadow-prereg-v1.1`.
 
 ## 1. Question
 
@@ -62,7 +63,8 @@ cannot recur. What the records cannot say is in §8.
 - **Validation.** Paper D's rules, unchanged: malformed, answer over 25 words, category outside the
   set, no citation, citation not a byte-exact substring of the block; each drop counted by reason.
 - **Draw.** If the eligible blocks yield more than 400 primary questions, 400 are drawn uniformly
-  (seed: first eight hex digits of the tag commit); otherwise all are used. The secondary set is
+  (seed: first eight hex digits of the original tag commit, 0x6ac8272d = 1791502125; see §10);
+  otherwise all are used. The secondary set is
   drawn the same way, seed + 1.
 
 ## 4. Arms, reader and judges
@@ -155,3 +157,22 @@ shadow run worked, read beyond the counts `SHADOW-PROTOCOL.md` §5 permits: the 
 units of the four blocks in `c2-shadow-2026-11-07.jsonl`, and the number of units per arm in those
 blocks. No C2 unit text was printed. Those blocks and their sessions are excluded (§2). Nothing
 else in the shadow directory has been read beyond the permitted counts.
+
+## 10. Deviation: history rewrite (2026-11-08)
+
+On 2026-11-08, after the tag `paper-d-shadow-prereg-v1.0` was published (commit `6ac8272d…`, seed
+`0x6ac8272d` = 1791502125, stated in the tag message), the author decided to remove from the public
+history 14 files with third-party data from the private corpus (`docs/HISTORY-REWRITE-2026-11-08.md`).
+None of them belongs to this study. The rewrite changed the commit of every tag from 2026-10-22 on;
+this document's v1.0 tag now points to `e10454b4…`, with the same tree content.
+
+- **Seed.** It stays `0x6ac8272d` = 1791502125, the value registered and published before any shadow
+  record was read beyond counts. `s-common.py` now returns that constant (`REGISTERED_SEED`) instead
+  of reading the digits of whatever commit the tag points to; `s-freeze.py` records it with its
+  source; `s-test.py` checks it (mutation-tested: reading the commit digits fails the check).
+- **What else changed from v1.0:** only the three scripts above, the seed sentence of §3, the
+  header and this section. The weekly count (`s-count.py`) is unchanged byte for byte.
+- **Binding version:** the tag `paper-d-shadow-prereg-v1.1`. The original commits stay verifiable in
+  a private mirror of the history before the rewrite, and the old-to-new commit map is public in
+  `docs/history-rewrite-2026-11-08-commit-map.txt`.
+
