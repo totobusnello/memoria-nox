@@ -73,7 +73,7 @@
 - **🥇 Classical multi-hop QA dual SOTA without specialized training.** MuSiQue F1 58.62% beats IRCoT iterative SOTA by +22.82pp and paper supervised EX(SA) by +8.92pp (PR #407). HotPotQA ans_F1 73.37% above DPR+FiD reader SOTA band (PR #408). Both without HotPotQA / MuSiQue fine-tuning.
 - **🥇 Memory benchmark SOTA.** EverMemBench Overall 63.28% +20.73pp vs MemOS 42.55%, MA composite 88.42% +32.74pp vs MemOS 55.68% (Backbone Matrix Gemini-3-flash, PR #397, D70).
 - **🥇 LoCoMo cross-bench retrieval SOTA.** evidence_hit@10 strict 74.52% above Mem0 SOTA F1 66.88%, multi_hop 82.21% (PR #396). F1 constrained 51.85% rank-5 above Zep/LangMem (PR #404).
-- **Measured in the research harness, not shipped:** KG path p50 2.5ms and $0/query (~667× cheaper than Mem0 Cloud). Shipped: self-hosted single-process, 399MB RSS (PR #403).
+- **Measured in production (2026-05-29, PR #403):** the graph walk `GET /api/kg/path` answers in 2.5ms p50 with no LLM or embedding call ($0/query); self-hosted single-process, 399MB RSS. Using that walk inside search ranking (+2.81pp F_MH) exists only in the research harness. The ~667× figure compared hybrid retrieval cost with Mem0 Cloud's per-query price, which includes inference.
 - **🥇 HotPotQA SP-F1 LLM extractor (opt-in retrieval-side, PR #413).** joint_F1 +5.66pp / SP_F1 +5.96pp on top of dual SOTA reader.
 - **🥇 Q3 IterB ReAct F_MH ceiling break (opt-in orchestration-stage, PR #419).** +2.01pp clean F_MH lift on Gemini-3-flash bare baseline (8.03% standalone). **Breaks Wave A/B/C single-stage retrieval ceiling 7.25% (D69) by +0.78pp standalone.** First system to add orchestration-stage F_MH lift on top of strongest backbone. SHIP_OPT_IN via `NOX_ITERB_GEMINI=1`; cost $0.00295/q within budget; MA composite -3.53pp borderline-fail trade-off (similar to Phase G rerank pattern).
 - **1.6× more backbone-portable** than MemOS (D67).
@@ -100,7 +100,7 @@
 - **One SQLite file.** `cp nox-mem.db backup.db` is your backup. No daemon, no Docker, no Postgres, no Qdrant. The entire memory store is one file on your disk.
 - **Provider-agnostic embedding.** Gemini (default), OpenAI, or local — swap via `NOX_EMBED_PROVIDER`. The store doesn't care. Provider abstraction overhead: 0.0025ms per call (A3 benchmark, PR #39).
 - **MIT license, zero usage caps, zero telemetry phone-home.** Your data stays on your infrastructure.
-- **KG path (research harness, not in the package) would preserve the SQLite-only pitch.** The default path never requires a graph DB — `kg_relations` is stored in the same SQLite file. Neo4j not required, not even optional.
+- **KG path in ranking (research harness, not in the package) would preserve the SQLite-only pitch.** The default path never requires a graph DB — `kg_relations` is stored in the same SQLite file. Neo4j not required, not even optional.
 - **AES-256-GCM export.** A2 ships round-trip preservation (nDCG@10 ±0.001, PR #286).
 
 **vs Zep:** Zep's Go server hardcodes OpenAI embedding. Fork required to swap provider. nox-mem: any provider, zero code changes.
