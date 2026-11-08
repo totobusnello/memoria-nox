@@ -19,7 +19,7 @@ This script never publishes (the imported req refuses any /actions/publish URL).
 manual and the author's.
 
 The archive carries the note, its provenance file, both pre-registrations, every public
-commitment, both readings, the census, the disagreement count and the scripts that produced
+commitment, both readings, the census, the disagreement count, the regrade sensitivity and the scripts that produced
 them, under their repository paths. The frozen sample (triples, entity names, chunk text), the
 repairs and the human sheets are private and not in it.
 """
@@ -79,7 +79,9 @@ CODE_FILES = ["paper-b-kg/NOTE.md",
               "paper-b2-kg-repair/b2-common.py",
               "paper-b2-kg-repair/b2.py",
               "paper-b2-kg-repair/b2-test.py",
-              "paper-b2-kg-repair/b2-smoke.py"]
+              "paper-b2-kg-repair/b2-smoke.py",
+              "paper-b2-kg-repair/b2-regrade-sensitivity.py",
+              "paper-b2-kg-repair/REGRADE-SENSITIVITY-2026-11-07.json"]
 SUBJECTS = ["agent memory", "knowledge graph", "LLM extraction", "faithfulness",
             "memory consolidation", "pre-registration", "LLM-as-judge", "data note"]
 STATUS_OLD = ('Status: working draft, not deposited, not peer reviewed. A data note on one deployment, with\n'
