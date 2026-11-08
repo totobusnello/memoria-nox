@@ -10,6 +10,8 @@
 >
 > **Canônicos vivos:** `docs/HANDOFF.md` (estado), `docs/ROADMAP.md` (sprints Q/A/P), `docs/DECISIONS.md` (D40 + D41 + raciocínio).
 > Este doc é **vision** — sprint-agnóstico, sobrevive a re-priorizações, fala da forma final do produto e do que recusamos virar pelo caminho.
+>
+> **Nota de 2026-11-08:** pricing e comercialização estão suspensos até haver uso externo medido (D-2026-11-08b); a ordem do que vem está no `docs/ROADMAP.md` v7.
 
 ---
 
