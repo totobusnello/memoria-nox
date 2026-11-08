@@ -51,3 +51,12 @@ The freeze check is tested in a temporary git repository with both tags.
 | **total** | **2.10** |
 
 The registered run (`RESULT.md`) spent US$ 150.55, under the US$ 160 cap.
+
+## The note
+
+`NOTE.md` reports the registered run. Version 1.0 is deposited on Zenodo, doi:10.5281/zenodo.24057928
+(concept doi:10.5281/zenodo.24057927; published 2026-11-08, files verified by checksum against
+`deposit/`). Before the deposit, Codex (`gpt-6-astra`) and Kimi read it at the author's request
+(2026-11-08); the Codex review changed the abstract, §5 and §6 and added the missing parts of the
+registered report, and the Kimi review recomputed every number. The `avoid-ai-writing` pass ran after
+both reviews.
