@@ -39,3 +39,29 @@ if __name__ == "__main__":
     for c in PROMPTS:
         print(c, len(PROMPTS[c]), sha(c))
     print("\n--- P ---\n" + DISTILL_SYSTEM_P)
+
+
+def parse_memories(txt):
+    """Paper E's parser (SMOKE-RESULT.md): an object's "memories" list, or a top-level list.
+    Returns (units kept at importance >= 0.5, parsed?). Anything else is a failed block, served
+    empty, as in Paper 3."""
+    import json
+    if not txt:
+        return [], False
+    try:
+        j = json.loads(txt)
+    except Exception:
+        return [], False
+    if isinstance(j, dict):
+        mem = j.get("memories") or []
+    elif isinstance(j, list):
+        mem = j
+    else:
+        return [], False
+    if not isinstance(mem, list):
+        return [], False
+    units = [{"text": m.get("text", ""), "category": m.get("category"),
+              "importance": m.get("importance")} for m in mem
+             if isinstance(m, dict) and isinstance(m.get("importance") or 0, (int, float))
+             and (m.get("importance") or 0) >= 0.5]
+    return units, True
