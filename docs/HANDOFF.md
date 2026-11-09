@@ -1,13 +1,16 @@
-## ▶ Domingo 08/11, 21h40 BRT — purga pedida ao GitHub; XERJ e site pendentes
+## ▶ Domingo 08/11, 21h45 BRT — purga pedida ao GitHub; XERJ avisado; site corrigido
 
 - **GitHub:** ticket de purga enviado às 21h35 (conta totobusnello, resposta para lab@generantis.com.br): GC no servidor,
   cache e refs de PR. O assistente do GitHub confirmou que essa limpeza exige o suporte. **Até lá o hash antigo ainda abre os
   arquivos** (conferido: `c39bfe33…/eval/golden-queries-v2.jsonl`).
 - **XERJ Corpus Hub:** fixou o repositório inteiro em `c39bfe33`, commit que tem 9 dos 14 arquivos, e o destaque deles é
-  uma das mudanças removidas. Rascunho de resposta ao fundador no fio de 27/10 (lab@nuvini.ai), **não enviado**: pede para
-  refixarem no `main`, apagarem a cópia e trocarem o destaque.
+  uma das mudanças removidas. Resposta ao fundador no fio de 27/10 (lab@nuvini.ai) **enviada pelo Toto em 08/11, 21h35**: pede
+  para refixarem no `main`, apagarem a cópia e trocarem o destaque. Falta conferir a página deles quando responderem.
+- **Próximo (segunda 09/11):** A4, a linha de prazos no relatório da manhã; depois a migração das 89 notas com chave
+  `../agents/…` e o A6. Esperando a resposta do suporte do GitHub (lab@generantis.com.br) e a do XERJ.
 - **labf.bio:** 6 links para hashes antigos (Papers B, C, D, E, 3 e o XERJ) trocados no site-labf#67, com os links novos
-  conferidos no GitHub. Aguarda o preview para o Toto antes do merge.
+  conferidos no GitHub. **Mergeado em 08/11, 21h40** com o ok do Toto; no ar, as 5 páginas de paper apontam para os
+  commits novos e nenhuma das 56 páginas do sitemap tem hash antigo.
 
 ## ▶ Domingo 08/11, 21h45 BRT — histórico público reescrito (A2); shadow passa a ser a v1.1
 
