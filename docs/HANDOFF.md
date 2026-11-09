@@ -1,3 +1,14 @@
+## ▶ Domingo 08/11, 21h40 BRT — purga pedida ao GitHub; XERJ e site pendentes
+
+- **GitHub:** ticket de purga enviado às 21h35 (conta totobusnello, resposta para lab@generantis.com.br): GC no servidor,
+  cache e refs de PR. O assistente do GitHub confirmou que essa limpeza exige o suporte. **Até lá o hash antigo ainda abre os
+  arquivos** (conferido: `c39bfe33…/eval/golden-queries-v2.jsonl`).
+- **XERJ Corpus Hub:** fixou o repositório inteiro em `c39bfe33`, commit que tem 9 dos 14 arquivos, e o destaque deles é
+  uma das mudanças removidas. Rascunho de resposta ao fundador no fio de 27/10 (lab@nuvini.ai), **não enviado**: pede para
+  refixarem no `main`, apagarem a cópia e trocarem o destaque.
+- **labf.bio:** 6 links para hashes antigos (Papers B, C, D, E, 3 e o XERJ) trocados no site-labf#67, com os links novos
+  conferidos no GitHub. Aguarda o preview para o Toto antes do merge.
+
 ## ▶ Domingo 08/11, 21h45 BRT — histórico público reescrito (A2); shadow passa a ser a v1.1
 
 **Feito:** os 14 arquivos com dado privado saíram de todo o histórico público (D-2026-11-08c,
