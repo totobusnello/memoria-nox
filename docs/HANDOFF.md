@@ -1,3 +1,22 @@
+## ▶ Terça 10/11, 19h50 BRT — A4 no ar: prazos no morning report; disco da VPS de Pesquisa limpo
+
+- **A4 feito (openclaw-vps#84, em produção):** o morning report das 06:30 UTC ganhou o bloco «Prazos (14d)», com uma
+  linha por obrigação do relatório semanal mais novo do `lex-prazos-semanal.sh` que vence em até 14 dias, inclusive as
+  vencidas que o relatório ainda lista. Leitor em `infra/scripts/prazos-linhas.py`. Relatório ausente, com mais de 8 dias
+  ou com item numerado sem data legível vira linha 🟡, nunca «nenhum prazo». Teste com 8 casos sintéticos
+  (`infra/tests/test-morning-report-prazos.sh`); as 3 mutações do leitor morrem. Rodado a seco na VPS sobre o relatório
+  de 09/11: 2 linhas, ambas vencidas (30/10 e 02/11). Backup do script anterior:
+  `/root/.openclaw/scripts/morning-report.sh.bak-pre-prazos-20261110`.
+- **Teste de duas semanas (D-2026-11-08 #6):** primeiro post com o bloco em 11/11; relatórios novos em 16/11 e 23/11.
+  **Em 24/11, perguntar ao Toto** se as linhas mudaram alguma ação. Sim ⇒ o lado pull tem consumidor; não ⇒ fecha.
+- **VPS de Pesquisa:** a sessão do 7_problems liberou ~15 GB de backups do nox-mem em 09/11. Em 10/11 o tar
+  `paper-experiments-2026-05-24.tar.gz` (4,2 GB, quase todo venv) virou `…/paper-experiments-2026-05-24-sem-venv/`:
+  24 arquivos, sha256 iguais aos do tar, com `SHA256SUMS`, a lista do tar original e os 136 pacotes do venv. O snapshot
+  do §4.7 do Paper 1 está lá. 🔴 **Perda por erro meu:** os manifests `e2026*.db.manifest.json` de 26/07 a 23/08 em
+  `/var/lib/nox-mem/epochs` foram apagados por indicação minha; eram a única cópia. Os 8 `t6-b0*` ficaram.
+- **Ainda esperando:** suporte do GitHub (o hash antigo ainda serve o arquivo em 10/11: HTTP 200) e o XERJ.
+- **Próximo:** migração das 89 notas com chave `../agents/…`; depois o A6.
+
 ## ▶ Domingo 08/11, 21h45 BRT — purga pedida ao GitHub; XERJ avisado; site corrigido
 
 - **GitHub:** ticket de purga enviado às 21h35 (conta totobusnello, resposta para lab@generantis.com.br): GC no servidor,
