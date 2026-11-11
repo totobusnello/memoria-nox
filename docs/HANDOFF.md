@@ -1,3 +1,24 @@
+## ▶ Quarta 11/11, 11h BRT — chave `../agents/…` era symlink; produtor consertado no código e 83 fontes migradas
+
+- **Causa (corrige a leitura de 08/11):** `/root/.openclaw/agents/{nox,atlas,boris,cipher,forge,lex}` são symlinks para
+  `workspace/agents/<a>`. A chave do nox-mem era `relative(WORKSPACE, caminho dado)`, sem resolver symlink, então o mesmo
+  arquivo ganhava `../agents/…` quando ingerido pelo link. Produtores: cron `end-of-day` do gateway (passo 5b, desde 06/11)
+  e `cipher-weekly-full`. Não era resíduo: crescia toda noite.
+- **Conserto no código (decisão do Toto: «codigo»):** `sourceKeyFor()` resolve symlink dos dois lados (arquivo apagado: o
+  ancestral mais fundo que existe) e virou a definição única em ingest, router, entity, watch, reindex e tombstone.
+  Upstream nox-mem#64 (654 testes; os 2 novos morrem quando a chave volta ao `relative` cru). Produção: patch idêntico em
+  `src` e `dist` (`lib/source-key.{ts,js}` + 12 arquivos), `tsc --noEmit` limpo, smoke em workspace isolado, `nox-mem-api` e
+  `nox-mem-watch` reiniciados. Backup: `/root/_archive/source-key-pre-20261111.tgz`. Medido antes: no banco principal e nos
+  6 bancos de agente, só as 83 chaves-alvo mudam.
+- **Migração (Toto: «pode»):** `/root/nox-migrate-symlink-keys-2026-11-11.mjs`, dentro do `withOpAudit` (snapshot
+  `pre-op/migrate-symlink-agent-keys-1111-main-20261111134615-…db`). Troca de chave por `UPDATE`, que preserva ids,
+  embeddings e referências: 687 chunks renomeados, 66 apagados (lado velho das 7 fontes que tinham as duas chaves; 0
+  referenciados), `consolidated_files` 73 renomeados e 3 duplicados removidos. 12/12 invariantes ok, FTS `integrity-check`
+  antes e depois. Total 63.946 → 63.880, cobertura de vetores 63.880/63.880.
+- **Conferir em 12/11:** o `end-of-day` desta noite (02:30 UTC) não pode criar chunk com `source_file LIKE '../agents/%'`.
+- **A6 mudou:** o Groq sai do `session-distill.ts` em vez de ser consertado (Toto: «groq nao usamos - nem deveria ter»).
+- **Próximo:** A6.
+
 ## ▶ Terça 10/11, 19h50 BRT — A4 no ar: prazos no morning report; disco da VPS de Pesquisa limpo
 
 - **A4 feito (openclaw-vps#84, em produção):** o morning report das 06:30 UTC ganhou o bloco «Prazos (14d)», com uma
