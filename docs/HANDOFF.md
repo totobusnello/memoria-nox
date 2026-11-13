@@ -1,3 +1,25 @@
+## ▶ Sexta 13/11, 11h30 BRT — A6, primeira parte: Groq fora; o distill diz por que um bloco veio vazio
+
+- **Conferência de 12/11 ok:** 0 chunks com `../agents/%`; os end-of-day de 12 e 13/11 gravaram 34 chunks, todos em
+  `agents/…`. **nox-mem#64 mergeado** (`2be7e71d`), falta publicar no npm.
+- **Groq removido (Toto: «pode fazer as 5»):** `session-distill`, `compact` e `digest`, em `src` e `dist` (o `dist` bate
+  linha a linha com o que o `tsc` emite, salvo um comentário de tipo). `session-distill.groq` tinha 21/21 falhas
+  (13/09 → 11/11); `consolidate` já tinha saído em 24/10. `GROQ_API_KEY` saiu do `.env`; o gateway não citou Groq no
+  journal desde 14/10 nem no log de hoje. Backups: `/root/_archive/a6-groq-pre-20261113.tgz`, `a6-index-pre-20261113.tgz`,
+  `env-pre-a6-groq-20261113`.
+- **Seletor:** `distillWithGemini` devolve `ok | empty | no_key | http_error | network_error | no_text | bad_json`, e a rodada
+  imprime `[DISTILL] Blocks by outcome: {…}`. O que entra no banco não muda (o Groq nunca acertou). Smoke isolado:
+  sem chave → `no_key`, chave inválida → `http_error`, chave real → `ok` com 2 memórias.
+- **Não feito de propósito, até a leitura do shadow (01/12):** mudar o comportamento na falha. Hoje um bloco com erro
+  conta como sessão processada e não volta; tentar de novo mudaria o braço de produção que o shadow do C2 compara.
+- **Resíduo fora do nox-mem (openclaw-vps):** o plugin `groq` segue `enabled` no `openclaw.json`, há entrada Groq no
+  `relay-proxy` e modelos Groq nos `models.json` dos agentes. Sem a chave, ficam inertes; tirar é decisão do Toto.
+- **Commit `5824bee7` no nox-workspace levou 16 arquivos a mais** (briefs, `session-context.json`, sqlite e `.seal` dos
+  agentes): erro meu de pathspec vazio. É o estado que o auto-commit das 02:00 gravaria; nada se perdeu; já está no remoto.
+- **Conferir em 14/11:** no log do `end-of-day`, a linha `Blocks by outcome` — qualquer coisa além de `ok`/`empty` é a
+  primeira medida das causas.
+- **Próximo no A6:** tag do pré-registro do shadow (#673); depois, janela + C2 como opção experimental no npm.
+
 ## ▶ Quarta 11/11, 11h BRT — chave `../agents/…` era symlink; produtor consertado no código e 83 fontes migradas
 
 - **Causa (corrige a leitura de 08/11):** `/root/.openclaw/agents/{nox,atlas,boris,cipher,forge,lex}` são symlinks para
