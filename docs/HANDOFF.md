@@ -1,3 +1,30 @@
+## ▶ Sábado 14/11, 9h BRT — contagens do distill em arquivo; 3.10.1 em stage (E401); Groq fora do gateway
+
+Toto: «segue 1 a 4».
+
+- **Conferência de 14/11:** o `end-of-day` de 13/11 (23h30) rodou `ok`; `provider_telemetry` mostra 2 chamadas
+  `session-distill.gemini` e 2 `shadow-c2`, todas com sucesso, e nenhuma ao Groq. A linha `Blocks by outcome` **não ficou
+  em lugar nenhum**: vai só para o stdout do agente do cron (procurado no syslog, `agent-activity.log` e notas do Nox).
+- **1. Contagens em arquivo (nox-workspace `9ce06d7c`, só o `src`; `dist` idêntico):** cada rodada real acrescenta uma
+  linha a `/var/lib/nox-mem/distill-outcomes.jsonl` (`NOX_DISTILL_OUTCOMES_PATH`), só contagens e ids de agente, fora da
+  pasta cega do shadow; dry run não grava; rodada sem sessão grava com `pending: 0`. Smoke isolado: `{"no_key":4}`
+  gravado; dry run nada. 🔴 O 1º smoke **travou** com o caminho em `/proc/nope/`: `mkdirSync({recursive:true})` gira sem
+  fim ali. Saiu o `mkdir`; pasta ausente agora falha o append na hora, com aviso e exit 0. Backup
+  `/root/_archive/a7-outcomes-pre-20261114.tgz`. **Conferir em 15/11:** a primeira linha real no arquivo.
+- **2. nox-mem 3.10.1** (#62 + #63 + #64): release PR #65 mergeado (`fe112adc`), tag `v3.10.1`, testes 650/654 (4 skip),
+  tarball com 114 arquivos, shasum `3cc9a84d`. Smoke em HOME limpo: a mesma nota por symlink e pelo caminho real dá uma
+  chave só. Os pins de `install.sh`/`GUIA-INSTALACAO.md` estavam em 3.9.1 (a 3.10.0 os deixou para trás); agora 3.10.1.
+  **`npm stage publish` deu E401** (token caiu, 4ª vez): falta o Toto rodar `npm login` num terminal comum; depois eu
+  refaço o stage e ele roda `npm stage approve <id>`. ⚠️ Não existe tag `v3.10.0`.
+- **3. Tag do pré-registro do shadow:** já existia desde 08/11 (`paper-d-shadow-prereg-v1.0` e `-v1.1`, a que vale).
+  A linha «Próximo no A6: tag (#673)» da entrada de 13/11 estava errada — escrevi de memória sem olhar o remoto.
+- **4. Groq fora do gateway:** `openclaw plugins disable groq`, `groq` fora de `plugins.allow` (23 restantes) e o bloco
+  `providers.groq` removido dos 7 `models.json` (round-trip byte a byte conferido antes). `openclaw config validate` rc 0
+  (os 4 avisos já existiam). Gateway reiniciado 12:00 UTC: ativo, `NRestarts=0`, 0 erro, 0 `claim changed`, plugins
+  ligados = os de antes menos `groq` (20), `[gateway] ready` em ~2 min, `channels status`: Discord `running, connected`
+  (os avisos `DEP_PLUGIN_SDK` e `MaxListeners` já saíam no boot das 07:00). Backup `/root/_archive/a8-groq-gateway-pre-20261114.tgz`. O código do
+  `relay-proxy` (RelayPlane, de terceiro, serviço inexistente na VPS) **não** foi mexido: lista Groq entre 8 provedores.
+
 ## ▶ Sexta 13/11, 11h30 BRT — A6, primeira parte: Groq fora; o distill diz por que um bloco veio vazio
 
 - **Conferência de 12/11 ok:** 0 chunks com `../agents/%`; os end-of-day de 12 e 13/11 gravaram 34 chunks, todos em
@@ -18,7 +45,8 @@
   agentes): erro meu de pathspec vazio. É o estado que o auto-commit das 02:00 gravaria; nada se perdeu; já está no remoto.
 - **Conferir em 14/11:** no log do `end-of-day`, a linha `Blocks by outcome` — qualquer coisa além de `ok`/`empty` é a
   primeira medida das causas.
-- **Próximo no A6:** tag do pré-registro do shadow (#673); depois, janela + C2 como opção experimental no npm.
+- ~~**Próximo no A6:** tag do pré-registro do shadow (#673)~~ (já existia desde 08/11; ver 14/11); depois, janela + C2
+  como opção experimental no npm.
 
 ## ▶ Quarta 11/11, 11h BRT — chave `../agents/…` era symlink; produtor consertado no código e 83 fontes migradas
 
