@@ -1,3 +1,31 @@
+## ▶ Sábado 14/11, 12h20 BRT — A6 etapa 1: o distiller de produção está no pacote; 3.11.0 em stage
+
+Toto: «faz td».
+
+- **nox-mem#66 (`335b107`):** o `session-distill` do pacote passa a ser o de produção, sem o C2 e sem o `tracked()` de custo
+  (o `provider-cost` não existe no pacote). Só Gemini; motivo por bloco (`ok | empty | no_key | http_error |
+  network_error | no_text | bad_json`) em `DistillStats.blockOutcomes`, na linha `Blocks by outcome` e no resumo da CLI;
+  pendentes da mais antiga para a mais nova, com linha `Backlog:` quando sobra fila. `NOX_DISTILL_OUTCOMES_PATH` grava
+  uma linha de contagens por rodada real, **desligado por padrão no pacote** (na VPS o padrão é
+  `/var/lib/nox-mem/distill-outcomes.jsonl`; se um dia a VPS rodar o código do pacote, pôr a variável no `.env`).
+  6 testes novos; mutação: sem a ordenação, dry run gravando, 2ª chamada a outro provider no bloco vazio e `http_error`
+  lido como `empty` reprovam um teste cada.
+- **nox-mem#67 (`de10cb4`):** Groq fora do resto do pacote (`compact`, `digest`, `consolidate`, ajuda da CLI, `doctor`,
+  templates, guia). No `consolidate` a ordem efetiva não muda: o Gemini simples já rodava dentro do passo do Groq.
+  Teste novo: nenhum módulo chama `api.groq.com` nem lê `GROQ_API_KEY`.
+- **3.11.0:** release #68 (`a1ac292`), tag `v3.11.0`, 662 testes (658 + 4 skip), 114 arquivos, shasum `ed5ec3b4`,
+  **stage id `cf04c289-ed91-4b74-b171-426eb88648cc`** — falta o Toto rodar `npm stage approve` num terminal comum.
+  Smoke do tarball em HOME limpo, pela CLI: sem chave → `{"no_key":1}` no arquivo; dry run não grava; com chave real →
+  `{"ok":1}`, 3 memórias com `retention_days` nulo; 2ª rodada → `pending: 0`.
+- 🔴 **O 1º tarball saiu com o `dist` da 3.10.1:** `npm pack` não roda o `prepublishOnly` (que faz `rm -rf dist` e build),
+  então o pacote dizia 3.11.0 e rodava o código velho. O smoke pegou (sem linha `Blocks`, sem arquivo). O `stage publish`
+  roda o build; para testar o tarball, `npm run build` antes do `pack`.
+- ⚠️ A `main` do `nox-mem` não tem checagem obrigatória: o auto-merge do `ship.sh` entra na hora, antes do CI. Os três CIs
+  passaram depois (conferido no commit da `main`).
+- **3.10.1 publicada** (pendência da entrada das 9h): o Toto rodou `npm login` e `npm stage approve`; o tarball só respondeu
+  200 no registry ~5 min depois do approve (12:40:48 UTC). Smoke do registry em HOME limpo: symlink + caminho real = 1 chave.
+- **Próximo no A6:** etapa 2 (janela + C2 como opção experimental) só depois da leitura do shadow, a partir de 01/12.
+
 ## ▶ Sábado 14/11, 9h BRT — contagens do distill em arquivo; 3.10.1 em stage (E401); Groq fora do gateway
 
 Toto: «segue 1 a 4».
