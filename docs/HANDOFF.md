@@ -18,8 +18,11 @@
   skipped 48, ingested 8, {"ok":3}`. 🔴 **A cota de 50 sessões por rodada é gasta em sessões com menos de 3 mensagens:**
   no `session_distill_log`, toda noite desde 10/11 entram exatamente 50 linhas, 43 a 48 delas vazias. As 35 que sobram
   saem da janela de 1 dia do `end-of-day` antes da rodada seguinte. Já acontecia antes da ordenação da 3.11.0. Conserto
-  proposto: separar as sessões curtas antes de aplicar o `--max-sessions`, para que não contem na cota. Aguarda o ok do
-  Toto (muda produção e pacote).
+  feito com o ok do Toto («sim faz os 2», 12h09): **nox-mem#69** (`e4035e5`, CI verde, 663 testes / 0 falhas, mutação
+  reprova) e produção `af7aee27` (`src` e `dist` iguais, backup `/root/_archive/distill-pre-budgetfix-20261115T151420Z.tgz`,
+  smoke isolado: cota 1, 4 curtas registradas + 1 longa processada). Primeira rodada real: 16/11 02:30 UTC. Muda a
+  entrada do shadow ⇒ desvio datado no §11 do `SHADOW-PREREGISTRATION.md` (nenhuma regra muda; a leitura reporta os dois
+  períodos em separado). O plist do T2 foi apagado. Falta a release 3.11.1 no npm.
 
 ## ▶ Sábado 14/11, 12h20 BRT — A6 etapa 1: o distiller de produção está no pacote; 3.11.0 em stage
 

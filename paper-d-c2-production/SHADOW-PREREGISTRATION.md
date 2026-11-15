@@ -176,3 +176,26 @@ this document's v1.0 tag now points to `e10454b4…`, with the same tree content
   a private mirror of the history before the rewrite, and the old-to-new commit map is public in
   `docs/history-rewrite-2026-11-08-commit-map.txt`.
 
+
+## 11. Deviation: distiller intake (2026-11-15)
+
+On 2026-11-15 at about 15:15 UTC production's distiller changed how many sessions reach the model
+each run (nox-mem#69; host workspace commit `af7aee27`). Until then the per-run budget (50 in the
+nightly 1-day run) was cut before sessions with fewer than three messages were set aside, so those
+spent it: from 2026-11-10 to 2026-11-15, 43 to 48 of the 50 sessions taken each night were short, 2 to
+7 reached the model, and the rest of the day's sessions left the 1-day lookback without being read.
+From the run of 2026-11-16 on, short sessions are logged without counting against the budget, so
+more of each day's sessions reach the model, and with them the shadow.
+
+- **What did not change:** the C2 prompt and its hash, the eligibility rule, the exclusions, the
+  stopping rule, the per-run shadow caps (300 calls, 15 minutes), the seed and every script of this
+  study. Nothing beyond the counts `SHADOW-PROTOCOL.md` §5 permits was read to make or check the
+  change; the figures above come from the distiller's own log table and outcome counts.
+- **What changed:** the intake. Records up to the file `c2-shadow-2026-11-15.jsonl` come from at most
+  the oldest few substantive sessions of each day; later ones from all of a day's substantive
+  sessions up to the budget. The date of each record marks which side of the change it is on, and
+  the reading reports the two periods' counts separately.
+- **Why now:** at the intake before the change (about 2 sessions and 2–3 blocks a day since
+  2026-11-11) the 300-block threshold would be reached near 2027-01-10, the last date of §2.
+- **Binding version:** still `paper-d-shadow-prereg-v1.1`. The only addition is that the reading
+  reports the counts of the two periods separately.
