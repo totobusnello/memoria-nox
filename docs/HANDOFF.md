@@ -1,3 +1,12 @@
+## ▶ Domingo 15/11, 13h15 BRT — suporte do GitHub (ticket 4974234): pedida a opção 2 para os PRs #584–#719
+
+O suporte listou 136 PRs (#584–#719) que ainda referenciam os commits reescritos em 08/11 e ofereceu apagar o PR
+inteiro ou só as referências (some o diff, fica a conversa). As conversas foram conferidas antes: corpos, 104 comentários
+e 144 comentários de linha (todos do bot do Codex, nenhum num arquivo removido) sem trecho do corpus, telefone ou
+email; só o #636 cita os arquivos removidos, pelo nome. O Toto respondeu pedindo a **opção 2** para todos e a limpeza do
+cache depois. Aguardando o GitHub. (A linha «A2: falta a decisão» das entradas de 14/11 e 08/11 está superada: a decisão
+foi «reescrever», executada em 08/11.)
+
 ## ▶ Domingo 15/11, 11h50 BRT — conferências de 15/11: T2 sem mudança visível; distiller gasta a cota em sessões vazias
 
 - **nox-mem 3.11.0 é `latest`** (aprovada pelo Toto em 14/11 ~16h30). Smoke a partir do registry em HOME limpo:
