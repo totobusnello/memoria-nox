@@ -1,3 +1,26 @@
+## ▶ Domingo 15/11, 11h50 BRT — conferências de 15/11: T2 sem mudança visível; distiller gasta a cota em sessões vazias
+
+- **nox-mem 3.11.0 é `latest`** (aprovada pelo Toto em 14/11 ~16h30). Smoke a partir do registry em HOME limpo:
+  `--version` 3.11.0; dry run não grava; sem chave `{"no_key":1}`; chave real `{"ok":1}` e 3 memórias; 2ª rodada sem
+  pendentes; nenhum arquivo do `dist` instalado menciona Groq.
+- **T2, uso real (relatório do launchd, 09h47):** depois do deploy, 38 sessões (n ≥ 20); **2 buscaram (P = 0,053)**,
+  contra 0 de 269 antes. A regra pré-registrada pede P ≥ 0,20 e +15 pp ⇒ **«sem mudança visível»**. As 4 buscas: 3 com a
+  mesma consulta numa sessão do `easy-work` (8.332 caracteres devolvidos) e 1 em `~` (6.282). Nenhuma das 8 sessões de
+  `memoria-nox`/`openclaw-vps` buscou. Só 4 chamadas existem, então a leitura de 10 à mão não se aplica. Na avaliação o
+  T2 deu +0,46; no uso real, 5% das sessões: é o dado de campo da nota «a memória que o agente nunca consulta».
+  O job não se apagou: o `launchctl bootout` do próprio job mata o script antes do `rm`, e o plist ficou em
+  `~/Library/LaunchAgents/` (casa só 15/11; dispararia de novo em 2027).
+- **Shadow do C2, 2ª contagem (12:31 UTC, só contagens):** 38 sessões / 165 blocos elegíveis, 0 falhas do C2, 13 blocos
+  curtos excluídos, mesmo `script_sha256` da 1ª. Meta 100 sessões e 300 blocos entre 01/12 e 10/01. Desde 11/11 entram
+  ~2 sessões e 2–3 blocos por dia: nesse ritmo, as sessões batem em meados de dezembro, mas os blocos só perto de
+  10/01. **Risco de `shortfall`.**
+- **Distiller, 1ª linha real** (`/var/lib/nox-mem/distill-outcomes.jsonl`, 02:30 UTC): `pending 85, processed 2,
+  skipped 48, ingested 8, {"ok":3}`. 🔴 **A cota de 50 sessões por rodada é gasta em sessões com menos de 3 mensagens:**
+  no `session_distill_log`, toda noite desde 10/11 entram exatamente 50 linhas, 43 a 48 delas vazias. As 35 que sobram
+  saem da janela de 1 dia do `end-of-day` antes da rodada seguinte. Já acontecia antes da ordenação da 3.11.0. Conserto
+  proposto: separar as sessões curtas antes de aplicar o `--max-sessions`, para que não contem na cota. Aguarda o ok do
+  Toto (muda produção e pacote).
+
 ## ▶ Sábado 14/11, 12h20 BRT — A6 etapa 1: o distiller de produção está no pacote; 3.11.0 em stage
 
 Toto: «faz td».
