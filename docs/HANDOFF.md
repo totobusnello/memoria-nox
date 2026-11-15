@@ -1,3 +1,32 @@
+## ▶ Domingo 15/11, 13h20 BRT — fim do dia; retomar na segunda 16/11
+
+**Estado.** nox-mem **3.11.1** é `latest` no npm (sessões curtas fora da cota do distill, #69 + release #70). A
+produção roda o mesmo conserto desde 15/11 15:15 UTC (`af7aee27`). Desvio do shadow registrado no §11 do
+`paper-d-c2-production/SHADOW-PREREGISTRATION.md`. Ticket do GitHub respondido (opção 2), aguardando o suporte.
+
+**Segunda 16/11, nesta ordem:**
+1. **Conferir a rodada das 02:30 UTC** (a primeira com o conserto): última linha de
+   `/var/lib/nox-mem/distill-outcomes.jsonl` (`processed` tem de subir bem acima de 2–7), linhas do dia no
+   `session_distill_log` (curtas × processadas) e, no shadow, **só contagens** (`s-count.py` / `counts.jsonl`; o
+   arquivo novo é `c2-shadow-2026-11-16.jsonl`). Conferir também `provider_telemetry` (chamadas `session-distill.gemini`
+   e `shadow-c2` sem falha) e se a rodada coube no tempo do `end-of-day`.
+2. **Sessões só de ruído** (conserto pequeno, decidir com o número da rodada): quando todas as mensagens são
+   filtradas como ruído, a sessão sai com `skippedSessions++` **sem** linha no `session_distill_log`, volta toda noite e
+   gasta cota enquanto estiver na janela. Contar quantas existem antes de mexer; o conserto é registrar a linha como nas
+   curtas (pacote + produção, `src` e `dist` iguais).
+3. **Nota «a memória que o agente nunca consulta»** (recomendada pelo Claude, aguarda o ok do Toto): avaliação T2 +0,46
+   [D-2026-11-08] contra uso real P = 0,053 (2/38, regra pré-registrada ⇒ «sem mudança visível»); 0 buscas dos agentes
+   da VPS; saída cortada em 200 caracteres até a 3.8.0. Rascunho em inglês, cada número com a fonte, passe de
+   avoid-ai-writing antes de mostrar; vozes só se o Toto pedir.
+4. Repensar o **T2 nos agentes do OpenClaw**: o plano era rodar depois do uso real; com «sem mudança visível», decidir
+   se ainda vale.
+
+**Com data:** 18/11 snapshot do H-A2 (a cópia some em 23/11); 24/11 perguntar ao Toto sobre os prazos do A4; 01/12
+abre a janela de leitura do shadow (meta 100 sessões / 300 blocos; em 15/11: 38 / 165).
+
+**Fora daqui, só reportar:** worktrees largadas de outras sessões — `nox-supermem/docs-memory-skill-draft` (15 commits
+fora de remoto), `openclaw-vps/relay-pesquisa-tailnet` (1 commit), `7_problems/item12c-lrat-nivel9` (4 arquivos sujos).
+
 ## ▶ Domingo 15/11, 13h15 BRT — suporte do GitHub (ticket 4974234): pedida a opção 2 para os PRs #584–#719
 
 O suporte listou 136 PRs (#584–#719) que ainda referenciam os commits reescritos em 08/11 e ofereceu apagar o PR
