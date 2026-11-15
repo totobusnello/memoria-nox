@@ -23,8 +23,9 @@
   smoke isolado: cota 1, 4 curtas registradas + 1 longa processada). Primeira rodada real: 16/11 02:30 UTC. Muda a
   entrada do shadow ⇒ desvio datado no §11 do `SHADOW-PREREGISTRATION.md` (nenhuma regra muda; a leitura reporta os dois
   períodos em separado). O plist do T2 foi apagado. Release **3.11.1**: PR #70 (`f7c0554`), tag `v3.11.1`, testes 659/663 (4 skip),
-  tarball `45dc0bd6` testado pela CLI. **`npm stage publish` deu E401** (token caiu de novo): falta `npm login` do Toto;
-  depois eu rodo o stage na worktree `~/Claude-worktrees/nox-supermem/release-3.11.1` e ele aprova.
+  tarball `45dc0bd6` testado pela CLI. Depois do `npm login` do Toto, stage `7ab617bb` aprovado: **3.11.1 é `latest`**
+  (12h49). Smoke do registry: cota 1 ⇒ 4 curtas registradas + 1 longa processada; chave real `{"ok":1}` e 3 memórias;
+  2ª rodada sem pendentes.
 
 ## ▶ Sábado 14/11, 12h20 BRT — A6 etapa 1: o distiller de produção está no pacote; 3.11.0 em stage
 
