@@ -18,8 +18,8 @@
   16/11.
 
 **Prazos (A4) encerrado:** o bloco saiu do morning report (openclaw-vps#88, escolha do Toto). O relatório de 16/11 do Lex mudou
-de formato, e o leitor deu amarelo. O lembrete de 24/11 sai. O cron `lex-prazos-semanal.sh` continua rodando, sem leitor, e se
-ele fica é decisão do Toto. É a única tarefa de agente que busca no nox-mem: 13 buscas depois do deploy, contadas pela nota
+de formato, e o leitor deu amarelo. O lembrete de 24/11 sai. O cron `lex-prazos-semanal.sh` foi desligado em 17/11
+às 13h24 BRT (openclaw-vps#89; religar = descomentar a linha). É a única tarefa de agente que busca no nox-mem: 13 buscas depois do deploy, contadas pela nota
 #723.
 
 **Nota «the memory the agent does not consult»:** rascunho no PR #723 (aberto, sem merge, à espera da leitura do Toto). Os
