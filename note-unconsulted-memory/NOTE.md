@@ -22,7 +22,7 @@ The scoped text shipped. In the owner's own Claude Code sessions in the week aft
 of 38 sessions called the search tool (0 of 269 sessions before). The pre-registered rule needed
 at least 0.20, so the reading is "no visible change". The fleet of server agents on the same
 host, which never received the text, made 13 searches in the transcripts on disk, all from one
-agent on one task whose answer needed the corpus. No tested text made the agent write to memory
+agent on one task whose answer needed the corpus; that task was switched off on 2026-11-17. No tested text made the agent write to memory
 (0 or 1 of 30 runs in every arm). We report a gap between an evaluated effect and field use, not
 an explanation of it.
 
@@ -161,7 +161,9 @@ in a different setting:
   probe and none was attributed to an agent.
 - The agent transcripts on disk on 2026-11-17 (65 files modified after 2026-11-08 17:45 UTC) hold
   13 search calls and 1 full-text read, all from one agent's weekly deadline sweep, a task whose
-  answer depends on the corpus by design. The other agents made none. The host prunes old
+  answer depends on the corpus by design. The owner switched that sweep off on 2026-11-17
+  (its last run was on 2026-11-16), so these 13 calls are history, not ongoing use. The other
+  agents made none. The host prunes old
   transcripts, so some sessions after the deployment may already be gone.
 
 The server's own telemetry cannot settle the field question by itself: over the 30 days to
@@ -242,4 +244,5 @@ note cited in sections 1 and 6 are in this public repository.
 | 0 search calls since 2026-09-01; 4 memory calls | 0; 4 | H:1674–1675 |
 | 337 of 382 searches were the canary | 337 / 382 | `audits/2026-10-21-r1-recency-relevance.md`:131 |
 | agent transcripts after deploy; searches; reads | 65 files; 13; 1, all one agent | Q: `find <agent-transcripts> -name '*.jsonl' -newermt '2026-11-08 17:45'`, then count `"type":"tool_use"` blocks named `mcp__nox-mem__*` |
+| weekly deadline sweep switched off | 2026-11-17; last run 2026-11-16 | `totobusnello/openclaw-vps` PR #89 (crontab line commented, dated note in `crontab-rebuild.sh`) |
 | unknown-caller MCP searches, 30 days | 108 | Q: `SELECT requesting_agent, COUNT(*) FROM search_telemetry WHERE ts >= '2026-10-18' GROUP BY 1` |
