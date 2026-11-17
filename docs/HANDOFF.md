@@ -1,3 +1,44 @@
+## ▶ Terça 17/11, 13h30 BRT — 16/11 no nox-workspace; prazos fora do report; H-A2 amanhã
+
+**16/11 (trabalho no nox-workspace, registrado aqui porque mexe no corpus):**
+- **Notion:** o sync `consolidate → Notion` não entregava nada desde 23/08. O Toto renovou o token, e o destino passou a ser o
+  data source «Memória & Decisões — Registro». A fila agora acumula entre noites (nox-workspace #78 e #79). Foram enviados
+  59 itens. O primeiro sync sem acompanhamento é hoje, 17/11, às 23:00 UTC (a consolidação só roda em dia ímpar).
+  `AUDIT-REGISTRY` atualizado em `817c262b`: o cron `notion-health-crons-sync` continua apagado (decisão de 08/11).
+- **Datas `unknown` recuperadas** em `memory/decisions.md` e `memory/lessons.md` (commit `8e739c53`):
+  - 1.811 linhas ganharam a data exata e 609 a aproximada (`~AAAA-MM-DD`);
+  - 41 continuam `unknown`;
+  - script e backups em `/var/tmp/unknown-dates/`, na VPS de produção.
+- **Duplicatas:** 1.137 cópias exatas removidas de 5 arquivos `memory/*.md` (commit `5868072b`). A causa foi consertada no
+  nox-workspace #80: a dedup agora lê o arquivo de destino.
+- **Efeito no Paper A (H-A2), medido em 17/11:** só 1 dos 120 itens do holdout tem gold num arquivo editado (`memory/lessons.md`,
+  estrato B). O trecho de evidência dele continua no arquivo, inteiro e uma só vez. Pela âncora, nada muda. Pelo id, esse
+  item pode ter perdido o chunk no re-ingest de 16/11. A consolidação noturna re-chunka esse arquivo de qualquer forma, mas
+  quem fez a edição fui eu, e não o processo natural. Declarar como desvio datado ao reportar o H-A2: 1/120, operador,
+  16/11.
+
+**Prazos (A4) encerrado:** o bloco saiu do morning report (openclaw-vps#88, escolha do Toto). O relatório de 16/11 do Lex mudou
+de formato, e o leitor deu amarelo. O lembrete de 24/11 sai. O cron `lex-prazos-semanal.sh` continua rodando, sem leitor, e se
+ele fica é decisão do Toto. É a única tarefa de agente que busca no nox-mem: 13 buscas depois do deploy, contadas pela nota
+#723.
+
+**Nota «the memory the agent does not consult»:** rascunho no PR #723 (aberto, sem merge, à espera da leitura do Toto). Os
+números da avaliação vêm do `PROTOCOL.md`, que está num branch local não publicado, e a nota declara isso.
+
+**Paper 1 (A7):** o Toto perguntou se o alphaXiv serve. A resposta está na conversa de 17/11 e no ROADMAP A7.
+
+**▶ Quarta 18/11 — H-A2 (Paper A), nesta ordem:**
+1. Depois das 03:00 UTC, na VPS de produção: fazer a listagem de `/var/backups/nox-mem/daily-main/` e copiar o **primeiro**
+   `daily-main-main-20261118*.db.gz`, na mesma sessão da listagem (regra do PREREGISTRATION §4). Ele some em 6 dias, então o
+   último dia é 23/11.
+2. O holdout e o banco congelado **não estão mais no Mac**. A única cópia achada fica na VPS de Pesquisa:
+   `/root/backups/mac-lab-2026-11-15/Backups/paper-a-snapshot-2026-11-04/`, com `snapshot.db`, o `.gz` de 04/11 e
+   `holdout/holdout-v1.jsonl` (sha256 `54fbf14b…`, igual ao `HOLDOUT-COMMITMENT.json`). Rodar `holdout-persistence.py` lá
+   (194 GB livres), com `--workdir` fora do repo, levando para lá o `.gz` de 18/11 e a listagem.
+3. Reportar exposição, as duas taxas, o sha256 do `.gz` e o desvio de 16/11 acima.
+
+**Ainda com data:** 01/12 abre a janela de leitura do shadow do C2.
+
 ## ▶ Domingo 15/11, 13h20 BRT — fim do dia; retomar na segunda 16/11
 
 **Estado.** nox-mem **3.11.1** é `latest` no npm (sessões curtas fora da cota do distill, #69 + release #70). A
