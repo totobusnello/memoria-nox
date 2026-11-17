@@ -1,3 +1,14 @@
+## ▶ Terça 17/11, 19h15 BRT — fim do dia; retomar na quarta 18/11
+
+Nada mudou desde a entrada das 13h30 (logo abaixo), que continua valendo. PR #723 segue aberto, sem merge, à espera da
+leitura do Toto. Ordem para amanhã:
+
+1. **Morning report de 18/11:** confirmar o primeiro sync do Notion sem acompanhamento (hoje, 23:00 UTC). O critério é
+   ausência de `[WARN] Notion:` em `/var/log/nox-maintenance.log` e páginas novas no data source. Confirmar também que o
+   report veio verde, já sem o bloco de prazos (#88).
+2. **H-A2:** os três passos da entrada abaixo. Prazo duro 23/11.
+3. **Depende do Toto:** leitura do #723 (depois `wt done`) e decisão sobre o alphaXiv para o Paper 1.
+
 ## ▶ Terça 17/11, 13h30 BRT — 16/11 no nox-workspace; prazos fora do report; H-A2 amanhã
 
 **16/11 (trabalho no nox-workspace, registrado aqui porque mexe no corpus):**
