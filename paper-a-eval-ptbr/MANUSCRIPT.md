@@ -3,7 +3,7 @@ title: "Five ways the ruler misleads: evaluating retrieval on a living Portugues
 author: "Luiz Antonio Busnello"
 ---
 
-Status: working draft, not deposited, not peer reviewed. H-A2 (§4) is pending until 2026-11-18.
+Status: working draft, not deposited, not peer reviewed. H-A2 (§4) ran on 2026-11-18 and is not tested.
 Every number in this text has an entry in `PROVENANCE.json`; §9 says how they are checked.
 
 ## Abstract
@@ -306,10 +306,20 @@ model family at kappa 0.5458; on the holdout it agreed with a person at chance. 
 stands as a measure of protocol dependence, but its upper end is the judge's reading, and a person
 reading the same passages saw more answers than the judge did.
 
-### H-A2: pending
+### H-A2: not tested
 
 H-A2 asks whether a reference by evidence keeps reaching the answer when a reference by chunk id
-does not, on the first daily snapshot of 2026-11-18. It is registered and not yet run.
+does not, on the first daily snapshot of 2026-11-18. It ran on that snapshot and is not tested:
+the registered precondition needs at least 12 of the 120 gold ids to have changed, and 1 had. That
+one was changed by an edit of the author's on 2026-11-16, outside the study. By id, 119 queries
+still reached their evidence; by anchor, 117; by neither, none.
+
+The anchor did worse than the id, the reverse of the prediction. An exploratory check, written
+after the reading, traced the difference to a path rename. A migration on 2026-11-11 renamed the
+source keys of three stratum-F notes and kept their chunk ids, so the anchor, which looks the
+source file up by its recorded path, no longer found them. The system re-chunked nothing in the
+window, which is the case the hypothesis was about. `RESULTS.md` has the run, the counts and the
+deviation.
 
 ## 5. Related work
 
