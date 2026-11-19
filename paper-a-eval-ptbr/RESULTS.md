@@ -1,6 +1,6 @@
 # Paper A, prospective part: results
 
-Read on 2026-11-05, in the order `PREREGISTRATION.md` §5 fixes. Nothing here changes a registered
+H-A1 read on 2026-11-05 and H-A2 on 2026-11-18, in the order `PREREGISTRATION.md` §5 fixes. Nothing here changes a registered
 rule; where the run departed from the expected path, it says so.
 
 ## The chain that was checked before anything was computed
@@ -96,6 +96,63 @@ By stratum:
 The contrast appears in every tercile and every stratum. At the control's two exploratory judge
 thresholds, pooled is 0.7012 (p > 0.3) and 0.6629 (p > 0.7); strict does not change.
 
-## H-A2
+## H-A2 is not tested
 
-Not yet run. The registered date is the first daily snapshot of 2026-11-18, copied by 2026-11-23.
+Run on 2026-11-18. Too few gold ids changed between the two snapshots for the test to be read, so
+H-A2 is reported as not tested, as `PREREGISTRATION.md` §4 requires.
+
+**The run.** On the serving host, one SSH session listed the backup directory
+(`results/h-a2-listing-2026-11-18.txt`; with sizes and times, `results/h-a2-listing-long-2026-11-18.txt`),
+took the sha256 of the earliest snapshot named 2026-11-18
+(`daily-main-main-20261118030003-…db.gz`, `abbf0274…a16d`, `results/h-a2-origin-2026-11-18.sha256`)
+and copied it, with the listing, to the research host. The hash at the destination matched. The
+session ran from 14:36:21Z to 14:37:29Z. `holdout-persistence.py` ran on the research host from a
+fresh clone of `origin/main`, where the script, `holdout-draw.py` and `quotas.json` are byte-identical
+to the tag. It checked the frozen database against its registered hash and read the commitment
+from its commit on `origin/main` (`248d361`, the same commit as `54048e4` above, renamed by the
+history rewrite of 2026-11-08; see `docs/HISTORY-REWRITE-2026-11-08.md`). The output,
+unchanged, is `results/h-a2-2026-11-18.txt`.
+
+**What it printed.**
+
+| | count |
+|---|---|
+| exposed queries (gold id gone, superseded or with changed text) | 1 of 120; the precondition needs 12 |
+| reached by id | 119 of 120 |
+| reached by anchor | 117 of 120 (6 of them ambiguous) |
+| reached by neither | 0 |
+| churn over the chunks of the 120 drawn source files (descriptive) | 96 of 1394 |
+
+**Deviation.** The one exposed query is the result of an edit by the author, not of the system. On
+2026-11-16 the author removed exact duplicate lines from five memory files and dated undated
+entries, outside this study. One of those files holds the gold of one holdout query (stratum B,
+`memory/lessons.md`). The edit re-chunked the file and the gold id disappeared; its evidence span
+is still in the file, once. Without that edit, exposure in the window would have been 0 of 120.
+It does not change the outcome: with or without it, H-A2 is not tested.
+
+**Exploratory, not registered: why the anchor did worse than the id.** The prediction was the
+reverse. `h-a2-anchor-diagnosis.py`, written after the reading, lists the queries behind the
+difference (paths and counts only; `results/h-a2-anchor-diagnosis-2026-11-18.txt`):
+
+- The three queries reached by id and not by anchor are all in stratum F, notes of the `nox` agent
+  stored under `../agents/nox/memory/`. On 2026-11-11 a migration in the production system
+  (nox-mem#64) renamed those source keys to `agents/nox/memory/` by UPDATE. The chunk ids stayed
+  and the text did not change, but no active chunk is left under the old path, so an anchor that
+  looks for the source file by its recorded path finds nothing.
+- The exposed query is the stratum-B edit above. The anchor still reaches it.
+
+In this window the two changes that touched the gold were a path rename and a manual edit. The
+system re-chunked nothing on its own, and a re-chunk is the case H-A2 was written to measure. The
+reading here is limited to that: the anchor as registered, a source path plus an evidence span,
+breaks when a path is renamed, and this window had no re-chunk to show what the id does in one.
+
+**Exploratory, not registered: why there was no re-chunk.** The production ingest changed on
+2026-10-14 (nox-supermem#42, `nox-mem/src/lib/chunk-sync.ts`), three weeks before the
+pre-registration, which did not take it into account. Before that date a re-ingest deleted every
+chunk of the file and inserted new ones, so an edit anywhere in a file changed all of its ids.
+Since then a re-ingest compares chunks by section and text, keeps the id of every chunk whose text
+did not change, and a renamed file takes over the ids of its old chunks. The one exposed query fits
+this: its file was edited, the gold id is gone, and the evidence span is still in the file. Under the current
+code the id fails only when its own chunk's text changes, and the anchor fails when a path changes
+without a re-ingest. The failure mode H-A2 was registered to measure no longer occurs in this
+system.

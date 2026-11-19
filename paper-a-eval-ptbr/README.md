@@ -1,7 +1,7 @@
 # Paper A: evaluating retrieval on a living PT-BR agent memory
 
 Working title: *Five ways the ruler misleads: evaluating retrieval on a living Portuguese agent
-memory.* Status: manuscript draft (`MANUSCRIPT.md`), H-A2 pending until 2026-11-18. Not deposited. The plan lives in `../PLANO.md` (section "Os quatro papers",
+memory.* Status: manuscript draft (`MANUSCRIPT.md`), H-A2 not tested (run 2026-11-18). Not deposited. The plan lives in `../PLANO.md` (section "Os quatro papers",
 row A); this file is the paper's own scope.
 
 ## What the paper is
@@ -38,10 +38,11 @@ A methods paper in two parts, kept apart in the text:
 | file | what |
 |---|---|
 | `PROVENANCE.json` | every number the text may print, with its audit, locator, commit and `superseded_by` |
-| `MANUSCRIPT.md` | the manuscript draft (2026-11-05): five retrospective findings, the pre-registered test, H-A2 pending |
+| `MANUSCRIPT.md` | the manuscript draft (2026-11-05): five retrospective findings, the pre-registered test, H-A2 not tested |
 | `manuscript-tables.py` | generates the manuscript's tables from `results/` and the commitments; `--check` is the table-parity gate |
-| `RESULTS.md` | the prospective results as read: H-A1 (2026-11-05), the human sample, descriptives; H-A2 pending |
-| `results/` | the registered run's printed outputs, copied unchanged from the serving host, and the hashes of its private outputs |
+| `RESULTS.md` | the prospective results as read: H-A1 (2026-11-05), the human sample, descriptives; H-A2 not tested (2026-11-18) |
+| `results/` | the registered runs' printed outputs, copied unchanged (H-A1 from the serving host; H-A2 from the research host, with the backup listing and the snapshot's hash), the hashes of private outputs, and the H-A2 exploratory diagnosis |
+| `h-a2-anchor-diagnosis.py` | exploratory, not registered (2026-11-18): which queries made the anchor and the id differ in H-A2; paths and counts only |
 | `HOLDOUT-COMMITMENT.json`, `HUMAN-COMMITMENT.json` | the two commitments, each written once on `origin/main` after the tag |
 
 `PROVENANCE.json` was seeded on 2026-11-04 from twelve audits (2026-10-22 to 2026-11-03): 161

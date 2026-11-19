@@ -1,0 +1,5 @@
+later snapshot daily-main-main-20261118030003-291991-39439123100b42ebb9456e0c1ae82c72.db.gz, gz sha256 abbf0274bdaae1a05e175d5afa4e72649cc27b0354a455e29b15a3073fa1a16d
+churn over the 120 drawn source files (descriptive) = 96/1394 chunks changed id or text
+precondition: exposed queries (gold id gone, superseded or with changed text) 1/120; required >= 10%
+persists by id 119/120 = 99.2% · by anchor 117/120 = 97.5% (ambiguous 6) · evidence unreachable by either 0
+H-A2: not tested (too few gold ids changed in the window to show the predicted gap)
