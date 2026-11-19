@@ -321,6 +321,16 @@ source file up by its recorded path, no longer found them. The system re-chunked
 window, which is the case the hypothesis was about. `RESULTS.md` has the run, the counts and the
 deviation.
 
+Why the system re-chunked nothing has a plain cause, and the pre-registration missed it. On
+2026-10-14, three weeks before H-A2 was registered, the production ingest changed (nox-supermem#42).
+Before that date every re-ingest of a file deleted all of its chunks and inserted new ones, so any
+edit to a file changed the ids of all its chunks; that is the behaviour behind the 61 of 85 lost
+ids in §3. Since that date a re-ingest compares the file's chunks by section and text, keeps the id
+of every chunk whose text did not change, and lets a renamed file take over the ids of its old
+chunks. Under the current code an id is lost only when the text of its own chunk changes, and an
+anchor is lost when a path changes without a re-ingest, as in the migration above. H-A2, as
+registered, measures a failure mode this system stopped producing before the study began.
+
 ## 5. Related work
 
 Incomplete judgments are an old problem in test-collection evaluation. Zobel (1998) showed that pooled collections leave many relevant documents unjudged, so recall is overestimated, although in his leave-one-out test the relative ranking of systems held up. Measures such as bpref (Buckley and Voorhees, 2004) and condensed lists (Sakai, 2007) were proposed so that an

@@ -145,3 +145,14 @@ In this window the two changes that touched the gold were a path rename and a ma
 system re-chunked nothing on its own, and a re-chunk is the case H-A2 was written to measure. The
 reading here is limited to that: the anchor as registered, a source path plus an evidence span,
 breaks when a path is renamed, and this window had no re-chunk to show what the id does in one.
+
+**Exploratory, not registered: why there was no re-chunk.** The production ingest changed on
+2026-10-14 (nox-supermem#42, `nox-mem/src/lib/chunk-sync.ts`), three weeks before the
+pre-registration, which did not take it into account. Before that date a re-ingest deleted every
+chunk of the file and inserted new ones, so an edit anywhere in a file changed all of its ids.
+Since then a re-ingest compares chunks by section and text, keeps the id of every chunk whose text
+did not change, and a renamed file takes over the ids of its old chunks. The one exposed query fits
+this: its file was edited, the gold id is gone, and the evidence span is still in the file. Under the current
+code the id fails only when its own chunk's text changes, and the anchor fails when a path changes
+without a re-ingest. The failure mode H-A2 was registered to measure no longer occurs in this
+system.
