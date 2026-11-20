@@ -1,7 +1,7 @@
 # Paper A: evaluating retrieval on a living PT-BR agent memory
 
 Working title: *Five ways the ruler misleads: evaluating retrieval on a living Portuguese agent
-memory.* Status: manuscript draft (`MANUSCRIPT.md`), H-A2 not tested (run 2026-11-18). Not deposited. The plan lives in `../PLANO.md` (section "Os quatro papers",
+memory.* Status: manuscript draft (`MANUSCRIPT.md`), H-A2 not tested (run 2026-11-18); one more reading registered for 2027-05-18 (`AMENDMENT-H-A2.md`). Not deposited. The plan lives in `../PLANO.md` (section "Os quatro papers",
 row A); this file is the paper's own scope.
 
 ## What the paper is
@@ -43,6 +43,8 @@ A methods paper in two parts, kept apart in the text:
 | `RESULTS.md` | the prospective results as read: H-A1 (2026-11-05), the human sample, descriptives; H-A2 not tested (2026-11-18) |
 | `results/` | the registered runs' printed outputs, copied unchanged (H-A1 from the serving host; H-A2 from the research host, with the backup listing and the snapshot's hash), the hashes of private outputs, and the H-A2 exploratory diagnosis |
 | `h-a2-anchor-diagnosis.py` | exploratory, not registered (2026-11-18): which queries made the anchor and the id differ in H-A2; paths and counts only |
+| `AMENDMENT-H-A2.md` | amendment of 2026-11-19: H-A2 read once more on the snapshot of 2027-05-18, nothing else changed; binding at the tag `paper-a-h-a2-amendment-v1.0` |
+| `h-a2-amendment-run.py` | runs `holdout-persistence.py` unchanged with the 2027-05-18 date, then prints the amendment's descriptive counts |
 | `HOLDOUT-COMMITMENT.json`, `HUMAN-COMMITMENT.json` | the two commitments, each written once on `origin/main` after the tag |
 
 `PROVENANCE.json` was seeded on 2026-11-04 from twelve audits (2026-10-22 to 2026-11-03): 161
