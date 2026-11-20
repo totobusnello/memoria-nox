@@ -1,4 +1,4 @@
-## ▶ Sexta 20/11, 14h20 BRT — Paper A PUBLICADO no Zenodo (doi:10.5281/zenodo.24400444)
+## ▶ Sexta 20/11, 18h45 BRT — Paper A PUBLICADO no Zenodo (doi:10.5281/zenodo.24400444) e no labf.bio
 
 **18/11:**
 - Morning report e sync do Notion conferidos: ok.
@@ -49,7 +49,9 @@
 1. **Depende do Toto:**
    - o alphaXiv do Paper 1 está em espera, por decisão dele.
 2. **Agora que o Paper A saiu:**
-   - card do Paper A no labf.bio, com preview antes do merge;
+   - ~~card do Paper A no labf.bio~~ **no ar em 20/11** (site-labf#69, `8924f8b`): linha 13 em Research, linha nova
+     «How retrieval is measured», página `/papers/five-ways-the-ruler-misleads` com o PDF (md5 `f6597356…`, igual ao
+     registro); preview aprovado pelo Toto antes do merge, produção conferida por screenshot;
    - nota «the memory the agent does not consult» (#723) pelo mesmo caminho. Ela cita o protocolo num commit que só existe
      numa branch local (`438e3a6`) e ainda não tem proveniência, avoid-ai-writing, vozes nem script de depósito.
 3. **Com data:**

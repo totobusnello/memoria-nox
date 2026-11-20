@@ -107,7 +107,8 @@ no Setup de cada paper.
 
 Etapa: Deploy (paper A): **publicado** pelo Toto em 20/11, doi:10.5281/zenodo.24400444 (concept
 doi:10.5281/zenodo.24400443), v1.0, software link `baf4b80`, checksums do registro iguais aos do build
-Próximo passo: o card do Paper A no labf.bio (com preview antes do merge). Em seguida, a nota «the memory the agent does not consult» (#723) pelo mesmo caminho.
+Card no labf.bio no ar em 20/11 (site-labf#69, `8924f8b`), preview aprovado pelo Toto antes do merge.
+Próximo passo: a nota «the memory the agent does not consult» (#723) pelo mesmo caminho, quando o Toto quiser começar.
 Feito de 18 a 20/11: H-A2 not tested (#724); emenda para 2027-05-18 (#725); H-A2R pré-registrada e
 lida, primária sustentada (#726, #727); passe avoid-ai-writing (#728); proveniência de A a E
 remapeada para os commits pós-reescrita, com gate que exige ancestralidade e job na CI (#729); duas
