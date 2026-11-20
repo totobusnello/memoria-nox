@@ -1,0 +1,6 @@
+.draft-id-*
+__pycache__/
+*.pdf
+*.zip
+the-memory-the-agent-does-not-consult-v*.md
+SHA256SUMS

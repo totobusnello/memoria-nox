@@ -5,8 +5,8 @@ author: "Luiz Antonio Busnello"
 
 Status: working draft, not deposited, not peer reviewed. A data note, dated: the controlled
 evaluation ran on 2026-11-06 and 2026-11-07, and the field readings cover 2026-10-11 to
-2026-11-17 on one user's machine and one production host. Every number has a row in the
-provenance table at the end, which names the file and line, or the query, that holds it.
+2026-11-20 on one user's machine and one production host. Every number has a row in the
+provenance table at the end, which names the file and line that holds it.
 
 ## Abstract
 
@@ -31,8 +31,9 @@ an explanation of it.
 nox-mem is a memory server for coding and operations agents: a SQLite store with hybrid
 full-text and embedding search, exposed to agents as MCP tools. A census in October found that
 the tools worked and almost nobody called them: five searches in thirty days outside the
-server's own canary and our instrumentation. A companion note reports the push side, a brief
-placed in the system prompt, and finds no textual trace of it in replies.
+server's own canary and our instrumentation. A companion note (doi:10.5281/zenodo.24017458)
+reports the push side, a brief placed in the system prompt, and finds no textual trace of it in
+replies.
 
 This note asks the pull-side question. Given an agent that has the memory tools, what text makes
 it search when the task needs memory but does not say so, and does the answer get better because
@@ -203,8 +204,9 @@ skill; a byte-for-byte copy of the protocol is published next to this note
 (`skill-eval-PROTOCOL.md`, same git blob). Run data and analysis scripts are kept off the
 repository with the same backups.
 The real-use script and its two reports are private (they read the owner's transcripts); the rule
-is quoted in full in section 5. The agent transcripts stay on the host. The census and companion
-note cited in sections 1 and 6 are in this public repository.
+is quoted in full in section 5. The agent transcripts stay on the host. The census and the audits
+cited in sections 1 and 6 are in this public repository; the companion note is deposited on
+Zenodo (doi:10.5281/zenodo.24017458).
 
 ## Provenance
 
@@ -243,7 +245,7 @@ note cited in sections 1 and 6 are in this public repository.
 | AFTER n, P, calls | 38, 0.053, 0.11 per session (= 4) | R `report-2026-11-15.json` `AFTER` |
 | BEFORE at reading; frozen | 0 of 269; 0 of 278 | R `report-2026-11-15.json` `BEFORE`; R `baseline-2026-11-08.json` |
 | 3 of 4 calls same query; 0 of 8 sessions in the two repos | — | H:44–47 |
-| companion note (push side) | — | `paper-c-pushed-memory/NOTE.md` |
+| companion note (push side) | — | doi:10.5281/zenodo.24017458; source `paper-c-pushed-memory/NOTE.md` |
 | October census: five searches in thirty days | 5 | `audits/2026-10-23-item7-consumidor-construido.md`:22 |
 | 0 search calls since 2026-09-01; 4 memory calls | 0; 4 | H:1674–1675 |
 | 337 of 382 searches were the canary | 337 / 382 | `audits/2026-10-21-r1-recency-relevance.md`:131 |
