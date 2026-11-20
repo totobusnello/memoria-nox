@@ -1,7 +1,7 @@
 # Paper A, H-A2: amendment of 2026-11-19, one more reading on 2027-05-18
 
-Status: draft. It becomes binding when the tag `paper-a-h-a2-amendment-v1.0` is pushed to the
-public repository. It changes one thing in `PREREGISTRATION.md` §4: the date of the later
+Status: binding since 2026-11-19, when the tag `paper-a-h-a2-amendment-v1.0` was pushed to the
+public repository (the tagged copy of this file still reads «draft»; this line is the only change). It changes one thing in `PREREGISTRATION.md` §4: the date of the later
 snapshot. Nothing else in the pre-registration changes, and the reading of 2026-11-18 stands as
 reported in `RESULTS.md`.
 
