@@ -1,4 +1,4 @@
-## ▶ Sexta 20/11, 08h30 BRT — Paper A: H-A2 fechado, H-A2R sustentado, emenda para 2027
+## ▶ Sexta 20/11, 12h40 BRT — Paper A: rascunho no Zenodo (24400444), à espera da publicação
 
 **18/11:**
 - Morning report e sync do Notion conferidos: ok.
@@ -24,19 +24,37 @@
   (~10 GB) foram apagadas; os originais estão intactos.
 - **Passe de avoid-ai-writing** no manuscrito: #728, com 3 frases editadas e a sequência de números idêntica.
 
-**Achado, não consertado:** a tabela «What ran, in order» do `MANUSCRIPT.md` §4 cita os hashes de antes da reescrita de
-08/11 (`6c6879b`, `54048e4`, `31d90b2`, `6120a37`) e não tem nota remetendo ao `docs/HISTORY-REWRITE-2026-11-08.md`. O
-RESULTS tem essa nota. Antes do depósito: pôr a nota ou os hashes novos. É decisão do Toto. O PROVENANCE
-também cita commits de antes da reescrita, de propósito.
+**20/11, tarde (Toto: «codex e kimi», «resolve os hashs», «segura alphaix», «aplica», «siga as suas recomendacoes»):**
+- **Hashes e proveniência (#729).** O gate de proveniência só passava no clone de trabalho, onde os commits de antes da
+  reescrita de 08/11 sobreviviam como objetos soltos. Num clone novo ele reprovava 332 números nos cinco papers (A 175,
+  B 42, C 15, D 36, E 64). Os `PROVENANCE.json` de A a E foram remapeados pelo mapa da reescrita; `bca5369` (commit de
+  branch perdido no squash do #639) virou `c473958`. O gate agora exige que o commit seja ancestral do `HEAD` (mutação
+  testada), e o job `proveniencia` do `guarda-lastro.yml` roda num clone limpo. A entrada da manhã dizia que o PROVENANCE
+  citava hashes antigos «de propósito»: era falso, não houve decisão nenhuma.
+- **Vozes no manuscrito do Paper A.** Duas rodadas de Codex e Kimi, registradas no `PLANO.md` §Vozes.
+  - 1ª rodada (#730): Codex pediu revisão maior, Kimi rejeitou na forma atual. Todos os achados foram aplicados; a H-A2R
+    passou para um §5 retrospectivo.
+  - 2ª rodada (#731): as duas pediram revisão menor e dispensaram uma 3ª.
+  - Achado herdado da 2ª rodada: o audit de 27/10 mistura entradas e perguntas no reparo do gold (38 entradas em 28
+    perguntas), corrigido com errata.
+- **Pacote de depósito (#731, #732).** O zip passou a levar RESULTS, H-A2, H-A2R e a emenda. O build do PDF agora mantém o
+  título junto da tabela que vem logo depois dele.
+- **Zenodo:** rascunho **24400444**, doi:10.5281/zenodo.24400444 reservado, com data de 20/11 e software link em
+  `0b38f08`. `--fill` e `--readback` sem divergência. **Não publicado.**
+- **Paper 3:** os depósitos v1.0 a v1.2 citam `bca912c` e `977ec5f`, hashes de antes da reescrita. Mudar isso só cabe numa
+  versão futura; o documento da reescrita dá os hashes novos.
 
 **Próximo:**
 1. **Depende do Toto:**
-   - vozes adversariais no Paper A antes do depósito (ele escolhe quais);
-   - decidir a nota dos hashes;
-   - decidir o alphaXiv para o Paper 1.
-2. **Com data:**
-   - 01/12: janela de leitura do shadow do C2;
-   - 18/05 a 23/05/2027: leitura do H-A2 pela emenda.
+   - publicar o rascunho 24400444 no Zenodo;
+   - o alphaXiv do Paper 1 está em espera, por decisão dele.
+2. **Depois da publicação:**
+   - card do Paper A no labf.bio, com preview antes do merge;
+   - nota «the memory the agent does not consult» (#723) pelo mesmo caminho. Ela cita o protocolo num commit que só existe
+     numa branch local (`438e3a6`) e ainda não tem proveniência, avoid-ai-writing, vozes nem script de depósito.
+3. **Com data:**
+   - 01/12: abre a janela de leitura do shadow do C2;
+   - 18/05 a 23/05/2027: nova leitura do H-A2, pela emenda.
 
 ## ▶ Terça 17/11, 19h15 BRT — fim do dia; retomar na quarta 18/11
 

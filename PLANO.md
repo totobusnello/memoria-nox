@@ -105,10 +105,16 @@ no Setup de cada paper.
 
 ## Etapa atual
 
-Etapa: Work (paper A, parte prospectiva): H-A1 lido, H-A2 aguarda 18/11
-Próximo passo: H-A2 no primeiro snapshot de 18/11 (cópia até 23/11; lembretes na agenda em 18/11
-e 22/11); depois o texto do paper a partir de `paper-a-eval-ptbr/RESULTS.md`. Os itens abertos do README
-foram resolvidos em 05/11 (Toto decidiu 1 a 3).
+Etapa: Deploy (paper A): rascunho no Zenodo pronto, doi:10.5281/zenodo.24400444 reservado, à espera da
+publicação pelo Toto (20/11)
+Próximo passo: o Toto publica o rascunho 24400444 no Zenodo; depois, o card no labf.bio (com preview
+antes do merge). Em seguida, a nota «the memory the agent does not consult» (#723) pelo mesmo caminho.
+Feito de 18 a 20/11: H-A2 not tested (#724); emenda para 2027-05-18 (#725); H-A2R pré-registrada e
+lida, primária sustentada (#726, #727); passe avoid-ai-writing (#728); proveniência de A a E
+remapeada para os commits pós-reescrita, com gate que exige ancestralidade e job na CI (#729); duas
+rodadas de Codex e Kimi no manuscrito (#730, #731); pacote de depósito e build do PDF (#731, #732);
+rascunho criado, preenchido e conferido por `--readback` (0 divergências), com software link em `0b38f08`.
+Hashes abaixo são os de antes da reescrita de 08/11 (mapa em `docs/history-rewrite-2026-11-08-commit-map.txt`).
 Feito em 05/11: tag `6c6879b` → `HOLDOUT-COMMITMENT.json` `54048e4` → score na VPS → amostra
 humana → `HUMAN-COMMITMENT.json` `31d90b2` → leitura (saídas em `6120a37`). H-A1 se sustenta,
 +0,1933 [+0,1421, +0,2464]; kappa humano × juiz 0,038, então o pooled não fica validado pelo
@@ -249,6 +255,8 @@ com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 
 | 2026-11-05 | pré-registro, review (2ª e 3ª passadas) | Codex gpt-6-astra, DeepSeek v4-pro | idem | contra fixar nas duas; tag executada em vez da árvore, leitura só depois da nota humana, cadeia de commits conferida antes de calcular, score e labels presos ao compromisso humano, H-A2 em dia fixo e por exposição |
 | 2026-11-05 | pré-registro, review (4ª passada) | Codex gpt-6-astra, DeepSeek v4-pro | idem | controle que para no limiar exploratório, H-A2 lê o compromisso publicado, banco registrado na amostra humana, tag ≠ compromisso, planilha com BOM ou `;` |
 | 2026-11-05 | diff da 4ª, review (5ª passada) | Codex gpt-6-astra | idem | toda falha do controle para a leitura, salvo a registrada; cada compromisso escrito uma vez, depois da tag. Toto: «fixa a tag» (16:51) |
+| 2026-11-20 | manuscrito, challenge (1ª rodada) | Codex gpt-6-astra (96 s), Kimi k3.1-pro (307 s) | recibos `adversary-receipt-codex-2026-11-20T115537-68692.txt` e `adversary-receipt-kimi-2026-11-20T115539-69052.txt`, `exit 0`, cwd do clone | Codex: revisão maior (11 achados); Kimi: rejeição como está (10). Nenhum número divergente. Aplicados todos (#730): «interval»/«ceiling» fora, 38 rejeições atribuídas ao juiz, H-A2R num §5 retrospectivo com desenho informado, H-A2 sem «re-chunked nothing», emenda citada, 4 limitações |
+| 2026-11-20 | diff do #730, review (2ª rodada) | Codex gpt-6-astra (153 s), Kimi k3.1-pro (321 s) | `adversary-receipt-codex-2026-11-20T121103-8117.txt`, `adversary-receipt-kimi-2026-11-20T121157-9490.txt`, `exit 0` | as duas: revisão menor, sem 3ª rodada. Aplicados (#731): unidades do reparo (38 entradas em 28 perguntas; errata no audit de 27/10), «still scored low», strict pelo gold registrado, ressalva de data dos commits reescritos |
 
 ## Lições
 
