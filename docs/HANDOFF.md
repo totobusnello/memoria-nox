@@ -40,7 +40,7 @@
 - **Pacote de depósito (#731, #732).** O zip passou a levar RESULTS, H-A2, H-A2R e a emenda. O build do PDF agora mantém o
   título junto da tabela que vem logo depois dele.
 - **Zenodo:** rascunho **24400444**, doi:10.5281/zenodo.24400444 reservado, com data de 20/11 e software link em
-  `0b38f08`. `--fill` e `--readback` sem divergência. **Não publicado.**
+  `baf4b80` (refeito às 14h20 depois da 3ª rodada de Codex e Kimi, #733: descrição + diff do #731). `--fill` e `--readback` sem divergência. **Não publicado.**
 - **Paper 3:** os depósitos v1.0 a v1.2 citam `bca912c` e `977ec5f`, hashes de antes da reescrita. Mudar isso só cabe numa
   versão futura; o documento da reescrita dá os hashes novos.
 
