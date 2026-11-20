@@ -32,8 +32,15 @@ python3 -I - "$NAME.tex" <<'PY'
 import pathlib, sys
 p = pathlib.Path(sys.argv[1]); t = p.read_text(encoding="utf-8")
 n = t.count("\\begin{longtable}")
-p.write_text(t.replace("\\begin{longtable}", "\\needspace{10\\baselineskip}\\begin{longtable}"), encoding="utf-8")
-print(f"needspace before {n} longtables")
+t = t.replace("\\begin{longtable}", "\\needspace{10\\baselineskip}\\begin{longtable}")
+# a heading set right before a table must travel with it: when only blank lines and pandoc's
+# caption group sit between them, ask for the space before the HEADING, or the table moves to the
+# next page and leaves the heading at the foot of this one (seen 2026-11-20 on "What ran, in order")
+import re
+t, m = re.subn(r"(\\(?:sub)*section\{[^\n]*\}\\label\{[^}]*\}\n\n\{\\def\\LTcaptype\{none\} % do not increment counter\n)\\needspace\{10\\baselineskip\}",
+               lambda x: "\\needspace{14\\baselineskip}" + x.group(1), t)
+p.write_text(t, encoding="utf-8")
+print(f"needspace before {n} longtables, {m} moved before their heading")
 PY
 for i in 1 2; do
   xelatex -interaction=nonstopmode -halt-on-error $NAME.tex > "pass$i.log" 2>&1 \
