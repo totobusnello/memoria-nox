@@ -110,7 +110,8 @@ doi:10.5281/zenodo.24400443), v1.0, software link `baf4b80`, checksums do regist
 Card no labf.bio no ar em 20/11 (site-labf#69, `8924f8b`), preview aprovado pelo Toto antes do merge.
 Nota #723 («the memory the agent does not consult»): **publicada** pelo Toto em 20/11, doi:10.5281/zenodo.24408079
 (concept doi:10.5281/zenodo.24408078), v1.0, software link `1a793c7`; checksums do registro iguais aos do build.
-Próximo passo: card da nota no labf.bio (preview antes do merge).
+Card da nota no labf.bio no ar em 20/11 (site-labf#71, `c3e5a29`), preview aprovado pelo Toto antes do merge.
+Próximo passo: o resto da fila (shadow do C2 em 01/12; decidir T2 nos agentes do OpenClaw; alphaXiv do Paper 1), quando o Toto quiser.
 Feito de 18 a 20/11: H-A2 not tested (#724); emenda para 2027-05-18 (#725); H-A2R pré-registrada e
 lida, primária sustentada (#726, #727); passe avoid-ai-writing (#728); proveniência de A a E
 remapeada para os commits pós-reescrita, com gate que exige ancestralidade e job na CI (#729); duas

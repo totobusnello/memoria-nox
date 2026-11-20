@@ -1,4 +1,8 @@
-## ▶ Sexta 20/11, 20h15 BRT — Nota #723 PUBLICADA no Zenodo (doi:10.5281/zenodo.24408079)
+## ▶ Sexta 20/11, 21h00 BRT — Nota #723 PUBLICADA no Zenodo (doi:10.5281/zenodo.24408079) e no labf.bio
+
+- Card no ar (site-labf#71, `c3e5a29`): linha 06 em Research, na linha `fleet`, logo depois do Paper C; página
+  `/papers/the-memory-the-agent-does-not-consult` com PDF de md5 igual ao registro; preview aprovado pelo Toto; produção
+  conferida por screenshot.
 
 - Publicada pelo Toto; conferido pela API: `published`, concept doi:10.5281/zenodo.24408078, v1.0, 4/4 md5 iguais ao
   build, doi.org resolve.
@@ -17,7 +21,7 @@
 - Fora do repo: bundle novo da branch privada em `~/Claude-archive/bundles/nox-mem-docs-memory-skill-draft-20261120.bundle`
   (inclui `438e3a6`).
 
-**Próximo:** card da nota no labf.bio (preview antes do merge); 01/12 abre a janela do shadow do C2; decidir se o T2
+**Próximo:** 01/12 abre a janela do shadow do C2; decidir se o T2
 ainda vale nos agentes do OpenClaw (campo deu «sem mudança visível»); alphaXiv do Paper 1 segue com o Toto.
 
 ## ▶ Sexta 20/11, 18h45 BRT — Paper A PUBLICADO no Zenodo (doi:10.5281/zenodo.24400444) e no labf.bio
