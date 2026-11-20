@@ -25,7 +25,7 @@ Fails (exit 1) when:
   * a decimal number or percentage in a text file is neither a claim's value nor ignored;
   * a claim's value is printed in the text while its `superseded_by` is set;
   * a claim's artifact does not exist in the repository, or its locator is not in it;
-  * a claim's commit does not exist, or the artifact is not in that commit;
+  * a claim's commit does not exist, is not an ancestor of HEAD, or the artifact is not in it;
   * `superseded_by` names a claim id that does not exist;
   * a `history` fragment (below) is not in the text, or does not contain its claim's value.
 
@@ -108,6 +108,10 @@ def check(d):
             errs.append(f"{cid}: locator {c['locator']!r} not found in {c['artifact']}")
         if not git_ok("-C", str(root), "cat-file", "-e", f"{c['commit']}^{{commit}}"):
             errs.append(f"{cid}: commit {c['commit']} does not exist")
+        elif not git_ok("-C", str(root), "merge-base", "--is-ancestor", c["commit"], "HEAD"):
+            # An object can survive in one clone after a history rewrite and in no other: on
+            # 2026-11-20 this gate passed 197 claims here and failed 175 of them on a fresh clone.
+            errs.append(f"{cid}: commit {c['commit']} is not an ancestor of HEAD")
         elif not git_ok("-C", str(root), "cat-file", "-e", f"{c['commit']}:{c['artifact']}"):
             errs.append(f"{cid}: {c['artifact']} is not in commit {c['commit']}")
     for n in notes:

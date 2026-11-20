@@ -232,10 +232,13 @@ bound is below it, and inconclusive otherwise.
 
 | step | commit | content |
 |---|---|---|
-| tag | `6c6879b` | pre-registration, prompt, quotas, scripts |
-| holdout commitment | `54048e4` | hashes and counts of the 120 questions |
-| human commitment | `31d90b2` | hashes of the graded sheet, the scores and the labels |
-| reading | `6120a37` | the printed outputs of the reading, unchanged |
+| tag | `c473958` | pre-registration, prompt, quotas, scripts |
+| holdout commitment | `248d361` | hashes and counts of the 120 questions |
+| human commitment | `0adbdca` | hashes of the graded sheet, the scores and the labels |
+| reading | `abdf7bf` | the printed outputs of the reading, unchanged |
+
+The hashes are those of the public history after a rewrite on 2026-11-08 that renamed every commit;
+the repository maps them to the earlier ones (`docs/history-rewrite-2026-11-08-commit-map.txt`).
 
 Each commitment file was written once on the public main branch, after the tag; every script that
 reads one refuses if any other commit has touched it. The writer took 171 calls for 120 accepted

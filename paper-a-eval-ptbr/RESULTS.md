@@ -7,10 +7,15 @@ rule; where the run departed from the expected path, it says so.
 
 | step | commit on `origin/main` | what it holds |
 |---|---|---|
-| tag `paper-a-prereg-v1.0` | `6c6879b` | the pre-registration, the prompt, `quotas.json` and every script |
-| holdout commitment | `54048e4` | sha256 and counts of the 120 questions, written once, after the tag |
-| human commitment | `31d90b2` | sha256 of the graded sheet, of `score.json` and of `labels.json`, written once |
-| reading | `6120a37` | `results/h-a1-2026-11-05.txt` and `results/v3-rescore-2026-11-05.txt`, copied unchanged |
+| tag `paper-a-prereg-v1.0` | `c473958` | the pre-registration, the prompt, `quotas.json` and every script |
+| holdout commitment | `248d361` | sha256 and counts of the 120 questions, written once, after the tag |
+| human commitment | `0adbdca` | sha256 of the graded sheet, of `score.json` and of `labels.json`, written once |
+| reading | `abdf7bf` | `results/h-a1-2026-11-05.txt` and `results/v3-rescore-2026-11-05.txt`, copied unchanged |
+
+These are the hashes on `origin/main` after the history rewrite of 2026-11-08. Notes written before
+it cite the old ones (`6c6879b`, `54048e4`, `31d90b2`, `6120a37`, in this order); the full map is
+`docs/history-rewrite-2026-11-08-commit-map.txt`, and `docs/HISTORY-REWRITE-2026-11-08.md` says why.
+The tag `paper-a-prereg-v1.0` points to `c473958`.
 
 The holdout came from the registered draw (seed `20261105`) on the frozen snapshot of 2026-11-04.
 The writer model (`glm-5.3`, the model the provider reported serving) took 171 calls for 120
@@ -109,8 +114,7 @@ and copied it, with the listing, to the research host. The hash at the destinati
 session ran from 14:36:21Z to 14:37:29Z. `holdout-persistence.py` ran on the research host from a
 fresh clone of `origin/main`, where the script, `holdout-draw.py` and `quotas.json` are byte-identical
 to the tag. It checked the frozen database against its registered hash and read the commitment
-from its commit on `origin/main` (`248d361`, the same commit as `54048e4` above, renamed by the
-history rewrite of 2026-11-08; see `docs/HISTORY-REWRITE-2026-11-08.md`). The output,
+from its commit on `origin/main` (`248d361`, the holdout commitment above). The output,
 unchanged, is `results/h-a2-2026-11-18.txt`.
 
 **What it printed.**

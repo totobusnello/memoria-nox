@@ -44,3 +44,28 @@ jobs:
         # checkout, e por isso o censo classifica em vez de exigir presenca: o
         # que ele barra e CITACAO PARA O VAZIO, o que e verificavel sem eles.
         run: python3 scripts/censo-lastro-do-manuscrito.py
+
+  proveniencia:
+    # Todo numero que um paper imprime vem de uma claim com commit e artefato.
+    # Roda num clone limpo DE PROPOSITO: em 2026-11-20 o gate passava 197 claims
+    # no clone de trabalho e falhava 175 delas num clone novo, porque os commits
+    # citados eram de antes da reescrita de 2026-11-08 e so sobreviviam como
+    # objetos soltos naquele disco. Historico inteiro, porque o gate exige que o
+    # commit da claim seja ancestral do HEAD.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: claims de todo paper com PROVENANCE.json
+        run: |
+          rc=0
+          for p in $(git ls-files '*PROVENANCE.json'); do
+            d=$(dirname "$p")
+            python3 tools/provenance.py --check "$d" || rc=1
+          done
+          exit $rc
