@@ -59,8 +59,11 @@ An MCP client has three places to carry such a text, and they are not read at th
 not name, G = 20 general tasks the corpus does not cover (false triggers and cost), W+ = 10 tasks
 where the user states a decision (should the agent write it?), W− = 10 with nothing worth
 keeping. A separate agent drafted the bank without seeing the skill or the protocol. Corpus: the
-public engineering docs of the memory project at a pinned commit, built into a fresh database
-(1,382 chunks). Each run is a fresh, isolated session against a copy of that database, so no run
+engineering docs of the memory project (decisions, incidents, audits) at a pinned commit, built
+into a fresh database (1,382 chunks). The repository was public then. When its history was
+rewritten on 2026-11-08, four of those audits were removed because they quoted a private corpus,
+so the database cannot be rebuilt in full from the public history; no task's source is in those
+four files. Each run is a fresh, isolated session against a copy of that database, so no run
 writes into the next.
 
 Arms: S0 (memory server only), S1 (plus the skill), T (server instructions, 1,198 characters,
@@ -219,6 +222,7 @@ Zenodo (doi:10.5281/zenodo.24017458).
 |---|---|---|
 | bank sizes K/G/W+/W− | 40 / 20 / 10 / 10 | P:8, P:86–91 |
 | eval DB chunks | 1,382 | P:11 |
+| four corpus audits removed from the public history on 2026-11-08 | — | `docs/HISTORY-REWRITE-2026-11-08.md`:17 |
 | tasks kept after N screen; N floor | 36; 0 of 108 | P:185–188 |
 | grader calibration | 40/40 oracle pass, 40/40 generic fail | P:179–180 |
 | tool calls in the stream equal server telemetry, every run | 480/480, 240/240, 180/180, 40/40 twice | P:241, P:347, P:444, P:194, P:221 |
