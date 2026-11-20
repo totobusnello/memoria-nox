@@ -1,0 +1,45 @@
+input 2026-05-04: sha256 03cd8f55afd3a57b4ff71e7427bce40401796132a1b1d1e54cf8c6345f136e93
+input 2026-08-23: sha256 6247e6889feb2e423fbf32a89a68882b1cefe9b4117649e276a726aa6071164b
+input 2026-09-08: sha256 b277bc96d0223a2360ac54ad81f451bf7dea9a05687fceacc6feef194634b47d
+input 2026-10-11: sha256 d1cd2b57bdf7a1a1d0163b7e37ccf839f2492e7dcfd613e094c3979a6399aa07
+input 2026-11-04: sha256 4ab1a94f7245c272177e184e0b465eeb795ab90813c91fb9afc1b6cf273a58ad
+input 2026-11-18 (.gz): sha256 abbf0274bdaae1a05e175d5afa4e72649cc27b0354a455e29b15a3073fa1a16d
+
+== lineage
+2026-05-04: chunks 61257, active 61257, max id 212262, superseded_by absent (all active), quick_check ok
+2026-08-23: chunks 67180, active 67180, max id 308635, superseded_by absent (all active), quick_check ok
+2026-09-08: chunks 67606, active 67606, max id 309497, superseded_by absent (all active), quick_check ok
+2026-10-11: chunks 43201, active 43201, max id 314415, superseded_by absent (all active), quick_check ok
+2026-11-04: chunks 62988, active 62988, max id 343975, superseded_by present, quick_check ok
+2026-11-18: chunks 64743, active 64743, max id 347273, superseded_by present, quick_check ok
+
+== draw (seed 20261120, K 12)
+stratum A: {"drawn": 150, "eligible_files": 1583, "passes": 1, "quota": 150, "rejected": 0}
+stratum B: {"drawn": 95, "eligible_files": 94, "passes": 2, "quota": 95, "rejected": 13}
+stratum C: {"drawn": 0, "eligible_files": 0, "passes": 1, "quota": 90, "rejected": 0}
+stratum D: {"drawn": 85, "eligible_files": 173, "passes": 1, "quota": 85, "rejected": 0}
+stratum E: {"drawn": 115, "eligible_files": 149, "passes": 1, "quota": 115, "rejected": 0}
+stratum F: {"drawn": 65, "eligible_files": 240, "passes": 1, "quota": 65, "rejected": 6}
+references 510; private file h-a2r-refs.jsonl sha256 051f09dc59aadcbaaadd15854c13f2d462f6f3655629576bd34a4353b92a7abd
+
+== reading (integer comparisons)
+primary population: references whose span is still in an active chunk of the end = 406/510
+primary: exposed 141/406 · by id 265/406 · by anchor 404/406 (ambiguous 3)
+H-A2R primary: anchor >= 95% and anchor - id >= 10 points -> holds
+secondary (H-A2 form, all 510): exposed 245 · by id 265 · by anchor 404 (ambiguous 3) · span present anywhere 406
+H-A2R secondary: anchor >= 95% and anchor - id >= 10 points -> does not hold
+
+== descriptive, no threshold
+2026-08-23: by id 361 · by anchor 475 · present anywhere 476 · exposed 149 (of 510)
+2026-09-08: by id 360 · by anchor 475 · present anywhere 476 · exposed 150 (of 510)
+2026-10-11: by id 287 · by anchor 396 · present anywhere 397 · exposed 223 (of 510)
+2026-11-04: by id 265 · by anchor 404 · present anywhere 406 · exposed 245 (of 510)
+2026-11-18: by id 265 · by anchor 404 · present anywhere 406 · exposed 245 (of 510)
+first database where by_id no longer reaches the span: {"2026-08-23": 149, "2026-09-08": 1, "2026-10-11": 73, "2026-11-04": 22, "never": 265}
+first database where anchor no longer reaches the span: {"2026-08-23": 35, "2026-10-11": 79, "2026-11-04": 15, "2026-11-18": 1, "never": 380}
+end, stratum A: n 150 · present 68 · by id 54 · by anchor 66
+end, stratum B: n 95 · present 76 · by id 48 · by anchor 76
+end, stratum C: n 0 · present 0 · by id 0 · by anchor 0
+end, stratum D: n 85 · present 85 · by id 0 · by anchor 85
+end, stratum E: n 115 · present 113 · by id 99 · by anchor 113
+end, stratum F: n 65 · present 64 · by id 64 · by anchor 64

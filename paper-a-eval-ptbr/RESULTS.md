@@ -1,6 +1,6 @@
 # Paper A, prospective part: results
 
-H-A1 read on 2026-11-05 and H-A2 on 2026-11-18, in the order `PREREGISTRATION.md` §5 fixes. Nothing here changes a registered
+H-A1 read on 2026-11-05 and H-A2 on 2026-11-18, in the order `PREREGISTRATION.md` §5 fixes; H-A2R, pre-registered separately in `PREREGISTRATION-H-A2R.md`, read on 2026-11-20. Nothing here changes a registered
 rule; where the run departed from the expected path, it says so.
 
 ## The chain that was checked before anything was computed
@@ -156,3 +156,73 @@ this: its file was edited, the gold id is gone, and the evidence span is still i
 code the id fails only when its own chunk's text changes, and the anchor fails when a path changes
 without a re-ingest. The failure mode H-A2 was registered to measure no longer occurs in this
 system.
+
+## H-A2R: the primary reading holds; the H-A2 form does not
+
+Run on 2026-11-20 (`PREREGISTRATION-H-A2R.md`), once, from a fresh clone of the tag
+`paper-a-h-a2r-prereg-v1.0` on the research host, between 10:36Z and 10:38Z. The six inputs matched
+their registered sha256. The output, unchanged, is `results/h-a2r-2026-11-20.txt`; its hash and the
+hash of the private file of drawn references are in `results/h-a2r-2026-11-20.sha256`.
+
+**Lineage.** All six databases passed: `chunks` with the three required columns and `quick_check`
+ok. `MAX(id)` rises at every date (212262 on 2026-05-04 to 347273 on 2026-11-18). The four
+databases up to 2026-10-11 have no `superseded_by`, so every chunk in them counts as active, as
+registered.
+
+**Draw.** 510 references, not 600. Stratum C (`events/mac/`) had no eligible file on 2026-05-04,
+so its quota of 90 went undrawn; the pre-registration keeps what a stratum has and reports the
+shortfall. Every other stratum met its quota; 13 chunks in B and 6 in F had no unique span and were
+replaced.
+
+**Reading.**
+
+| | primary: span still in the end database | secondary: all drawn (H-A2 form) |
+|---|---|---|
+| references | 406 | 510 |
+| exposed | 141 | 245 |
+| reached by id | 265 | 265 |
+| reached by anchor | 404 (3 ambiguous) | 404 |
+| reading | holds | does not hold |
+
+Primary: the population is above 120 and exposure above a tenth of it; by anchor 404 of 406 clears
+the bar of 386, and anchor minus id is 139 references, above the 41 the 10-point margin needs.
+Secondary: by anchor 404 of 510 is below the bar of 485. The 104 references between the two
+populations are those whose span is in no active chunk of the end database; neither reference can
+reach them.
+
+**Descriptive, no threshold.**
+
+| database | by id | by anchor | span present anywhere | exposed |
+|---|---|---|---|---|
+| 2026-08-23 | 361 | 475 | 476 | 149 |
+| 2026-09-08 | 360 | 475 | 476 | 150 |
+| 2026-10-11 | 287 | 396 | 397 | 223 |
+| 2026-11-04 | 265 | 404 | 406 | 245 |
+| 2026-11-18 | 265 | 404 | 406 | 245 |
+
+The id first stopped reaching its span on 2026-08-23 for 149 references, on 2026-10-11 for 73, on
+2026-11-04 for 22 and on 2026-09-08 for 1; the anchor first stopped on 2026-08-23 for 35, on
+2026-10-11 for 79, on 2026-11-04 for 15 and on 2026-11-18 for 1. "First" counts a reference once,
+including the few whose span came back in a later database.
+
+| stratum | n | span present at the end | by id | by anchor |
+|---|---|---|---|---|
+| A (`shared/imports/`) | 150 | 68 | 54 | 66 |
+| B (memory notes and lessons) | 95 | 76 | 48 | 76 |
+| D (`memory/entities/`) | 85 | 85 | 0 | 85 |
+| E (`shared/`) | 115 | 113 | 99 | 113 |
+| F (agents, sessions, top level) | 65 | 64 | 64 | 64 |
+
+**Against the expectations stated before the run** (`PREREGISTRATION-H-A2R.md` §1): exposure passed
+the precondition, as expected. Stratum A lost much of its evidence, as expected: the span of 82 of
+its 150 references is gone from the corpus. The expected loss of the anchor in stratum F did not
+happen: the anchor reached all 64 F references whose span survived. Whether any F reference sat
+under a `../agents/` path at the start was not printed and is not inferred here.
+
+**What it says, and only this.** Over six and a half months of this system's history, among
+references whose evidence was still in the corpus, the evidence span under its recorded path
+reached it 404 times in 406, and the chunk id 265 times. No entity reference (stratum D) kept its
+id, and every one kept its anchor. The window mixes the old ingest, which replaced a file's ids on
+every re-ingest, with the new one. The largest loss of evidence itself (present anywhere, 476 to
+397) falls between 2026-09-08 and 2026-10-11, the window of the September cleanups. The references
+are arbitrary 12-token passages drawn mechanically, not answers to questions.
