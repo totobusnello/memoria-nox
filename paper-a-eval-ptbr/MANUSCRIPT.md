@@ -174,8 +174,9 @@ recorded file was wrong, not the chunk. v3 kept 58 entries, repaired or added 27
 the search found nothing that answers it.
 
 We had predicted, from the count of invalid gold, that repairing it would raise strict nDCG by up to
-37.5%. It rose from 0.2428 to 0.2567. After repair those queries still scored low: they
-scored 0.1679, 10 of 14 still at zero, against 0.2856 for the rest, and the strict zero-hit rate rose to 32/57 =
+37.5%. It rose from 0.2428 to 0.2567. After repair, the 14 queries whose gold had been rejected in full
+(the 15 above, less the one left with no valid gold) still scored low: 0.1679, 10 of 14 still at zero,
+against 0.2856 for the rest, and the strict zero-hit rate rose to 32/57 =
 56.1%. A count of broken gold does not predict the direction or the size of the score change,
 because a query can be mis-measured and also missed. The published v2 to v3 move,
 +0.0139, also confounds gold, query set and corpus. Holding one ranking fixed and changing only the
