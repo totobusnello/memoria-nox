@@ -168,7 +168,7 @@
   {
    "id": "deferred-toolsearch",
    "value": "59 of 59",
-   "what": "K runs that searched and called ToolSearch first, v1-main.",
+   "what": "Main-run K runs on the kept tasks with any memory call (the protocol says \"that searched\"), all of which called ToolSearch first; 54 of them searched (5 + 49).",
    "population": "main run (S0, S1) K runs that searched",
    "date": "2026-11-07",
    "artifact": "note-unconsulted-memory/skill-eval-PROTOCOL.md",
