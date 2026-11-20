@@ -47,8 +47,9 @@ of it? Then: does the effect measured on a task bank show up in ordinary use?
 An MCP client has three places to carry such a text, and they are not read at the same moment.
 
 - **Tool descriptions.** In this client the MCP tools are deferred: the model sees their names
-  and must call a tool-search step to load their schemas. In the main run (arms S0 and S1),
-  every one of the 59 K runs that searched called that step first. A description is therefore read after the decision
+  and must call a tool-search step to load their schemas. In the main run (arms S0 and S1, kept
+  tasks), every one of the 59 K runs that called a memory tool called that step first; 54 of them
+  searched, and the other 5 only asked for statistics. A description is therefore read after the decision
   to search, and can hardly cause it.
 - **A skill file.** The client lists each skill's short description in the system prompt and
   loads the body only when the model invokes it. In the main run the body was loaded in 28 of the
@@ -185,7 +186,7 @@ in a different setting:
 - The agent transcripts on disk on 2026-11-20 (83 files modified after 2026-11-08 17:45 UTC) hold
   13 search calls and 1 full-text read, each dated after that time by its own timestamp: 6 on
   2026-11-09 and 8 on 2026-11-16, two Mondays, all from one agent whose weekly deadline sweep ran
-  on Mondays, a task whose answer depends on the corpus by design. The owner switched that sweep
+  on Mondays (openclaw-vps PR #89), a task whose answer depends on the corpus by design. The owner switched that sweep
   off on 2026-11-17, so these 13 calls are history, not ongoing use. No call by any other agent
   was found in the files examined. The host prunes old transcripts, so some sessions after the
   deployment may already be gone.
@@ -262,7 +263,7 @@ protocol and the recount, but cannot recompute the effects and intervals from pu
 | tool calls in the stream equal server telemetry, every run | 480/480, 240/240, 180/180, 40/40 twice | P:241, P:347, P:444, P:194, P:221 |
 | P+ at 200-char preview | 40/40 searched, 10/36 pass, 25/40 file attempts | P:193–203 |
 | P+ after whole-text fix (3.8.0) | 27/36 = 0.75; file attempts 25 → 1 of 40 | P:221–224 |
-| deferred tools: main-run K runs that searched and called tool search first | 59 of 59 | P:306–308 |
+| deferred tools: main-run K runs with a memory call, all calling tool search first; of them, searched | 59 of 59; 54 | P:306–308 ("59 K runs that searched" there counts any memory tool); 54 = 5 + 49, P:386–387; the 5 others called only the statistics tools (run data, private) |
 | skill body loaded, S1 runs on the 36 | 28 of 108 (26%) | P:286–287 |
 | S0, S1 H1/H2 (36) | 0.046 / 0.454; 0.065 / 0.315 | P:360–361 |
 | S1 − S0 H2 | +0.250 [0.139, 0.370] (erratum to +0.241) | P:350–353 |
@@ -281,8 +282,8 @@ protocol and the recount, but cannot recompute the effects and intervals from pu
 | deployment time; field text length | 2026-11-08 17:45 UTC; 1,750 chars | R `measure.py`:4, :12 |
 | real-use rule | as quoted in section 5 | P:502–511; R `measure.py`:5–17 |
 | rule registered: baseline written; protocol commit | 2026-11-08 17:56 UTC, 0 AFTER sessions; 18:31 UTC | R `baseline-2026-11-08.json` `generated_utc`, `AFTER`; `README.md` of this directory |
-| AFTER n, P, calls | 38, 0.053, 0.11 per session (= 4) | R `report-2026-11-15.json` `AFTER` |
-| BEFORE at reading; frozen | 0 of 269; 0 of 278 | R `report-2026-11-15.json` `BEFORE`; R `baseline-2026-11-08.json` |
+| AFTER n, P, calls | 38, 0.053, 0.11 per session (= 4) | R `report-2026-11-15.json` `AFTER`; H:44–47 |
+| BEFORE at reading; frozen | 0 of 269; 0 of 278 | R `report-2026-11-15.json` `BEFORE`; R `baseline-2026-11-08.json`; H:44–47 (the 269) |
 | 3 of 4 calls same query; 0 of 8 sessions in the two repos | — | H:44–47 |
 | companion note (push side) | — | doi:10.5281/zenodo.24017458; source `paper-c-pushed-memory/NOTE.md` |
 | October census: five searches in thirty days | 5 | `audits/2026-10-23-item7-consumidor-construido.md`:22 |
