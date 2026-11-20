@@ -71,17 +71,18 @@ SUBJECTS = ["agent memory", "Model Context Protocol", "server instructions", "ag
             "tool use", "LLM agents", "evaluation", "field use", "data note"]
 STATUS_OLD = ("Status: working draft, not deposited, not peer reviewed. A data note, dated: the controlled\n"
               "evaluation ran on 2026-11-06 and 2026-11-07, and the field readings cover 2026-10-11 to\n"
-              "2026-11-20 on one user's machine and one production host. Every number has a row in the\n"
-              "provenance table at the end, which names the file and line that holds it.")
+              "2026-11-20 on one user's machine and one production host. The provenance table at the end names\n"
+              "the source of each figure; `PROVENANCE.json` holds the source of every decimal number and\n"
+              "percentage, and a gate checks each one against it.")
 
 
 def status_new(doi):
     return (f"Version {VERSION} ({PUB_DATE}), doi:{doi}. Not peer reviewed. A data note, dated: the "
             "controlled evaluation ran on 2026-11-06 and 2026-11-07, and the field readings cover "
-            "2026-10-11 to 2026-11-20 on one user's machine and one production host. Every number has a "
-            "row in the provenance table at the end, which names the file and line that holds it; "
-            "`PROVENANCE.json`, in the code-and-data archive of this record, holds the same rows for the "
-            "provenance gate.")
+            "2026-10-11 to 2026-11-20 on one user's machine and one production host. The provenance table "
+            "at the end names the source of each figure; `PROVENANCE.json`, in the code-and-data archive of "
+            "this record, holds the source of every decimal number and percentage, and a gate checks each "
+            "one against it.")
 
 
 def metadata():
