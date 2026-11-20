@@ -47,35 +47,49 @@ PUB_DATE = os.environ.get("PUB_DATE", "")
 TITLE = "Five ways the ruler misleads: evaluating retrieval on a living Portuguese agent memory"
 REPO_COMMIT = os.environ.get("MANUSCRIPT_COMMIT", "")
 REPO_TAG = "paper-a-prereg-v1.0"
+# the two later registrations: H-A2R over a past window, and the H-A2 reading of 2027-05-18
+LATER_TAGS = ["paper-a-h-a2r-prereg-v1.0", "paper-a-h-a2-amendment-v1.0"]
 # everything a reader needs to check the numbers without the corpus: the scripts, the
 # pre-registration, the commitments, the printed outputs of the reading, and the provenance file
-CODE_FILES = ["PREREGISTRATION.md", "PROVENANCE.json", "quotas.json", "frame-census.txt",
+CODE_FILES = ["PREREGISTRATION.md", "PREREGISTRATION-H-A2R.md", "AMENDMENT-H-A2.md", "RESULTS.md",
+              "PROVENANCE.json", "quotas.json", "frame-census.txt",
               "HOLDOUT-COMMITMENT.json", "HUMAN-COMMITMENT.json",
               "results/h-a1-2026-11-05.txt", "results/v3-rescore-2026-11-05.txt",
               "results/run-2026-11-05.sha256",
+              "results/h-a2-2026-11-18.txt", "results/h-a2-origin-2026-11-18.sha256",
+              "results/h-a2-listing-2026-11-18.txt", "results/h-a2-listing-long-2026-11-18.txt",
+              "results/h-a2-anchor-diagnosis-2026-11-18.txt",
+              "results/h-a2r-2026-11-20.txt", "results/h-a2r-2026-11-20.sha256",
               "strata.py", "derive-quotas.py", "frame-census.py", "holdout-draw.py",
               "holdout-prompt.txt", "holdout-generate.py", "score-holdout.sh", "human-sample.py",
               "read-h-a1.sh", "holdout-analyze.py", "holdout-persistence.py",
+              "h-a2-anchor-diagnosis.py", "h-a2-amendment-run.py", "h-a2r.py",
               "manuscript-tables.py", "pdf-build/build-manuscript-pdf.sh",
               "deposit/deposit-manuscript.py"]
 SUBJECTS = ["agent memory", "retrieval evaluation", "pre-registration", "LLM judge",
             "relevance assessment", "nDCG", "Portuguese", "test collections"]
-STATUS_OLD = ("Status: working draft, not deposited, not peer reviewed. H-A2 (§4) is pending until "
-              "2026-11-18.\nEvery number in this text has an entry in `PROVENANCE.json`; §9 says how "
+STATUS_OLD = ("Status: working draft, not deposited, not peer reviewed. H-A2 (§4) ran on 2026-11-18 and "
+              "is not tested; H-A2R, its retrospective form, ran on 2026-11-20 and holds on its primary "
+              "reading (§5).\nEvery number in this text has an entry in `PROVENANCE.json`; §10 says how "
               "they are checked.")
 PENDING = "### H-A2: pending"
 
 
 def status_new(doi):
-    return (f"Version {VERSION} ({PUB_DATE}), doi:{doi}. Not peer reviewed. Every number in this text "
-            "has an entry in `PROVENANCE.json`, in the code-and-data archive of this record; §9 says "
-            "how they are checked.")
+    return (f"Version {VERSION} ({PUB_DATE}), doi:{doi}. Not peer reviewed. H-A2 (§4) is not tested, "
+            "and one more reading of it is registered for 2027-05-18; H-A2R (§5) holds on its primary "
+            "reading.\nEvery number in this text has an entry in `PROVENANCE.json`, in the "
+            "code-and-data archive of this record; §10 says how they are checked.")
 
 
 def metadata():
     rel = [{"identifier": f"https://github.com/totobusnello/memoria-nox/tree/{REPO_TAG}/paper-a-eval-ptbr",
             "scheme": "url", "relation_type": {"id": "isderivedfrom"},
             "resource_type": {"id": "software"}}]
+    for t in LATER_TAGS:
+        rel.append({"identifier": f"https://github.com/totobusnello/memoria-nox/tree/{t}/paper-a-eval-ptbr",
+                    "scheme": "url", "relation_type": {"id": "isderivedfrom"},
+                    "resource_type": {"id": "software"}})
     if REPO_COMMIT:
         rel.append({"identifier": f"https://github.com/totobusnello/memoria-nox/tree/{REPO_COMMIT}/paper-a-eval-ptbr",
                     "scheme": "url", "relation_type": {"id": "issupplementedby"},
@@ -112,7 +126,9 @@ def deposit_text(doi="10.5281/zenodo.RESERVED"):
     why = readiness(text)
     assert not why, "not ready to deposit: " + "; ".join(why)
     text = text.replace(STATUS_OLD, status_new(doi))
-    assert "not deposited" not in text and "pending" not in text.lower()
+    # the H-A2 reading of 2027 is pending by design and the text says so; what must not survive is
+    # the old "H-A2: pending" section, which readiness() already refuses
+    assert "not deposited" not in text and PENDING not in text
     return text
 
 
