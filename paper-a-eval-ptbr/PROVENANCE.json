@@ -1379,7 +1379,7 @@
   {
    "id": "repair-file-level",
    "value": "6 of 38",
-   "what": "Gold entries repaired by judging every chunk of the gold's own source file.",
+   "what": "Queries repaired by judging every chunk of the gold's own source file (the 38 rejected entries fall in 28 queries; the audit table says entries, see its erratum of 2026-11-20).",
    "population": "38 rejected entries",
    "date": "2026-10-27",
    "artifact": "audits/2026-10-27-the-ruler-v3-and-the-third-attribution.md",
@@ -1391,7 +1391,7 @@
   {
    "id": "repair-corpus-wide",
    "value": "21 of the remaining 22",
-   "what": "Remaining entries repaired by corpus-wide BM25 top-40 judging.",
+   "what": "Remaining queries (22 of 28) repaired by corpus-wide BM25 top-40 judging.",
    "population": "22 entries",
    "date": "2026-10-27",
    "artifact": "audits/2026-10-27-the-ruler-v3-and-the-third-attribution.md",

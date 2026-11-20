@@ -9,6 +9,11 @@ resolved to the wrong chunk of the right file". **Both were too local.** Measure
 | corpus-wide | BM25 top-40 over the whole corpus, judged | **21 of the remaining 22** repaired |
 | attribution check | is the repaired file one the file-level pass tested? | **0 of 21** — so the FILE was wrong in 21 of 21 |
 
+> **Erratum, 2026-11-20 (units).** The first two rows mix units. The 38 rejected entries fall in
+> 28 queries, and both passes count **queries**: the file-level pass repaired 6 of those 28, and
+> the corpus-wide pass 21 of the remaining 22 (`v3-corpuswide.py`: "22 of 28 queries"). Found by
+> the second Codex review of the Paper A manuscript; the table is kept as written.
+
 That check exists because the corpus-wide report printed `was: gold[0].source_file` — the query's
 **first** gold entry, not the rejected one it was repairing — and four rows therefore showed an
 identical `was:`, which would have been a contradiction. It was my print comparing the wrong field.

@@ -15,7 +15,7 @@ gold keyed by chunk id decayed under re-ingest (61 of 85 cited ids were gone); r
 never judged were scored as misses; an LLM judge claimed verbatim quotes that it had paraphrased,
 and a citation check built on those quotes made agreement worse; an ideal built from the ranking
 measured ordering instead of retrieval; and a second judge rejected 38 of 95 gold entries as not answering their own
-question, and found an accepted passage in a different file for 21 of them. These are findings of development, made
+question; for 21 of the 28 queries they fall in, the accepted passage was in a different file. These are findings of development, made
 and repaired on the same queries. The prospective part was pre-registered and frozen by a tag before
 it ran: 120 new questions, written by a model from passages drawn at random and kept when they passed
 fixed acceptance rules, scored on the production search path. Pooled nDCG@10 minus strict nDCG@10 was +0.1933, with a stratified
@@ -44,7 +44,8 @@ part (§3). None of them is a confirmation: queries, anchors, prompts and thresh
 after looking at results on the same corpus.
 
 The prospective part (§4) asks whether the central contrast of the retrospective part, that two
-scoring procedures that judge the whole top-10 disagree substantially on the same rankings,
+scoring procedures applied to the same top-10 rankings, with the whole top-10 judged for the pooled
+arm, disagree substantially,
 reappears on questions the system had never ranked. It was pre-registered, frozen by a tag, and run
 in the registered order. A retrospective re-registration, over database copies that already existed,
 is reported apart from it (§5).
@@ -166,15 +167,15 @@ correct answer elsewhere in the corpus could not raise their strict score. Two c
 judge accepted 1.8% of queries paired with a random chunk, and accepted both gold entries built
 that day from an oracle pass. No person checked the 38 rejections; the count is the second judge's.
 
-Repairing the gold, with the same judge, suggested where the error was. Judging every chunk of the gold's own source file
-repaired 6 of the 38 entries. Judging the corpus-wide BM25 top-40 repaired 21 of the remaining 22,
-and in 21 of those 21 the accepted passage was in a different file: by this procedure, the
+Repairing the gold, with the same judge, suggested where the error was. The 38 rejected entries fall in 28 queries. Judging every
+chunk of the gold's own source file repaired 6 of those queries. Judging the corpus-wide BM25 top-40
+repaired 21 of the remaining 22, and in 21 of those 21 the accepted passage was in a different file: by this procedure, the
 recorded file was wrong, not the chunk. v3 kept 58 entries, repaired or added 27, and left 1 query (1.8%) with no valid gold because
 the search found nothing that answers it.
 
 We had predicted, from the count of invalid gold, that repairing it would raise strict nDCG by up to
-37.5%. It rose from 0.2428 to 0.2567. The repair did not lift the repaired queries much: they
-scored 0.1679 after repair, 10 of 14 still at zero, against 0.2856 for the rest, and the strict zero-hit rate rose to 32/57 =
+37.5%. It rose from 0.2428 to 0.2567. After repair those queries still scored low: they
+scored 0.1679, 10 of 14 still at zero, against 0.2856 for the rest, and the strict zero-hit rate rose to 32/57 =
 56.1%. A count of broken gold does not predict the direction or the size of the score change,
 because a query can be mis-measured and also missed. The published v2 to v3 move,
 +0.0139, also confounds gold, query set and corpus. Holding one ranking fixed and changing only the
@@ -234,7 +235,7 @@ hold for questions this pipeline wrote and accepted, not for questions people as
 
 H-A1, the primary hypothesis, is that pooled minus strict nDCG@10 stays above 0.10 on these
 questions. The estimand is the mean over queries of the difference between two scoring procedures
-that judge the whole top-10. The interval is a stratified bootstrap with 10,000 resamples within strata; the
+on the same top-10, strict by the registered gold and pooled with every pair of the top-10 judged. The interval is a stratified bootstrap with 10,000 resamples within strata; the
 registered reading is "holds" if the lower bound is at least 0.10, "does not hold" if the upper
 bound is below it, and inconclusive otherwise.
 
@@ -250,6 +251,9 @@ bound is below it, and inconclusive otherwise.
 The hashes are those of the public history after a rewrite on 2026-11-08 that gave new hashes to the 168
 commits made from 2026-10-22 on;
 the repository maps them to the earlier ones (`docs/history-rewrite-2026-11-08-commit-map.txt`).
+The rewritten commits keep their original dates, but a rewritten commit is not independent evidence
+of when it was made; the original commits are kept in a private mirror and the author can show them
+on request.
 
 Each commitment file was written once on the public main branch, after the tag; every script that
 reads one refuses if any other commit has touched it. The writer took 171 calls for 120 accepted
@@ -309,8 +313,8 @@ was read. Raw agreement with the judge at p > 0.5 was 0.433, and Cohen's kappa 0
 
 No threshold was registered. The pre-registration says what follows from a kappa below 0.4: the
 conclusions that depend on the judge are not validated by the grader. Pooled depends on the judge's labels
-and strict does not, although strict depends on gold that another model proposed and nobody checked
-for answering; H-A1 is read as registered with this qualification. The disagreement runs
+and strict does not, although strict depends on gold that another model proposed and whose answering
+was not systematically checked by a person; H-A1 is read as registered with this qualification. The disagreement runs
 mostly one way: the grader marked 50 of 60 pairs as containing the answer, the judge 22. What a more
 lenient judge would do to pooled has no fixed sign, because each added relevant document raises both
 the gain and the ideal, and we do not compute pooled from 60 human labels. The grader was given the
@@ -337,7 +341,7 @@ source file up by its recorded path, no longer found them. Apart from the author
 re-chunked nothing in the window. `RESULTS.md` has the run, the counts and the
 deviation.
 
-The pre-registration missed why the system re-chunked nothing. On
+The pre-registration did not consider a change of ingest that had already cut the exposure it required. On
 2026-10-14, three weeks before H-A2 was registered, the production ingest changed (nox-supermem#42).
 Before that date every re-ingest of a file deleted all of its chunks and inserted new ones, so any
 edit to a file changed the ids of all its chunks; that is the behaviour behind the 61 of 85 lost
@@ -345,7 +349,7 @@ ids in §3. Since that date a re-ingest compares the file's chunks by section an
 of every chunk whose text did not change, and lets a renamed file take over the ids of its old
 chunks. Under the current code an id is still lost when its own chunk changes, as the one exposed query
 shows; what stopped is the replacement of every id of a file on each re-ingest, which produced the
-exposure H-A2 was sized for. An anchor is lost when a path changes without a re-ingest, as in the
+exposure H-A2 required. An anchor is lost when a path changes without a re-ingest, as in the
 migration above. H-A2 stays not tested, and its object is unchanged.
 
 An amendment registered on 2026-11-19 (`AMENDMENT-H-A2.md`, tag `paper-a-h-a2-amendment-v1.0`)
