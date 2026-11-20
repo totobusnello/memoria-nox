@@ -7,7 +7,7 @@ Status: draft (`NOTE.md`), on its way to a Zenodo deposit by the same route as P
 | file | what it is |
 |---|---|
 | `NOTE.md` | the note |
-| `skill-eval-PROTOCOL.md` | the evaluation protocol, a verbatim copy of `docs/skill-eval/PROTOCOL.md` at commit `438e3a6` of the product repository's branch `docs/memory-skill-draft` |
+| `skill-eval-PROTOCOL.md` | the evaluation protocol, a verbatim copy of `docs/skill-eval/PROTOCOL.md` at commit `438e3a6` (committed 2026-11-08 18:31 UTC; the real-use rule enters the protocol in this commit) of the product repository's branch `docs/memory-skill-draft` |
 | `skill-eval/bank/` | the frozen task bank (80 tasks), the draw, the corpus manifest, the grader calibration set and the bank author's notes, verbatim from `438e3a6` |
 | `skill-eval/harness/` | the runner, the grader, the corpus builder, the T and T2 server diffs and the smoke tasks, verbatim from `438e3a6` |
 | `field-recount-2026-11-20.md` | read-only recount of the two field figures that came from queries on the production host |
