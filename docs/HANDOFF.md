@@ -1,11 +1,12 @@
 ## ▶ Sexta 20/11, 19h55 BRT — Nota #723 no rascunho do Zenodo (24408079), à espera da publicação
 
-- **Rascunho 24408079**, doi:10.5281/zenodo.24408079 reservado, data 2026-11-20, software link `4dce8f2`. `--fill` e
+- **Rascunho 24408079**, doi:10.5281/zenodo.24408079 reservado, data 2026-11-20, software link `1a793c7` (depois do passe avoid-ai-writing, #738). `--fill` e
   `--readback` sem divergência; PDF 6 p. com a linha do DOI; zip com nota, proveniência, protocolo, banco, harness,
   recontagem e as 2 auditorias. **Não publicado.**
 - PRs: #734 (protocolo literal + recontagem), #735 (proveniência 52 claims, PDF, script de depósito; conserta o gate
   do Paper A, vermelho desde `bd66625`), #736 (Codex + Kimi), #737 (DeepSeek). Gate 55 claims / 56 números, verde
-  num clone novo.
+  num clone novo. Passe avoid-ai-writing (modo edit) no #738, depois das vozes: 631 números idênticos,
+  validador de preservação PASS; rascunho refeito (PDF 7 p.), readback sem divergência.
 - Achados que mudaram o texto: T2 é uma revisão de escopo (não «uma frase»); a regra de campo entrou no protocolo às
   18:31 UTC de 08/11, depois do deploy (17:45), e a baseline com 0 AFTER é das 17:56: dito como registro interno; 4
   auditorias do corpus saíram na reescrita, o banco de avaliação não se refaz do histórico público; 109 (não 108)
