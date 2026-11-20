@@ -1,0 +1,536 @@
+{
+ "commit": "a819385e0b8cddcdff731086545d5d974d9bd09a",
+ "seed": 20261106,
+ "frame": [
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 340,
+   "heading": "D23 \u2014 BGE-M3 cortado; multilingual-e5-base substituto como dense baseline"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 347,
+   "heading": "D24 \u2014 Pain ablation deferred p\u00f3s-submit arXiv"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 354,
+   "heading": "D25 \u2014 Cross-agent retrieval-level quantification deferred (E12-followup)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 361,
+   "heading": "D26 \u2014 LICENSE MIT confirmado"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 367,
+   "heading": "D27 \u2014 Submit timing: arXiv 2026-05-19 Tuesday 09:00 ET; blog Wednesday; HN Thursday"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 374,
+   "heading": "D28 \u2014 multilingual-e5-base baseline: gemini-embedding-001 permanece canonical"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 382,
+   "heading": "D29 \u2014 BM25 recall ceiling \u00e9 a constraint dominante; pain permanece modulador secund\u00e1rio"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 391,
+   "heading": "D30 \u2014 LOCOMO adotado como segundo benchmark third-party (\u00a75.2)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 402,
+   "heading": "D31 \u2014 E14 retrieval evolution roadmap arquivado (post-R03)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 411,
+   "heading": "D32 \u2014 Caminho B (pain-augmented embedding) DEFER para Q3 2026 com gate quantitativo"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 421,
+   "heading": "D33 \u2014 Caminho F (cross-encoder) como fallback condicional + Schema v.18 sub-task"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 431,
+   "heading": "D34 \u2014 Op-audit canonical patterns (post-Gap A\u2192E fixes 2026-05-15)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 443,
+   "heading": "D35 \u2014 E05b KEEP-SHADOW indefinido at\u00e9 golden set expansion (n\u226530)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 460,
+   "heading": "D36 \u2014 E04a/E04b A7 focus topic boost CUT (consumer absent)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 469,
+   "heading": "D38 \u2014 E05b CUT por bias arquitetural (ap\u00f3s re-gate com n=80)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 487,
+   "heading": "D37 \u2014 E03b A6 SPO injection HOLD por consumer absent (~~SUPERSEDED 2026-05-17~~ \u2014 task #18 fechada: CLI integration \u2192 ACTIVATE)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 499,
+   "heading": "D43 \u2014 Q4 gate: \u2265+15% nDCG@10 + 2-tier scale-up"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 529,
+   "heading": "D44 \u2014 Pricing strategy prerequisites: scope, Hotmart, data posture"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 574,
+   "heading": "D45 \u2014 Pain-weighted leading position in slogan"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 597,
+   "heading": "D42 \u2014 Threat-model itera\u00e7\u00e3o recursiva: adotar cad\u00eancia trimestral de security audit"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 725,
+   "heading": "D39 \u2014 FTS5 silent design accepted (ap\u00f3s 4 tentativas de fix)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 749,
+   "heading": "D49 \u2014 Temporal proximity rerank ativado em shadow-mode opt-in (gated em 7 dias baseline)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 773,
+   "heading": "D51 \u2014 Conditional Hard Mutex section\u2194source_type, threshold=2 ativo em prod"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 802,
+   "heading": "D52 \u2014 `regex-extract.ts` normaliza plural filesystem dirs \u2192 singular canonical entity types"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 829,
+   "heading": "D53 \u2014 F10 observability dashboard Phase A + Phase B ambos LIVE em prod"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 854,
+   "heading": "D54 \u2014 SQLCipher como at-rest cipher primary, conditional approved via P0 spike GO verdict"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 875,
+   "heading": "D55 \u2014 `reads_audit` table opt-in default OFF via `NOX_READS_AUDIT=1`"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 892,
+   "heading": "D56 \u2014 Signed checkpoints via Ed25519 manual signing (auditor-grade, offline pubkey)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 912,
+   "heading": "D57 \u2014 Loadable extensions enabled + path allowlist + chmod 0o555 hardening"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 932,
+   "heading": "D58 \u2014 `reads_audit` retention env-driven 90d default + archive (n\u00e3o delete) policy"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 956,
+   "heading": "D59 \u2014 Close cap@500 mem0 gap via ingest-side concentration is structurally non-viable; ship two-metric narrative"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 982,
+   "heading": "D60 \u2014 Rerank shipped opt-in, N\u00c3O default"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1001,
+   "heading": "D61 \u2014 Optional install path para rerank dependencies"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1018,
+   "heading": "D62 \u2014 5-batch + 95% CI methodology canonical para gate decisions"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1040,
+   "heading": "D63 \u2014 MA dim (Memory Awareness) mandatory em eval reports de retrieval changes"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1064,
+   "heading": "D64 \u2014 KG densification REJECTED, sparse canonical"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1083,
+   "heading": "D65 \u2014 Multi-query expansion ship opt-in (biggest single F_MH knob)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1102,
+   "heading": "D66 \u2014 MA-protection Approach A ships opt-in com corpus mismatch caveat"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1125,
+   "heading": "D67 \u2014 Backbone portability claim revised 2.1\u00d7 \u2192 1.6\u00d7 (5-batch correction)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1147,
+   "heading": "D68 \u2014 Wave B composability dual finding: same-stage overlap vs different-stage additivity"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1179,
+   "heading": "D69 \u2014 Wave C triple REJECT default + F_MH ceiling DISCOVERED at retrieval-stage stacking"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1220,
+   "heading": "D70 \u2014 Gemini-3-flash ship opt-in primary recommendation"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1245,
+   "heading": "D71 \u2014 Production SOTA dimensions cravadas como GTM differentiators can\u00f4nicos"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1272,
+   "heading": "D72 \u2014 Classical multi-hop QA dual SOTA cravado (MuSiQue + HotPotQA) + EverMemBench F_MH paradox RESOLVIDO"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1302,
+   "heading": "D73 \u2014 Q3 Iterative Retrieval mechanism class refinement: Self-Ask (F_HL) vs ReAct (F_MH)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1329,
+   "heading": "D74 \u2014 Q3 IterB ReAct breaks F_MH ceiling on best backbone (D69 ceiling REFINED, NOT falsified)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1357,
+   "heading": "D75 \u2014 Wave 2 Phase 1.5 retrieval-stage composability CLOSED on Gemini-3-flash (D74 projection partially refuted)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1392,
+   "heading": "D76 \u2014 Wave 2 Phase 2 Capstone ABORTED (Hostinger infrastructure throttling, INDETERMINATE outcome)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1430,
+   "heading": "D77 \u2014 Reempacotar o \u00edndice vec0: recomendado, com envelope de seguran\u00e7a; execu\u00e7\u00e3o pendente do Toto"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1557,
+   "heading": "D-2026-09-14 \u2014 N\u00e3o reiniciar o `nox-mem-api` at\u00e9 o ensaio fechar; realinhamento vem do `desliga-dose`"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1590,
+   "heading": "D-2026-09-21 \u2014 Desfecho do ensaio P2 executado; guardas aposentados a partir do report VIVO, n\u00e3o do staged"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1631,
+   "heading": "D-2026-09-21b \u2014 Errata ao `D-2026-09-21`; painel de adjudica\u00e7\u00e3o corrido; DeepSeek \u00e9 SUBSTITUTO, n\u00e3o 4.\u00ba voto"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1673,
+   "heading": "D-2026-09-21c \u2014 TypeSafe Jev (System One) avaliado e recusado para o caminho de retrieval"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1758,
+   "heading": "D-2026-09-21d \u2014 Sete workflows desarmados: SDK morto e tr\u00eas publica\u00e7\u00f5es armadas num repo p\u00fablico"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1799,
+   "heading": "D-2026-09-21e \u2014 An\u00e1lise ITT fechada, Paper B aberto, e os dois manuscritos revistos por 5 vozes"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1904,
+   "heading": "D-2026-09-23"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1933,
+   "heading": "D-2026-09-30 \u2014 Higiene do corpus: o que sai, o que fica, e o crit\u00e9rio"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 1977,
+   "heading": "D-2026-10-14 \u2014 `compact` pausado; 182 arquivos restaurados; evid\u00eancia do KG reapontada"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 2031,
+   "heading": "D-2026-10-14b \u2014 D49/D50 fechado: rerank temporal impl\u00edcito no N\u00c3O FAZEMOS (#33)"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 2052,
+   "heading": "D-2026-10-14c \u2014 Escrita sem perda: diff por conte\u00fado, tombstone, ado\u00e7\u00e3o s\u00f3 de arquivo inteiro"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 3326,
+   "heading": "D-2026-11-04 \u2014 GTM Phase 2 reaberto: fosso operacional agora, constru\u00e7\u00e3o como segunda onda"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 3349,
+   "heading": "D-2026-11-03 \u2014 GTM Phase 2 adiado at\u00e9 o resultado do est\u00e1gio 1 do Paper 3"
+  },
+  {
+   "file": "docs/DECISIONS.md",
+   "line": 3368,
+   "heading": "D-2026-11-01 \u2014 Notas-modelo do `create-daily-notes.sh`: cron desligado, 41 chunks e 810 arquivos fora"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 5,
+   "heading": "2026-09-29 \u2014 tr\u00eas vigias calados: um nunca rodou, um rodava sem fun\u00e7\u00e3o, um testava uma query deformada"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 52,
+   "heading": "2026-09-03 06:00 \u2192 descoberto 2026-09-08 (5 dias) \u2014 o serving servia um corpus DELETADO, vivo s\u00f3 pelo descritor de arquivo"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 165,
+   "heading": "2026-09-01 04:52 \u2192 11:07 UTC \u2014 Seis RED do can\u00e1rio com a camada sem\u00e2ntica intacta: a assinatura `total=2/semantic=0/fts=0` N\u00c3O \u00e9 diagn\u00f3stica"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 201,
+   "heading": "2026-05-19 ~15:00 \u2192 descoberto 2026-08-27 (3,3 meses) \u2014 telemetria de busca por chunk emudeceu numa fronteira de deploy"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 238,
+   "heading": "2026-08-27 \u2192 aberto \u2014 2.074 vetores inalcan\u00e7\u00e1veis e invis\u00edveis a TODOS os guardas"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 268,
+   "heading": "2026-08-17 12:22-15:07 (2h45) \u2014 Can\u00e1rio RED por cr\u00e9dito prepago Gemini esgotado (n\u00e3o corrup\u00e7\u00e3o)"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 288,
+   "heading": "2026-08-14 (noite) \u2014 drift de modelo no painel: `api.z.ai` serve glm-5.3 para pedidos de glm-5.2"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 317,
+   "heading": "2026-08-13 (tarde) \u2014 corrida de adjudica\u00e7\u00e3o: dois processos na mesma fila, 40 epis\u00f3dios adjudicados em duplicata"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 348,
+   "heading": "2026-06-22 (manh\u00e3) \u2014 morning report 1 RED: \u00f3rf\u00e3o de vetor p\u00f3s-`compact` (cascade trigger falhou em 1/854)"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 365,
+   "heading": "2026-06-04 (noite) \u2014 Semantic layer down: cr\u00e9ditos prepaid Gemini esgotados"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 384,
+   "heading": "2026-06-04 \u2014 Corpus pollution: watcher sem allowlist ingeriu 5.6k chunks de _retired/"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 400,
+   "heading": "2026-06-02 ~18:00 BRT \u2014 Hostinger CPU throttling aborts Wave 2 capstone bench (D76); infrastructure constraint, not scientific failure"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 458,
+   "heading": "2026-05-26 ~02:00 UTC (23:00 BRT Mon 25/mai) \u2014 RECORR\u00caNCIA #4 \u2014 atlas reindex wipe (69.135 \u2192 756 chunks); kill-switch havia sido removido entre 23/mai e 25/mai"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 562,
+   "heading": "2026-05-24 ~02:11 UTC (23:11 BRT 23/mai) \u2014 nox-mem reindex zerou chunks 69.032 \u2192 730 (recovery completo, kill-switch instalado)"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 597,
+   "heading": "2026-05-21 ~10h30 BRT (~3min/recovery) \u2014 Multi-agent branch leak \u00d73 + pre-commit hook installed"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 641,
+   "heading": "2026-05-21 morning (~1h investigation, ~3h fix+deploy) \u2014 opsAudit 3-issue investigation + Issue #2 vec0 reindex PROD RISK fixed"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 690,
+   "heading": "2026-05-20 ~10h BRT (~30min recovery) \u2014 VPS IP swap silencioso (false alarm offline)"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 712,
+   "heading": "2026-05-20 ~09h30 BRT (~15min recovery) \u2014 Multi-agent branch checkout race condition"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 737,
+   "heading": "2026-05-18 16:23 BRT (~10min fix) \u2014 Deploy Validator CI 100% fail por stderr\u2192JSON contamination"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 758,
+   "heading": "2026-05-17 17:03 BRT (~45min trabalho) \u2014 graph-memory turn extract parse failure 19.7% \u2192 0%"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 776,
+   "heading": "2026-04-27 06:48 BRT (~15min recovery) \u2014 Vector coverage 54% gap por session-distill hung 8h (N\u00b2 em checkpoints HEARTBEAT)"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 802,
+   "heading": "2026-04-25 ~07:00 BRT (~12min recovery) \u2014 Section/retention metadata wipe via reindex (n\u00e3o-nightly)"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 836,
+   "heading": "2026-04-21 06:30-07:50 (~1h20 recovery) \u2014 Semantic layer wipe + systemic audit"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 860,
+   "heading": "2026-04-19 19:13-22:41 (3h28 silent) \u2014 Fake-green incident p\u00f3s-Forge fix"
+  },
+  {
+   "file": "docs/INCIDENTS.md",
+   "line": 880,
+   "heading": "2026-04-18 (silent, multi-week) \u2014 Semantic search silenciosamente morta"
+  }
+ ],
+ "order": [
+  2,
+  52,
+  16,
+  40,
+  56,
+  29,
+  59,
+  24,
+  37,
+  42,
+  38,
+  68,
+  78,
+  65,
+  8,
+  7,
+  63,
+  15,
+  60,
+  31,
+  55,
+  70,
+  86,
+  49,
+  71,
+  57,
+  19,
+  69,
+  22,
+  47,
+  77,
+  80,
+  76,
+  20,
+  54,
+  28,
+  13,
+  61,
+  25,
+  85,
+  18,
+  62,
+  5,
+  48,
+  10,
+  81,
+  74,
+  73,
+  26,
+  45,
+  23,
+  4,
+  12,
+  44,
+  75,
+  33,
+  50,
+  66,
+  46,
+  53,
+  32,
+  58,
+  36,
+  9,
+  67,
+  64,
+  87,
+  82,
+  43,
+  72,
+  39,
+  21,
+  84,
+  34,
+  27,
+  14,
+  3,
+  1,
+  35,
+  51,
+  41,
+  79,
+  0,
+  30,
+  17,
+  11,
+  6,
+  83
+ ]
+}

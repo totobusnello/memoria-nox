@@ -5,8 +5,8 @@ author: "Luiz Antonio Busnello"
 
 Status: working draft, not deposited, not peer reviewed. A data note, dated: the controlled
 evaluation ran on 2026-11-06 and 2026-11-07, and the field readings cover 2026-10-11 to
-2026-11-17 on one user's machine and one production host. Every number has a row in the
-provenance table at the end, which names the file and line, or the query, that holds it.
+2026-11-20 on one user's machine and one production host. Every number has a row in the
+provenance table at the end, which names the file and line that holds it.
 
 ## Abstract
 
@@ -31,8 +31,9 @@ an explanation of it.
 nox-mem is a memory server for coding and operations agents: a SQLite store with hybrid
 full-text and embedding search, exposed to agents as MCP tools. A census in October found that
 the tools worked and almost nobody called them: five searches in thirty days outside the
-server's own canary and our instrumentation. A companion note reports the push side, a brief
-placed in the system prompt, and finds no textual trace of it in replies.
+server's own canary and our instrumentation. A companion note (doi:10.5281/zenodo.24017458)
+reports the push side, a brief placed in the system prompt, and finds no textual trace of it in
+replies.
 
 This note asks the pull-side question. Given an agent that has the memory tools, what text makes
 it search when the task needs memory but does not say so, and does the answer get better because
@@ -58,8 +59,11 @@ An MCP client has three places to carry such a text, and they are not read at th
 not name, G = 20 general tasks the corpus does not cover (false triggers and cost), W+ = 10 tasks
 where the user states a decision (should the agent write it?), W− = 10 with nothing worth
 keeping. A separate agent drafted the bank without seeing the skill or the protocol. Corpus: the
-public engineering docs of the memory project at a pinned commit, built into a fresh database
-(1,382 chunks). Each run is a fresh, isolated session against a copy of that database, so no run
+engineering docs of the memory project (decisions, incidents, audits) at a pinned commit, built
+into a fresh database (1,382 chunks). The repository was public then. When its history was
+rewritten on 2026-11-08, four of those audits were removed because they quoted a private corpus,
+so the database cannot be rebuilt in full from the public history; no task's source is in those
+four files. Each run is a fresh, isolated session against a copy of that database, so no run
 writes into the next.
 
 Arms: S0 (memory server only), S1 (plus the skill), T (server instructions, 1,198 characters,
@@ -159,15 +163,15 @@ in a different setting:
   tool calls in all, none of them a search).
 - In the census reported on 2026-10-21, 337 of 382 recorded searches were the server's own canary
   probe and none was attributed to an agent.
-- The agent transcripts on disk on 2026-11-17 (65 files modified after 2026-11-08 17:45 UTC) hold
+- The agent transcripts on disk on 2026-11-20 (83 files modified after 2026-11-08 17:45 UTC) hold
   13 search calls and 1 full-text read, all from one agent's weekly deadline sweep, a task whose
   answer depends on the corpus by design. The owner switched that sweep off on 2026-11-17
   (its last run was on 2026-11-16), so these 13 calls are history, not ongoing use. The other
   agents made none. The host prunes old
   transcripts, so some sessions after the deployment may already be gone.
 
-The server's own telemetry cannot settle the field question by itself: over the 30 days to
-2026-11-17 it logged 108 MCP searches with an unknown caller, which mixes the owner's sessions
+The server's own telemetry cannot settle the field question by itself: from 2026-10-18 to
+2026-11-17 it logged 109 MCP searches with an unknown caller, which mixes the owner's sessions
 and the agents. The counts above come from the client transcripts, where the caller is known.
 
 ## 7. What this note claims, and what it does not
@@ -189,33 +193,41 @@ the operations agents.
 One model and one client. One corpus, the project's own engineering docs; the tasks were written
 by the team, not drawn from users. The person who built the system ran the evaluation, wrote the
 scope sentence and graded the human sample, blind to arm. The T and T2 controls were not run
-concurrently. With 36 tasks the minimum detectable difference is about 18 pp, so the T2 − T and
-similar comparisons near zero are not shown to be zero. The field reading is one user, one week,
+concurrently. The minimum detectable difference, computed in advance for 40 tasks, is about
+18 pp, and a little more on the 36 kept, so the T2 − T and similar comparisons near zero are not
+shown to be zero. The field reading is one user, one week,
 38 sessions.
 
 ## 9. Data availability
 
 The evaluation protocol, with the frozen-artifact hashes and every result above, is
-`docs/skill-eval/PROTOCOL.md` on an unpublished local branch of the product repository (commit
-`438e3a6`), backed up as a git bundle; it is not pushed because the branch also carries the
-archived skill. Run data and analysis scripts are kept off the repository with the same backups.
+`docs/skill-eval/PROTOCOL.md` at commit `438e3a6` of the product repository. That branch is kept
+in a private repository, with a git bundle as a second copy, because it also carries the archived
+skill; byte-for-byte copies of the protocol (`skill-eval-PROTOCOL.md`), the task bank and the
+harness (`skill-eval/`) are published next to this note, with the same git blobs. The bank file
+matches the hash the protocol froze, and the runner matches its last re-freeze. The skill file and
+the run data (the agent's replies and the grader's verdicts, which can quote the corpus) are kept
+off the repository with the same backups.
 The real-use script and its two reports are private (they read the owner's transcripts); the rule
-is quoted in full in section 5. The agent transcripts stay on the host. The census and companion
-note cited in sections 1 and 6 are in this public repository.
+is quoted in full in section 5. The agent transcripts stay on the host. The census and the audits
+cited in sections 1 and 6 are in this public repository; the companion note is deposited on
+Zenodo (doi:10.5281/zenodo.24017458).
 
 ## Provenance
 
-`P` = `docs/skill-eval/PROTOCOL.md` at `438e3a6` (local branch `docs/memory-skill-draft`).
+`P` = `skill-eval-PROTOCOL.md` in this directory, a verbatim copy of `docs/skill-eval/PROTOCOL.md` at `438e3a6` (product repository, branch `docs/memory-skill-draft`).
 `R` = the real-use reports in the owner's evaluation directory (`real-use/`), not public.
 `H` = `docs/HANDOFF.md` of this repository at `b3ca58d`.
-`Q` = read-only queries on the production host by the author on 2026-11-17 (command in the row).
+`F` = `field-recount-2026-11-20.md` in this directory: read-only queries on the production host, with the commands and their output.
 
 | number | value | source |
 |---|---|---|
 | bank sizes K/G/W+/W− | 40 / 20 / 10 / 10 | P:8, P:86–91 |
 | eval DB chunks | 1,382 | P:11 |
+| four corpus audits removed from the public history on 2026-11-08 | — | `docs/HISTORY-REWRITE-2026-11-08.md`:17 |
 | tasks kept after N screen; N floor | 36; 0 of 108 | P:185–188 |
 | grader calibration | 40/40 oracle pass, 40/40 generic fail | P:179–180 |
+| tool calls in the stream equal server telemetry, every run | 480/480, 240/240, 180/180, 40/40 twice | P:241, P:347, P:444, P:194, P:221 |
 | P+ at 200-char preview | 40/40 searched, 10/36 pass, 25/40 file attempts | P:193–203 |
 | P+ after whole-text fix (3.8.0) | 27/36 = 0.75; file attempts 25 → 1 of 40 | P:221–224 |
 | deferred tools: runs that searched and called tool search first | 59 of 59 | P:306–308 |
@@ -233,16 +245,16 @@ note cited in sections 1 and 6 are in this public repository.
 | T2 − T; T2 − S1 | −0.028 [−0.139, +0.083]; +0.213 [0.102, 0.333] | P:465–468 |
 | pass when searched / not | S0 0.029 (not); S1 0.61 / 0.051; T2 0.68 / 0.07 | P:279–282, P:470–471 |
 | writing W+ | S0 0/30, S1 1/30, T 0/30 | P:292–293, P:394 |
-| minimum detectable effect | about 18 pp | P:154–155 |
+| minimum detectable effect (40 tasks) | about 18 pp | P:154–155 |
 | deployment time; field text length | 2026-11-08 17:45 UTC; 1,750 chars | R `measure.py`:4, :12 |
 | real-use rule | as quoted in section 5 | P:502–511; R `measure.py`:5–17 |
 | AFTER n, P, calls | 38, 0.053, 0.11 per session (= 4) | R `report-2026-11-15.json` `AFTER` |
 | BEFORE at reading; frozen | 0 of 269; 0 of 278 | R `report-2026-11-15.json` `BEFORE`; R `baseline-2026-11-08.json` |
 | 3 of 4 calls same query; 0 of 8 sessions in the two repos | — | H:44–47 |
-| companion note (push side) | — | `paper-c-pushed-memory/NOTE.md` |
+| companion note (push side) | — | doi:10.5281/zenodo.24017458; source `paper-c-pushed-memory/NOTE.md` |
 | October census: five searches in thirty days | 5 | `audits/2026-10-23-item7-consumidor-construido.md`:22 |
 | 0 search calls since 2026-09-01; 4 memory calls | 0; 4 | H:1674–1675 |
 | 337 of 382 searches were the canary | 337 / 382 | `audits/2026-10-21-r1-recency-relevance.md`:131 |
-| agent transcripts after deploy; searches; reads | 65 files; 13; 1, all one agent | Q: `find <agent-transcripts> -name '*.jsonl' -newermt '2026-11-08 17:45'`, then count `"type":"tool_use"` blocks named `mcp__nox-mem__*` |
+| agent transcripts after deploy; searches; reads | 83 files; 13; 1, all one agent | F, first section |
 | weekly deadline sweep switched off | 2026-11-17; last run 2026-11-16 | `totobusnello/openclaw-vps` PR #89 (crontab line commented, dated note in `crontab-rebuild.sh`) |
-| unknown-caller MCP searches, 30 days | 108 | Q: `SELECT requesting_agent, COUNT(*) FROM search_telemetry WHERE ts >= '2026-10-18' GROUP BY 1` |
+| unknown-caller MCP searches, 2026-10-18 to 2026-11-17 | 109 | F, second section |
