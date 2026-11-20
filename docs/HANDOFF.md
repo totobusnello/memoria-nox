@@ -1,4 +1,7 @@
-## ▶ Sexta 20/11, 19h55 BRT — Nota #723 no rascunho do Zenodo (24408079), à espera da publicação
+## ▶ Sexta 20/11, 20h15 BRT — Nota #723 PUBLICADA no Zenodo (doi:10.5281/zenodo.24408079)
+
+- Publicada pelo Toto; conferido pela API: `published`, concept doi:10.5281/zenodo.24408078, v1.0, 4/4 md5 iguais ao
+  build, doi.org resolve.
 
 - **Rascunho 24408079**, doi:10.5281/zenodo.24408079 reservado, data 2026-11-20, software link `1a793c7` (depois do passe avoid-ai-writing, #738). `--fill` e
   `--readback` sem divergência; PDF 6 p. com a linha do DOI; zip com nota, proveniência, protocolo, banco, harness,
@@ -14,7 +17,8 @@
 - Fora do repo: bundle novo da branch privada em `~/Claude-archive/bundles/nox-mem-docs-memory-skill-draft-20261120.bundle`
   (inclui `438e3a6`).
 
-**Próximo:** o Toto publica 24408079; depois, card no labf.bio com preview antes do merge.
+**Próximo:** card da nota no labf.bio (preview antes do merge); 01/12 abre a janela do shadow do C2; decidir se o T2
+ainda vale nos agentes do OpenClaw (campo deu «sem mudança visível»); alphaXiv do Paper 1 segue com o Toto.
 
 ## ▶ Sexta 20/11, 18h45 BRT — Paper A PUBLICADO no Zenodo (doi:10.5281/zenodo.24400444) e no labf.bio
 

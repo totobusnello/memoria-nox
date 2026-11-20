@@ -1,6 +1,9 @@
 # The memory the agent does not consult (data note)
 
-Status: draft (`NOTE.md`), on its way to a Zenodo deposit by the same route as Paper A.
+Status: **deposited** on Zenodo on 2026-11-20 as v1.0, doi:10.5281/zenodo.24408079 (concept
+doi:10.5281/zenodo.24408078), software link `1a793c7`, after reviews by Codex and Kimi (#736) and
+DeepSeek (#737) and the avoid-ai-writing pass (#738). `NOTE.md` is the source of that version; the
+deposit copy replaces its status line with the DOI line.
 
 ## Files
 
