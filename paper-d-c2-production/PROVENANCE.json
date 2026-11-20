@@ -20,7 +20,7 @@
    "date": "2026-11-06",
    "artifact": "paper3-construction/CONFIRM-RESULT.md",
    "locator": "+24.8 [+18.8, +30.8]",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -32,7 +32,7 @@
    "date": "2026-11-06",
    "artifact": "paper3-construction/CONFIRM-RESULT.md",
    "locator": "+27.3 [+21.1, +33.4]",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -44,7 +44,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "\"P\": 0.2476",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": "printed to 3 decimals"
   },
@@ -56,7 +56,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "\"V\": 0.4381",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": "printed to 3 decimals"
   },
@@ -68,7 +68,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "\"difference\": 0.1905",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -80,7 +80,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "\"all_sessions\": {\"P\": 0.102",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -92,7 +92,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "\"V\": 0.1804}",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -104,7 +104,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "\"value\": 0.749",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -116,7 +116,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "\"value\": 0.0235",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -128,7 +128,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.json",
    "locator": "\"cost_usd\": 0.7273",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -140,7 +140,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/HUMAN-COMMITMENT.json",
    "locator": "\"agreement\": 0.85",
-   "commit": "b0e740b",
+   "commit": "364928f",
    "superseded_by": null,
    "note": ""
   },
@@ -152,7 +152,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/HUMAN-COMMITMENT.json",
    "locator": "\"kappa\": 0.6925",
-   "commit": "b0e740b",
+   "commit": "364928f",
    "superseded_by": null,
    "note": ""
   },
@@ -164,7 +164,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "\"estimate\": -0.0431",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -176,7 +176,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "-0.1128",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -188,7 +188,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "0.0275]",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -200,7 +200,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "\"estimate\": -0.0471",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -212,7 +212,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "-0.1098",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -224,7 +224,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "0.0149]",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -236,7 +236,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "\"estimate\": 0.1403",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -248,7 +248,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "0.0773",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -260,7 +260,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "0.2064]",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -272,7 +272,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "\"estimate\": 0.1493",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -284,7 +284,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "0.0877",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -296,7 +296,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "0.213]",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -308,7 +308,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/FIDELITY-DIAGNOSIS-2026-11-06.json",
    "locator": "\"V_chars\": 367003",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -320,7 +320,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/FIDELITY-DIAGNOSIS-2026-11-06.json",
    "locator": "\"production_chars\": 66290",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -332,7 +332,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/FIDELITY-DIAGNOSIS-2026-11-06.json",
    "locator": "\"V_cron_prompt_chars\": 301441",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -344,7 +344,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/FIDELITY-DIAGNOSIS-2026-11-06.json",
    "locator": "\"V_cron_prompt_chars\": 301441",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": "derived: 82.1%"
   },
@@ -356,7 +356,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/FIDELITY-DIAGNOSIS-2026-11-06.json",
    "locator": "\"V_other_chars\": 59759",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": ""
   },
@@ -368,7 +368,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/FIDELITY-DIAGNOSIS-2026-11-06.json",
    "locator": "\"primary:all_in_cron_prompt\": 138",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": "derived: 54.1%"
   },
@@ -380,7 +380,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/FRAME-CENSUS-V11-2026-11-06.json",
    "locator": "\"v11_logged_sent\": 19",
-   "commit": "ece0727",
+   "commit": "4fa914d",
    "superseded_by": null,
    "note": "derived: 8.52%"
   },
@@ -392,7 +392,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/DISTILL-LOG-2026-11-06.json",
    "locator": "\"deduped_share\": 0.0",
-   "commit": "a9d3f2d",
+   "commit": "6325909",
    "superseded_by": null,
    "note": ""
   },
@@ -404,7 +404,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/DISTILL-LOG-2026-11-06.json",
    "locator": "\"deduped_share\": 0.153",
-   "commit": "a9d3f2d",
+   "commit": "6325909",
    "superseded_by": null,
    "note": "derived: 52 / 340"
   },
@@ -416,7 +416,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/DISTILLER-REACH-2026-11-06.json",
    "locator": "\"user_chars_median\": 7215.0",
-   "commit": "4abc6f2",
+   "commit": "c8d30fe",
    "superseded_by": null,
    "note": ""
   },
@@ -428,7 +428,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/DISTILLER-REACH-2026-11-06.json",
    "locator": "\"user_share_of_chars\": 0.992",
-   "commit": "4abc6f2",
+   "commit": "c8d30fe",
    "superseded_by": null,
    "note": "derived: 0.992"
   },
@@ -440,7 +440,7 @@
    "date": "2026-11-06",
    "artifact": "paper-d-c2-production/READING-2026-11-06.txt",
    "locator": "\"judge2\": 0.6",
-   "commit": "c83e32f",
+   "commit": "fe6566a",
    "superseded_by": null,
    "note": "added 2026-11-06 after Codex review"
   }

@@ -12,7 +12,7 @@
    "date": "2026-10-22",
    "artifact": "audits/2026-10-14-brief-usage.md",
    "locator": "**1,524**",
-   "commit": "f813bb1",
+   "commit": "ead06f0",
    "superseded_by": null,
    "note": ""
   },
@@ -24,7 +24,7 @@
    "date": "2026-10-22",
    "artifact": "audits/2026-10-14-brief-usage.md",
    "locator": "**12,782** | **0**",
-   "commit": "f813bb1",
+   "commit": "ead06f0",
    "superseded_by": null,
    "note": ""
   },
@@ -36,7 +36,7 @@
    "date": "2026-10-22",
    "artifact": "audits/2026-10-14-brief-usage.md",
    "locator": "| **0** | 57 |",
-   "commit": "f813bb1",
+   "commit": "ead06f0",
    "superseded_by": null,
    "note": ""
   },
@@ -48,7 +48,7 @@
    "date": "2026-10-14",
    "artifact": "audits/2026-10-14-brief-usage.md",
    "locator": "assistant messages with text in window: 1120",
-   "commit": "f813bb1",
+   "commit": "ead06f0",
    "superseded_by": "7a-messages",
    "note": "understated: one of three roots",
    "history": [
@@ -64,7 +64,7 @@
    "date": "2026-10-14",
    "artifact": "audits/2026-10-14-brief-usage.md",
    "locator": "≥ 60%",
-   "commit": "f813bb1",
+   "commit": "ead06f0",
    "superseded_by": null,
    "note": ""
   },
@@ -76,7 +76,7 @@
    "date": "2026-10-14",
    "artifact": "audits/2026-10-14-brief-usage.md",
    "locator": "8 strict",
-   "commit": "f813bb1",
+   "commit": "ead06f0",
    "superseded_by": null,
    "note": ""
   },
@@ -88,7 +88,7 @@
    "date": "2026-10-22",
    "artifact": "audits/2026-10-21-r1-recency-relevance.md",
    "locator": "assistant messages in window: 574",
-   "commit": "f813bb1",
+   "commit": "ead06f0",
    "superseded_by": null,
    "note": ""
   },
@@ -100,7 +100,7 @@
    "date": "2026-10-21",
    "artifact": "audits/2026-10-21-r1-recency-relevance.md",
    "locator": "strict fires=287 ( 95.7%)",
-   "commit": "f813bb1",
+   "commit": "ead06f0",
    "superseded_by": null,
    "note": ""
   },
@@ -112,7 +112,7 @@
    "date": "2026-10-21",
    "artifact": "audits/2026-10-21-r1-recency-relevance.md",
    "locator": "strict fires=300 (100.0%)",
-   "commit": "f813bb1",
+   "commit": "ead06f0",
    "superseded_by": null,
    "note": ""
   },
@@ -124,7 +124,7 @@
    "date": "2026-10-21",
    "artifact": "audits/2026-10-21-r1-recency-relevance.md",
    "locator": "detectable=483 (99.6%)",
-   "commit": "f813bb1",
+   "commit": "ead06f0",
    "superseded_by": null,
    "note": ""
   },
@@ -136,7 +136,7 @@
    "date": "2026-10-21",
    "artifact": "audits/2026-10-21-r1-recency-relevance.md",
    "locator": "337 of 382 searches",
-   "commit": "f813bb1",
+   "commit": "ead06f0",
    "superseded_by": null,
    "note": ""
   },
@@ -184,7 +184,7 @@
    "date": "2026-10-23",
    "artifact": "audits/2026-10-23-item7-consumidor-construido.md",
    "locator": "| **searches the agent issued unprompted** | **11** | **6** |",
-   "commit": "77982a7",
+   "commit": "43df9d9",
    "superseded_by": null,
    "note": ""
   },
@@ -196,7 +196,7 @@
    "date": "2026-10-22",
    "artifact": "audits/2026-10-14-brief-usage.md",
    "locator": "ctrl_past    pairs=   74347  strict=    0 (  0.00/10k)  fuzzy=    0",
-   "commit": "f813bb1",
+   "commit": "ead06f0",
    "superseded_by": null,
    "note": "added 2026-11-06 after Codex and Kimi review"
   },
@@ -208,7 +208,7 @@
    "date": "2026-10-22",
    "artifact": "audits/2026-10-14-brief-usage.md",
    "locator": "| one root, rerun today | 5 | 1,029 |",
-   "commit": "f813bb1",
+   "commit": "ead06f0",
    "superseded_by": null,
    "note": "added 2026-11-06: same-day comparison against 1,524 with three roots"
   },
@@ -220,7 +220,7 @@
    "date": "2026-10-14",
    "artifact": "audits/2026-10-14-brief-usage.md",
    "locator": "exposed      pairs=    9398  strict=    0 (  0.00/10k)  fuzzy=    0",
-   "commit": "f813bb1",
+   "commit": "ead06f0",
    "superseded_by": null,
    "note": "added 2026-11-06 after Codex second pass",
    "history": []
