@@ -26,8 +26,8 @@ reading is "no visible change". The fleet of server agents on the same host, whi
 the text, made 13 searches after the deployment in the transcripts on disk, all from one agent on
 one weekly task whose answer needed the corpus; that task was switched off on 2026-11-17. No arm
 showed a measurable effect on writing to memory (0 or 1 of 30 runs in the three arms tested on
-it). We report a contrast between an evaluated effect and observed field use, which are not
-measured on the same scale, not an explanation of it.
+it). We report a contrast between an evaluated effect and observed field use, which are measured
+on different scales, and we do not explain it.
 
 ## 1. Question and setting
 
@@ -49,8 +49,8 @@ An MCP client has three places to carry such a text, and they are not read at th
 - **Tool descriptions.** In this client the MCP tools are deferred: the model sees their names
   and must call a tool-search step to load their schemas. In the main run (arms S0 and S1, kept
   tasks), every one of the 59 K runs that called a memory tool called that step first; 54 of them
-  searched, and the other 5 only asked for statistics. A description is therefore read after the decision
-  to search, and can hardly cause it.
+  searched, and the other 5 only asked for statistics. A description is therefore read after the
+  decision to search, and can hardly cause it.
 - **A skill file.** The client lists each skill's short description in the system prompt and
   loads the body only when the model invokes it. In the main run the body was loaded in 28 of the
   108 S1 runs on the kept tasks (26%).
@@ -122,14 +122,14 @@ to change a configuration value of software the corpus does not cover, which is 
 sentence ("search before changing a setting…") says to do when nothing says what the memory
 holds. The scoped revision removed most of that (1 of 60 runs) at no detectable cost on K: T2 − T
 is −0.028 [−0.139, +0.083], which does not exclude a loss of up to 14 pp. Against the skill, T2 −
-S1 is +0.213 [0.102, 0.333]. T2 changed several sentences at once, so these differences are the
-effect of the revision as a whole, not of any one sentence in it.
+S1 is +0.213 [0.102, 0.333]. T2 changed several sentences at once, so these differences belong to
+the revision as a whole; the design cannot assign them to any one sentence.
 
 **The arms differ in how often the agent searches.** In every arm, a run that searched passed at
 roughly 0.6 to 0.8 (S1 0.63, T 0.69, T2 0.68), near the P+ ceiling; a run that did not search
-almost never passed (S0 0.029, S1 0.051, T2 0.07). This is an association inside each arm, not
-the yield of a search, since the arm itself changes which runs search (S0 searched in only 5);
-what the arms visibly change is the share of runs that make one.
+almost never passed (S0 0.029, S1 0.051, T2 0.07). This is an association inside each arm and
+does not measure what a search yields, since the arm itself changes which runs search (S0
+searched in only 5). What the arms visibly change is the share of runs that make one.
 
 **Writing.** When the user stated a decision mid-task, the agent wrote it to memory in 0 of 30
 S0 runs, 1 of 30 S1 runs and 0 of 30 T runs; T2 was not run on the writing sets. A rewritten
@@ -156,7 +156,7 @@ records, with no external timestamp.
 **Reading on 2026-11-15.** AFTER: 38 sessions, 2 with a search (P = 0.053), 4 search calls in
 total, 3 of them the same query in one session. BEFORE: 0 of 269 (the frozen baseline had 278
 sessions, also with 0 searches; 9 of them were no longer on disk at the second reading). Reading:
-no visible change: the threshold was not reached, which is not evidence that the effect is zero.
+no visible change. The threshold was not reached, which is not evidence that the effect is zero.
 None of the 8 AFTER sessions in the two repositories the memory most covers searched. The field
 reading counts searches in sessions whose need for memory is unknown; the evaluation counted
 answers on tasks built to need it. The two are not on the same scale.
@@ -170,7 +170,7 @@ several ways that could matter, and none of them was varied:
   a session-start hook already pushes a short memory brief into each session;
 - the task mix is whatever the owner did that week, not tasks drawn from the memory's contents,
   so the share of sessions that needed memory at all is unknown;
-- before and after are not randomized; this is one user's before/after, not a trial.
+- before and after are not randomized, and the comparison covers one user.
 
 ## 6. The agents that never received the text
 
@@ -186,9 +186,9 @@ in a different setting:
 - The agent transcripts on disk on 2026-11-20 (83 files modified after 2026-11-08 17:45 UTC) hold
   13 search calls and 1 full-text read, each dated after that time by its own timestamp: 6 on
   2026-11-09 and 8 on 2026-11-16, two Mondays, all from one agent whose weekly deadline sweep ran
-  on Mondays (openclaw-vps PR #89), a task whose answer depends on the corpus by design. The owner switched that sweep
-  off on 2026-11-17, so these 13 calls are history, not ongoing use. No call by any other agent
-  was found in the files examined. The host prunes old transcripts, so some sessions after the
+  on Mondays (openclaw-vps PR #89), a task whose answer depends on the corpus by design. The
+  owner switched that sweep off on 2026-11-17, so these 13 calls come from a task that no longer
+  runs. No call by any other agent was found in the files examined. The host prunes old transcripts, so some sessions after the
   deployment may already be gone.
 
 The server's own telemetry cannot settle the field question by itself: from 2026-10-18 to
@@ -216,8 +216,7 @@ result, or that any of this holds for other models, other clients, or the operat
 One model and one client. One corpus, the project's own engineering docs; the tasks were written
 by the team, not drawn from users. The person who built the system ran the evaluation, wrote the
 scoped text and graded the human sample, blind to arm. The arms were designed one after another
-on the same bank. The T and T2 controls were not run
-concurrently. The minimum detectable difference, computed in advance for 40 tasks, is about
+on the same bank. The T and T2 controls were not run concurrently. The minimum detectable difference, computed in advance for 40 tasks, is about
 18 pp, and a little more on the 36 kept, so the T2 − T and similar comparisons near zero are not
 shown to be zero. The field reading is one user, one week, 38 sessions, and measures searches,
 not answers.
@@ -229,18 +228,25 @@ not answers.
 as `docs/skill-eval/` at commit `438e3a6` of the product repository. The bank file matches the
 hash the protocol froze, and the runner matches its last re-freeze. The protocol holds the design
 and every controlled-evaluation result; it does not hold the field readings, whose sources are
-the reports below and `field-recount-2026-11-20.md`. The census and the audits cited in sections 1
+the real-use reports (private, listed below) and `field-recount-2026-11-20.md`. The census and the audits cited in sections 1
 and 6 are in this public repository; the companion note is deposited on Zenodo
 (doi:10.5281/zenodo.24017458).
 
-**Private.** The branch that holds the protocol, kept in a private repository with a git bundle as
-a second copy, because it also carries the archived skill; the skill file; the frozen evaluation
-database, which is not included and cannot be rebuilt in full from the public history (section
-3); the run data (the agent's replies and the grader's verdicts, which can quote the corpus) and
-the analysis scripts that compute the effects and intervals from them; the real-use script and its
-two reports, which read the owner's transcripts (the rule is quoted in full in section 5); and
-the agent transcripts, which stay on the host. A reader can check every figure against the
-protocol and the recount, but cannot recompute the effects and intervals from public material.
+**Private.**
+
+- the branch that holds the protocol, kept in a private repository with a git bundle as a second
+  copy, because it also carries the archived skill;
+- the skill file;
+- the frozen evaluation database, which is not included and cannot be rebuilt in full from the
+  public history (section 3);
+- the run data (the agent's replies and the grader's verdicts, which can quote the corpus) and the
+  analysis scripts that compute the effects and intervals from them;
+- the real-use script and its two reports, which read the owner's transcripts (the rule is quoted
+  in full in section 5);
+- the agent transcripts, which stay on the host.
+
+A reader can check every figure against the protocol and the recount, but cannot recompute the
+effects and intervals from public material.
 
 ## Provenance
 
