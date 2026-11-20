@@ -203,9 +203,11 @@ shown to be zero. The field reading is one user, one week,
 The evaluation protocol, with the frozen-artifact hashes and every result above, is
 `docs/skill-eval/PROTOCOL.md` at commit `438e3a6` of the product repository. That branch is kept
 in a private repository, with a git bundle as a second copy, because it also carries the archived
-skill; a byte-for-byte copy of the protocol is published next to this note
-(`skill-eval-PROTOCOL.md`, same git blob). Run data and analysis scripts are kept off the
-repository with the same backups.
+skill; byte-for-byte copies of the protocol (`skill-eval-PROTOCOL.md`), the task bank and the
+harness (`skill-eval/`) are published next to this note, with the same git blobs. The bank file
+matches the hash the protocol froze, and the runner matches its last re-freeze. The skill file and
+the run data (the agent's replies and the grader's verdicts, which can quote the corpus) are kept
+off the repository with the same backups.
 The real-use script and its two reports are private (they read the owner's transcripts); the rule
 is quoted in full in section 5. The agent transcripts stay on the host. The census and the audits
 cited in sections 1 and 6 are in this public repository; the companion note is deposited on

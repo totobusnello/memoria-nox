@@ -18,10 +18,10 @@ publish refusal lives in one place.
 This script never publishes (the imported req refuses any /actions/publish URL). Publishing is
 manual and the author's.
 
-The archive carries the note, its provenance file, the verbatim copy of the evaluation protocol
-(438e3a6), the field recount of 2026-11-20 and the two audits the note cites, under their
-repository paths. The evaluation's run data, the real-use script and its reports stay private, as
-the note's data availability section says.
+The archive carries the note, its provenance file, verbatim copies of the evaluation protocol,
+task bank and harness (438e3a6), the field recount of 2026-11-20 and the two audits the note
+cites, under their repository paths. The evaluation's run data, the skill file, the real-use
+script and its reports stay private, as the note's data availability section says.
 """
 import importlib.util
 import os
@@ -52,6 +52,17 @@ REPO_COMMIT = os.environ.get("NOTE_COMMIT", "")
 CODE_FILES = ["note-unconsulted-memory/NOTE.md", "note-unconsulted-memory/PROVENANCE.json",
               "note-unconsulted-memory/README.md", "note-unconsulted-memory/skill-eval-PROTOCOL.md",
               "note-unconsulted-memory/field-recount-2026-11-20.md",
+              "note-unconsulted-memory/skill-eval/bank/tasks-v1.jsonl",
+              "note-unconsulted-memory/skill-eval/bank/draw-v1.json",
+              "note-unconsulted-memory/skill-eval/bank/eval-a819385.manifest.json",
+              "note-unconsulted-memory/skill-eval/bank/grader-calibration-v1.jsonl",
+              "note-unconsulted-memory/skill-eval/bank/tasks-v1-draft-notes.md",
+              "note-unconsulted-memory/skill-eval/harness/run_eval.py",
+              "note-unconsulted-memory/skill-eval/harness/grade.py",
+              "note-unconsulted-memory/skill-eval/harness/build-corpus.sh",
+              "note-unconsulted-memory/skill-eval/harness/arm-T-mcp-server.diff",
+              "note-unconsulted-memory/skill-eval/harness/arm-T2-mcp-server.diff",
+              "note-unconsulted-memory/skill-eval/harness/smoke-tasks.jsonl",
               "note-unconsulted-memory/pdf-build/build-note-pdf.sh",
               "note-unconsulted-memory/deposit/deposit-note.py",
               "audits/2026-10-23-item7-consumidor-construido.md",

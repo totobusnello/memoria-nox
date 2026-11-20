@@ -1,0 +1,10 @@
+{
+  "corpus_repo": "totobusnello/memoria-nox",
+  "commit": "a819385e0b8cddcdff731086545d5d974d9bd09a",
+  "files": 110,
+  "chunks": 1382,
+  "vectors": 1382,
+  "db_sha256": "869ddf6d68491dfcb02b71ed0869d13ba1fc977bf8e54b857912b437569dbf64",
+  "nox_mem_version": "3.7.0",
+  "embedding": "gemini (package default provider; model recorded by nox-mem in the DB)"
+}
