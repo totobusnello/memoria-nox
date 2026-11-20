@@ -1,7 +1,10 @@
 # Paper A: evaluating retrieval on a living PT-BR agent memory
 
 Working title: *Five ways the ruler misleads: evaluating retrieval on a living Portuguese agent
-memory.* Status: manuscript draft (`MANUSCRIPT.md`), H-A2 not tested (run 2026-11-18); one more reading registered for 2027-05-18 (`AMENDMENT-H-A2.md`); H-A2R, a retrospective test over 2026-05-04 to 2026-11-18 (`PREREGISTRATION-H-A2R.md`), holds on its primary reading (run 2026-11-20). Not deposited. The plan lives in `../PLANO.md` (section "Os quatro papers",
+memory.* Status: manuscript draft (`MANUSCRIPT.md`), H-A2 not tested (run 2026-11-18); one more reading registered for 2027-05-18 (`AMENDMENT-H-A2.md`); H-A2R, a retrospective test over 2026-05-04 to 2026-11-18 (`PREREGISTRATION-H-A2R.md`), holds on its primary reading (run 2026-11-20). **Deposited** on Zenodo on 2026-11-20 as version 1.0,
+doi:10.5281/zenodo.24400444 (concept doi:10.5281/zenodo.24400443), after the avoid-ai-writing pass (#728) and
+three rounds by Codex and Kimi (#730, #731, #733). `MANUSCRIPT.md` is the source of that version; the deposit copy
+replaces its status line with the DOI line. The plan lives in `../PLANO.md` (section "Os quatro papers",
 row A); this file is the paper's own scope.
 
 ## What the paper is

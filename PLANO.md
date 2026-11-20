@@ -105,10 +105,9 @@ no Setup de cada paper.
 
 ## Etapa atual
 
-Etapa: Deploy (paper A): rascunho no Zenodo pronto, doi:10.5281/zenodo.24400444 reservado, à espera da
-publicação pelo Toto (20/11)
-Próximo passo: o Toto publica o rascunho 24400444 no Zenodo; depois, o card no labf.bio (com preview
-antes do merge). Em seguida, a nota «the memory the agent does not consult» (#723) pelo mesmo caminho.
+Etapa: Deploy (paper A): **publicado** pelo Toto em 20/11, doi:10.5281/zenodo.24400444 (concept
+doi:10.5281/zenodo.24400443), v1.0, software link `baf4b80`, checksums do registro iguais aos do build
+Próximo passo: o card do Paper A no labf.bio (com preview antes do merge). Em seguida, a nota «the memory the agent does not consult» (#723) pelo mesmo caminho.
 Feito de 18 a 20/11: H-A2 not tested (#724); emenda para 2027-05-18 (#725); H-A2R pré-registrada e
 lida, primária sustentada (#726, #727); passe avoid-ai-writing (#728); proveniência de A a E
 remapeada para os commits pós-reescrita, com gate que exige ancestralidade e job na CI (#729); duas

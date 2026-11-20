@@ -1,4 +1,4 @@
-## ▶ Sexta 20/11, 12h40 BRT — Paper A: rascunho no Zenodo (24400444), à espera da publicação
+## ▶ Sexta 20/11, 14h20 BRT — Paper A PUBLICADO no Zenodo (doi:10.5281/zenodo.24400444)
 
 **18/11:**
 - Morning report e sync do Notion conferidos: ok.
@@ -40,15 +40,15 @@
 - **Pacote de depósito (#731, #732).** O zip passou a levar RESULTS, H-A2, H-A2R e a emenda. O build do PDF agora mantém o
   título junto da tabela que vem logo depois dele.
 - **Zenodo:** rascunho **24400444**, doi:10.5281/zenodo.24400444 reservado, com data de 20/11 e software link em
-  `baf4b80` (refeito às 14h20 depois da 3ª rodada de Codex e Kimi, #733: descrição + diff do #731). `--fill` e `--readback` sem divergência. **Não publicado.**
+  `baf4b80` (refeito às 14h20 depois da 3ª rodada de Codex e Kimi, #733: descrição + diff do #731). `--fill` e `--readback` sem divergência. **Publicado pelo Toto às 14h17**; o registro público tem os mesmos md5
+  do build (concept doi:10.5281/zenodo.24400443).
 - **Paper 3:** os depósitos v1.0 a v1.2 citam `bca912c` e `977ec5f`, hashes de antes da reescrita. Mudar isso só cabe numa
   versão futura; o documento da reescrita dá os hashes novos.
 
 **Próximo:**
 1. **Depende do Toto:**
-   - publicar o rascunho 24400444 no Zenodo;
    - o alphaXiv do Paper 1 está em espera, por decisão dele.
-2. **Depois da publicação:**
+2. **Agora que o Paper A saiu:**
    - card do Paper A no labf.bio, com preview antes do merge;
    - nota «the memory the agent does not consult» (#723) pelo mesmo caminho. Ela cita o protocolo num commit que só existe
      numa branch local (`438e3a6`) e ainda não tem proveniência, avoid-ai-writing, vozes nem script de depósito.
