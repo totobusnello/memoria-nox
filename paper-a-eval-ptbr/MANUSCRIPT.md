@@ -127,11 +127,11 @@ first eight words, seven of the unverified quotes did verify, which is what drif
 than invention, would produce.
 
 The pooling then required each "relevant" label to carry an eight-word quote found in the chunk.
-That check protects the citation, not the claim. Measured against a second judge from another model
+That check verifies the citation and says nothing about the claim. Measured against a second judge from another model
 family on all 510 v2 pairs, agreement (kappa) was 0.5458 with the first judge's own verdict and
 0.4412 with the verdict after the citation check: the check cost 0.105 of kappa. Pairs that the
 citation check had rejected were confirmed by the second judge at 51.0%, slightly more often than
-pairs it had accepted (48.1%). The check was adding formatting noise, not precision.
+pairs it had accepted (48.1%). The check added formatting noise and no precision.
 
 The judge also could not hold a negative. For a false-premise question, one with no answer in the
 corpus, the oracle accepted gold on three chunks. With a prompt that asked it first to check the
@@ -321,7 +321,7 @@ source file up by its recorded path, no longer found them. The system re-chunked
 window, which is the case the hypothesis was about. `RESULTS.md` has the run, the counts and the
 deviation.
 
-Why the system re-chunked nothing has a plain cause, and the pre-registration missed it. On
+The pre-registration missed why the system re-chunked nothing. On
 2026-10-14, three weeks before H-A2 was registered, the production ingest changed (nox-supermem#42).
 Before that date every re-ingest of a file deleted all of its chunks and inserted new ones, so any
 edit to a file changed the ids of all its chunks; that is the behaviour behind the 61 of 85 lost
