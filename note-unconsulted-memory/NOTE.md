@@ -159,15 +159,15 @@ in a different setting:
   tool calls in all, none of them a search).
 - In the census reported on 2026-10-21, 337 of 382 recorded searches were the server's own canary
   probe and none was attributed to an agent.
-- The agent transcripts on disk on 2026-11-17 (65 files modified after 2026-11-08 17:45 UTC) hold
+- The agent transcripts on disk on 2026-11-20 (83 files modified after 2026-11-08 17:45 UTC) hold
   13 search calls and 1 full-text read, all from one agent's weekly deadline sweep, a task whose
   answer depends on the corpus by design. The owner switched that sweep off on 2026-11-17
   (its last run was on 2026-11-16), so these 13 calls are history, not ongoing use. The other
   agents made none. The host prunes old
   transcripts, so some sessions after the deployment may already be gone.
 
-The server's own telemetry cannot settle the field question by itself: over the 30 days to
-2026-11-17 it logged 108 MCP searches with an unknown caller, which mixes the owner's sessions
+The server's own telemetry cannot settle the field question by itself: from 2026-10-18 to
+2026-11-17 it logged 109 MCP searches with an unknown caller, which mixes the owner's sessions
 and the agents. The counts above come from the client transcripts, where the caller is known.
 
 ## 7. What this note claims, and what it does not
@@ -189,26 +189,29 @@ the operations agents.
 One model and one client. One corpus, the project's own engineering docs; the tasks were written
 by the team, not drawn from users. The person who built the system ran the evaluation, wrote the
 scope sentence and graded the human sample, blind to arm. The T and T2 controls were not run
-concurrently. With 36 tasks the minimum detectable difference is about 18 pp, so the T2 − T and
-similar comparisons near zero are not shown to be zero. The field reading is one user, one week,
+concurrently. The minimum detectable difference, computed in advance for 40 tasks, is about
+18 pp, and a little more on the 36 kept, so the T2 − T and similar comparisons near zero are not
+shown to be zero. The field reading is one user, one week,
 38 sessions.
 
 ## 9. Data availability
 
 The evaluation protocol, with the frozen-artifact hashes and every result above, is
-`docs/skill-eval/PROTOCOL.md` on an unpublished local branch of the product repository (commit
-`438e3a6`), backed up as a git bundle; it is not pushed because the branch also carries the
-archived skill. Run data and analysis scripts are kept off the repository with the same backups.
+`docs/skill-eval/PROTOCOL.md` at commit `438e3a6` of the product repository. That branch is kept
+in a private repository, with a git bundle as a second copy, because it also carries the archived
+skill; a byte-for-byte copy of the protocol is published next to this note
+(`skill-eval-PROTOCOL.md`, same git blob). Run data and analysis scripts are kept off the
+repository with the same backups.
 The real-use script and its two reports are private (they read the owner's transcripts); the rule
 is quoted in full in section 5. The agent transcripts stay on the host. The census and companion
 note cited in sections 1 and 6 are in this public repository.
 
 ## Provenance
 
-`P` = `docs/skill-eval/PROTOCOL.md` at `438e3a6` (local branch `docs/memory-skill-draft`).
+`P` = `skill-eval-PROTOCOL.md` in this directory, a verbatim copy of `docs/skill-eval/PROTOCOL.md` at `438e3a6` (product repository, branch `docs/memory-skill-draft`).
 `R` = the real-use reports in the owner's evaluation directory (`real-use/`), not public.
 `H` = `docs/HANDOFF.md` of this repository at `b3ca58d`.
-`Q` = read-only queries on the production host by the author on 2026-11-17 (command in the row).
+`F` = `field-recount-2026-11-20.md` in this directory: read-only queries on the production host, with the commands and their output.
 
 | number | value | source |
 |---|---|---|
@@ -216,6 +219,7 @@ note cited in sections 1 and 6 are in this public repository.
 | eval DB chunks | 1,382 | P:11 |
 | tasks kept after N screen; N floor | 36; 0 of 108 | P:185–188 |
 | grader calibration | 40/40 oracle pass, 40/40 generic fail | P:179–180 |
+| tool calls in the stream equal server telemetry, every run | 480/480, 240/240, 180/180, 40/40 twice | P:241, P:347, P:444, P:194, P:221 |
 | P+ at 200-char preview | 40/40 searched, 10/36 pass, 25/40 file attempts | P:193–203 |
 | P+ after whole-text fix (3.8.0) | 27/36 = 0.75; file attempts 25 → 1 of 40 | P:221–224 |
 | deferred tools: runs that searched and called tool search first | 59 of 59 | P:306–308 |
@@ -233,7 +237,7 @@ note cited in sections 1 and 6 are in this public repository.
 | T2 − T; T2 − S1 | −0.028 [−0.139, +0.083]; +0.213 [0.102, 0.333] | P:465–468 |
 | pass when searched / not | S0 0.029 (not); S1 0.61 / 0.051; T2 0.68 / 0.07 | P:279–282, P:470–471 |
 | writing W+ | S0 0/30, S1 1/30, T 0/30 | P:292–293, P:394 |
-| minimum detectable effect | about 18 pp | P:154–155 |
+| minimum detectable effect (40 tasks) | about 18 pp | P:154–155 |
 | deployment time; field text length | 2026-11-08 17:45 UTC; 1,750 chars | R `measure.py`:4, :12 |
 | real-use rule | as quoted in section 5 | P:502–511; R `measure.py`:5–17 |
 | AFTER n, P, calls | 38, 0.053, 0.11 per session (= 4) | R `report-2026-11-15.json` `AFTER` |
@@ -243,6 +247,6 @@ note cited in sections 1 and 6 are in this public repository.
 | October census: five searches in thirty days | 5 | `audits/2026-10-23-item7-consumidor-construido.md`:22 |
 | 0 search calls since 2026-09-01; 4 memory calls | 0; 4 | H:1674–1675 |
 | 337 of 382 searches were the canary | 337 / 382 | `audits/2026-10-21-r1-recency-relevance.md`:131 |
-| agent transcripts after deploy; searches; reads | 65 files; 13; 1, all one agent | Q: `find <agent-transcripts> -name '*.jsonl' -newermt '2026-11-08 17:45'`, then count `"type":"tool_use"` blocks named `mcp__nox-mem__*` |
+| agent transcripts after deploy; searches; reads | 83 files; 13; 1, all one agent | F, first section |
 | weekly deadline sweep switched off | 2026-11-17; last run 2026-11-16 | `totobusnello/openclaw-vps` PR #89 (crontab line commented, dated note in `crontab-rebuild.sh`) |
-| unknown-caller MCP searches, 30 days | 108 | Q: `SELECT requesting_agent, COUNT(*) FROM search_telemetry WHERE ts >= '2026-10-18' GROUP BY 1` |
+| unknown-caller MCP searches, 2026-10-18 to 2026-11-17 | 109 | F, second section |
