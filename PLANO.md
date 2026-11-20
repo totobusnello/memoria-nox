@@ -108,7 +108,9 @@ no Setup de cada paper.
 Etapa: Deploy (paper A): **publicado** pelo Toto em 20/11, doi:10.5281/zenodo.24400444 (concept
 doi:10.5281/zenodo.24400443), v1.0, software link `baf4b80`, checksums do registro iguais aos do build
 Card no labf.bio no ar em 20/11 (site-labf#69, `8924f8b`), preview aprovado pelo Toto antes do merge.
-Próximo passo: a nota «the memory the agent does not consult» (#723) pelo mesmo caminho, quando o Toto quiser começar.
+Nota #723 («the memory the agent does not consult»): **rascunho 24408079 no Zenodo**, doi:10.5281/zenodo.24408079
+reservado, data 2026-11-20, software link `4dce8f2`; `--fill` e `--readback` sem divergência. **Não publicado.**
+Próximo passo: o Toto publica o rascunho 24408079; depois, card da nota no labf.bio (preview antes do merge).
 Feito de 18 a 20/11: H-A2 not tested (#724); emenda para 2027-05-18 (#725); H-A2R pré-registrada e
 lida, primária sustentada (#726, #727); passe avoid-ai-writing (#728); proveniência de A a E
 remapeada para os commits pós-reescrita, com gate que exige ancestralidade e job na CI (#729); duas
@@ -258,6 +260,8 @@ com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 
 | 2026-11-20 | manuscrito, challenge (1ª rodada) | Codex gpt-6-astra (96 s), Kimi k3.1-pro (307 s) | recibos `adversary-receipt-codex-2026-11-20T115537-68692.txt` e `adversary-receipt-kimi-2026-11-20T115539-69052.txt`, `exit 0`, cwd do clone | Codex: revisão maior (11 achados); Kimi: rejeição como está (10). Nenhum número divergente. Aplicados todos (#730): «interval»/«ceiling» fora, 38 rejeições atribuídas ao juiz, H-A2R num §5 retrospectivo com desenho informado, H-A2 sem «re-chunked nothing», emenda citada, 4 limitações |
 | 2026-11-20 | diff do #730, review (2ª rodada) | Codex gpt-6-astra (153 s), Kimi k3.1-pro (321 s) | `adversary-receipt-codex-2026-11-20T121103-8117.txt`, `adversary-receipt-kimi-2026-11-20T121157-9490.txt`, `exit 0` | as duas: revisão menor, sem 3ª rodada. Aplicados (#731): unidades do reparo (38 entradas em 28 perguntas; errata no audit de 27/10), «still scored low», strict pelo gold registrado, ressalva de data dos commits reescritos |
 | 2026-11-20 | descrição do Zenodo + diff do #731, review (3ª rodada) | Codex gpt-6-astra (58 s), Kimi k3.1-pro (253 s) | `adversary-receipt-codex-2026-11-20T140419-93847.txt`, `adversary-receipt-kimi-2026-11-20T140430-94363.txt`, `exit 0`, cwd do clone | as duas: revisão menor, segurar só até os ajustes. Aplicados (#733): PROVENANCE em queries (6 de 28; 22 e 21 queries), população do «10 of 14» nomeada, ressalva da reescrita na descrição. Rascunho refeito em `baf4b80`, readback sem divergência |
+| 2026-11-20 | nota #723 inteira + descrição + diff desde o rascunho, review | Codex gpt-6-astra (229 s), Kimi k3.1-pro (856 s) | `adversary-receipt-codex-2026-11-20T190455-80669.txt`, `adversary-receipt-kimi-2026-11-20T190458-81042.txt`, `exit 0`, cwd do clone | Codex: rodada curta de correções (9 achados, nenhum alto); Kimi: NO-GO editorial, não dos dados (1 alto: T2 não é «uma frase»). Aplicados (#736): T2 como revisão de escopo, S1 0,63, escrita, contraste, registro interno com horários, recontagem por timestamp (14 chamadas, todas pós-deploy), disponibilidade pública × privada |
+| 2026-11-20 | nota #723 corrigida + diff do #736, review | DeepSeek v4-pro (159 s) | `adversary-receipt-deepseek-2026-11-20T194434-57083.txt`, `exit 0`, attach 121.998 | 3 achados (59 vs 54 corridas: o 59 conta qualquer chamada de memória; fontes de AFTER/BEFORE; PR #89 no texto). Aplicados (#737) |
 
 ## Lições
 

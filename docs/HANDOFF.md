@@ -1,3 +1,20 @@
+## ▶ Sexta 20/11, 19h55 BRT — Nota #723 no rascunho do Zenodo (24408079), à espera da publicação
+
+- **Rascunho 24408079**, doi:10.5281/zenodo.24408079 reservado, data 2026-11-20, software link `4dce8f2`. `--fill` e
+  `--readback` sem divergência; PDF 6 p. com a linha do DOI; zip com nota, proveniência, protocolo, banco, harness,
+  recontagem e as 2 auditorias. **Não publicado.**
+- PRs: #734 (protocolo literal + recontagem), #735 (proveniência 52 claims, PDF, script de depósito; conserta o gate
+  do Paper A, vermelho desde `bd66625`), #736 (Codex + Kimi), #737 (DeepSeek). Gate 55 claims / 56 números, verde
+  num clone novo.
+- Achados que mudaram o texto: T2 é uma revisão de escopo (não «uma frase»); a regra de campo entrou no protocolo às
+  18:31 UTC de 08/11, depois do deploy (17:45), e a baseline com 0 AFTER é das 17:56: dito como registro interno; 4
+  auditorias do corpus saíram na reescrita, o banco de avaliação não se refaz do histórico público; 109 (não 108)
+  buscas MCP; as 13 buscas do lex são todas pós-deploy (6 em 09/11, 8 em 16/11).
+- Fora do repo: bundle novo da branch privada em `~/Claude-archive/bundles/nox-mem-docs-memory-skill-draft-20261120.bundle`
+  (inclui `438e3a6`).
+
+**Próximo:** o Toto publica 24408079; depois, card no labf.bio com preview antes do merge.
+
 ## ▶ Sexta 20/11, 18h45 BRT — Paper A PUBLICADO no Zenodo (doi:10.5281/zenodo.24400444) e no labf.bio
 
 **18/11:**
