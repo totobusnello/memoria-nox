@@ -1,3 +1,43 @@
+## ▶ Sexta 20/11, 08h30 BRT — Paper A: H-A2 fechado, H-A2R sustentado, emenda para 2027
+
+**18/11:**
+- Morning report e sync do Notion conferidos: ok.
+- #723 mergeado (nota «the memory the agent does not consult»).
+- **H-A2 rodado: «not tested»** (exposição 1/120; id 119, âncora 117). A causa ficou no #724: desde 14/10 (nox-supermem#42,
+  chunk-sync) o re-ingest mantém o id de todo chunk que não mudou, então o re-chunk que o H-A2 queria medir não acontece
+  mais. A âncora perdeu 3 itens do estrato F pela renomeação de 11/11 (`../agents/` → `agents/`, nox-mem#64).
+
+**19/11:**
+- **Emenda** `AMENDMENT-H-A2.md` (#725, tag `paper-a-h-a2-amendment-v1.0` em `a421da5`): nova leitura do H-A2 no primeiro
+  `.gz` de **18/05/2027**, uma única vez. A cópia tem de ser feita até 23/05/2027, com o runner `h-a2-amendment-run.py`.
+  Renomeação continua contando contra a âncora.
+- **Segunda cópia** do banco congelado de 04/11 + holdout (47 arquivos, sha256 idêntico) em `~/Backups/paper-a-snapshot-2026-11-04/`
+  no Mac. A outra fica na VPS de Pesquisa.
+
+**20/11:**
+- **H-A2R** (pré-registro #726, tag `paper-a-h-a2r-prereg-v1.0` em `1d10b3a`; resultado #727): retrospectivo de 04/05 a
+  18/11 em 6 cópias do banco de produção fixadas por hash, com 510 referências mecânicas. O estrato C não existia em 04/05.
+  - **Primária sustentada:** entre as 406 referências cujo trecho ainda existe no fim, âncora 404 e id 265.
+  - **Forma do H-A2 (todas as 510): não sustentada**, porque 104 trechos saíram do corpus, 82 deles no estrato A.
+  - Estrato D: id 0/85, âncora 85/85.
+- Saída e referências privadas em `/root/backups/paper-a-h-a2r-2026-11-20/` na VPS de Pesquisa. As cópias de trabalho
+  (~10 GB) foram apagadas; os originais estão intactos.
+- **Passe de avoid-ai-writing** no manuscrito: #728, com 3 frases editadas e a sequência de números idêntica.
+
+**Achado, não consertado:** a tabela «What ran, in order» do `MANUSCRIPT.md` §4 cita os hashes de antes da reescrita de
+08/11 (`6c6879b`, `54048e4`, `31d90b2`, `6120a37`) e não tem nota remetendo ao `docs/HISTORY-REWRITE-2026-11-08.md`. O
+RESULTS tem essa nota. Antes do depósito: pôr a nota ou os hashes novos. É decisão do Toto. O PROVENANCE
+também cita commits de antes da reescrita, de propósito.
+
+**Próximo:**
+1. **Depende do Toto:**
+   - vozes adversariais no Paper A antes do depósito (ele escolhe quais);
+   - decidir a nota dos hashes;
+   - decidir o alphaXiv para o Paper 1.
+2. **Com data:**
+   - 01/12: janela de leitura do shadow do C2;
+   - 18/05 a 23/05/2027: leitura do H-A2 pela emenda.
+
 ## ▶ Terça 17/11, 19h15 BRT — fim do dia; retomar na quarta 18/11
 
 Nada mudou desde a entrada das 13h30 (logo abaixo), que continua valendo. PR #723 segue aberto, sem merge, à espera da
