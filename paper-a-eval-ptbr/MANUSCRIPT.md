@@ -3,7 +3,7 @@ title: "Five ways the ruler misleads: evaluating retrieval on a living Portugues
 author: "Luiz Antonio Busnello"
 ---
 
-Status: working draft, not deposited, not peer reviewed. H-A2 (§4) ran on 2026-11-18 and is not tested.
+Status: working draft, not deposited, not peer reviewed. H-A2 (§4) ran on 2026-11-18 and is not tested; H-A2R, its retrospective form, ran on 2026-11-20 and holds on its primary reading.
 Every number in this text has an entry in `PROVENANCE.json`; §9 says how they are checked.
 
 ## Abstract
@@ -330,6 +330,22 @@ of every chunk whose text did not change, and lets a renamed file take over the 
 chunks. Under the current code an id is lost only when the text of its own chunk changes, and an
 anchor is lost when a path changes without a re-ingest, as in the migration above. H-A2, as
 registered, measures a failure mode this system stopped producing before the study began.
+
+### H-A2R: the anchor outlived the id where the evidence survived
+
+Copies of the production database from earlier dates still existed, so the H-A2 question was
+pre-registered a second time over a window that had already happened (`PREREGISTRATION-H-A2R.md`):
+from 2026-05-04 to 2026-11-18, across both ingest regimes. Six copies, each fixed by its hash; 510
+references drawn on the first, stratified like the holdout (stratum C did not exist yet), each a
+12-token passage chosen mechanically and unique in its file; the criterion and thresholds of H-A2.
+
+The primary reading is over the 406 references whose passage was still somewhere in the corpus at
+the end. Of those, 141 were exposed; the chunk id still reached its passage for 265 and the
+anchor, source path plus passage, for 404. The reading holds. Over all 510, the form H-A2 used, it
+does not hold: 104 passages had left the corpus, mostly from the imported documents of stratum A,
+and no reference reaches evidence that is gone. No entity note kept its chunk id over the window,
+and every one kept its anchor. The passages are arbitrary, not answers, and the window is one
+history of one system; `RESULTS.md` has the counts per database and per stratum.
 
 ## 5. Related work
 

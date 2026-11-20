@@ -1,7 +1,7 @@
 # Paper A: evaluating retrieval on a living PT-BR agent memory
 
 Working title: *Five ways the ruler misleads: evaluating retrieval on a living Portuguese agent
-memory.* Status: manuscript draft (`MANUSCRIPT.md`), H-A2 not tested (run 2026-11-18); one more reading registered for 2027-05-18 (`AMENDMENT-H-A2.md`); a retrospective test over 2026-05-04 to 2026-11-18 is pre-registered in `PREREGISTRATION-H-A2R.md`. Not deposited. The plan lives in `../PLANO.md` (section "Os quatro papers",
+memory.* Status: manuscript draft (`MANUSCRIPT.md`), H-A2 not tested (run 2026-11-18); one more reading registered for 2027-05-18 (`AMENDMENT-H-A2.md`); H-A2R, a retrospective test over 2026-05-04 to 2026-11-18 (`PREREGISTRATION-H-A2R.md`), holds on its primary reading (run 2026-11-20). Not deposited. The plan lives in `../PLANO.md` (section "Os quatro papers",
 row A); this file is the paper's own scope.
 
 ## What the paper is
@@ -40,7 +40,7 @@ A methods paper in two parts, kept apart in the text:
 | `PROVENANCE.json` | every number the text may print, with its audit, locator, commit and `superseded_by` |
 | `MANUSCRIPT.md` | the manuscript draft (2026-11-05): five retrospective findings, the pre-registered test, H-A2 not tested |
 | `manuscript-tables.py` | generates the manuscript's tables from `results/` and the commitments; `--check` is the table-parity gate |
-| `RESULTS.md` | the prospective results as read: H-A1 (2026-11-05), the human sample, descriptives; H-A2 not tested (2026-11-18) |
+| `RESULTS.md` | the prospective results as read: H-A1 (2026-11-05), the human sample, descriptives; H-A2 not tested (2026-11-18); H-A2R (2026-11-20) |
 | `results/` | the registered runs' printed outputs, copied unchanged (H-A1 from the serving host; H-A2 from the research host, with the backup listing and the snapshot's hash), the hashes of private outputs, and the H-A2 exploratory diagnosis |
 | `h-a2-anchor-diagnosis.py` | exploratory, not registered (2026-11-18): which queries made the anchor and the id differ in H-A2; paths and counts only |
 | `AMENDMENT-H-A2.md` | amendment of 2026-11-19: H-A2 read once more on the snapshot of 2027-05-18, nothing else changed; binding at the tag `paper-a-h-a2-amendment-v1.0` |
