@@ -1,3 +1,12 @@
+## ▶ Sexta 20/11, 21h30 BRT — links de código de 5 registros do Zenodo consertados
+
+- Desde a reescrita de 08/11, 5 registros publicados linkavam o código a commits que o GitHub devolvia 404: C 24017459 e
+  D 24017487 (`a7903e6`→`d2b71ed`), B+B2 24046282 (`5185bf4`→`47fdb4b`, 2 links), E 24057928 (`ca7c85b`→`5d9342a`),
+  Paper 3 v1.1 23966758 (`d987dd4`→`e96ad23`; `d987dd4` era commit da branch do #635, fora do mapa).
+- `tools/zenodo-fix-software-links.py` (#739): edição só de metadados, mesmo DOI e arquivos; readback sem outro campo
+  alterado. O Toto publicou as 5 edições; conferido pela API: links novos 200, nenhum antigo. Auditoria completa sobre
+  os registros do labf.bio: 18 links de GitHub, 0 quebrados.
+
 ## ▶ Sexta 20/11, 21h00 BRT — Nota #723 PUBLICADA no Zenodo (doi:10.5281/zenodo.24408079) e no labf.bio
 
 - Card no ar (site-labf#71, `c3e5a29`): linha 06 em Research, na linha `fleet`, logo depois do Paper C; página
