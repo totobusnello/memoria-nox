@@ -1,6 +1,10 @@
 # Paper B: what an LLM-extracted knowledge graph keeps
 
-A descriptive data note (PLANO.md, row B). Status: started 2026-11-06; no note text yet.
+A descriptive data note (PLANO.md, row B). Status: **deposited** on Zenodo on 2026-11-07 as v1.0, together
+with Paper B2, "What an LLM-built knowledge graph keeps, and what a repair pass against its sources changes",
+doi:10.5281/zenodo.24046282 (concept doi:10.5281/zenodo.24046281), after Codex and Kimi (#697) and the
+avoid-ai-writing pass (#698); software link `47fdb4b` (re-pointed on 2026-11-20 after the history rewrite, #739).
+`NOTE.md` is the source of that version.
 
 The object is the knowledge graph the memory system built by LLM extraction: what it holds, where
 its evidence comes from, and when it was built. The October audits measured it once
