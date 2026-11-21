@@ -1,3 +1,32 @@
+## ▶ Sexta 20/11, 21h40 BRT — fim do dia; retomar no sábado 21/11
+
+**Feito em 20/11:** Paper A publicado (doi:10.5281/zenodo.24400444) com card no labf.bio (site-labf#69); nota #723
+publicada (doi:10.5281/zenodo.24408079) com card no labf.bio (site-labf#71), depois de Codex + Kimi (#736), DeepSeek
+(#737) e passe avoid-ai-writing (#738); links de código de 5 registros do Zenodo consertados (#739, 18/18 respondendo);
+README do Paper B com o estado real. Nada pronto para depositar ficou pendente.
+
+**Fila para amanhã, na ordem recomendada** (levantada no ROADMAP §4–§6, no PLANO e nos papers; o Toto escolhe):
+
+1. **Corpus sintético PT-BR público** (recomendado para começar). Compromisso do PLANO (Compromissos, item 3) para o
+   Paper A: «pequeno, PT-BR, público, só para os testes de método». Não foi feito nem declarado fora, e o Paper A saiu
+   sem ele: hoje os testes de método só rodam sobre o corpus privado, ninguém de fora os reproduz. Vira dataset no
+   Zenodo + os testes de método do A rodando sobre ele. Custo S–M, sem espera. Primeiro passo: desenhar o escopo com o
+   Toto (tamanho, como gerar, quais testes do A rodam nele, licença).
+2. **Shadow do C2 (continuação do D):** a leitura só é permitida a partir de **01/12**; depois vira nota de dados.
+   Alimenta a decisão B7 do ROADMAP (janela + C2, evidência crua ou investir no uso).
+3. **Papers que pedem experimento novo** (ROADMAP §4 «PRÓXIMO» e §5):
+   - **T2 nos agentes do OpenClaw** (B3), pré-registrado; hoje `NOX_MEM_INSTRUCTIONS=off`. Transformaria C + #723 num
+     estudo de campo. Custo M; decisão do Toto (o campo do Claude Code deu «sem mudança visível»).
+   - **Escopo derivado do banco** (B2), mais de um modelo e cliente (Cursor, Codex): caminho de venue, US$ 100–300.
+   - **Escrita** (B4): achar um braço que faça o agente gravar; 0/30 em todos os braços até aqui.
+   - **Construção como protocolo** (pesquisa 3): o maior; antes, delimitar a novidade frente a *What Deserves
+     Memory* e EverMemOS e fixar orçamento (o E custou US$ 150,55).
+   - **Reparo contra a evidência** (pesquisa 4): congelado até haver consumidor.
+4. **Paper 1 num venue:** TMLR bloqueado (sem conta OpenReview); alphaXiv é a candidata (ROADMAP A7). Decisão do Toto.
+5. **Fora de papers:** onboarding observado (B1) e lançamento/pricing (B8) no ROADMAP de dezembro; npm sem nada
+   pendente (3.11.1 = `main`). Posts sobre A e #723 são do `linkedin-lab`; circuitos (7_problems) têm sessão própria.
+6. **Com data:** 01/12 (shadow do C2); 18/05–23/05/2027 nova leitura do H-A2 pela emenda.
+
 ## ▶ Sexta 20/11, 21h30 BRT — links de código de 5 registros do Zenodo consertados
 
 - Desde a reescrita de 08/11, 5 registros publicados linkavam o código a commits que o GitHub devolvia 404: C 24017459 e
