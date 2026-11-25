@@ -1,0 +1,134 @@
+{
+ "text": [
+  "NOTE.md"
+ ],
+ "ignore": [
+  "3.5.2",
+  "3.11.1",
+  "3.6.0",
+  "10.5281",
+  "4.0"
+ ],
+ "claims": [
+  {
+   "id": "s-mean-strict",
+   "value": "0.7542",
+   "what": "mean nDCG@10 under the registered labels R",
+   "population": "45 fact questions, frozen BM25 rankings, nox-mem 3.5.2 and 3.11.1 (identical)",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/results/etapa1.txt",
+   "locator": "mean_strict: 0.7542",
+   "commit": "1fde4c1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "s-mean-true",
+   "value": "0.7372",
+   "what": "mean nDCG@10 under the latent truth T",
+   "population": "45 fact questions, same rankings",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/results/etapa1.txt",
+   "locator": "mean_true: 0.7372",
+   "commit": "1fde4c1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "s-ideal-mean",
+   "value": "0.2033",
+   "what": "mean change of nDCG@10 when the ranking ideal replaces the gold ideal, over the questions where it changes",
+   "population": "5 of 45 fact questions, labels T",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/results/etapa1.txt",
+   "locator": "mean_change_when_changed: 0.2033",
+   "commit": "1fde4c1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "s-ideal-max",
+   "value": "0.2441",
+   "what": "largest such change",
+   "population": "same 5 questions",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/results/etapa1.txt",
+   "locator": "max_change: 0.2441",
+   "commit": "1fde4c1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "s-r-keep",
+   "value": "0.25",
+   "what": "probability with which the registered labels keep each paraphrase",
+   "population": "planner, seed 20261125",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/plan/plan.json",
+   "locator": "\"r_keep\": 0.25",
+   "commit": "1fde4c1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "s-example-literal",
+   "value": "4.301",
+   "what": "literal form of one planted print run, used as the example of a variant",
+   "population": "one fact of the plan",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/plan/plan.json",
+   "locator": "\"4.301\"",
+   "commit": "1fde4c1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "s-cost",
+   "value": "1.91",
+   "what": "reported cost of generating the 200 files (sum over the generation records)",
+   "population": "200 files, one attempt each, claude-sonnet-5-5",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/README.md",
+   "locator": "US$ 1.91",
+   "commit": "1fde4c1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "s-scan-runs",
+   "value": "99,999",
+   "what": "runs of 8 words in the released package, second privacy scan",
+   "population": "package after sectioning, with results/",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/README.md",
+   "locator": "99,999 package runs",
+   "commit": "1fde4c1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "s-scan-chunks",
+   "value": "65,208",
+   "what": "private chunks compared in the second privacy scan",
+   "population": "production corpus on 2026-11-25",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/README.md",
+   "locator": "65,208 private chunks",
+   "commit": "1fde4c1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "a-unjudged-zero",
+   "value": "96.9%",
+   "what": "share of the top 10 never judged, on Paper A's questions that scored zero (v2 ruler)",
+   "population": "Paper A, v2 strict scoring",
+   "date": "2026-11-20",
+   "artifact": "paper-a-eval-ptbr/MANUSCRIPT.md",
+   "locator": "96.9% of the",
+   "commit": "1fde4c1",
+   "superseded_by": null,
+   "note": ""
+  }
+ ]
+}

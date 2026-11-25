@@ -179,7 +179,7 @@ no Setup de cada paper.
 
 | Verificação | Quem confere | Evidência | Última vez (data, PR) |
 |---|---|---|---|
-| Passe avoid-ai-writing antes das vozes e antes do depósito | Claude | diff no PR | |
+| Passe avoid-ai-writing antes das vozes e antes do depósito | Claude | diff no PR | 2026-11-25, PR (4): nota do corpus sintético (negrito, 2 negações-contraste, 1 intensificador; números iguais antes e depois) |
 | Precedência do pré-registro (A, D): push da tag antes da 1ª chamada, e queries do holdout nunca vistas antes | Claude, pelo activity log do GitHub | horários no texto | |
 | Amostra humana cega dos pares discordantes (A) | você ou alguém que você indicar | planilha de rótulos fora do repo, só o kappa publicado | |
 | O que vai para a Decisions API e onde ficam prompts e respostas | Claude, por escrito no protocolo | seção de dados do protocolo | |
@@ -190,7 +190,10 @@ no Setup de cada paper.
 
 ## Etapa atual
 
-**Corpus sintético (objetivo de 25/11):** etapa Work, PR (3). PRs (1) #740 e (2) #741 mergeados em 25/11.
+**Corpus sintético (objetivo de 25/11):** etapa Work, PR (4): rascunho da nota (`synthetic-ptbr/NOTE.md`,
+~1.960 palavras, proveniência 10 afirmações / 0 falhas, passe avoid-ai-writing feito). Próximo: pergunta
+das vozes sobre a nota; depois depósito (Toto) e card. PR (3) #742 mergeado em 25/11 (`1fde4c1`).
+Antes: PRs (1) #740 e (2) #741 mergeados em 25/11.
 PR (3): corpus em seções `##` (remontado dos registros, sem chamada nova), gate pós-ingest, runner da
 etapa 1 commitado antes de rodar (`88b1f02`, 10:39), corrida nas versões 3.5.2 e 3.11.1 e análise.
 Resultado (`synthetic-ptbr/results/etapa1.txt`): achado 1 — reingest e edição fora do trecho matam o
@@ -201,7 +204,7 @@ Achado 2 — nenhuma query com strict zero (o mecanismo do §3 não aparece nest
 erra a verdade nos dois sentidos (12 acima, 8 abaixo); pooled nunca abaixo da verdade, por
 aritmética, e acima em 5 de 45. Achado 4 — o ideal do ranking muda 5 de 45 queries, +0,2033 em média.
 Varredura de privacidade de novo: 0 trechos (99.999 × 65.208). Próximo: PR (4), a nota.
-Worktree: `~/Claude-worktrees/memoria-nox/synthetic-ptbr-method`. PR: #742.
+Worktree: `~/Claude-worktrees/memoria-nox/synthetic-ptbr-note`. PR: #743.
 
 Etapa: Deploy (paper A): **publicado** pelo Toto em 20/11, doi:10.5281/zenodo.24400444 (concept
 doi:10.5281/zenodo.24400443), v1.0, software link `baf4b80`, checksums do registro iguais aos do build
