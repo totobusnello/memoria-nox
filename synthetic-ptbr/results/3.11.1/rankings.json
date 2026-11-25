@@ -1,0 +1,2602 @@
+{
+ "Q00": [
+  {
+   "id": 74,
+   "score": 29.79,
+   "source_file": "memory/entities/livros/o-jardim-de-cera.md"
+  },
+  {
+   "id": 73,
+   "score": 22.78,
+   "source_file": "memory/entities/livros/o-jardim-de-cera.md"
+  },
+  {
+   "id": 442,
+   "score": 16.31,
+   "source_file": "memory/2027-04-07.md"
+  },
+  {
+   "id": 770,
+   "score": 13.11,
+   "source_file": "memory/decisions/2027-04-14-decision-23.md"
+  },
+  {
+   "id": 441,
+   "score": 11.13,
+   "source_file": "memory/2027-04-07.md"
+  },
+  {
+   "id": 565,
+   "score": 10.86,
+   "source_file": "memory/2027-05-23.md"
+  },
+  {
+   "id": 435,
+   "score": 9.47,
+   "source_file": "memory/2027-04-03.md"
+  },
+  {
+   "id": 838,
+   "score": 9.47,
+   "source_file": "memory/lessons/2027-06-19-lesson-38.md"
+  },
+  {
+   "id": 750,
+   "score": 8.8,
+   "source_file": "memory/lessons/2027-03-28-lesson-19.md"
+  },
+  {
+   "id": 352,
+   "score": 8.6,
+   "source_file": "memory/2027-03-09.md"
+  }
+ ],
+ "Q01": [
+  {
+   "id": 174,
+   "score": 25.56,
+   "source_file": "memory/entities/projetos/site-novo-da-editora.md"
+  },
+  {
+   "id": 173,
+   "score": 21.35,
+   "source_file": "memory/entities/projetos/site-novo-da-editora.md"
+  },
+  {
+   "id": 290,
+   "score": 10.47,
+   "source_file": "memory/2027-02-13.md"
+  },
+  {
+   "id": 205,
+   "score": 9.87,
+   "source_file": "memory/2027-01-11.md"
+  },
+  {
+   "id": 567,
+   "score": 9.57,
+   "source_file": "memory/2027-05-23.md"
+  },
+  {
+   "id": 477,
+   "score": 9.39,
+   "source_file": "memory/2027-04-19.md"
+  },
+  {
+   "id": 273,
+   "score": 8.61,
+   "source_file": "memory/2027-02-05.md"
+  },
+  {
+   "id": 532,
+   "score": 8.22,
+   "source_file": "memory/2027-05-07.md"
+  },
+  {
+   "id": 752,
+   "score": 8.17,
+   "source_file": "memory/lessons/2027-03-28-lesson-19.md"
+  },
+  {
+   "id": 528,
+   "score": 7.68,
+   "source_file": "memory/2027-05-06.md"
+  }
+ ],
+ "Q02": [
+  {
+   "id": 54,
+   "score": 35.14,
+   "source_file": "memory/entities/livros/ninguem-mora-no-quinto-andar.md"
+  },
+  {
+   "id": 409,
+   "score": 26.99,
+   "source_file": "memory/2027-03-24.md"
+  },
+  {
+   "id": 55,
+   "score": 24.4,
+   "source_file": "memory/entities/livros/ninguem-mora-no-quinto-andar.md"
+  },
+  {
+   "id": 697,
+   "score": 23.68,
+   "source_file": "memory/lessons/2027-02-12-lesson-06.md"
+  },
+  {
+   "id": 410,
+   "score": 22.11,
+   "source_file": "memory/2027-03-24.md"
+  },
+  {
+   "id": 847,
+   "score": 21.43,
+   "source_file": "memory/decisions/2027-06-26-decision-40.md"
+  },
+  {
+   "id": 678,
+   "score": 20.86,
+   "source_file": "memory/lessons/2027-01-17-lesson-02.md"
+  },
+  {
+   "id": 845,
+   "score": 20.35,
+   "source_file": "memory/decisions/2027-06-26-decision-40.md"
+  },
+  {
+   "id": 677,
+   "score": 20.12,
+   "source_file": "memory/lessons/2027-01-17-lesson-02.md"
+  },
+  {
+   "id": 407,
+   "score": 19.87,
+   "source_file": "memory/2027-03-24.md"
+  }
+ ],
+ "Q03": [
+  {
+   "id": 105,
+   "score": 34.22,
+   "source_file": "memory/entities/autores/marieta-sousa-brandao.md"
+  },
+  {
+   "id": 784,
+   "score": 33.68,
+   "source_file": "memory/lessons/2027-04-26-lesson-26.md"
+  },
+  {
+   "id": 833,
+   "score": 28.77,
+   "source_file": "memory/lessons/2027-06-13-lesson-37.md"
+  },
+  {
+   "id": 106,
+   "score": 26.67,
+   "source_file": "memory/entities/autores/marieta-sousa-brandao.md"
+  },
+  {
+   "id": 333,
+   "score": 21.21,
+   "source_file": "memory/2027-03-02.md"
+  },
+  {
+   "id": 789,
+   "score": 13.98,
+   "source_file": "memory/lessons/2027-05-02-lesson-27.md"
+  },
+  {
+   "id": 230,
+   "score": 12.32,
+   "source_file": "memory/2027-01-19.md"
+  },
+  {
+   "id": 362,
+   "score": 12.32,
+   "source_file": "memory/2027-03-13.md"
+  },
+  {
+   "id": 363,
+   "score": 12.32,
+   "source_file": "memory/2027-03-13.md"
+  },
+  {
+   "id": 790,
+   "score": 12.23,
+   "source_file": "memory/lessons/2027-05-02-lesson-27.md"
+  }
+ ],
+ "Q04": [
+  {
+   "id": 131,
+   "score": 40.38,
+   "source_file": "memory/entities/fornecedores/grafica-agulha-de-ouro.md"
+  },
+  {
+   "id": 130,
+   "score": 28.86,
+   "source_file": "memory/entities/fornecedores/grafica-agulha-de-ouro.md"
+  },
+  {
+   "id": 362,
+   "score": 15.68,
+   "source_file": "memory/2027-03-13.md"
+  },
+  {
+   "id": 363,
+   "score": 15.68,
+   "source_file": "memory/2027-03-13.md"
+  },
+  {
+   "id": 230,
+   "score": 14.86,
+   "source_file": "memory/2027-01-19.md"
+  },
+  {
+   "id": 789,
+   "score": 13.98,
+   "source_file": "memory/lessons/2027-05-02-lesson-27.md"
+  },
+  {
+   "id": 134,
+   "score": 13.75,
+   "source_file": "memory/entities/fornecedores/grafica-agulha-de-ouro.md"
+  },
+  {
+   "id": 790,
+   "score": 12.23,
+   "source_file": "memory/lessons/2027-05-02-lesson-27.md"
+  },
+  {
+   "id": 784,
+   "score": 11.98,
+   "source_file": "memory/lessons/2027-04-26-lesson-26.md"
+  },
+  {
+   "id": 806,
+   "score": 10.49,
+   "source_file": "memory/lessons/2027-05-10-lesson-30.md"
+  }
+ ],
+ "Q05": [
+  {
+   "id": 118,
+   "score": 26.72,
+   "source_file": "memory/entities/fornecedores/grafica-pedra-lisa.md"
+  },
+  {
+   "id": 119,
+   "score": 22.62,
+   "source_file": "memory/entities/fornecedores/grafica-pedra-lisa.md"
+  },
+  {
+   "id": 806,
+   "score": 21,
+   "source_file": "memory/lessons/2027-05-10-lesson-30.md"
+  },
+  {
+   "id": 527,
+   "score": 20.84,
+   "source_file": "memory/2027-05-06.md"
+  },
+  {
+   "id": 362,
+   "score": 15.68,
+   "source_file": "memory/2027-03-13.md"
+  },
+  {
+   "id": 363,
+   "score": 15.68,
+   "source_file": "memory/2027-03-13.md"
+  },
+  {
+   "id": 230,
+   "score": 14.86,
+   "source_file": "memory/2027-01-19.md"
+  },
+  {
+   "id": 131,
+   "score": 14.42,
+   "source_file": "memory/entities/fornecedores/grafica-agulha-de-ouro.md"
+  },
+  {
+   "id": 789,
+   "score": 13.98,
+   "source_file": "memory/lessons/2027-05-02-lesson-27.md"
+  },
+  {
+   "id": 790,
+   "score": 12.23,
+   "source_file": "memory/lessons/2027-05-02-lesson-27.md"
+  }
+ ],
+ "Q06": [
+  {
+   "id": 92,
+   "score": 32.23,
+   "source_file": "memory/entities/autores/celeste-arruda-mourao.md"
+  },
+  {
+   "id": 294,
+   "score": 30.13,
+   "source_file": "memory/2027-02-14.md"
+  },
+  {
+   "id": 93,
+   "score": 25.39,
+   "source_file": "memory/entities/autores/celeste-arruda-mourao.md"
+  },
+  {
+   "id": 694,
+   "score": 23.51,
+   "source_file": "memory/decisions/2027-02-07-decision-05.md"
+  },
+  {
+   "id": 789,
+   "score": 21.02,
+   "source_file": "memory/lessons/2027-05-02-lesson-27.md"
+  },
+  {
+   "id": 329,
+   "score": 19.38,
+   "source_file": "memory/2027-03-01.md"
+  },
+  {
+   "id": 692,
+   "score": 17.25,
+   "source_file": "memory/decisions/2027-02-07-decision-05.md"
+  },
+  {
+   "id": 457,
+   "score": 16.39,
+   "source_file": "memory/2027-04-12.md"
+  },
+  {
+   "id": 96,
+   "score": 11.56,
+   "source_file": "memory/entities/autores/celeste-arruda-mourao.md"
+  },
+  {
+   "id": 94,
+   "score": 11.45,
+   "source_file": "memory/entities/autores/celeste-arruda-mourao.md"
+  }
+ ],
+ "Q07": [
+  {
+   "id": 34,
+   "score": 20.59,
+   "source_file": "memory/entities/livros/sal-e-ferrugem.md"
+  },
+  {
+   "id": 682,
+   "score": 20.22,
+   "source_file": "memory/decisions/2027-01-18-decision-03.md"
+  },
+  {
+   "id": 226,
+   "score": 18.37,
+   "source_file": "memory/2027-01-18.md"
+  },
+  {
+   "id": 35,
+   "score": 13.4,
+   "source_file": "memory/entities/livros/sal-e-ferrugem.md"
+  },
+  {
+   "id": 763,
+   "score": 11.99,
+   "source_file": "memory/decisions/2027-04-12-decision-22.md"
+  },
+  {
+   "id": 684,
+   "score": 11.84,
+   "source_file": "memory/decisions/2027-01-18-decision-03.md"
+  },
+  {
+   "id": 225,
+   "score": 11.28,
+   "source_file": "memory/2027-01-18.md"
+  },
+  {
+   "id": 724,
+   "score": 10.71,
+   "source_file": "memory/decisions/2027-03-10-decision-13.md"
+  },
+  {
+   "id": 764,
+   "score": 10.09,
+   "source_file": "memory/decisions/2027-04-12-decision-22.md"
+  },
+  {
+   "id": 723,
+   "score": 9.77,
+   "source_file": "memory/decisions/2027-03-10-decision-13.md"
+  }
+ ],
+ "Q08": [
+  {
+   "id": 47,
+   "score": 30.55,
+   "source_file": "memory/entities/livros/pequeno-atlas-das-chuvas.md"
+  },
+  {
+   "id": 746,
+   "score": 27.39,
+   "source_file": "memory/decisions/2027-03-27-decision-18.md"
+  },
+  {
+   "id": 750,
+   "score": 23.68,
+   "source_file": "memory/lessons/2027-03-28-lesson-19.md"
+  },
+  {
+   "id": 48,
+   "score": 23.05,
+   "source_file": "memory/entities/livros/pequeno-atlas-das-chuvas.md"
+  },
+  {
+   "id": 231,
+   "score": 20.04,
+   "source_file": "memory/2027-01-19.md"
+  },
+  {
+   "id": 365,
+   "score": 18.02,
+   "source_file": "memory/2027-03-13.md"
+  },
+  {
+   "id": 745,
+   "score": 16.28,
+   "source_file": "memory/decisions/2027-03-27-decision-18.md"
+  },
+  {
+   "id": 49,
+   "score": 14.02,
+   "source_file": "memory/entities/livros/pequeno-atlas-das-chuvas.md"
+  },
+  {
+   "id": 682,
+   "score": 9.45,
+   "source_file": "memory/decisions/2027-01-18-decision-03.md"
+  },
+  {
+   "id": 50,
+   "score": 9.27,
+   "source_file": "memory/entities/livros/pequeno-atlas-das-chuvas.md"
+  }
+ ],
+ "Q09": [
+  {
+   "id": 362,
+   "score": 29.96,
+   "source_file": "memory/2027-03-13.md"
+  },
+  {
+   "id": 363,
+   "score": 29.96,
+   "source_file": "memory/2027-03-13.md"
+  },
+  {
+   "id": 230,
+   "score": 29.14,
+   "source_file": "memory/2027-01-19.md"
+  },
+  {
+   "id": 136,
+   "score": 25.8,
+   "source_file": "memory/entities/fornecedores/grafica-lumiar-offset.md"
+  },
+  {
+   "id": 137,
+   "score": 22.71,
+   "source_file": "memory/entities/fornecedores/grafica-lumiar-offset.md"
+  },
+  {
+   "id": 647,
+   "score": 19.9,
+   "source_file": "memory/2027-06-22.md"
+  },
+  {
+   "id": 195,
+   "score": 19.16,
+   "source_file": "memory/2027-01-08.md"
+  },
+  {
+   "id": 131,
+   "score": 14.42,
+   "source_file": "memory/entities/fornecedores/grafica-agulha-de-ouro.md"
+  },
+  {
+   "id": 789,
+   "score": 13.98,
+   "source_file": "memory/lessons/2027-05-02-lesson-27.md"
+  },
+  {
+   "id": 790,
+   "score": 12.23,
+   "source_file": "memory/lessons/2027-05-02-lesson-27.md"
+  }
+ ],
+ "Q10": [
+  {
+   "id": 156,
+   "score": 32.59,
+   "source_file": "memory/entities/projetos/feira-do-livro-de-vila-aurora.md"
+  },
+  {
+   "id": 155,
+   "score": 29.49,
+   "source_file": "memory/entities/projetos/feira-do-livro-de-vila-aurora.md"
+  },
+  {
+   "id": 203,
+   "score": 20.65,
+   "source_file": "memory/2027-01-11.md"
+  },
+  {
+   "id": 27,
+   "score": 18.08,
+   "source_file": "memory/entities/livros/o-inverno-de-vila-aurora.md"
+  },
+  {
+   "id": 816,
+   "score": 15.47,
+   "source_file": "memory/decisions/2027-05-29-decision-33.md"
+  },
+  {
+   "id": 403,
+   "score": 15.05,
+   "source_file": "memory/2027-03-23.md"
+  },
+  {
+   "id": 404,
+   "score": 15.05,
+   "source_file": "memory/2027-03-23.md"
+  },
+  {
+   "id": 755,
+   "score": 14.99,
+   "source_file": "memory/lessons/2027-04-03-lesson-20.md"
+  },
+  {
+   "id": 28,
+   "score": 13.93,
+   "source_file": "memory/entities/livros/o-inverno-de-vila-aurora.md"
+  },
+  {
+   "id": 218,
+   "score": 9.87,
+   "source_file": "memory/2027-01-16.md"
+  }
+ ],
+ "Q11": [
+  {
+   "id": 20,
+   "score": 31.63,
+   "source_file": "memory/entities/livros/mapa-das-mares-altas.md"
+  },
+  {
+   "id": 544,
+   "score": 24.82,
+   "source_file": "memory/2027-05-10.md"
+  },
+  {
+   "id": 341,
+   "score": 23.99,
+   "source_file": "memory/2027-03-04.md"
+  },
+  {
+   "id": 712,
+   "score": 23.94,
+   "source_file": "memory/decisions/2027-02-25-decision-10.md"
+  },
+  {
+   "id": 21,
+   "score": 22.01,
+   "source_file": "memory/entities/livros/mapa-das-mares-altas.md"
+  },
+  {
+   "id": 433,
+   "score": 21.35,
+   "source_file": "memory/2027-04-03.md"
+  },
+  {
+   "id": 711,
+   "score": 18.78,
+   "source_file": "memory/decisions/2027-02-25-decision-10.md"
+  },
+  {
+   "id": 543,
+   "score": 18.2,
+   "source_file": "memory/2027-05-10.md"
+  },
+  {
+   "id": 565,
+   "score": 10.86,
+   "source_file": "memory/2027-05-23.md"
+  },
+  {
+   "id": 23,
+   "score": 9.84,
+   "source_file": "memory/entities/livros/mapa-das-mares-altas.md"
+  }
+ ],
+ "Q12": [
+  {
+   "id": 808,
+   "score": 50.39,
+   "source_file": "memory/lessons/2027-05-15-lesson-31.md"
+  },
+  {
+   "id": 67,
+   "score": 43.84,
+   "source_file": "memory/entities/livros/vento-norte-sobre-a-serra-baixa.md"
+  },
+  {
+   "id": 408,
+   "score": 38.08,
+   "source_file": "memory/2027-03-24.md"
+  },
+  {
+   "id": 68,
+   "score": 33.32,
+   "source_file": "memory/entities/livros/vento-norte-sobre-a-serra-baixa.md"
+  },
+  {
+   "id": 576,
+   "score": 27.03,
+   "source_file": "memory/2027-05-27.md"
+  },
+  {
+   "id": 513,
+   "score": 21.08,
+   "source_file": "memory/2027-05-02.md"
+  },
+  {
+   "id": 514,
+   "score": 21.08,
+   "source_file": "memory/2027-05-02.md"
+  },
+  {
+   "id": 697,
+   "score": 16.94,
+   "source_file": "memory/lessons/2027-02-12-lesson-06.md"
+  },
+  {
+   "id": 765,
+   "score": 15.5,
+   "source_file": "memory/decisions/2027-04-12-decision-22.md"
+  },
+  {
+   "id": 71,
+   "score": 14.72,
+   "source_file": "memory/entities/livros/vento-norte-sobre-a-serra-baixa.md"
+  }
+ ],
+ "Q13": [
+  {
+   "id": 42,
+   "score": 29.13,
+   "source_file": "memory/entities/livros/os-cadernos-do-sotao.md"
+  },
+  {
+   "id": 41,
+   "score": 19.02,
+   "source_file": "memory/entities/livros/os-cadernos-do-sotao.md"
+  },
+  {
+   "id": 652,
+   "score": 16.83,
+   "source_file": "memory/2027-06-24.md"
+  },
+  {
+   "id": 587,
+   "score": 16.75,
+   "source_file": "memory/2027-05-30.md"
+  },
+  {
+   "id": 326,
+   "score": 15.85,
+   "source_file": "memory/2027-02-28.md"
+  },
+  {
+   "id": 385,
+   "score": 13.11,
+   "source_file": "memory/2027-03-18.md"
+  },
+  {
+   "id": 660,
+   "score": 11.89,
+   "source_file": "memory/2027-06-27.md"
+  },
+  {
+   "id": 823,
+   "score": 11.66,
+   "source_file": "memory/decisions/2027-06-01-decision-35.md"
+  },
+  {
+   "id": 334,
+   "score": 10.94,
+   "source_file": "memory/2027-03-02.md"
+  },
+  {
+   "id": 565,
+   "score": 10.86,
+   "source_file": "memory/2027-05-23.md"
+  }
+ ],
+ "Q14": [
+  {
+   "id": 14,
+   "score": 29,
+   "source_file": "memory/entities/livros/a-cidade-dos-relogios-parados.md"
+  },
+  {
+   "id": 829,
+   "score": 25.48,
+   "source_file": "memory/lessons/2027-06-02-lesson-36.md"
+  },
+  {
+   "id": 15,
+   "score": 23.29,
+   "source_file": "memory/entities/livros/a-cidade-dos-relogios-parados.md"
+  },
+  {
+   "id": 201,
+   "score": 21.97,
+   "source_file": "memory/2027-01-11.md"
+  },
+  {
+   "id": 565,
+   "score": 20.11,
+   "source_file": "memory/2027-05-23.md"
+  },
+  {
+   "id": 235,
+   "score": 19.68,
+   "source_file": "memory/2027-01-22.md"
+  },
+  {
+   "id": 718,
+   "score": 17,
+   "source_file": "memory/lessons/2027-03-08-lesson-12.md"
+  },
+  {
+   "id": 719,
+   "score": 16.65,
+   "source_file": "memory/lessons/2027-03-08-lesson-12.md"
+  },
+  {
+   "id": 275,
+   "score": 16.43,
+   "source_file": "memory/2027-02-07.md"
+  },
+  {
+   "id": 667,
+   "score": 15.74,
+   "source_file": "memory/2027-06-30.md"
+  }
+ ],
+ "Q15": [
+  {
+   "id": 105,
+   "score": 34.22,
+   "source_file": "memory/entities/autores/marieta-sousa-brandao.md"
+  },
+  {
+   "id": 833,
+   "score": 30.8,
+   "source_file": "memory/lessons/2027-06-13-lesson-37.md"
+  },
+  {
+   "id": 106,
+   "score": 26.67,
+   "source_file": "memory/entities/autores/marieta-sousa-brandao.md"
+  },
+  {
+   "id": 784,
+   "score": 21.71,
+   "source_file": "memory/lessons/2027-04-26-lesson-26.md"
+  },
+  {
+   "id": 333,
+   "score": 17.22,
+   "source_file": "memory/2027-03-02.md"
+  },
+  {
+   "id": 109,
+   "score": 12.04,
+   "source_file": "memory/entities/autores/marieta-sousa-brandao.md"
+  },
+  {
+   "id": 107,
+   "score": 11.6,
+   "source_file": "memory/entities/autores/marieta-sousa-brandao.md"
+  },
+  {
+   "id": 540,
+   "score": 10.3,
+   "source_file": "memory/2027-05-09.md"
+  },
+  {
+   "id": 110,
+   "score": 9.89,
+   "source_file": "memory/entities/autores/marieta-sousa-brandao.md"
+  },
+  {
+   "id": 111,
+   "score": 9.66,
+   "source_file": "memory/entities/autores/marieta-sousa-brandao.md"
+  }
+ ],
+ "Q16": [
+  {
+   "id": 750,
+   "score": 32.48,
+   "source_file": "memory/lessons/2027-03-28-lesson-19.md"
+  },
+  {
+   "id": 47,
+   "score": 30.55,
+   "source_file": "memory/entities/livros/pequeno-atlas-das-chuvas.md"
+  },
+  {
+   "id": 48,
+   "score": 23.05,
+   "source_file": "memory/entities/livros/pequeno-atlas-das-chuvas.md"
+  },
+  {
+   "id": 231,
+   "score": 20.04,
+   "source_file": "memory/2027-01-19.md"
+  },
+  {
+   "id": 746,
+   "score": 18.85,
+   "source_file": "memory/decisions/2027-03-27-decision-18.md"
+  },
+  {
+   "id": 365,
+   "score": 18.02,
+   "source_file": "memory/2027-03-13.md"
+  },
+  {
+   "id": 745,
+   "score": 16.28,
+   "source_file": "memory/decisions/2027-03-27-decision-18.md"
+  },
+  {
+   "id": 49,
+   "score": 14.02,
+   "source_file": "memory/entities/livros/pequeno-atlas-das-chuvas.md"
+  },
+  {
+   "id": 565,
+   "score": 10.86,
+   "source_file": "memory/2027-05-23.md"
+  },
+  {
+   "id": 435,
+   "score": 9.47,
+   "source_file": "memory/2027-04-03.md"
+  }
+ ],
+ "Q17": [
+  {
+   "id": 775,
+   "score": 21.49,
+   "source_file": "memory/decisions/2027-04-16-decision-24.md"
+  },
+  {
+   "id": 161,
+   "score": 19.27,
+   "source_file": "memory/entities/projetos/reedicao-dos-cadernos.md"
+  },
+  {
+   "id": 162,
+   "score": 13.33,
+   "source_file": "memory/entities/projetos/reedicao-dos-cadernos.md"
+  },
+  {
+   "id": 42,
+   "score": 10.46,
+   "source_file": "memory/entities/livros/os-cadernos-do-sotao.md"
+  },
+  {
+   "id": 163,
+   "score": 9.12,
+   "source_file": "memory/entities/projetos/reedicao-dos-cadernos.md"
+  },
+  {
+   "id": 41,
+   "score": 8.94,
+   "source_file": "memory/entities/livros/os-cadernos-do-sotao.md"
+  },
+  {
+   "id": 652,
+   "score": 7.91,
+   "source_file": "memory/2027-06-24.md"
+  },
+  {
+   "id": 587,
+   "score": 7.87,
+   "source_file": "memory/2027-05-30.md"
+  },
+  {
+   "id": 706,
+   "score": 7.5,
+   "source_file": "memory/decisions/2027-02-15-decision-08.md"
+  },
+  {
+   "id": 211,
+   "score": 7.24,
+   "source_file": "memory/2027-01-13.md"
+  }
+ ],
+ "Q18": [
+  {
+   "id": 112,
+   "score": 33.5,
+   "source_file": "memory/entities/autores/osorio-fagundes-lemos.md"
+  },
+  {
+   "id": 540,
+   "score": 27.03,
+   "source_file": "memory/2027-05-09.md"
+  },
+  {
+   "id": 113,
+   "score": 26.48,
+   "source_file": "memory/entities/autores/osorio-fagundes-lemos.md"
+  },
+  {
+   "id": 673,
+   "score": 24.01,
+   "source_file": "memory/decisions/2027-01-09-decision-01.md"
+  },
+  {
+   "id": 737,
+   "score": 23.98,
+   "source_file": "memory/lessons/2027-03-25-lesson-16.md"
+  },
+  {
+   "id": 248,
+   "score": 23.9,
+   "source_file": "memory/2027-01-26.md"
+  },
+  {
+   "id": 395,
+   "score": 21.54,
+   "source_file": "memory/2027-03-21.md"
+  },
+  {
+   "id": 789,
+   "score": 13.98,
+   "source_file": "memory/lessons/2027-05-02-lesson-27.md"
+  },
+  {
+   "id": 230,
+   "score": 12.32,
+   "source_file": "memory/2027-01-19.md"
+  },
+  {
+   "id": 362,
+   "score": 12.32,
+   "source_file": "memory/2027-03-13.md"
+  }
+ ],
+ "Q19": [
+  {
+   "id": 286,
+   "score": 14.78,
+   "source_file": "memory/2027-02-11.md"
+  },
+  {
+   "id": 501,
+   "score": 14.07,
+   "source_file": "memory/2027-04-28.md"
+  },
+  {
+   "id": 167,
+   "score": 13.64,
+   "source_file": "memory/entities/projetos/audiolivros-da-casa.md"
+  },
+  {
+   "id": 504,
+   "score": 13.43,
+   "source_file": "memory/2027-04-29.md"
+  },
+  {
+   "id": 796,
+   "score": 11.36,
+   "source_file": "memory/decisions/2027-05-06-decision-28.md"
+  },
+  {
+   "id": 168,
+   "score": 9.9,
+   "source_file": "memory/entities/projetos/audiolivros-da-casa.md"
+  },
+  {
+   "id": 380,
+   "score": 7.52,
+   "source_file": "memory/2027-03-17.md"
+  },
+  {
+   "id": 574,
+   "score": 6.61,
+   "source_file": "memory/2027-05-26.md"
+  },
+  {
+   "id": 556,
+   "score": 6.45,
+   "source_file": "memory/2027-05-18.md"
+  },
+  {
+   "id": 775,
+   "score": 6.37,
+   "source_file": "memory/decisions/2027-04-16-decision-24.md"
+  }
+ ],
+ "Q20": [
+  {
+   "id": 80,
+   "score": 42.15,
+   "source_file": "memory/entities/autores/ismenia-valadares-tor.md"
+  },
+  {
+   "id": 79,
+   "score": 34.22,
+   "source_file": "memory/entities/autores/ismenia-valadares-tor.md"
+  },
+  {
+   "id": 446,
+   "score": 27.69,
+   "source_file": "memory/2027-04-08.md"
+  },
+  {
+   "id": 626,
+   "score": 27.49,
+   "source_file": "memory/2027-06-12.md"
+  },
+  {
+   "id": 625,
+   "score": 23.41,
+   "source_file": "memory/2027-06-12.md"
+  },
+  {
+   "id": 789,
+   "score": 13.98,
+   "source_file": "memory/lessons/2027-05-02-lesson-27.md"
+  },
+  {
+   "id": 83,
+   "score": 12.63,
+   "source_file": "memory/entities/autores/ismenia-valadares-tor.md"
+  },
+  {
+   "id": 230,
+   "score": 12.32,
+   "source_file": "memory/2027-01-19.md"
+  },
+  {
+   "id": 362,
+   "score": 12.32,
+   "source_file": "memory/2027-03-13.md"
+  },
+  {
+   "id": 363,
+   "score": 12.32,
+   "source_file": "memory/2027-03-13.md"
+  }
+ ],
+ "Q21": [
+  {
+   "id": 61,
+   "score": 27.97,
+   "source_file": "memory/entities/livros/a-ultima-linha-do-bonde.md"
+  },
+  {
+   "id": 369,
+   "score": 25.41,
+   "source_file": "memory/2027-03-14.md"
+  },
+  {
+   "id": 370,
+   "score": 25.41,
+   "source_file": "memory/2027-03-14.md"
+  },
+  {
+   "id": 62,
+   "score": 22.31,
+   "source_file": "memory/entities/livros/a-ultima-linha-do-bonde.md"
+  },
+  {
+   "id": 643,
+   "score": 17.87,
+   "source_file": "memory/2027-06-20.md"
+  },
+  {
+   "id": 535,
+   "score": 17.37,
+   "source_file": "memory/2027-05-08.md"
+  },
+  {
+   "id": 345,
+   "score": 14.6,
+   "source_file": "memory/2027-03-06.md"
+  },
+  {
+   "id": 347,
+   "score": 13.76,
+   "source_file": "memory/2027-03-06.md"
+  },
+  {
+   "id": 534,
+   "score": 13.08,
+   "source_file": "memory/2027-05-08.md"
+  },
+  {
+   "id": 66,
+   "score": 8.1,
+   "source_file": "memory/entities/livros/a-ultima-linha-do-bonde.md"
+  }
+ ],
+ "Q22": [
+  {
+   "id": 34,
+   "score": 20.59,
+   "source_file": "memory/entities/livros/sal-e-ferrugem.md"
+  },
+  {
+   "id": 724,
+   "score": 14.48,
+   "source_file": "memory/decisions/2027-03-10-decision-13.md"
+  },
+  {
+   "id": 35,
+   "score": 13.4,
+   "source_file": "memory/entities/livros/sal-e-ferrugem.md"
+  },
+  {
+   "id": 226,
+   "score": 12.46,
+   "source_file": "memory/2027-01-18.md"
+  },
+  {
+   "id": 763,
+   "score": 11.99,
+   "source_file": "memory/decisions/2027-04-12-decision-22.md"
+  },
+  {
+   "id": 684,
+   "score": 11.84,
+   "source_file": "memory/decisions/2027-01-18-decision-03.md"
+  },
+  {
+   "id": 225,
+   "score": 11.28,
+   "source_file": "memory/2027-01-18.md"
+  },
+  {
+   "id": 682,
+   "score": 10.77,
+   "source_file": "memory/decisions/2027-01-18-decision-03.md"
+  },
+  {
+   "id": 764,
+   "score": 10.09,
+   "source_file": "memory/decisions/2027-04-12-decision-22.md"
+  },
+  {
+   "id": 723,
+   "score": 9.77,
+   "source_file": "memory/decisions/2027-03-10-decision-13.md"
+  }
+ ],
+ "Q23": [
+  {
+   "id": 7,
+   "score": 30.76,
+   "source_file": "memory/entities/livros/cartas-de-um-farol-apagado.md"
+  },
+  {
+   "id": 838,
+   "score": 28.09,
+   "source_file": "memory/lessons/2027-06-19-lesson-38.md"
+  },
+  {
+   "id": 8,
+   "score": 24.11,
+   "source_file": "memory/entities/livros/cartas-de-um-farol-apagado.md"
+  },
+  {
+   "id": 610,
+   "score": 21.88,
+   "source_file": "memory/2027-06-08.md"
+  },
+  {
+   "id": 191,
+   "score": 19.22,
+   "source_file": "memory/2027-01-07.md"
+  },
+  {
+   "id": 837,
+   "score": 17.72,
+   "source_file": "memory/lessons/2027-06-19-lesson-38.md"
+  },
+  {
+   "id": 192,
+   "score": 11.43,
+   "source_file": "memory/2027-01-07.md"
+  },
+  {
+   "id": 565,
+   "score": 10.86,
+   "source_file": "memory/2027-05-23.md"
+  },
+  {
+   "id": 10,
+   "score": 10.43,
+   "source_file": "memory/entities/livros/cartas-de-um-farol-apagado.md"
+  },
+  {
+   "id": 435,
+   "score": 9.47,
+   "source_file": "memory/2027-04-03.md"
+  }
+ ],
+ "Q24": [
+  {
+   "id": 143,
+   "score": 21.52,
+   "source_file": "memory/entities/projetos/colecao-farois.md"
+  },
+  {
+   "id": 144,
+   "score": 19.83,
+   "source_file": "memory/entities/projetos/colecao-farois.md"
+  },
+  {
+   "id": 715,
+   "score": 17.86,
+   "source_file": "memory/decisions/2027-03-07-decision-11.md"
+  },
+  {
+   "id": 145,
+   "score": 7.87,
+   "source_file": "memory/entities/projetos/colecao-farois.md"
+  },
+  {
+   "id": 574,
+   "score": 6.61,
+   "source_file": "memory/2027-05-26.md"
+  },
+  {
+   "id": 148,
+   "score": 6.6,
+   "source_file": "memory/entities/projetos/colecao-farois.md"
+  },
+  {
+   "id": 147,
+   "score": 6.52,
+   "source_file": "memory/entities/projetos/colecao-farois.md"
+  },
+  {
+   "id": 556,
+   "score": 6.45,
+   "source_file": "memory/2027-05-18.md"
+  },
+  {
+   "id": 775,
+   "score": 6.37,
+   "source_file": "memory/decisions/2027-04-16-decision-24.md"
+  },
+  {
+   "id": 525,
+   "score": 6.35,
+   "source_file": "memory/2027-05-05.md"
+  }
+ ],
+ "Q25": [
+  {
+   "id": 42,
+   "score": 24.93,
+   "source_file": "memory/entities/livros/os-cadernos-do-sotao.md"
+  },
+  {
+   "id": 41,
+   "score": 19.02,
+   "source_file": "memory/entities/livros/os-cadernos-do-sotao.md"
+  },
+  {
+   "id": 652,
+   "score": 16.83,
+   "source_file": "memory/2027-06-24.md"
+  },
+  {
+   "id": 587,
+   "score": 16.75,
+   "source_file": "memory/2027-05-30.md"
+  },
+  {
+   "id": 823,
+   "score": 16.05,
+   "source_file": "memory/decisions/2027-06-01-decision-35.md"
+  },
+  {
+   "id": 385,
+   "score": 13.11,
+   "source_file": "memory/2027-03-18.md"
+  },
+  {
+   "id": 326,
+   "score": 12.88,
+   "source_file": "memory/2027-02-28.md"
+  },
+  {
+   "id": 660,
+   "score": 11.89,
+   "source_file": "memory/2027-06-27.md"
+  },
+  {
+   "id": 334,
+   "score": 10.94,
+   "source_file": "memory/2027-03-02.md"
+  },
+  {
+   "id": 822,
+   "score": 10.43,
+   "source_file": "memory/decisions/2027-06-01-decision-35.md"
+  }
+ ],
+ "Q26": [
+  {
+   "id": 796,
+   "score": 15.25,
+   "source_file": "memory/decisions/2027-05-06-decision-28.md"
+  },
+  {
+   "id": 167,
+   "score": 13.64,
+   "source_file": "memory/entities/projetos/audiolivros-da-casa.md"
+  },
+  {
+   "id": 501,
+   "score": 12.39,
+   "source_file": "memory/2027-04-28.md"
+  },
+  {
+   "id": 168,
+   "score": 9.9,
+   "source_file": "memory/entities/projetos/audiolivros-da-casa.md"
+  },
+  {
+   "id": 286,
+   "score": 8.92,
+   "source_file": "memory/2027-02-11.md"
+  },
+  {
+   "id": 504,
+   "score": 8.11,
+   "source_file": "memory/2027-04-29.md"
+  },
+  {
+   "id": 380,
+   "score": 7.52,
+   "source_file": "memory/2027-03-17.md"
+  },
+  {
+   "id": 169,
+   "score": 6.23,
+   "source_file": "memory/entities/projetos/audiolivros-da-casa.md"
+  },
+  {
+   "id": 223,
+   "score": 5.27,
+   "source_file": "memory/2027-01-17.md"
+  },
+  {
+   "id": 425,
+   "score": 4.77,
+   "source_file": "memory/2027-03-29.md"
+  }
+ ],
+ "Q27": [
+  {
+   "id": 42,
+   "score": 28.16,
+   "source_file": "memory/entities/livros/os-cadernos-do-sotao.md"
+  },
+  {
+   "id": 385,
+   "score": 20.54,
+   "source_file": "memory/2027-03-18.md"
+  },
+  {
+   "id": 41,
+   "score": 19.02,
+   "source_file": "memory/entities/livros/os-cadernos-do-sotao.md"
+  },
+  {
+   "id": 652,
+   "score": 16.83,
+   "source_file": "memory/2027-06-24.md"
+  },
+  {
+   "id": 587,
+   "score": 16.75,
+   "source_file": "memory/2027-05-30.md"
+  },
+  {
+   "id": 326,
+   "score": 14.8,
+   "source_file": "memory/2027-02-28.md"
+  },
+  {
+   "id": 334,
+   "score": 13.35,
+   "source_file": "memory/2027-03-02.md"
+  },
+  {
+   "id": 660,
+   "score": 11.89,
+   "source_file": "memory/2027-06-27.md"
+  },
+  {
+   "id": 823,
+   "score": 11.66,
+   "source_file": "memory/decisions/2027-06-01-decision-35.md"
+  },
+  {
+   "id": 822,
+   "score": 10.43,
+   "source_file": "memory/decisions/2027-06-01-decision-35.md"
+  }
+ ],
+ "Q28": [
+  {
+   "id": 728,
+   "score": 22.56,
+   "source_file": "memory/lessons/2027-03-11-lesson-14.md"
+  },
+  {
+   "id": 1,
+   "score": 21.11,
+   "source_file": "memory/entities/livros/o-rio-sem-margem.md"
+  },
+  {
+   "id": 492,
+   "score": 17.32,
+   "source_file": "memory/2027-04-26.md"
+  },
+  {
+   "id": 2,
+   "score": 16.79,
+   "source_file": "memory/entities/livros/o-rio-sem-margem.md"
+  },
+  {
+   "id": 453,
+   "score": 15.65,
+   "source_file": "memory/2027-04-10.md"
+  },
+  {
+   "id": 467,
+   "score": 13.6,
+   "source_file": "memory/2027-04-15.md"
+  },
+  {
+   "id": 193,
+   "score": 12.55,
+   "source_file": "memory/2027-01-07.md"
+  },
+  {
+   "id": 686,
+   "score": 12.45,
+   "source_file": "memory/decisions/2027-02-04-decision-04.md"
+  },
+  {
+   "id": 820,
+   "score": 11.88,
+   "source_file": "memory/decisions/2027-05-30-decision-34.md"
+  },
+  {
+   "id": 687,
+   "score": 10.82,
+   "source_file": "memory/decisions/2027-02-04-decision-04.md"
+  }
+ ],
+ "Q29": [
+  {
+   "id": 112,
+   "score": 33.5,
+   "source_file": "memory/entities/autores/osorio-fagundes-lemos.md"
+  },
+  {
+   "id": 540,
+   "score": 32.15,
+   "source_file": "memory/2027-05-09.md"
+  },
+  {
+   "id": 395,
+   "score": 29.24,
+   "source_file": "memory/2027-03-21.md"
+  },
+  {
+   "id": 113,
+   "score": 26.48,
+   "source_file": "memory/entities/autores/osorio-fagundes-lemos.md"
+  },
+  {
+   "id": 737,
+   "score": 26.31,
+   "source_file": "memory/lessons/2027-03-25-lesson-16.md"
+  },
+  {
+   "id": 248,
+   "score": 24.33,
+   "source_file": "memory/2027-01-26.md"
+  },
+  {
+   "id": 673,
+   "score": 15.35,
+   "source_file": "memory/decisions/2027-01-09-decision-01.md"
+  },
+  {
+   "id": 114,
+   "score": 11.46,
+   "source_file": "memory/entities/autores/osorio-fagundes-lemos.md"
+  },
+  {
+   "id": 115,
+   "score": 9.8,
+   "source_file": "memory/entities/autores/osorio-fagundes-lemos.md"
+  },
+  {
+   "id": 116,
+   "score": 9.68,
+   "source_file": "memory/entities/autores/osorio-fagundes-lemos.md"
+  }
+ ],
+ "Q30": [
+  {
+   "id": 54,
+   "score": 35.14,
+   "source_file": "memory/entities/livros/ninguem-mora-no-quinto-andar.md"
+  },
+  {
+   "id": 678,
+   "score": 28.97,
+   "source_file": "memory/lessons/2027-01-17-lesson-02.md"
+  },
+  {
+   "id": 409,
+   "score": 26.99,
+   "source_file": "memory/2027-03-24.md"
+  },
+  {
+   "id": 55,
+   "score": 24.4,
+   "source_file": "memory/entities/livros/ninguem-mora-no-quinto-andar.md"
+  },
+  {
+   "id": 697,
+   "score": 23.68,
+   "source_file": "memory/lessons/2027-02-12-lesson-06.md"
+  },
+  {
+   "id": 845,
+   "score": 22.75,
+   "source_file": "memory/decisions/2027-06-26-decision-40.md"
+  },
+  {
+   "id": 410,
+   "score": 22.11,
+   "source_file": "memory/2027-03-24.md"
+  },
+  {
+   "id": 677,
+   "score": 20.12,
+   "source_file": "memory/lessons/2027-01-17-lesson-02.md"
+  },
+  {
+   "id": 847,
+   "score": 19.95,
+   "source_file": "memory/decisions/2027-06-26-decision-40.md"
+  },
+  {
+   "id": 407,
+   "score": 19.87,
+   "source_file": "memory/2027-03-24.md"
+  }
+ ],
+ "Q31": [
+  {
+   "id": 144,
+   "score": 23.28,
+   "source_file": "memory/entities/projetos/colecao-farois.md"
+  },
+  {
+   "id": 143,
+   "score": 21.52,
+   "source_file": "memory/entities/projetos/colecao-farois.md"
+  },
+  {
+   "id": 715,
+   "score": 13.94,
+   "source_file": "memory/decisions/2027-03-07-decision-11.md"
+  },
+  {
+   "id": 145,
+   "score": 7.87,
+   "source_file": "memory/entities/projetos/colecao-farois.md"
+  },
+  {
+   "id": 278,
+   "score": 6.67,
+   "source_file": "memory/2027-02-08.md"
+  },
+  {
+   "id": 148,
+   "score": 6.6,
+   "source_file": "memory/entities/projetos/colecao-farois.md"
+  },
+  {
+   "id": 147,
+   "score": 6.52,
+   "source_file": "memory/entities/projetos/colecao-farois.md"
+  },
+  {
+   "id": 146,
+   "score": 6.29,
+   "source_file": "memory/entities/projetos/colecao-farois.md"
+  },
+  {
+   "id": 186,
+   "score": 6.01,
+   "source_file": "memory/2027-01-06.md"
+  },
+  {
+   "id": 419,
+   "score": 5.79,
+   "source_file": "memory/2027-03-28.md"
+  }
+ ],
+ "Q32": [
+  {
+   "id": 789,
+   "score": 35,
+   "source_file": "memory/lessons/2027-05-02-lesson-27.md"
+  },
+  {
+   "id": 92,
+   "score": 32.23,
+   "source_file": "memory/entities/autores/celeste-arruda-mourao.md"
+  },
+  {
+   "id": 93,
+   "score": 29.8,
+   "source_file": "memory/entities/autores/celeste-arruda-mourao.md"
+  },
+  {
+   "id": 294,
+   "score": 28.02,
+   "source_file": "memory/2027-02-14.md"
+  },
+  {
+   "id": 329,
+   "score": 24.15,
+   "source_file": "memory/2027-03-01.md"
+  },
+  {
+   "id": 694,
+   "score": 21.37,
+   "source_file": "memory/decisions/2027-02-07-decision-05.md"
+  },
+  {
+   "id": 457,
+   "score": 20.43,
+   "source_file": "memory/2027-04-12.md"
+  },
+  {
+   "id": 692,
+   "score": 17.25,
+   "source_file": "memory/decisions/2027-02-07-decision-05.md"
+  },
+  {
+   "id": 230,
+   "score": 12.32,
+   "source_file": "memory/2027-01-19.md"
+  },
+  {
+   "id": 362,
+   "score": 12.32,
+   "source_file": "memory/2027-03-13.md"
+  }
+ ],
+ "Q33": [
+  {
+   "id": 816,
+   "score": 27.53,
+   "source_file": "memory/decisions/2027-05-29-decision-33.md"
+  },
+  {
+   "id": 27,
+   "score": 26.9,
+   "source_file": "memory/entities/livros/o-inverno-de-vila-aurora.md"
+  },
+  {
+   "id": 28,
+   "score": 20.73,
+   "source_file": "memory/entities/livros/o-inverno-de-vila-aurora.md"
+  },
+  {
+   "id": 403,
+   "score": 19.35,
+   "source_file": "memory/2027-03-23.md"
+  },
+  {
+   "id": 404,
+   "score": 19.35,
+   "source_file": "memory/2027-03-23.md"
+  },
+  {
+   "id": 755,
+   "score": 19.28,
+   "source_file": "memory/lessons/2027-04-03-lesson-20.md"
+  },
+  {
+   "id": 155,
+   "score": 17.85,
+   "source_file": "memory/entities/projetos/feira-do-livro-de-vila-aurora.md"
+  },
+  {
+   "id": 156,
+   "score": 16.85,
+   "source_file": "memory/entities/projetos/feira-do-livro-de-vila-aurora.md"
+  },
+  {
+   "id": 218,
+   "score": 14.68,
+   "source_file": "memory/2027-01-16.md"
+  },
+  {
+   "id": 405,
+   "score": 14.11,
+   "source_file": "memory/2027-03-23.md"
+  }
+ ],
+ "Q34": [
+  {
+   "id": 697,
+   "score": 40.61,
+   "source_file": "memory/lessons/2027-02-12-lesson-06.md"
+  },
+  {
+   "id": 54,
+   "score": 35.14,
+   "source_file": "memory/entities/livros/ninguem-mora-no-quinto-andar.md"
+  },
+  {
+   "id": 409,
+   "score": 26.99,
+   "source_file": "memory/2027-03-24.md"
+  },
+  {
+   "id": 55,
+   "score": 24.4,
+   "source_file": "memory/entities/livros/ninguem-mora-no-quinto-andar.md"
+  },
+  {
+   "id": 576,
+   "score": 22.2,
+   "source_file": "memory/2027-05-27.md"
+  },
+  {
+   "id": 410,
+   "score": 22.11,
+   "source_file": "memory/2027-03-24.md"
+  },
+  {
+   "id": 678,
+   "score": 20.86,
+   "source_file": "memory/lessons/2027-01-17-lesson-02.md"
+  },
+  {
+   "id": 845,
+   "score": 20.35,
+   "source_file": "memory/decisions/2027-06-26-decision-40.md"
+  },
+  {
+   "id": 677,
+   "score": 20.12,
+   "source_file": "memory/lessons/2027-01-17-lesson-02.md"
+  },
+  {
+   "id": 407,
+   "score": 19.87,
+   "source_file": "memory/2027-03-24.md"
+  }
+ ],
+ "Q35": [
+  {
+   "id": 687,
+   "score": 23.86,
+   "source_file": "memory/decisions/2027-02-04-decision-04.md"
+  },
+  {
+   "id": 467,
+   "score": 21.42,
+   "source_file": "memory/2027-04-15.md"
+  },
+  {
+   "id": 1,
+   "score": 21.11,
+   "source_file": "memory/entities/livros/o-rio-sem-margem.md"
+  },
+  {
+   "id": 492,
+   "score": 21.06,
+   "source_file": "memory/2027-04-26.md"
+  },
+  {
+   "id": 728,
+   "score": 18,
+   "source_file": "memory/lessons/2027-03-11-lesson-14.md"
+  },
+  {
+   "id": 697,
+   "score": 16.94,
+   "source_file": "memory/lessons/2027-02-12-lesson-06.md"
+  },
+  {
+   "id": 453,
+   "score": 15.65,
+   "source_file": "memory/2027-04-10.md"
+  },
+  {
+   "id": 808,
+   "score": 15.54,
+   "source_file": "memory/lessons/2027-05-15-lesson-31.md"
+  },
+  {
+   "id": 765,
+   "score": 15.5,
+   "source_file": "memory/decisions/2027-04-12-decision-22.md"
+  },
+  {
+   "id": 229,
+   "score": 14.12,
+   "source_file": "memory/2027-01-19.md"
+  }
+ ],
+ "Q36": [
+  {
+   "id": 1,
+   "score": 21.11,
+   "source_file": "memory/entities/livros/o-rio-sem-margem.md"
+  },
+  {
+   "id": 820,
+   "score": 20.24,
+   "source_file": "memory/decisions/2027-05-30-decision-34.md"
+  },
+  {
+   "id": 687,
+   "score": 18.94,
+   "source_file": "memory/decisions/2027-02-04-decision-04.md"
+  },
+  {
+   "id": 728,
+   "score": 18,
+   "source_file": "memory/lessons/2027-03-11-lesson-14.md"
+  },
+  {
+   "id": 492,
+   "score": 17.32,
+   "source_file": "memory/2027-04-26.md"
+  },
+  {
+   "id": 453,
+   "score": 15.65,
+   "source_file": "memory/2027-04-10.md"
+  },
+  {
+   "id": 467,
+   "score": 13.6,
+   "source_file": "memory/2027-04-15.md"
+  },
+  {
+   "id": 2,
+   "score": 13.35,
+   "source_file": "memory/entities/livros/o-rio-sem-margem.md"
+  },
+  {
+   "id": 193,
+   "score": 12.55,
+   "source_file": "memory/2027-01-07.md"
+  },
+  {
+   "id": 686,
+   "score": 12.45,
+   "source_file": "memory/decisions/2027-02-04-decision-04.md"
+  }
+ ],
+ "Q37": [
+  {
+   "id": 67,
+   "score": 43.84,
+   "source_file": "memory/entities/livros/vento-norte-sobre-a-serra-baixa.md"
+  },
+  {
+   "id": 68,
+   "score": 36.75,
+   "source_file": "memory/entities/livros/vento-norte-sobre-a-serra-baixa.md"
+  },
+  {
+   "id": 808,
+   "score": 34.84,
+   "source_file": "memory/lessons/2027-05-15-lesson-31.md"
+  },
+  {
+   "id": 408,
+   "score": 34.56,
+   "source_file": "memory/2027-03-24.md"
+  },
+  {
+   "id": 513,
+   "score": 28.51,
+   "source_file": "memory/2027-05-02.md"
+  },
+  {
+   "id": 514,
+   "score": 28.51,
+   "source_file": "memory/2027-05-02.md"
+  },
+  {
+   "id": 576,
+   "score": 23.16,
+   "source_file": "memory/2027-05-27.md"
+  },
+  {
+   "id": 71,
+   "score": 14.72,
+   "source_file": "memory/entities/livros/vento-norte-sobre-a-serra-baixa.md"
+  },
+  {
+   "id": 69,
+   "score": 13.64,
+   "source_file": "memory/entities/livros/vento-norte-sobre-a-serra-baixa.md"
+  },
+  {
+   "id": 70,
+   "score": 13.64,
+   "source_file": "memory/entities/livros/vento-norte-sobre-a-serra-baixa.md"
+  }
+ ],
+ "Q38": [
+  {
+   "id": 565,
+   "score": 30.97,
+   "source_file": "memory/2027-05-23.md"
+  },
+  {
+   "id": 14,
+   "score": 29,
+   "source_file": "memory/entities/livros/a-cidade-dos-relogios-parados.md"
+  },
+  {
+   "id": 235,
+   "score": 24.01,
+   "source_file": "memory/2027-01-22.md"
+  },
+  {
+   "id": 719,
+   "score": 22.44,
+   "source_file": "memory/lessons/2027-03-08-lesson-12.md"
+  },
+  {
+   "id": 201,
+   "score": 21.97,
+   "source_file": "memory/2027-01-11.md"
+  },
+  {
+   "id": 15,
+   "score": 20.98,
+   "source_file": "memory/entities/livros/a-cidade-dos-relogios-parados.md"
+  },
+  {
+   "id": 275,
+   "score": 19.59,
+   "source_file": "memory/2027-02-07.md"
+  },
+  {
+   "id": 829,
+   "score": 17.32,
+   "source_file": "memory/lessons/2027-06-02-lesson-36.md"
+  },
+  {
+   "id": 718,
+   "score": 17,
+   "source_file": "memory/lessons/2027-03-08-lesson-12.md"
+  },
+  {
+   "id": 667,
+   "score": 15.74,
+   "source_file": "memory/2027-06-30.md"
+  }
+ ],
+ "Q39": [
+  {
+   "id": 27,
+   "score": 26.9,
+   "source_file": "memory/entities/livros/o-inverno-de-vila-aurora.md"
+  },
+  {
+   "id": 755,
+   "score": 26.04,
+   "source_file": "memory/lessons/2027-04-03-lesson-20.md"
+  },
+  {
+   "id": 816,
+   "score": 23.02,
+   "source_file": "memory/decisions/2027-05-29-decision-33.md"
+  },
+  {
+   "id": 28,
+   "score": 20.73,
+   "source_file": "memory/entities/livros/o-inverno-de-vila-aurora.md"
+  },
+  {
+   "id": 156,
+   "score": 20.31,
+   "source_file": "memory/entities/projetos/feira-do-livro-de-vila-aurora.md"
+  },
+  {
+   "id": 403,
+   "score": 19.35,
+   "source_file": "memory/2027-03-23.md"
+  },
+  {
+   "id": 404,
+   "score": 19.35,
+   "source_file": "memory/2027-03-23.md"
+  },
+  {
+   "id": 155,
+   "score": 17.85,
+   "source_file": "memory/entities/projetos/feira-do-livro-de-vila-aurora.md"
+  },
+  {
+   "id": 218,
+   "score": 16.94,
+   "source_file": "memory/2027-01-16.md"
+  },
+  {
+   "id": 268,
+   "score": 14.66,
+   "source_file": "memory/2027-02-04.md"
+  }
+ ],
+ "Q40": [
+  {
+   "id": 403,
+   "score": 27.14,
+   "source_file": "memory/2027-03-23.md"
+  },
+  {
+   "id": 404,
+   "score": 27.14,
+   "source_file": "memory/2027-03-23.md"
+  },
+  {
+   "id": 27,
+   "score": 26.9,
+   "source_file": "memory/entities/livros/o-inverno-de-vila-aurora.md"
+  },
+  {
+   "id": 816,
+   "score": 23.02,
+   "source_file": "memory/decisions/2027-05-29-decision-33.md"
+  },
+  {
+   "id": 755,
+   "score": 22.44,
+   "source_file": "memory/lessons/2027-04-03-lesson-20.md"
+  },
+  {
+   "id": 28,
+   "score": 20.73,
+   "source_file": "memory/entities/livros/o-inverno-de-vila-aurora.md"
+  },
+  {
+   "id": 155,
+   "score": 17.85,
+   "source_file": "memory/entities/projetos/feira-do-livro-de-vila-aurora.md"
+  },
+  {
+   "id": 156,
+   "score": 16.85,
+   "source_file": "memory/entities/projetos/feira-do-livro-de-vila-aurora.md"
+  },
+  {
+   "id": 218,
+   "score": 14.68,
+   "source_file": "memory/2027-01-16.md"
+  },
+  {
+   "id": 405,
+   "score": 14.11,
+   "source_file": "memory/2027-03-23.md"
+  }
+ ],
+ "Q41": [
+  {
+   "id": 150,
+   "score": 31.88,
+   "source_file": "memory/entities/projetos/clube-de-leitura-de-marco.md"
+  },
+  {
+   "id": 149,
+   "score": 28.51,
+   "source_file": "memory/entities/projetos/clube-de-leitura-de-marco.md"
+  },
+  {
+   "id": 151,
+   "score": 10.74,
+   "source_file": "memory/entities/projetos/clube-de-leitura-de-marco.md"
+  },
+  {
+   "id": 154,
+   "score": 9.69,
+   "source_file": "memory/entities/projetos/clube-de-leitura-de-marco.md"
+  },
+  {
+   "id": 804,
+   "score": 9.55,
+   "source_file": "memory/lessons/2027-05-10-lesson-30.md"
+  },
+  {
+   "id": 152,
+   "score": 8.66,
+   "source_file": "memory/entities/projetos/clube-de-leitura-de-marco.md"
+  },
+  {
+   "id": 153,
+   "score": 8.66,
+   "source_file": "memory/entities/projetos/clube-de-leitura-de-marco.md"
+  },
+  {
+   "id": 364,
+   "score": 8.53,
+   "source_file": "memory/2027-03-13.md"
+  },
+  {
+   "id": 524,
+   "score": 7.63,
+   "source_file": "memory/2027-05-05.md"
+  },
+  {
+   "id": 574,
+   "score": 6.61,
+   "source_file": "memory/2027-05-26.md"
+  }
+ ],
+ "Q42": [
+  {
+   "id": 87,
+   "score": 43.22,
+   "source_file": "memory/entities/autores/bartolomeu-quintanilha-reis.md"
+  },
+  {
+   "id": 86,
+   "score": 36.88,
+   "source_file": "memory/entities/autores/bartolomeu-quintanilha-reis.md"
+  },
+  {
+   "id": 269,
+   "score": 19.85,
+   "source_file": "memory/2027-02-04.md"
+  },
+  {
+   "id": 789,
+   "score": 13.98,
+   "source_file": "memory/lessons/2027-05-02-lesson-27.md"
+  },
+  {
+   "id": 90,
+   "score": 13.22,
+   "source_file": "memory/entities/autores/bartolomeu-quintanilha-reis.md"
+  },
+  {
+   "id": 230,
+   "score": 12.32,
+   "source_file": "memory/2027-01-19.md"
+  },
+  {
+   "id": 362,
+   "score": 12.32,
+   "source_file": "memory/2027-03-13.md"
+  },
+  {
+   "id": 363,
+   "score": 12.32,
+   "source_file": "memory/2027-03-13.md"
+  },
+  {
+   "id": 790,
+   "score": 12.23,
+   "source_file": "memory/lessons/2027-05-02-lesson-27.md"
+  },
+  {
+   "id": 784,
+   "score": 11.98,
+   "source_file": "memory/lessons/2027-04-26-lesson-26.md"
+  }
+ ],
+ "Q43": [
+  {
+   "id": 34,
+   "score": 20.59,
+   "source_file": "memory/entities/livros/sal-e-ferrugem.md"
+  },
+  {
+   "id": 764,
+   "score": 17.95,
+   "source_file": "memory/decisions/2027-04-12-decision-22.md"
+  },
+  {
+   "id": 35,
+   "score": 13.4,
+   "source_file": "memory/entities/livros/sal-e-ferrugem.md"
+  },
+  {
+   "id": 226,
+   "score": 12.46,
+   "source_file": "memory/2027-01-18.md"
+  },
+  {
+   "id": 763,
+   "score": 11.99,
+   "source_file": "memory/decisions/2027-04-12-decision-22.md"
+  },
+  {
+   "id": 684,
+   "score": 11.84,
+   "source_file": "memory/decisions/2027-01-18-decision-03.md"
+  },
+  {
+   "id": 225,
+   "score": 11.28,
+   "source_file": "memory/2027-01-18.md"
+  },
+  {
+   "id": 565,
+   "score": 10.86,
+   "source_file": "memory/2027-05-23.md"
+  },
+  {
+   "id": 682,
+   "score": 10.77,
+   "source_file": "memory/decisions/2027-01-18-decision-03.md"
+  },
+  {
+   "id": 724,
+   "score": 10.71,
+   "source_file": "memory/decisions/2027-03-10-decision-13.md"
+  }
+ ],
+ "Q44": [
+  {
+   "id": 74,
+   "score": 25.02,
+   "source_file": "memory/entities/livros/o-jardim-de-cera.md"
+  },
+  {
+   "id": 73,
+   "score": 22.78,
+   "source_file": "memory/entities/livros/o-jardim-de-cera.md"
+  },
+  {
+   "id": 770,
+   "score": 17.23,
+   "source_file": "memory/decisions/2027-04-14-decision-23.md"
+  },
+  {
+   "id": 442,
+   "score": 16.31,
+   "source_file": "memory/2027-04-07.md"
+  },
+  {
+   "id": 441,
+   "score": 11.13,
+   "source_file": "memory/2027-04-07.md"
+  },
+  {
+   "id": 76,
+   "score": 6.91,
+   "source_file": "memory/entities/livros/o-jardim-de-cera.md"
+  },
+  {
+   "id": 78,
+   "score": 6.75,
+   "source_file": "memory/entities/livros/o-jardim-de-cera.md"
+  },
+  {
+   "id": 77,
+   "score": 6.67,
+   "source_file": "memory/entities/livros/o-jardim-de-cera.md"
+  },
+  {
+   "id": 75,
+   "score": 6.37,
+   "source_file": "memory/entities/livros/o-jardim-de-cera.md"
+  },
+  {
+   "id": 359,
+   "score": 5.28,
+   "source_file": "memory/2027-03-11.md"
+  }
+ ],
+ "QP0": [
+  {
+   "id": 14,
+   "score": 29,
+   "source_file": "memory/entities/livros/a-cidade-dos-relogios-parados.md"
+  },
+  {
+   "id": 201,
+   "score": 21.97,
+   "source_file": "memory/2027-01-11.md"
+  },
+  {
+   "id": 15,
+   "score": 20.98,
+   "source_file": "memory/entities/livros/a-cidade-dos-relogios-parados.md"
+  },
+  {
+   "id": 565,
+   "score": 20.11,
+   "source_file": "memory/2027-05-23.md"
+  },
+  {
+   "id": 235,
+   "score": 19.68,
+   "source_file": "memory/2027-01-22.md"
+  },
+  {
+   "id": 829,
+   "score": 17.32,
+   "source_file": "memory/lessons/2027-06-02-lesson-36.md"
+  },
+  {
+   "id": 718,
+   "score": 17,
+   "source_file": "memory/lessons/2027-03-08-lesson-12.md"
+  },
+  {
+   "id": 827,
+   "score": 16.7,
+   "source_file": "memory/lessons/2027-06-02-lesson-36.md"
+  },
+  {
+   "id": 275,
+   "score": 16.43,
+   "source_file": "memory/2027-02-07.md"
+  },
+  {
+   "id": 667,
+   "score": 15.74,
+   "source_file": "memory/2027-06-30.md"
+  }
+ ],
+ "QP1": [
+  {
+   "id": 20,
+   "score": 31.63,
+   "source_file": "memory/entities/livros/mapa-das-mares-altas.md"
+  },
+  {
+   "id": 21,
+   "score": 22.01,
+   "source_file": "memory/entities/livros/mapa-das-mares-altas.md"
+  },
+  {
+   "id": 433,
+   "score": 21.35,
+   "source_file": "memory/2027-04-03.md"
+  },
+  {
+   "id": 543,
+   "score": 20.61,
+   "source_file": "memory/2027-05-10.md"
+  },
+  {
+   "id": 544,
+   "score": 20.61,
+   "source_file": "memory/2027-05-10.md"
+  },
+  {
+   "id": 341,
+   "score": 19.91,
+   "source_file": "memory/2027-03-04.md"
+  },
+  {
+   "id": 711,
+   "score": 18.78,
+   "source_file": "memory/decisions/2027-02-25-decision-10.md"
+  },
+  {
+   "id": 712,
+   "score": 18.06,
+   "source_file": "memory/decisions/2027-02-25-decision-10.md"
+  },
+  {
+   "id": 23,
+   "score": 9.84,
+   "source_file": "memory/entities/livros/mapa-das-mares-altas.md"
+  },
+  {
+   "id": 26,
+   "score": 9.48,
+   "source_file": "memory/entities/livros/mapa-das-mares-altas.md"
+  }
+ ],
+ "QP2": [
+  {
+   "id": 47,
+   "score": 30.55,
+   "source_file": "memory/entities/livros/pequeno-atlas-das-chuvas.md"
+  },
+  {
+   "id": 750,
+   "score": 23.68,
+   "source_file": "memory/lessons/2027-03-28-lesson-19.md"
+  },
+  {
+   "id": 48,
+   "score": 23.05,
+   "source_file": "memory/entities/livros/pequeno-atlas-das-chuvas.md"
+  },
+  {
+   "id": 365,
+   "score": 22.45,
+   "source_file": "memory/2027-03-13.md"
+  },
+  {
+   "id": 231,
+   "score": 20.04,
+   "source_file": "memory/2027-01-19.md"
+  },
+  {
+   "id": 746,
+   "score": 18.85,
+   "source_file": "memory/decisions/2027-03-27-decision-18.md"
+  },
+  {
+   "id": 697,
+   "score": 16.94,
+   "source_file": "memory/lessons/2027-02-12-lesson-06.md"
+  },
+  {
+   "id": 745,
+   "score": 16.28,
+   "source_file": "memory/decisions/2027-03-27-decision-18.md"
+  },
+  {
+   "id": 808,
+   "score": 15.54,
+   "source_file": "memory/lessons/2027-05-15-lesson-31.md"
+  },
+  {
+   "id": 765,
+   "score": 15.5,
+   "source_file": "memory/decisions/2027-04-12-decision-22.md"
+  }
+ ],
+ "QP3": [
+  {
+   "id": 7,
+   "score": 30.76,
+   "source_file": "memory/entities/livros/cartas-de-um-farol-apagado.md"
+  },
+  {
+   "id": 8,
+   "score": 28.49,
+   "source_file": "memory/entities/livros/cartas-de-um-farol-apagado.md"
+  },
+  {
+   "id": 610,
+   "score": 21.88,
+   "source_file": "memory/2027-06-08.md"
+  },
+  {
+   "id": 837,
+   "score": 20.73,
+   "source_file": "memory/lessons/2027-06-19-lesson-38.md"
+  },
+  {
+   "id": 191,
+   "score": 19.22,
+   "source_file": "memory/2027-01-07.md"
+  },
+  {
+   "id": 838,
+   "score": 18.61,
+   "source_file": "memory/lessons/2027-06-19-lesson-38.md"
+  },
+  {
+   "id": 10,
+   "score": 12.08,
+   "source_file": "memory/entities/livros/cartas-de-um-farol-apagado.md"
+  },
+  {
+   "id": 192,
+   "score": 11.43,
+   "source_file": "memory/2027-01-07.md"
+  },
+  {
+   "id": 13,
+   "score": 10.72,
+   "source_file": "memory/entities/livros/cartas-de-um-farol-apagado.md"
+  },
+  {
+   "id": 9,
+   "score": 10.49,
+   "source_file": "memory/entities/livros/cartas-de-um-farol-apagado.md"
+  }
+ ],
+ "QP4": [
+  {
+   "id": 61,
+   "score": 27.97,
+   "source_file": "memory/entities/livros/a-ultima-linha-do-bonde.md"
+  },
+  {
+   "id": 62,
+   "score": 22.31,
+   "source_file": "memory/entities/livros/a-ultima-linha-do-bonde.md"
+  },
+  {
+   "id": 369,
+   "score": 20.29,
+   "source_file": "memory/2027-03-14.md"
+  },
+  {
+   "id": 370,
+   "score": 20.29,
+   "source_file": "memory/2027-03-14.md"
+  },
+  {
+   "id": 643,
+   "score": 17.87,
+   "source_file": "memory/2027-06-20.md"
+  },
+  {
+   "id": 535,
+   "score": 17.37,
+   "source_file": "memory/2027-05-08.md"
+  },
+  {
+   "id": 345,
+   "score": 14.6,
+   "source_file": "memory/2027-03-06.md"
+  },
+  {
+   "id": 347,
+   "score": 13.76,
+   "source_file": "memory/2027-03-06.md"
+  },
+  {
+   "id": 534,
+   "score": 13.08,
+   "source_file": "memory/2027-05-08.md"
+  },
+  {
+   "id": 565,
+   "score": 10.86,
+   "source_file": "memory/2027-05-23.md"
+  }
+ ]
+}

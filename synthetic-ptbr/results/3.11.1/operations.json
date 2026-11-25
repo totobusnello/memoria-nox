@@ -1,0 +1,1042 @@
+{
+ "better_sqlite3": "12.11.1",
+ "chunks_after": 851,
+ "log": [
+  {
+   "commands": [
+    "ingest"
+   ],
+   "fact": "F02",
+   "operation": "reingest_unchanged"
+  },
+  {
+   "commands": [
+    "mv",
+    "watcher on old path: tombstoneFile",
+    "ingest new path"
+   ],
+   "fact": "F03",
+   "operation": "rename_with_reingest"
+  },
+  {
+   "commands": [
+    "mv"
+   ],
+   "fact": "F05",
+   "operation": "rename_without_reingest"
+  },
+  {
+   "commands": [
+    "value replaced",
+    "ingest"
+   ],
+   "fact": "F06",
+   "operation": "edit_inside_span"
+  },
+  {
+   "commands": [
+    "append to section 0",
+    "ingest"
+   ],
+   "fact": "F07",
+   "operation": "edit_outside_span"
+  },
+  {
+   "commands": [
+    "value replaced",
+    "ingest"
+   ],
+   "fact": "F08",
+   "operation": "edit_inside_span"
+  },
+  {
+   "commands": [
+    "value replaced",
+    "ingest"
+   ],
+   "fact": "F11",
+   "operation": "edit_inside_span"
+  },
+  {
+   "commands": [
+    "append to section 0",
+    "ingest"
+   ],
+   "fact": "F12",
+   "operation": "edit_outside_span"
+  },
+  {
+   "commands": [
+    "mv",
+    "watcher on old path: tombstoneFile",
+    "ingest new path"
+   ],
+   "fact": "F14",
+   "operation": "rename_with_reingest"
+  },
+  {
+   "commands": [
+    "value replaced",
+    "ingest"
+   ],
+   "fact": "F15",
+   "operation": "edit_inside_span"
+  },
+  {
+   "commands": [
+    "ingest"
+   ],
+   "fact": "F16",
+   "operation": "reingest_unchanged"
+  },
+  {
+   "commands": [
+    "rm",
+    "watcher on old path: tombstoneFile"
+   ],
+   "fact": "F17",
+   "operation": "delete"
+  },
+  {
+   "commands": [
+    "ingest"
+   ],
+   "fact": "F18",
+   "operation": "reingest_unchanged"
+  },
+  {
+   "commands": [
+    "mv",
+    "watcher on old path: tombstoneFile",
+    "ingest new path"
+   ],
+   "fact": "F22",
+   "operation": "rename_with_reingest"
+  },
+  {
+   "commands": [
+    "mv",
+    "watcher on old path: tombstoneFile",
+    "ingest new path"
+   ],
+   "fact": "F23",
+   "operation": "rename_with_reingest"
+  },
+  {
+   "commands": [
+    "value replaced",
+    "ingest"
+   ],
+   "fact": "F24",
+   "operation": "edit_inside_span"
+  },
+  {
+   "commands": [
+    "rm",
+    "watcher on old path: tombstoneFile"
+   ],
+   "fact": "F25",
+   "operation": "delete"
+  },
+  {
+   "commands": [
+    "mv"
+   ],
+   "fact": "F26",
+   "operation": "rename_without_reingest"
+  },
+  {
+   "commands": [
+    "ingest"
+   ],
+   "fact": "F28",
+   "operation": "reingest_unchanged"
+  },
+  {
+   "commands": [
+    "append to section 0",
+    "ingest"
+   ],
+   "fact": "F29",
+   "operation": "edit_outside_span"
+  },
+  {
+   "commands": [
+    "rm",
+    "watcher on old path: tombstoneFile"
+   ],
+   "fact": "F30",
+   "operation": "delete"
+  },
+  {
+   "commands": [
+    "ingest"
+   ],
+   "fact": "F32",
+   "operation": "reingest_unchanged"
+  },
+  {
+   "commands": [
+    "mv"
+   ],
+   "fact": "F33",
+   "operation": "rename_without_reingest"
+  },
+  {
+   "commands": [
+    "mv"
+   ],
+   "fact": "F34",
+   "operation": "rename_without_reingest"
+  },
+  {
+   "commands": [
+    "rm",
+    "watcher on old path: tombstoneFile"
+   ],
+   "fact": "F35",
+   "operation": "delete"
+  },
+  {
+   "commands": [
+    "mv",
+    "watcher on old path: tombstoneFile",
+    "ingest new path"
+   ],
+   "fact": "F36",
+   "operation": "rename_with_reingest"
+  },
+  {
+   "commands": [
+    "append to section 0",
+    "ingest"
+   ],
+   "fact": "F38",
+   "operation": "edit_outside_span"
+  },
+  {
+   "commands": [
+    "append to section 0",
+    "ingest"
+   ],
+   "fact": "F39",
+   "operation": "edit_outside_span"
+  },
+  {
+   "commands": [
+    "mv"
+   ],
+   "fact": "F43",
+   "operation": "rename_without_reingest"
+  },
+  {
+   "commands": [
+    "rm",
+    "watcher on old path: tombstoneFile"
+   ],
+   "fact": "F44",
+   "operation": "delete"
+  }
+ ],
+ "node": "v26.13.1",
+ "refs": [
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      847
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 847,
+      "source_file": "memory/decisions/2027-06-26-decision-40.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/decisions/2027-06-26-decision-40.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/decisions/2027-06-26-decision-40.md"
+    ]
+   },
+   "fact": "F02",
+   "id": 847,
+   "literal": "27/08/2027",
+   "operation": "reingest_unchanged",
+   "path": "memory/decisions/2027-06-26-decision-40.md",
+   "sentence": "O lançamento de Ninguém Mora no Quinto Andar ficou marcado para 27/08/2027."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [],
+     "state": "unresolved"
+    },
+    "anchor_rows": [],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/lessons/2027-04-26-lesson-26-movido.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/lessons/2027-04-26-lesson-26-movido.md"
+    ]
+   },
+   "fact": "F03",
+   "id": 784,
+   "literal": "AUT-NCXV",
+   "operation": "rename_with_reingest",
+   "path": "memory/lessons/2027-04-26-lesson-26.md",
+   "sentence": "O contrato de Marieta Sousa Brandão com a editora tem o código AUT-NCXV."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      806
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 806,
+      "source_file": "memory/lessons/2027-05-10-lesson-30.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/lessons/2027-05-10-lesson-30.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/lessons/2027-05-10-lesson-30-movido.md"
+    ]
+   },
+   "fact": "F05",
+   "id": 806,
+   "literal": "GRF-9FDJ",
+   "operation": "rename_without_reingest",
+   "path": "memory/lessons/2027-05-10-lesson-30.md",
+   "sentence": "O contrato com a Gráfica Pedra Lisa tem o código GRF-9FDJ."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [],
+     "state": "unresolved"
+    },
+    "anchor_rows": [],
+    "id_row": null,
+    "sentence_on_disk_at": []
+   },
+   "fact": "F06",
+   "id": 694,
+   "literal": "R$ 13.580",
+   "operation": "edit_inside_span",
+   "path": "memory/decisions/2027-02-07-decision-05.md",
+   "sentence": "O adiantamento de Celeste Arruda Mourão ficou em R$ 13.580."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      682
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 682,
+      "source_file": "memory/decisions/2027-01-18-decision-03.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/decisions/2027-01-18-decision-03.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/decisions/2027-01-18-decision-03.md"
+    ]
+   },
+   "fact": "F07",
+   "id": 682,
+   "literal": "R$ 94,85",
+   "operation": "edit_outside_span",
+   "path": "memory/decisions/2027-01-18-decision-03.md",
+   "sentence": "O preço de capa de Sal e Ferrugem foi fixado em R$ 94,85."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [],
+     "state": "unresolved"
+    },
+    "anchor_rows": [],
+    "id_row": null,
+    "sentence_on_disk_at": []
+   },
+   "fact": "F08",
+   "id": 746,
+   "literal": "R$ 67,50",
+   "operation": "edit_inside_span",
+   "path": "memory/decisions/2027-03-27-decision-18.md",
+   "sentence": "O preço de capa de Pequeno Atlas das Chuvas foi fixado em R$ 67,50."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [],
+     "state": "unresolved"
+    },
+    "anchor_rows": [],
+    "id_row": null,
+    "sentence_on_disk_at": []
+   },
+   "fact": "F11",
+   "id": 712,
+   "literal": "1.959",
+   "operation": "edit_inside_span",
+   "path": "memory/decisions/2027-02-25-decision-10.md",
+   "sentence": "A tiragem inicial de Mapa das Marés Altas ficou definida em 1.959 exemplares."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      808
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 808,
+      "source_file": "memory/lessons/2027-05-15-lesson-31.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/lessons/2027-05-15-lesson-31.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/lessons/2027-05-15-lesson-31.md"
+    ]
+   },
+   "fact": "F12",
+   "id": 808,
+   "literal": "PED-18123",
+   "operation": "edit_outside_span",
+   "path": "memory/lessons/2027-05-15-lesson-31.md",
+   "sentence": "O pedido de impressão de Vento Norte sobre a Serra Baixa na gráfica recebeu o número PED-18123."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [],
+     "state": "unresolved"
+    },
+    "anchor_rows": [],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/lessons/2027-06-02-lesson-36-movido.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/lessons/2027-06-02-lesson-36-movido.md"
+    ]
+   },
+   "fact": "F14",
+   "id": 829,
+   "literal": "R$ 62,35",
+   "operation": "rename_with_reingest",
+   "path": "memory/lessons/2027-06-02-lesson-36.md",
+   "sentence": "O preço de capa de A Cidade dos Relógios Parados foi fixado em R$ 62,35."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [],
+     "state": "unresolved"
+    },
+    "anchor_rows": [],
+    "id_row": null,
+    "sentence_on_disk_at": []
+   },
+   "fact": "F15",
+   "id": 833,
+   "literal": "R$ 21.440",
+   "operation": "edit_inside_span",
+   "path": "memory/lessons/2027-06-13-lesson-37.md",
+   "sentence": "O adiantamento de Marieta Sousa Brandão ficou em R$ 21.440."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      750
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 750,
+      "source_file": "memory/lessons/2027-03-28-lesson-19.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/lessons/2027-03-28-lesson-19.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/lessons/2027-03-28-lesson-19.md"
+    ]
+   },
+   "fact": "F16",
+   "id": 750,
+   "literal": "2.088",
+   "operation": "reingest_unchanged",
+   "path": "memory/lessons/2027-03-28-lesson-19.md",
+   "sentence": "A tiragem inicial de Pequeno Atlas das Chuvas ficou definida em 2.088 exemplares."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      775
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 775,
+      "source_file": "memory/decisions/2027-04-16-decision-24.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/decisions/2027-04-16-decision-24.md"
+    },
+    "sentence_on_disk_at": []
+   },
+   "fact": "F17",
+   "id": 775,
+   "literal": "R$ 3.330",
+   "operation": "delete",
+   "path": "memory/decisions/2027-04-16-decision-24.md",
+   "sentence": "O orçamento aprovado para Reedição dos Cadernos é de R$ 3.330."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      673
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 673,
+      "source_file": "memory/decisions/2027-01-09-decision-01.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/decisions/2027-01-09-decision-01.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/decisions/2027-01-09-decision-01.md"
+    ]
+   },
+   "fact": "F18",
+   "id": 673,
+   "literal": "AUT-WM4P",
+   "operation": "reingest_unchanged",
+   "path": "memory/decisions/2027-01-09-decision-01.md",
+   "sentence": "O contrato de Osório Fagundes Lemos com a editora tem o código AUT-WM4P."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [],
+     "state": "unresolved"
+    },
+    "anchor_rows": [],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/decisions/2027-03-10-decision-13-movido.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/decisions/2027-03-10-decision-13-movido.md"
+    ]
+   },
+   "fact": "F22",
+   "id": 724,
+   "literal": "06/11/2027",
+   "operation": "rename_with_reingest",
+   "path": "memory/decisions/2027-03-10-decision-13.md",
+   "sentence": "O lançamento de Sal e Ferrugem ficou marcado para 06/11/2027."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [],
+     "state": "unresolved"
+    },
+    "anchor_rows": [],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/lessons/2027-06-19-lesson-38-movido.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/lessons/2027-06-19-lesson-38-movido.md"
+    ]
+   },
+   "fact": "F23",
+   "id": 838,
+   "literal": "6.051",
+   "operation": "rename_with_reingest",
+   "path": "memory/lessons/2027-06-19-lesson-38.md",
+   "sentence": "A tiragem inicial de Cartas de um Farol Apagado ficou definida em 6.051 exemplares."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [],
+     "state": "unresolved"
+    },
+    "anchor_rows": [],
+    "id_row": null,
+    "sentence_on_disk_at": []
+   },
+   "fact": "F24",
+   "id": 715,
+   "literal": "R$ 2.280",
+   "operation": "edit_inside_span",
+   "path": "memory/decisions/2027-03-07-decision-11.md",
+   "sentence": "O orçamento aprovado para Coleção Faróis é de R$ 2.280."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      823
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 823,
+      "source_file": "memory/decisions/2027-06-01-decision-35.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/decisions/2027-06-01-decision-35.md"
+    },
+    "sentence_on_disk_at": []
+   },
+   "fact": "F25",
+   "id": 823,
+   "literal": "25/09/2027",
+   "operation": "delete",
+   "path": "memory/decisions/2027-06-01-decision-35.md",
+   "sentence": "O lançamento de Os Cadernos do Sótão ficou marcado para 25/09/2027."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      796
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 796,
+      "source_file": "memory/decisions/2027-05-06-decision-28.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/decisions/2027-05-06-decision-28.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/decisions/2027-05-06-decision-28-movido.md"
+    ]
+   },
+   "fact": "F26",
+   "id": 796,
+   "literal": "18 dias",
+   "operation": "rename_without_reingest",
+   "path": "memory/decisions/2027-05-06-decision-28.md",
+   "sentence": "O prazo de Audiolivros da Casa ficou em 18 dias."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      728
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 728,
+      "source_file": "memory/lessons/2027-03-11-lesson-14.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/lessons/2027-03-11-lesson-14.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/lessons/2027-03-11-lesson-14.md"
+    ]
+   },
+   "fact": "F28",
+   "id": 728,
+   "literal": "21/09/2027",
+   "operation": "reingest_unchanged",
+   "path": "memory/lessons/2027-03-11-lesson-14.md",
+   "sentence": "O lançamento de O Rio Sem Margem ficou marcado para 21/09/2027."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      737
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 737,
+      "source_file": "memory/lessons/2027-03-25-lesson-16.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/lessons/2027-03-25-lesson-16.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/lessons/2027-03-25-lesson-16.md"
+    ]
+   },
+   "fact": "F29",
+   "id": 737,
+   "literal": "R$ 19.960",
+   "operation": "edit_outside_span",
+   "path": "memory/lessons/2027-03-25-lesson-16.md",
+   "sentence": "O adiantamento de Osório Fagundes Lemos ficou em R$ 19.960."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      678
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 678,
+      "source_file": "memory/lessons/2027-01-17-lesson-02.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/lessons/2027-01-17-lesson-02.md"
+    },
+    "sentence_on_disk_at": []
+   },
+   "fact": "F30",
+   "id": 678,
+   "literal": "R$ 67,30",
+   "operation": "delete",
+   "path": "memory/lessons/2027-01-17-lesson-02.md",
+   "sentence": "O preço de capa de Ninguém Mora no Quinto Andar foi fixado em R$ 67,30."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      789
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 789,
+      "source_file": "memory/lessons/2027-05-02-lesson-27.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/lessons/2027-05-02-lesson-27.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/lessons/2027-05-02-lesson-27.md"
+    ]
+   },
+   "fact": "F32",
+   "id": 789,
+   "literal": "AUT-QENR",
+   "operation": "reingest_unchanged",
+   "path": "memory/lessons/2027-05-02-lesson-27.md",
+   "sentence": "O contrato de Celeste Arruda Mourão com a editora tem o código AUT-QENR."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      816
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 816,
+      "source_file": "memory/decisions/2027-05-29-decision-33.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/decisions/2027-05-29-decision-33.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/decisions/2027-05-29-decision-33-movido.md"
+    ]
+   },
+   "fact": "F33",
+   "id": 816,
+   "literal": "25/07/2027",
+   "operation": "rename_without_reingest",
+   "path": "memory/decisions/2027-05-29-decision-33.md",
+   "sentence": "O lançamento de O Inverno de Vila Aurora ficou marcado para 25/07/2027."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      697
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 697,
+      "source_file": "memory/lessons/2027-02-12-lesson-06.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/lessons/2027-02-12-lesson-06.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/lessons/2027-02-12-lesson-06-movido.md"
+    ]
+   },
+   "fact": "F34",
+   "id": 697,
+   "literal": "PED-07888",
+   "operation": "rename_without_reingest",
+   "path": "memory/lessons/2027-02-12-lesson-06.md",
+   "sentence": "O pedido de impressão de Ninguém Mora no Quinto Andar na gráfica recebeu o número PED-07888."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      687
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 687,
+      "source_file": "memory/decisions/2027-02-04-decision-04.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/decisions/2027-02-04-decision-04.md"
+    },
+    "sentence_on_disk_at": []
+   },
+   "fact": "F35",
+   "id": 687,
+   "literal": "PED-51447",
+   "operation": "delete",
+   "path": "memory/decisions/2027-02-04-decision-04.md",
+   "sentence": "O pedido de impressão de O Rio Sem Margem na gráfica recebeu o número PED-51447."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [],
+     "state": "unresolved"
+    },
+    "anchor_rows": [],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/decisions/2027-05-30-decision-34-movido.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/decisions/2027-05-30-decision-34-movido.md"
+    ]
+   },
+   "fact": "F36",
+   "id": 820,
+   "literal": "1.516",
+   "operation": "rename_with_reingest",
+   "path": "memory/decisions/2027-05-30-decision-34.md",
+   "sentence": "A tiragem inicial de O Rio Sem Margem ficou definida em 1.516 exemplares."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      719
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 719,
+      "source_file": "memory/lessons/2027-03-08-lesson-12.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/lessons/2027-03-08-lesson-12.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/lessons/2027-03-08-lesson-12.md"
+    ]
+   },
+   "fact": "F38",
+   "id": 719,
+   "literal": "4.301",
+   "operation": "edit_outside_span",
+   "path": "memory/lessons/2027-03-08-lesson-12.md",
+   "sentence": "A tiragem inicial de A Cidade dos Relógios Parados ficou definida em 4.301 exemplares."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      755
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 755,
+      "source_file": "memory/lessons/2027-04-03-lesson-20.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/lessons/2027-04-03-lesson-20.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/lessons/2027-04-03-lesson-20.md"
+    ]
+   },
+   "fact": "F39",
+   "id": 755,
+   "literal": "R$ 51,50",
+   "operation": "edit_outside_span",
+   "path": "memory/lessons/2027-04-03-lesson-20.md",
+   "sentence": "O preço de capa de O Inverno de Vila Aurora foi fixado em R$ 51,50."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      764
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 764,
+      "source_file": "memory/decisions/2027-04-12-decision-22.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/decisions/2027-04-12-decision-22.md"
+    },
+    "sentence_on_disk_at": [
+     "memory/decisions/2027-04-12-decision-22-movido.md"
+    ]
+   },
+   "fact": "F43",
+   "id": 764,
+   "literal": "2.595",
+   "operation": "rename_without_reingest",
+   "path": "memory/decisions/2027-04-12-decision-22.md",
+   "sentence": "A tiragem inicial de Sal e Ferrugem ficou definida em 2.595 exemplares."
+  },
+  {
+   "after": {
+    "anchor": {
+     "ids": [
+      770
+     ],
+     "state": "resolved"
+    },
+    "anchor_rows": [
+     {
+      "has_sentence": true,
+      "id": 770,
+      "source_file": "memory/decisions/2027-04-14-decision-23.md"
+     }
+    ],
+    "id_row": {
+     "has_sentence": true,
+     "source_file": "memory/decisions/2027-04-14-decision-23.md"
+    },
+    "sentence_on_disk_at": []
+   },
+   "fact": "F44",
+   "id": 770,
+   "literal": "06/09/2027",
+   "operation": "delete",
+   "path": "memory/decisions/2027-04-14-decision-23.md",
+   "sentence": "O lançamento de O Jardim de Cera ficou marcado para 06/09/2027."
+  }
+ ],
+ "tombstoned_files": [
+  "memory/decisions/2027-02-04-decision-04.md",
+  "memory/decisions/2027-03-10-decision-13.md",
+  "memory/decisions/2027-04-14-decision-23.md",
+  "memory/decisions/2027-04-16-decision-24.md",
+  "memory/decisions/2027-05-30-decision-34.md",
+  "memory/decisions/2027-06-01-decision-35.md",
+  "memory/lessons/2027-01-17-lesson-02.md",
+  "memory/lessons/2027-04-26-lesson-26.md",
+  "memory/lessons/2027-06-02-lesson-36.md",
+  "memory/lessons/2027-06-19-lesson-38.md"
+ ],
+ "version": "3.11.1"
+}

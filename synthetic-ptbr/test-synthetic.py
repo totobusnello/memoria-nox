@@ -12,6 +12,8 @@ ever seen passing proves nothing (PLANO.md, «Gates»).
   D. metrics        hand-computed fixtures pass; a wrong ideal fails them (gate «S: achado 4»)
   E. privacy-scan   a canary planted in a private fixture is caught; a scan that read nothing
                     is an error, never «clean»
+  F. check-ingest   passes on a valid chunk set and fails on each infractor; and the frozen
+                    reanalysis check fails when a frozen ranking is edited
 """
 import copy
 import json
@@ -299,12 +301,82 @@ def part_e():
         shutil.rmtree(d, ignore_errors=True)
 
 
+def part_f(plan):
+    print("F. check-ingest (gate «S: pós-ingest») and the frozen reanalysis (gate «S: reanálise»)")
+    ING = load("check_ingest", "check-ingest.py")
+    chunks, nid = [], [0]
+
+    def add(path, text):
+        nid[0] += 1
+        chunks.append({"id": nid[0], "source_file": path, "section": None, "text": text})
+    for f in plan["files"]:
+        add(f["path"], f"## Abertura\n\n{FILLER}")
+        for it in f["items"]:
+            for _ in range(it["count"]):
+                add(f["path"], f"## Registro\n\n{FILLER} {it['text']}")
+    ok(ING.check(plan, chunks) == [], "a valid chunk set passes")
+    op = next(f for f in plan["facts"] if f["operation"])
+    dup = next(f for f in plan["facts"] if f["duplicate"])
+    neg_fact = next(f for f in plan["facts"] if f["negatives"])
+    plain = next(f for f in plan["facts"] if not f["duplicate"])
+
+    def mut(fn):
+        cs = copy.deepcopy(chunks)
+        fn(cs)
+        return ING.check(plan, cs)
+    s = plain["primary"]["text"]
+    cases = [
+        ("a planted sentence cut by a chunk boundary",
+         lambda cs: [c.update(text=c["text"].replace(s, s[:len(s) // 2])) for c in cs if s in c["text"]],
+         "whole in 0 chunk(s)"),
+        ("a duplicate merged into one chunk",
+         lambda cs: cs.remove(next(c for c in cs if dup["primary"]["text"] in c["text"])),
+         "duplicated primary whole in 1"),
+        ("the two chunks of a duplicate differing",
+         lambda cs: next(c for c in cs if dup["primary"]["text"] in c["text"]).update(
+             text="outro começo " + dup["primary"]["text"]),
+         "differ"),
+        ("an operation file left with a single chunk",
+         lambda cs: [cs.remove(c) for c in [c for c in cs if c["source_file"] == op["primary"]["path"]
+                                             and op["primary"]["text"] not in c["text"]]],
+         "want 2+"),
+        ("a negative sharing a chunk with a positive",
+         lambda cs: next(c for c in cs if neg_fact["primary"]["text"] in c["text"]).update(
+             text=neg_fact["primary"]["text"] + " " + neg_fact["negatives"][0]["text"]),
+         "shares a chunk"),
+        ("chunks of a file outside the plan",
+         lambda cs: cs.append({"id": 10 ** 6, "source_file": "memory/intruso.md", "section": None, "text": "x"}),
+         "not in the plan"),
+    ]
+    for name, fn, expect in cases:
+        fails = mut(fn)
+        ok(any(expect in x for x in fails), f"infractor «{name}» fails with «{expect}»")
+
+    rk = HERE / "results" / "3.11.1" / "rankings.json"
+    if rk.exists():
+        orig = rk.read_text(encoding="utf-8")
+        cmd = [sys.executable, "-I", str(HERE / "method-tests.py"), "--analyze", "--check"]
+        ok(subprocess.run(cmd, capture_output=True).returncode == 0, "frozen reanalysis matches etapa1.txt")
+        data = json.loads(orig)
+        q = next(k for k, v in data.items() if len(v) > 1)
+        data[q][0], data[q][-1] = data[q][-1], data[q][0]          # one ranking line edited
+        try:
+            rk.write_text(C.dump_json(data), encoding="utf-8")
+            ok(subprocess.run(cmd, capture_output=True).returncode == 1,
+               "an edited frozen ranking makes the reanalysis check fail")
+        finally:
+            rk.write_text(orig, encoding="utf-8")
+    else:
+        ok(False, "frozen results present (results/3.11.1/rankings.json)")
+
+
 def main():
     plan = part_a()
     part_b(plan)
     part_c()
     part_d()
     part_e()
+    part_f(plan)
     print(f"\n{n_ok} ok, {n_fail} failed")
     return 1 if n_fail else 0
 

@@ -234,8 +234,11 @@ def analyze(plan):
 
         # finding 2 and 4
         text = {c["id"]: c["text"] for c in base}
-        f2 = collections.Counter()
-        ideal = collections.Counter()
+        # every count is written, zeros included: an absent key reads as «not measured»
+        f2 = collections.Counter({k: 0 for k in (
+            "control_failed", "strict_below", "strict_equal", "strict_above", "pooled_below",
+            "pooled_equal", "pooled_above", "queries_with_negative_above_first_positive")})
+        ideal = collections.Counter({k: 0 for k in ("changed", "unchanged", "ranking_ideal_undefined")})
         diffs = []
         per_q = []
         zero_r_top = zero_r_rel = 0
