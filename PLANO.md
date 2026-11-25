@@ -190,7 +190,7 @@ no Setup de cada paper.
 
 ## Etapa atual
 
-**Corpus sintético (objetivo de 25/11):** etapa Ship. 2ª rodada de vozes aplicada (PR #749); depois: rebuild e refill do rascunho 24535848 pelo commit final, varredura de privacidade do arquivo final, o Toto publica. Antes, PR (6) #746: pacote de depósito (status na nota, build do PDF,
+**Corpus sintético (objetivo de 25/11):** etapa 1 **publicada** pelo Toto em 25/11, doi:10.5281/zenodo.24535848 (concept doi:10.5281/zenodo.24535847), v1.0, software link `70c82859`; md5 dos 4 arquivos do registro iguais aos do build local, DOI e link do código respondem 200. Antes da publicação: rascunho refeito do commit final `70c82859`, varredura de privacidade do arquivo final contra o banco vivo (104.132 trechos × 65.212 chunks, 0 em comum), readback sem divergência, zip descompactado passa nos 42 testes e no `--analyze --check`. Próximo: card no labf.bio (preview ao Toto antes do merge). Depois: etapa 2 (juiz contra gabarito plantado, teto US$ 20). Antes, 2ª rodada de vozes aplicada (PR #749). Antes, PR (6) #746: pacote de depósito (status na nota, build do PDF,
 `deposit/deposit-note.py`, descrição). Toto aprovou a nota em 25/11 11:48 («otima nota segue»). Depois do merge:
 rascunho no Zenodo pelo commit da `main`, build, fill, readback; o Toto publica; card no labf.bio.
 PR (5) #744: nota revista depois das vozes Codex + Kimi
@@ -209,7 +209,7 @@ Achado 2 — nenhuma query com strict zero (o mecanismo do §3 não aparece nest
 erra a verdade nos dois sentidos (12 acima, 8 abaixo); pooled nunca abaixo da verdade, por
 aritmética, e acima em 5 de 45. Achado 4 — o ideal do ranking muda 5 de 45 queries, +0,2033 em média.
 Varredura de privacidade de novo: 0 trechos (99.999 × 65.208). Próximo: PR (4), a nota.
-Worktree: `~/Claude-worktrees/memoria-nox/synthetic-ptbr-deposit`. PR: #746.
+Worktree: `~/Claude-worktrees/memoria-nox/synthetic-ptbr-doi` (registro do DOI). Card: worktree no `site-labf`.
 
 Etapa: Deploy (paper A): **publicado** pelo Toto em 20/11, doi:10.5281/zenodo.24400444 (concept
 doi:10.5281/zenodo.24400443), v1.0, software link `baf4b80`, checksums do registro iguais aos do build
