@@ -1,0 +1,27 @@
+{
+ "attempts": [
+  {
+   "cost_usd": 0.010512,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "problems": [],
+   "stop": "end_turn",
+   "text": "Registro de decisão — Editora Casa do Tinteiro\nAutor: agente Ipê\n\nHoje a equipe tratou de dois assuntos: o release para a imprensa e as fotos para divulgação de Mapa das Marés Altas. Registro aqui o que ficou decidido, para que os demais agentes consultem sem precisar reabrir a conversa.\n\nSobre o release, optamos por um texto curto, com um parágrafo de abertura que apresente a obra e a autora, um segundo parágrafo com o contexto da história e um trecho final com os contatos da assessoria. Evitaremos adjetivos em excesso. O material será revisado por mim e pela agente de revisão antes de qualquer envio, e só sairá depois que a diagramação confirmar a capa definitiva.\n\n[[A]]\n\nEssa decisão pesa no tom do release, pois a imprensa costuma perguntar sobre o alcance do lançamento. Por isso, a informação deve aparecer com clareza no material, sem destaque exagerado, e sem prometer reimpressão.\n\nQuanto às fotos, ficou combinado que usaremos imagens da capa, do miolo aberto em duas páginas e um retrato da autora, todas em boa resolução e com fundo neutro. A autora precisa aprovar o retrato antes da divulgação. As fotos do livro serão feitas pela equipe interna, com luz natural, e ficarão guardadas numa pasta compartilhada com nome claro, para facilitar o trabalho de quem for atender jornalistas.\n\nPróximo passo: na semana seguinte, retomo o assunto para conferir se o release e as fotos estão alinhados e prontos para o envio. Qualquer divergência entre os agentes deve ser registrada aqui, e não resolvida por mensagens soltas."
+  }
+ ],
+ "flags": [
+  "--tools",
+  "",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json"
+ ],
+ "model_requested": "claude-sonnet-5-5",
+ "path": "memory/decisions/2027-02-25-decision-10.md",
+ "prompt": "Escreva uma registro de decisão da Editora Casa do Tinteiro, escrita pelo agente Ipê.\nAssuntos do dia: release para a imprensa e fotos para divulgação.\nPode mencionar: Mapa das Marés Altas.\nO texto deve conter os marcadores abaixo, cada um sozinho numa linha, exatamente uma vez, entre parágrafos seus. Cada marcador será trocado depois pela frase indicada; escreva o texto em volta de modo que a frase faça sentido ali, mas não repita, resuma nem parafraseie a frase, e não cite em nenhum outro lugar os números, datas, valores ou códigos dela.\n[[A]] = «A tiragem inicial de Mapa das Marés Altas ficou definida em 1.959 exemplares.»\nTamanho: entre 120 e 300 palavras no total. Sem título. Nenhum dígito em lugar nenhum: escreva «na semana seguinte», nunca datas ou números.",
+ "system": "Você escreve textos fictícios em português do Brasil para um conjunto de dados público sobre a memória de trabalho de uma equipe de agentes de uma pequena editora fictícia. Use apenas as informações fictícias que receber. Nunca escreva dígitos, números, datas, valores, códigos, horários, e-mails, links, nem nomes de pessoas, empresas ou lugares reais. Responda só com o texto pedido, sem comentários."
+}

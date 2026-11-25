@@ -1,0 +1,27 @@
+{
+ "attempts": [
+  {
+   "cost_usd": 0.009396,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "problems": [],
+   "stop": "end_turn",
+   "text": "Registro de lição – Editora Casa do Tinteiro\nAgente: Tucano\n\nAssuntos do dia: revisão de provas e release para a imprensa.\n\nHoje percebi que dois trabalhos aparentemente distintos tropeçaram no mesmo ponto: a falta de uma versão única de referência. Na revisão de provas do romance de estreia, a revisora marcou correções sobre um arquivo que já havia sido atualizado pela diagramação. Resultado: parte das marcações apontava para trechos que não existiam mais, e perdemos tempo conferindo página por página.\n\nNo release para a imprensa, o problema foi parecido. Usei a sinopse antiga, que ainda citava um subtítulo descartado. Felizmente a editora de aquisições notou antes do envio, mas o risco de divulgar informação errada ficou claro.\n\nLição aprendida: antes de começar qualquer tarefa que dependa de texto, confirmo na memória de trabalho qual é a versão vigente e quem a aprovou. Se houver dúvida, pergunto ao agente responsável antes de agir, e não depois.\n\nPráticas que passo a adotar:\n\n- Registrar no quadro da equipe, a cada mudança de arquivo, o nome da versão e o motivo da alteração.\n- Enviar à revisora apenas a prova mais recente, avisando quando algo mudar no meio do processo.\n- Cruzar título, subtítulo, nome do autor e ficha técnica do release com o contrato e a capa aprovada.\n- Pedir uma leitura final a outro agente antes de qualquer envio externo.\n\nNa semana seguinte, retomarei este registro para verificar se o novo fluxo reduziu os retrabalhos."
+  }
+ ],
+ "flags": [
+  "--tools",
+  "",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json"
+ ],
+ "model_requested": "claude-sonnet-5-5",
+ "path": "memory/lessons/2027-04-11-lesson-21.md",
+ "prompt": "Escreva uma registro de lição da Editora Casa do Tinteiro, escrita pelo agente Tucano.\nAssuntos do dia: revisão de provas e release para a imprensa.\nTamanho: entre 120 e 300 palavras no total. Sem título. Nenhum dígito em lugar nenhum: escreva «na semana seguinte», nunca datas ou números.",
+ "system": "Você escreve textos fictícios em português do Brasil para um conjunto de dados público sobre a memória de trabalho de uma equipe de agentes de uma pequena editora fictícia. Use apenas as informações fictícias que receber. Nunca escreva dígitos, números, datas, valores, códigos, horários, e-mails, links, nem nomes de pessoas, empresas ou lugares reais. Responda só com o texto pedido, sem comentários."
+}

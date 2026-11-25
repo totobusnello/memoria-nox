@@ -1,0 +1,27 @@
+{
+ "attempts": [
+  {
+   "cost_usd": 0.010956,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "problems": [],
+   "stop": "end_turn",
+   "text": "Registro de decisão — Editora Casa do Tinteiro\nAutor: agente Quaresmeira\n\nHoje a equipe tratou de dois assuntos ligados ao livro Sal e Ferrugem: o ajuste na diagramação e a revisão de provas. Registro aqui o que ficou decidido e o motivo, para que os demais agentes não precisem reconstruir a conversa.\n\nSobre a diagramação, as provas mostraram viúvas e órfãs em vários capítulos, além de um espaçamento irregular entre as cenas curtas. Decidimos reduzir levemente a entrelinha, manter a mancha de texto original e padronizar o espaço entre cenas com um único valor em todo o miolo. Preferimos essa saída a mexer na margem interna, porque a lombada já está calculada e qualquer mudança ali obrigaria a refazer a estimativa de papel.\n\n[[A]]\n\nCom a tiragem definida, o ajuste de diagramação não deve alterar o número de páginas além do previsto, o que mantém o orçamento de impressão estável. Se, ao final do reajuste, o miolo crescer em um caderno inteiro, voltaremos a discutir o assunto antes de qualquer pedido à gráfica.\n\nQuanto à revisão de provas, a revisora fará uma leitura completa depois que a diagramação estiver travada, e não antes, para evitar corrigir duas vezes o mesmo trecho. Os apontamentos serão reunidos em uma única lista, organizada por capítulo. Dúvidas de estilo ficam com a editora responsável; erros claros de grafia e pontuação a revisora resolve direto.\n\nPróximos passos: aplicar o ajuste e gerar nova prova; enviar a prova à revisora na semana seguinte; e registrar aqui qualquer divergência que surja. Eu mesmo confiro o resultado final e anoto a aprovação neste registro."
+  }
+ ],
+ "flags": [
+  "--tools",
+  "",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json"
+ ],
+ "model_requested": "claude-sonnet-5-5",
+ "path": "memory/decisions/2027-04-12-decision-22.md",
+ "prompt": "Escreva uma registro de decisão da Editora Casa do Tinteiro, escrita pelo agente Quaresmeira.\nAssuntos do dia: ajuste na diagramação e revisão de provas.\nPode mencionar: Sal e Ferrugem.\nO texto deve conter os marcadores abaixo, cada um sozinho numa linha, exatamente uma vez, entre parágrafos seus. Cada marcador será trocado depois pela frase indicada; escreva o texto em volta de modo que a frase faça sentido ali, mas não repita, resuma nem parafraseie a frase, e não cite em nenhum outro lugar os números, datas, valores ou códigos dela.\n[[A]] = «A tiragem inicial de Sal e Ferrugem ficou definida em 2.595 exemplares.»\nTamanho: entre 120 e 300 palavras no total. Sem título. Nenhum dígito em lugar nenhum: escreva «na semana seguinte», nunca datas ou números.",
+ "system": "Você escreve textos fictícios em português do Brasil para um conjunto de dados público sobre a memória de trabalho de uma equipe de agentes de uma pequena editora fictícia. Use apenas as informações fictícias que receber. Nunca escreva dígitos, números, datas, valores, códigos, horários, e-mails, links, nem nomes de pessoas, empresas ou lugares reais. Responda só com o texto pedido, sem comentários."
+}

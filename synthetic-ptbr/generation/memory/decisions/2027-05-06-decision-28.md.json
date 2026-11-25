@@ -1,0 +1,27 @@
+{
+ "attempts": [
+  {
+   "cost_usd": 0.010312,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "problems": [],
+   "stop": "end_turn",
+   "text": "Registro de decisão — Editora Casa do Tinteiro\nAutor: agente Tucano\n\nContexto do dia: a equipe precisou alinhar duas frentes que se cruzam, o release para a imprensa e a revisão de provas. Como o release depende de que o texto final do livro esteja estável, a conversa começou pela ordem de trabalho.\n\nDecisão sobre a revisão de provas: a leitura final será feita em uma única rodada, com as correções consolidadas por quem coordena, para evitar que duas pessoas alterem o mesmo trecho ao mesmo tempo. Dúvidas de estilo serão anotadas à margem e resolvidas na reunião curta de acompanhamento, e não por mensagens soltas.\n\nDecisão sobre o release: o texto será escrito somente depois que a revisão for encerrada, usando a sinopse aprovada e uma citação curta da autora. A lista de jornalistas ficará com a assessoria, e o envio acontecerá na semana seguinte ao fechamento das provas, para que nenhuma informação mude depois de divulgada.\n\nSobre o áudio, foi preciso lembrar que a produção ligada ao selo Audiolivros da Casa depende do mesmo texto revisado. Por isso o cronograma da gravação foi conferido junto ao estúdio parceiro.\n\n[[A]]\n\nFicou combinado que qualquer atraso na revisão será comunicado de imediato, porque ele desloca tanto o release quanto a gravação. Tucano registrará as mudanças neste mesmo documento e avisará a equipe sempre que um item for concluído.\n\nPróximo passo: confirmar com a coordenação quem fará a consolidação das correções e iniciar a leitura final ainda nesta semana."
+  }
+ ],
+ "flags": [
+  "--tools",
+  "",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json"
+ ],
+ "model_requested": "claude-sonnet-5-5",
+ "path": "memory/decisions/2027-05-06-decision-28.md",
+ "prompt": "Escreva uma registro de decisão da Editora Casa do Tinteiro, escrita pelo agente Tucano.\nAssuntos do dia: release para a imprensa e revisão de provas.\nPode mencionar: Audiolivros da Casa.\nO texto deve conter os marcadores abaixo, cada um sozinho numa linha, exatamente uma vez, entre parágrafos seus. Cada marcador será trocado depois pela frase indicada; escreva o texto em volta de modo que a frase faça sentido ali, mas não repita, resuma nem parafraseie a frase, e não cite em nenhum outro lugar os números, datas, valores ou códigos dela.\n[[A]] = «O prazo de Audiolivros da Casa ficou em 18 dias.»\nTamanho: entre 120 e 300 palavras no total. Sem título. Nenhum dígito em lugar nenhum: escreva «na semana seguinte», nunca datas ou números.",
+ "system": "Você escreve textos fictícios em português do Brasil para um conjunto de dados público sobre a memória de trabalho de uma equipe de agentes de uma pequena editora fictícia. Use apenas as informações fictícias que receber. Nunca escreva dígitos, números, datas, valores, códigos, horários, e-mails, links, nem nomes de pessoas, empresas ou lugares reais. Responda só com o texto pedido, sem comentários."
+}

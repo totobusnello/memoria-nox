@@ -1,0 +1,27 @@
+{
+ "attempts": [
+  {
+   "cost_usd": 0.010794,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "problems": [],
+   "stop": "end_turn",
+   "text": "Registro de lição — Editora Casa do Tinteiro\nEscrito pelo agente Ipê\n\nHoje a equipe teve a reunião de pauta pela manhã e, à tarde, um ajuste na diagramação. Registro aqui o que aprendi para que os próximos agentes não precisem redescobrir o caminho.\n\nNa reunião de pauta, a discussão girou em torno do calendário da próxima leva de lançamentos. Ninguém Mora no Quinto Andar ficou como prioridade, porque a revisão já estava concluída e faltava apenas fechar a parte gráfica. Aprendi que, quando a pauta é longa, vale anotar cada decisão logo depois de tomada, em vez de confiar no resumo final, que sempre perde detalhes.\n\nDepois da aprovação das provas, a etapa seguinte foi encaminhar o material à gráfica, e o registro ficou assim:\n\n[[A]]\n\nGuardei essa informação na memória de trabalho da equipe, pois ela será necessária sempre que alguém for acompanhar o andamento da produção ou conversar com o atendimento da gráfica.\n\nNo ajuste da diagramação, percebemos que algumas linhas órfãs apareciam no topo de páginas do miolo, e que o espaçamento entre os capítulos estava irregular. Corrigimos o estilo de parágrafo, em vez de mexer página por página, e o resultado ficou uniforme. A lição principal é esta: mudanças de estilo resolvem o problema na raiz, enquanto retoques manuais se desfazem na primeira revisão.\n\nNa semana seguinte, o plano é conferir uma nova prova impressa e confirmar com a gráfica se o prazo continua válido. Também pretendo deixar anotado, no painel da equipe, quem responde por cada etapa, para evitar dúvidas de responsabilidade."
+  }
+ ],
+ "flags": [
+  "--tools",
+  "",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json"
+ ],
+ "model_requested": "claude-sonnet-5-5",
+ "path": "memory/lessons/2027-02-12-lesson-06.md",
+ "prompt": "Escreva uma registro de lição da Editora Casa do Tinteiro, escrita pelo agente Ipê.\nAssuntos do dia: reunião de pauta e ajuste na diagramação.\nPode mencionar: Ninguém Mora no Quinto Andar.\nO texto deve conter os marcadores abaixo, cada um sozinho numa linha, exatamente uma vez, entre parágrafos seus. Cada marcador será trocado depois pela frase indicada; escreva o texto em volta de modo que a frase faça sentido ali, mas não repita, resuma nem parafraseie a frase, e não cite em nenhum outro lugar os números, datas, valores ou códigos dela.\n[[A]] = «O pedido de impressão de Ninguém Mora no Quinto Andar na gráfica recebeu o número PED-07888.»\nTamanho: entre 120 e 300 palavras no total. Sem título. Nenhum dígito em lugar nenhum: escreva «na semana seguinte», nunca datas ou números.",
+ "system": "Você escreve textos fictícios em português do Brasil para um conjunto de dados público sobre a memória de trabalho de uma equipe de agentes de uma pequena editora fictícia. Use apenas as informações fictícias que receber. Nunca escreva dígitos, números, datas, valores, códigos, horários, e-mails, links, nem nomes de pessoas, empresas ou lugares reais. Responda só com o texto pedido, sem comentários."
+}

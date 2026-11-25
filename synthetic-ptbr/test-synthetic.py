@@ -10,6 +10,8 @@ ever seen passing proves nothing (PLANO.md, «Gates»).
   C. resolver       the contract of eval/resolve-gold-anchors.py, run for real on a fixture DB
                     through GOLD_DB (the gate «S: resolvedor»)
   D. metrics        hand-computed fixtures pass; a wrong ideal fails them (gate «S: achado 4»)
+  E. privacy-scan   a canary planted in a private fixture is caught; a scan that read nothing
+                    is an error, never «clean»
 """
 import copy
 import json
@@ -164,6 +166,9 @@ def part_b(plan):
              edit(ent["primary"]["path"], lambda t: t.replace(ent["primary"]["text"] + "\n\n", "")
                   .rstrip("\n") + f"\n- **2027-02-02** — [nota] {ent['primary']['text']}\n"),
              "not in section compiled"),
+            ("an e-mail address in free text",
+             edit(empty, lambda t: t + "\nEscreva para contato@exemplo.org se precisar.\n"),
+             "e-mail or link"),
             ("an extra file",
              lambda r: (r / "memory" / "intruso.md").write_text("# intruso\n", encoding="utf-8"),
              "file not in plan"),
@@ -256,11 +261,50 @@ def part_d():
     ok(zero_as_one != [], "an ideal-zero case scored as 1 instead of undefined fails")
 
 
+def part_e():
+    print("E. privacy-scan (8-word runs against a private fixture)")
+    d = pathlib.Path(tempfile.mkdtemp())
+    try:
+        canary = "a lontra azul guardou o mapa dentro do relógio de areia antigo"
+        db = d / "private.db"
+        con = sqlite3.connect(db)
+        con.execute("CREATE TABLE chunks (id INTEGER PRIMARY KEY, chunk_text TEXT)")
+        con.executemany("INSERT INTO chunks (chunk_text) VALUES (?)",
+                        [("Nota privada qualquer: " + canary + ", disse alguém.",),
+                         ("Outro trecho privado sem relação com o pacote.",)])
+        con.commit()
+        con.close()
+        pkg = d / "pkg"
+        (pkg / "memory").mkdir(parents=True)
+        (pkg / "memory" / "limpo.md").write_text("# nota\n\nTexto público que não repete nada.\n",
+                                                 encoding="utf-8")
+        scan = [sys.executable, "-I", str(HERE / "privacy-scan.py"), "--package", str(pkg)]
+        r = subprocess.run(scan + ["--db", str(db)], capture_output=True, text=True)
+        ok(r.returncode == 0, f"clean package against the private fixture: rc 0 (got {r.returncode})")
+        (pkg / "memory" / "vazou.md").write_text("# nota\n\nEntão " + canary.upper() + "!\n",
+                                                 encoding="utf-8")
+        r = subprocess.run(scan + ["--db", str(db)], capture_output=True, text=True)
+        ok(r.returncode == 1 and "vazou.md" in r.stdout,
+           f"canary sentence (other case, punctuation): caught, rc 1 (got {r.returncode})")
+        ok("Nota privada" not in r.stdout and "disse algu" not in r.stdout,
+           "the report carries no private text around the match")
+        r = subprocess.run(scan + ["--db", str(d / "nao-existe.db")], capture_output=True, text=True)
+        ok(r.returncode == 2 and not (d / "nao-existe.db").exists(),
+           "missing database: error rc 2, and no empty database is created")
+        empty = d / "empty.db"
+        sqlite3.connect(empty).execute("CREATE TABLE chunks (id INTEGER, chunk_text TEXT)").connection.close()
+        r = subprocess.run(scan + ["--db", str(empty)], capture_output=True, text=True)
+        ok(r.returncode == 2, f"database with no chunks: error rc 2, never «clean» (got {r.returncode})")
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+
 def main():
     plan = part_a()
     part_b(plan)
     part_c()
     part_d()
+    part_e()
     print(f"\n{n_ok} ok, {n_fail} failed")
     return 1 if n_fail else 0
 

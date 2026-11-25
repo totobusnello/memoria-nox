@@ -171,7 +171,7 @@ no Setup de cada paper.
 | S: achado 4 | `python3 -I synthetic-ptbr/metrics.py --fixtures`: 5 fixtures calculadas à mão (1 no topo + 4 ausentes; todos recuperados; nenhum recuperado; sem resposta; 1 de 1 na posição 2) × 2 ideais, mais o controle do pooled | 0 | todo PR do S | ideal do ranking no lugar do gold; ideal zero contado como 1 | 1 nos dois | 2026-11-25 |
 | S: reanálise | `python3 -I synthetic-ptbr/method-tests.py --analyze` reproduz `results/etapa1.txt` dos artefatos congelados, sem rede; e `--rebuild` reconstrói banco e BM25 dos Markdown com as versões fixadas e compara por identidade de evidência | 0 | todo PR do S, a partir do (3) | editar uma linha de ranking congelado | | |
 | S: plano fixo | `python3 -I synthetic-ptbr/plan.py --check`: o plano regenerado pela semente é byte a byte o commitado | 0 | todo PR do S | outra semente; plano com arquivo de operação compartilhado; premissa falsa plantada | 1 nos três | 2026-11-25 |
-| S: privacidade do pacote | comparação por trechos de 8 palavras do pacote exato de publicação contra os backups privados | 0 | antes de todo push do (2) em diante | frase-canário numa fixture privada de teste | | |
+| S: privacidade do pacote | `python3 -I synthetic-ptbr/privacy-scan.py --package synthetic-ptbr --db <banco vivo>`, rodado NA VPS de produção (só o pacote público sobe; banco em `mode=ro`; nada privado é impresso): nenhum trecho de 8 palavras do pacote existe num chunk privado. Referência = o corpus privado inteiro, não os backups (os de 04/11 e 08/11 não existem mais, ver Pendências) | 0 | antes de todo push do (2) em diante | offline: frase-canário num banco de fixture (pega, sem texto privado no relatório); banco inexistente e banco vazio dão erro, nunca «limpo». Na VPS: um chunk privado sorteado plantado numa cópia do pacote | offline 1 e 2; VPS: pacote real 0 trechos em 74.742 × 65.206 chunks, controle positivo rc 1 com 90 trechos | 2026-11-25 |
 | D: não interferência | replay offline: roda C0 e C2 sobre banco de fixture e confere que nenhuma tabela, arquivo ou fila fora do diretório de saída mudou (hash antes e depois) | 0 | todo PR do D | fazer o C2 gravar em qualquer tabela do banco | | |
 
 ## Verificações manuais
@@ -184,16 +184,18 @@ no Setup de cada paper.
 | O que vai para a Decisions API e onde ficam prompts e respostas | Claude, por escrito no protocolo | seção de dados do protocolo | |
 | Preview do card no labf.bio | você | URL do preview | |
 | Publicação no Zenodo | você | DOI público + `--readback` | |
-| Corpus sintético: leitura de 10 arquivos sorteados (PT-BR natural, nenhum nome real) e leitura cega de pares fora das frases plantadas (paráfrase espontânea do gerador) | Claude sorteia e lê; você confere 3. Não substitui o gate de privacidade do pacote, que é o que cobre o corpus privado | lista dos sorteados e veredito no PR (2) | |
+| Corpus sintético: leitura de 10 arquivos sorteados (PT-BR natural, nenhum nome real) e leitura cega de pares fora das frases plantadas (paráfrase espontânea do gerador) | Claude sorteia e lê; você confere 3. Não substitui o gate de privacidade do pacote, que é o que cobre o corpus privado | lista dos sorteados e veredito no PR (2) | 2026-11-25, PR (2): 10 lidos pelo Claude (semente `leitura-amostra-2026-11-25`), aprovados com 4 marcas declaradas no README; busca de número por extenso no texto livre: 0. Os 3 do Toto: pendentes |
 | Shadow vivo do D, se houver | você aprova; Claude executa com limite de custo, de tempo e desligamento rápido | log do shadow e `/api/health` | |
 
 ## Etapa atual
 
-**Corpus sintético (objetivo de 25/11):** etapa Work, PR (1). Intake fechada com o Toto em 25/11; vozes
+**Corpus sintético (objetivo de 25/11):** etapa Work, PR (2). PR (1) mergeado em 25/11 (#740, `3d83c01`).
+PR (2): 200 arquivos gerados por `claude-sonnet-5-5` em 1 tentativa cada, US$ 1,91 reportados (teto US$ 5);
+`check-corpus` ok; varredura de privacidade na VPS 0 trechos, com controle positivo. Antes (PR 1): Intake fechada com o Toto em 25/11; vozes
 Codex + Kimi no plano (challenge) aplicadas. PR (1): planejador com semente e matriz de cobertura,
 `check-corpus`, contrato do resolvedor, scorer com fixtures, testes offline (27 ok). Versões da matriz
 fixadas: 3.5.2 (ingest antigo) e 3.11.1. Próximo: PR (2), geração isolada paga (teto US$ 5).
-Worktree: `~/Claude-worktrees/memoria-nox/synthetic-ptbr-plan`. PR: #740.
+Worktree: `~/Claude-worktrees/memoria-nox/synthetic-ptbr-generate`. PR: (preencher ao abrir).
 
 Etapa: Deploy (paper A): **publicado** pelo Toto em 20/11, doi:10.5281/zenodo.24400444 (concept
 doi:10.5281/zenodo.24400443), v1.0, software link `baf4b80`, checksums do registro iguais aos do build
@@ -325,6 +327,11 @@ com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 
 4. **D: o `session-distill.ts` vive só na VPS.** Trazer o runner para um artefato versionado antes
    de qualquer experimento.
 5. **Item 2 (GTM Phase 2):** memo separado; inclui tirar «retenção» da fala.
+6. **Backups privados sumiram (achado de 25/11).** `~/Backups/memoria-nox-privado-2026-11-04/` e
+   `-2026-11-08/`, citados no item 1 como «backup verificado», não existem mais em lugar nenhum da
+   home. Os arquivos privados retirados do repo (golden v2/v3, KG S1, os 6 audits de 27/10) existem
+   hoje numa cópia só: ignorados dentro do clone, onde um `git clean -X` os apagaria. Refazer o
+   backup é decisão do Toto (onde guardar, com hash).
 
 ## Decisões
 
@@ -349,6 +356,8 @@ com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 
 | 2026-11-25 | Texto por LLM (Claude via `claude -p`), memória fictícia; ~200 arquivos, ~50 queries; CC BY 4.0; dataset + nota curta; Zenodo + card | escolhas do Toto em 25/11. Descartados: Wikipédia PT (forma não é de memória; BY-SA obrigatória), templates (texto artificial), 50 ou 1.000 arquivos |
 | 2026-11-25 | Ranker BM25; fatos com valor inventado e único; domínio fictício = editora independente | do Claude, para o Toto revisar: a etapa mede a régua, não o sistema, e assim a reanálise não precisa de chave; valor único torna «o chunk responde» um teste exato de texto; o domínio não encosta em negócio do Toto |
 | 2026-11-25 | Corpus sintético reenquadrado: suíte pública dos mecanismos de falha, não reprodução; achado 1 como matriz de operações × duas versões do pacote; achado 2 com T/R/P; achado 4 em frequência e magnitude; geração isolada e varredura por trechos antes do push | Codex e Kimi, independentes, convergiram: o desenho de 09:24 tirava o resultado da construção (troca de id injetada; rótulos completos por construção; ideal com direção matemática) e contradizia o resolvedor (duplicata exata é aceita, não recusada) |
+| 2026-11-25 | Gerador = `claude -p` pela assinatura, isolado; o e-mail da conta entra no contexto e fica, com gate | Toto: «Aceitar com gate». Sondado em 25/11: sem CLAUDE.md, brief, memória ou MCP com `--setting-sources "" --tools "" --strict-mcp-config` e system prompt próprio; o bloco do e-mail não sai com flag nenhuma, e com HOME vazio o CLI perde o login; não há chave de API guardada |
+| 2026-11-25 | Corpus mantido apesar de 4 marcas de estilo (bordão «semana seguinte» em 181/200, que veio do exemplo do meu prompt; 3 ecos do prompt; 12 títulos repetidos; primeiros nomes inventados) | do Claude, para o Toto revisar: nenhuma toca os testes de método; regerar custaria ~US$ 2 e outra varredura |
 | 2026-11-06 | D: tag `paper-d-prereg-v1.0` sem revisão adversarial antes | Toto escolheu «Tag hoje, sem vozes»; o pré-registro registra a ausência de revisão (§10) |
 
 ## Vozes
@@ -378,4 +387,6 @@ com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 
 | 2026-11-05 | A proveniência marcava o número registrado da abstenção como «superado» pelo do juiz, gravando como fato uma interpretação («corrected») que os audits não fazem. Supersessão é decisão de leitura, não só de cronologia | só aqui | sim |
 | 2026-11-25 | Escrevi um gate («duplicata exata sai ≠ 0») sem abrir o resolvedor, cujo selftest exige o contrário; as duas vozes pegaram. Gate novo sobre código existente: ler o código e o selftest antes de escrever o rc esperado | só aqui | sim (gate S: resolvedor) |
 | 2026-11-25 | Kimi não arrancou 3× (linha cortada em 1.024 bytes); a regra manual não bastou. Virou hook `voz-arranque-guard` (Claude#181) | `~/.claude/CLAUDE.md` + skill `painel-adversarial` | PR aberto |
+| 2026-11-25 | Exemplo dentro do prompt vira bordão do corpus: «escreva "na semana seguinte"» apareceu em 181 de 200 arquivos. Prompt de geração não dá exemplo de frase, só a regra | só aqui (README do corpus) | não |
+| 2026-11-25 | A chamada de CONTROLE (sem isolamento) do `claude -p` reportou `total_cost_usd` 3,78 com 0 tokens e `refusal`, acima do `--max-budget-usd 0.30`; não guardei o JSON. Toda chamada paga grava a resposta inteira antes de ser lida | só aqui | sim (generate.py grava cada tentativa) |
 | 2026-11-04 | Plano montado a partir da MEMÓRIA herdou números superados (0,833; 0,44–0,51; 9.398; 523); a memória guarda a 1ª versão e o audit guarda a correção | memória (feedback) | sim |

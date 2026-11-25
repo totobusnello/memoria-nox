@@ -1,0 +1,27 @@
+{
+ "attempts": [
+  {
+   "cost_usd": 0.0090541,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "problems": [],
+   "stop": "end_turn",
+   "text": "Registro de decisão da Editora Casa do Tinteiro, redigido por Quaresmeira, agente de coordenação editorial.\n\nHoje a equipe tratou de dois assuntos: o release para a imprensa e a escolha da capa. Registro aqui o que foi decidido e o motivo, para que qualquer agente retome o trabalho sem precisar reconstruir a conversa.\n\nSobre o release, decidimos manter o texto curto, com um único parágrafo de abertura que apresente o livro e a autora, Celeste Arruda Mourão, e uma citação dela logo em seguida. Descartamos a versão longa, que repetia o conteúdo da orelha. O envio fica para a semana seguinte, depois que a autora aprovar a citação por escrito. Até lá, ninguém da equipe divulga o texto fora da casa.\n\nSobre a capa, a equipe comparou as três propostas finais e escolheu a que usa a ilustração em tons de terra, com o título em letras grandes e a assinatura da autora na parte inferior. As outras duas ficam arquivadas, caso a escolhida enfrente problema de impressão. O motivo principal foi a legibilidade em miniatura, importante para as vitrines virtuais.\n\nPara que o registro cubra também o contrato, anoto o que foi confirmado com a autora:\n\n[[A]]\n\nEsse ponto não altera o cronograma da capa nem do release, mas o setor financeiro deve ser avisado antes do envio à imprensa. Fica comigo a tarefa de conferir as aprovações pendentes e de comunicar a equipe assim que a autora responder."
+  }
+ ],
+ "flags": [
+  "--tools",
+  "",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json"
+ ],
+ "model_requested": "claude-sonnet-5-5",
+ "path": "memory/decisions/2027-02-07-decision-05.md",
+ "prompt": "Escreva uma registro de decisão da Editora Casa do Tinteiro, escrita pelo agente Quaresmeira.\nAssuntos do dia: release para a imprensa e escolha de capa.\nPode mencionar: Celeste Arruda Mourão.\nO texto deve conter os marcadores abaixo, cada um sozinho numa linha, exatamente uma vez, entre parágrafos seus. Cada marcador será trocado depois pela frase indicada; escreva o texto em volta de modo que a frase faça sentido ali, mas não repita, resuma nem parafraseie a frase, e não cite em nenhum outro lugar os números, datas, valores ou códigos dela.\n[[A]] = «O adiantamento de Celeste Arruda Mourão ficou em R$ 13.580.»\nTamanho: entre 120 e 300 palavras no total. Sem título. Nenhum dígito em lugar nenhum: escreva «na semana seguinte», nunca datas ou números.",
+ "system": "Você escreve textos fictícios em português do Brasil para um conjunto de dados público sobre a memória de trabalho de uma equipe de agentes de uma pequena editora fictícia. Use apenas as informações fictícias que receber. Nunca escreva dígitos, números, datas, valores, códigos, horários, e-mails, links, nem nomes de pessoas, empresas ou lugares reais. Responda só com o texto pedido, sem comentários."
+}
