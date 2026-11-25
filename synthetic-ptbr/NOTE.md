@@ -20,7 +20,7 @@ Under the old ingest, a gold reference keyed by chunk id was lost on every re-in
 while the evidence anchor survived, as Paper A found. Under the current ingest the id survived a
 re-ingest and an edit to another section, and in the one rename sequence we ran (rename, tombstone
 on the old path, ingest of the new path) the id still reached the evidence while the anchor, looked
-up by its recorded path, did not. Neither reference was affected by deleting the file. Registered
+up by its recorded path, did not. Both references still reached the evidence after its file was deleted. Registered
 labels that omit some true positives changed the score of all 20 questions where they were
 incomplete, upward on 12 and downward on 8; no question scored zero, so the extreme case Paper A
 measured did not occur. An ideal built from the ranking changed 5 of 45 scores. The corpus, the
@@ -29,8 +29,8 @@ plan that built it, the generation records, the frozen results and the code are 
 ## 1. Why a constructed corpus
 
 Paper A's corpus is the working memory of a group of agents and cannot be released; the paper
-publishes counts, hashes and code. Its method findings are claims about rulers, though, not about
-that corpus, and a ruler can be exercised on any corpus whose truth is known. Two reviewers of the
+publishes counts, hashes and code. Its method findings, though, are claims about rulers, and a ruler
+can be exercised on any corpus whose truth is known. Two reviewers of the
 plan for this corpus (Codex and Kimi, run independently) made the same objection to its first draft:
 a corpus whose labels are complete by construction cannot *reproduce* a finding that arose from
 incomplete labels, and injecting id changes by script only shows that a broken pointer is broken.
@@ -90,7 +90,7 @@ queried with access tracking off so the probe does not feed the signals it measu
 
 No live file watcher ran. Where an operation removes a path, the harness calls the routine each
 version's watcher runs on a path that left the disk: 3.5.2 has none and does nothing, 3.11.1 marks
-the file's chunks with a tombstone and keeps them. The operations, each on five facts, are exactly
+the file's chunks with a tombstone and keeps them. The operations, each on five facts, are
 these:
 
 | operation | what the harness does |
@@ -173,7 +173,7 @@ returned changed 5 of 45 scores, by 0.2033 on average over those five and at mos
 upward. The direction follows from the definition; the corpus measures how often and how much.
 These are the same five questions as in finding 2: since every registered positive was retrieved,
 the pooled set equals the true positives in the top 10, and the pooled score equals the
-ranking-ideal score on all 45. The two findings are one observation here, not two confirmations.
+ranking-ideal score on all 45. Here they are one observation, counted twice.
 
 Context negatives, which share the entity and the attribute with the question, ranked above its
 first positive on 4 of 45 questions, 4 of the 15 that had a negative.
@@ -188,7 +188,7 @@ redoes ingestion, ranking and operations from the markdown files.
 It does not claim:
 
 - that Paper A's numbers replicate; the corpus was built to exercise mechanisms, and five facts per
-  operation support a description, not an estimate;
+  operation are enough to describe and too few to estimate;
 - that the rename result holds for other renames: every rename went to the same suffix in the same
   directory, in one order, through the watcher routine called directly rather than a live watcher;
 - that *live*, *stale* and *none* say what a search would return; they describe direct resolution

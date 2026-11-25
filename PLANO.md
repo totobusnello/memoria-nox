@@ -179,7 +179,7 @@ no Setup de cada paper.
 
 | Verificação | Quem confere | Evidência | Última vez (data, PR) |
 |---|---|---|---|
-| Passe avoid-ai-writing antes das vozes e antes do depósito | Claude | diff no PR | 2026-11-25, PR (4): nota do corpus sintético (negrito, 2 negações-contraste, 1 intensificador; números iguais antes e depois) |
+| Passe avoid-ai-writing antes das vozes e antes do depósito | Claude | diff no PR | 2026-11-25, PR (4): nota do corpus sintético (negrito, 2 negações-contraste, 1 intensificador; números iguais antes e depois). 2026-11-25 12h, 2º passe na nota revista, a pedido do Toto («ja passa ai writing e vozes?»): 3 negações-contraste, 1 «exactly», 1 frase vaga no resumo; números iguais |
 | Precedência do pré-registro (A, D): push da tag antes da 1ª chamada, e queries do holdout nunca vistas antes | Claude, pelo activity log do GitHub | horários no texto | |
 | Amostra humana cega dos pares discordantes (A) | você ou alguém que você indicar | planilha de rótulos fora do repo, só o kappa publicado | |
 | O que vai para a Decisions API e onde ficam prompts e respostas | Claude, por escrito no protocolo | seção de dados do protocolo | |
