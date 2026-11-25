@@ -1,0 +1,5286 @@
+{
+ "agents": [
+  "Sabiá",
+  "Jatobá",
+  "Quaresmeira",
+  "Ipê",
+  "Tucano"
+ ],
+ "coverage": {
+  "fact_queries": 45,
+  "facts_by_attribute": {
+   "adiantamento": 3,
+   "contrato_autor": 5,
+   "contrato_grafica": 3,
+   "lancamento": 7,
+   "orcamento": 5,
+   "pedido": 3,
+   "prazo": 3,
+   "preco": 6,
+   "tiragem": 10
+  },
+  "facts_by_operation": {
+   "delete": 5,
+   "edit_inside_span": 5,
+   "edit_outside_span": 5,
+   "reingest_unchanged": 5,
+   "rename_with_reingest": 5,
+   "rename_without_reingest": 5
+  },
+  "facts_by_relevant_count": {
+   "1": 20,
+   "2": 15,
+   "3": 5,
+   "4": 5
+  },
+  "facts_with_duplicate_primary": 4,
+  "facts_with_entity_primary": 10,
+  "facts_with_negative": {
+   "rejected": 8,
+   "superseded": 7
+  },
+  "facts_with_variant_paraphrase": 18,
+  "false_premise_queries": 5,
+  "files_by_kind": {
+   "daily": 130,
+   "decision": 22,
+   "entity": 28,
+   "lesson": 20
+  },
+  "files_total": 200,
+  "queries_total": 50,
+  "queries_where_R_is_incomplete": 20
+ },
+ "facts": [
+  {
+   "attribute": "tiragem",
+   "duplicate": false,
+   "entity": "O Jardim de Cera",
+   "entity_kind": "book",
+   "forms": [
+    "5.357",
+    "5357"
+   ],
+   "id": "F00",
+   "literal": "5.357",
+   "negatives": [],
+   "operation": null,
+   "paraphrases": [],
+   "primary": {
+    "id": "F00-P",
+    "path": "memory/entities/livros/o-jardim-de-cera.md",
+    "section": "compiled",
+    "text": "A tiragem inicial de O Jardim de Cera ficou definida em 5.357 exemplares."
+   },
+   "question": "Qual é a tiragem inicial de O Jardim de Cera?"
+  },
+  {
+   "attribute": "prazo",
+   "duplicate": false,
+   "entity": "Site Novo da Editora",
+   "entity_kind": "project",
+   "forms": [
+    "32 dias",
+    "trinta e dois dias"
+   ],
+   "id": "F01",
+   "literal": "32 dias",
+   "negatives": [],
+   "operation": null,
+   "paraphrases": [],
+   "primary": {
+    "id": "F01-P",
+    "path": "memory/entities/projetos/site-novo-da-editora.md",
+    "section": "compiled",
+    "text": "O prazo de Site Novo da Editora ficou em 32 dias."
+   },
+   "question": "Qual é o prazo de Site Novo da Editora?"
+  },
+  {
+   "attribute": "lancamento",
+   "duplicate": false,
+   "entity": "Ninguém Mora no Quinto Andar",
+   "entity_kind": "book",
+   "forms": [
+    "27/08/2027",
+    "27 de agosto de 2027"
+   ],
+   "id": "F02",
+   "literal": "27/08/2027",
+   "negatives": [
+    {
+     "forms": [
+      "10/11/2027",
+      "10 de novembro de 2027"
+     ],
+     "id": "F02-N0",
+     "kind": "rejected",
+     "literal": "10/11/2027",
+     "path": "memory/2027-03-24.md",
+     "text": "Houve quem defendesse lançar Ninguém Mora no Quinto Andar em 10/11/2027, mas a ideia não foi adiante."
+    }
+   ],
+   "operation": "reingest_unchanged",
+   "paraphrases": [],
+   "primary": {
+    "id": "F02-P",
+    "path": "memory/decisions/2027-06-26-decision-40.md",
+    "section": null,
+    "text": "O lançamento de Ninguém Mora no Quinto Andar ficou marcado para 27/08/2027."
+   },
+   "question": "Quando é o lançamento de Ninguém Mora no Quinto Andar?"
+  },
+  {
+   "attribute": "contrato_autor",
+   "duplicate": false,
+   "entity": "Marieta Sousa Brandão",
+   "entity_kind": "author",
+   "forms": [
+    "AUT-NCXV"
+   ],
+   "id": "F03",
+   "literal": "AUT-NCXV",
+   "negatives": [],
+   "operation": "rename_with_reingest",
+   "paraphrases": [
+    {
+     "id": "F03-A0",
+     "path": "memory/2027-03-02.md",
+     "text": "Na pasta jurídica, o contrato de Marieta Sousa Brandão está arquivado como AUT-NCXV."
+    }
+   ],
+   "primary": {
+    "id": "F03-P",
+    "path": "memory/lessons/2027-04-26-lesson-26.md",
+    "section": null,
+    "text": "O contrato de Marieta Sousa Brandão com a editora tem o código AUT-NCXV."
+   },
+   "question": "Qual é o código do contrato de Marieta Sousa Brandão?"
+  },
+  {
+   "attribute": "contrato_grafica",
+   "duplicate": false,
+   "entity": "Gráfica Agulha de Ouro",
+   "entity_kind": "printer",
+   "forms": [
+    "GRF-9MQV"
+   ],
+   "id": "F04",
+   "literal": "GRF-9MQV",
+   "negatives": [],
+   "operation": null,
+   "paraphrases": [],
+   "primary": {
+    "id": "F04-P",
+    "path": "memory/entities/fornecedores/grafica-agulha-de-ouro.md",
+    "section": "compiled",
+    "text": "O contrato com a Gráfica Agulha de Ouro tem o código GRF-9MQV."
+   },
+   "question": "Qual é o código do contrato com a Gráfica Agulha de Ouro?"
+  },
+  {
+   "attribute": "contrato_grafica",
+   "duplicate": false,
+   "entity": "Gráfica Pedra Lisa",
+   "entity_kind": "printer",
+   "forms": [
+    "GRF-9FDJ"
+   ],
+   "id": "F05",
+   "literal": "GRF-9FDJ",
+   "negatives": [],
+   "operation": "rename_without_reingest",
+   "paraphrases": [
+    {
+     "id": "F05-A0",
+     "path": "memory/2027-05-06.md",
+     "text": "Na pasta de fornecedores, a Gráfica Pedra Lisa aparece com o contrato GRF-9FDJ."
+    }
+   ],
+   "primary": {
+    "id": "F05-P",
+    "path": "memory/lessons/2027-05-10-lesson-30.md",
+    "section": null,
+    "text": "O contrato com a Gráfica Pedra Lisa tem o código GRF-9FDJ."
+   },
+   "question": "Qual é o código do contrato com a Gráfica Pedra Lisa?"
+  },
+  {
+   "attribute": "adiantamento",
+   "duplicate": false,
+   "entity": "Celeste Arruda Mourão",
+   "entity_kind": "author",
+   "forms": [
+    "R$ 13.580",
+    "13.580 reais"
+   ],
+   "id": "F06",
+   "literal": "R$ 13.580",
+   "negatives": [
+    {
+     "forms": [
+      "R$ 9.190",
+      "9.190 reais"
+     ],
+     "id": "F06-N0",
+     "kind": "superseded",
+     "literal": "R$ 9.190",
+     "path": "memory/2027-02-14.md",
+     "text": "A proposta inicial de adiantamento para Celeste Arruda Mourão era R$ 9.190 e foi renegociada."
+    }
+   ],
+   "operation": "edit_inside_span",
+   "paraphrases": [],
+   "primary": {
+    "id": "F06-P",
+    "path": "memory/decisions/2027-02-07-decision-05.md",
+    "section": null,
+    "text": "O adiantamento de Celeste Arruda Mourão ficou em R$ 13.580."
+   },
+   "question": "Qual é o adiantamento de Celeste Arruda Mourão?"
+  },
+  {
+   "attribute": "preco",
+   "duplicate": false,
+   "entity": "Sal e Ferrugem",
+   "entity_kind": "book",
+   "forms": [
+    "R$ 94,85",
+    "94,85 reais"
+   ],
+   "id": "F07",
+   "literal": "R$ 94,85",
+   "negatives": [
+    {
+     "forms": [
+      "R$ 53,45",
+      "53,45 reais"
+     ],
+     "id": "F07-N0",
+     "kind": "superseded",
+     "literal": "R$ 53,45",
+     "path": "memory/2027-01-18.md",
+     "text": "A primeira estimativa de preço para Sal e Ferrugem era R$ 53,45, valor depois abandonado."
+    }
+   ],
+   "operation": "edit_outside_span",
+   "paraphrases": [],
+   "primary": {
+    "id": "F07-P",
+    "path": "memory/decisions/2027-01-18-decision-03.md",
+    "section": null,
+    "text": "O preço de capa de Sal e Ferrugem foi fixado em R$ 94,85."
+   },
+   "question": "Qual é o preço de capa de Sal e Ferrugem?"
+  },
+  {
+   "attribute": "preco",
+   "duplicate": false,
+   "entity": "Pequeno Atlas das Chuvas",
+   "entity_kind": "book",
+   "forms": [
+    "R$ 67,50",
+    "67,50 reais"
+   ],
+   "id": "F08",
+   "literal": "R$ 67,50",
+   "negatives": [
+    {
+     "forms": [
+      "R$ 89,70",
+      "89,70 reais"
+     ],
+     "id": "F08-N0",
+     "kind": "rejected",
+     "literal": "R$ 89,70",
+     "path": "memory/2027-01-19.md",
+     "text": "O comercial sugeriu vender Pequeno Atlas das Chuvas a R$ 89,70, sugestão que não passou."
+    }
+   ],
+   "operation": "edit_inside_span",
+   "paraphrases": [],
+   "primary": {
+    "id": "F08-P",
+    "path": "memory/decisions/2027-03-27-decision-18.md",
+    "section": null,
+    "text": "O preço de capa de Pequeno Atlas das Chuvas foi fixado em R$ 67,50."
+   },
+   "question": "Qual é o preço de capa de Pequeno Atlas das Chuvas?"
+  },
+  {
+   "attribute": "contrato_grafica",
+   "duplicate": true,
+   "entity": "Gráfica Lumiar Offset",
+   "entity_kind": "printer",
+   "forms": [
+    "GRF-WEM9"
+   ],
+   "id": "F09",
+   "literal": "GRF-WEM9",
+   "negatives": [
+    {
+     "forms": [
+      "GRF-N7UF"
+     ],
+     "id": "F09-N0",
+     "kind": "rejected",
+     "literal": "GRF-N7UF",
+     "path": "memory/2027-01-19.md",
+     "text": "O código GRF-N7UF foi proposto para o contrato com a Gráfica Lumiar Offset, mas recusado."
+    }
+   ],
+   "operation": null,
+   "paraphrases": [
+    {
+     "id": "F09-A0",
+     "path": "memory/2027-06-22.md",
+     "text": "Na pasta de fornecedores, a Gráfica Lumiar Offset aparece com o contrato GRF-WEM9."
+    },
+    {
+     "id": "F09-A1",
+     "path": "memory/2027-01-08.md",
+     "text": "Toda cobrança da Gráfica Lumiar Offset cita o contrato GRF-WEM9."
+    }
+   ],
+   "primary": {
+    "id": "F09-P",
+    "path": "memory/2027-03-13.md",
+    "section": null,
+    "text": "O contrato com a Gráfica Lumiar Offset tem o código GRF-WEM9."
+   },
+   "question": "Qual é o código do contrato com a Gráfica Lumiar Offset?"
+  },
+  {
+   "attribute": "orcamento",
+   "duplicate": false,
+   "entity": "Feira do Livro de Vila Aurora",
+   "entity_kind": "project",
+   "forms": [
+    "R$ 7.920",
+    "7.920 reais"
+   ],
+   "id": "F10",
+   "literal": "R$ 7.920",
+   "negatives": [
+    {
+     "forms": [
+      "R$ 6.880",
+      "6.880 reais"
+     ],
+     "id": "F10-N0",
+     "kind": "rejected",
+     "literal": "R$ 6.880",
+     "path": "memory/2027-01-11.md",
+     "text": "Um orçamento de R$ 6.880 para Feira do Livro de Vila Aurora foi apresentado e recusado."
+    }
+   ],
+   "operation": null,
+   "paraphrases": [],
+   "primary": {
+    "id": "F10-P",
+    "path": "memory/entities/projetos/feira-do-livro-de-vila-aurora.md",
+    "section": "compiled",
+    "text": "O orçamento aprovado para Feira do Livro de Vila Aurora é de R$ 7.920."
+   },
+   "question": "Qual é o orçamento de Feira do Livro de Vila Aurora?"
+  },
+  {
+   "attribute": "tiragem",
+   "duplicate": false,
+   "entity": "Mapa das Marés Altas",
+   "entity_kind": "book",
+   "forms": [
+    "1.959",
+    "1959"
+   ],
+   "id": "F11",
+   "literal": "1.959",
+   "negatives": [
+    {
+     "forms": [
+      "6.441",
+      "6441"
+     ],
+     "id": "F11-N0",
+     "kind": "superseded",
+     "literal": "6.441",
+     "path": "memory/2027-05-10.md",
+     "text": "A conta antiga previa 6.441 exemplares para Mapa das Marés Altas, número que depois foi revisto."
+    }
+   ],
+   "operation": "edit_inside_span",
+   "paraphrases": [
+    {
+     "id": "F11-A0",
+     "path": "memory/2027-03-04.md",
+     "text": "Para Mapa das Marés Altas, a primeira impressão sai com 1959 cópias."
+    },
+    {
+     "id": "F11-A1",
+     "path": "memory/2027-04-03.md",
+     "text": "A gráfica confirmou 1959 cópias de Mapa das Marés Altas na primeira leva."
+    }
+   ],
+   "primary": {
+    "id": "F11-P",
+    "path": "memory/decisions/2027-02-25-decision-10.md",
+    "section": null,
+    "text": "A tiragem inicial de Mapa das Marés Altas ficou definida em 1.959 exemplares."
+   },
+   "question": "Qual é a tiragem inicial de Mapa das Marés Altas?"
+  },
+  {
+   "attribute": "pedido",
+   "duplicate": false,
+   "entity": "Vento Norte sobre a Serra Baixa",
+   "entity_kind": "book",
+   "forms": [
+    "PED-18123"
+   ],
+   "id": "F12",
+   "literal": "PED-18123",
+   "negatives": [],
+   "operation": "edit_outside_span",
+   "paraphrases": [
+    {
+     "id": "F12-A0",
+     "path": "memory/2027-03-24.md",
+     "text": "No sistema da gráfica, Vento Norte sobre a Serra Baixa aparece sob o pedido PED-18123."
+    }
+   ],
+   "primary": {
+    "id": "F12-P",
+    "path": "memory/lessons/2027-05-15-lesson-31.md",
+    "section": null,
+    "text": "O pedido de impressão de Vento Norte sobre a Serra Baixa na gráfica recebeu o número PED-18123."
+   },
+   "question": "Qual é o número do pedido de impressão de Vento Norte sobre a Serra Baixa?"
+  },
+  {
+   "attribute": "tiragem",
+   "duplicate": false,
+   "entity": "Os Cadernos do Sótão",
+   "entity_kind": "book",
+   "forms": [
+    "4.367",
+    "4367"
+   ],
+   "id": "F13",
+   "literal": "4.367",
+   "negatives": [
+    {
+     "forms": [
+      "3.329",
+      "3329"
+     ],
+     "id": "F13-N0",
+     "kind": "rejected",
+     "literal": "3.329",
+     "path": "memory/2027-02-28.md",
+     "text": "Chegou a circular a proposta de imprimir 3.329 exemplares de Os Cadernos do Sótão, mas ela foi descartada."
+    }
+   ],
+   "operation": null,
+   "paraphrases": [
+    {
+     "id": "F13-A0",
+     "path": "memory/2027-01-08.md",
+     "text": "Para Os Cadernos do Sótão, a primeira impressão sai com 4367 cópias."
+    },
+    {
+     "id": "F13-A1",
+     "path": "memory/2027-06-27.md",
+     "text": "A gráfica confirmou 4367 cópias de Os Cadernos do Sótão na primeira leva."
+    }
+   ],
+   "primary": {
+    "id": "F13-P",
+    "path": "memory/entities/livros/os-cadernos-do-sotao.md",
+    "section": "compiled",
+    "text": "A tiragem inicial de Os Cadernos do Sótão ficou definida em 4.367 exemplares."
+   },
+   "question": "Qual é a tiragem inicial de Os Cadernos do Sótão?"
+  },
+  {
+   "attribute": "preco",
+   "duplicate": false,
+   "entity": "A Cidade dos Relógios Parados",
+   "entity_kind": "book",
+   "forms": [
+    "R$ 62,35",
+    "62,35 reais"
+   ],
+   "id": "F14",
+   "literal": "R$ 62,35",
+   "negatives": [],
+   "operation": "rename_with_reingest",
+   "paraphrases": [
+    {
+     "id": "F14-A0",
+     "path": "memory/2027-06-30.md",
+     "text": "A Cidade dos Relógios Parados chega às livrarias custando 62,35 reais."
+    }
+   ],
+   "primary": {
+    "id": "F14-P",
+    "path": "memory/lessons/2027-06-02-lesson-36.md",
+    "section": null,
+    "text": "O preço de capa de A Cidade dos Relógios Parados foi fixado em R$ 62,35."
+   },
+   "question": "Qual é o preço de capa de A Cidade dos Relógios Parados?"
+  },
+  {
+   "attribute": "adiantamento",
+   "duplicate": false,
+   "entity": "Marieta Sousa Brandão",
+   "entity_kind": "author",
+   "forms": [
+    "R$ 21.440",
+    "21.440 reais"
+   ],
+   "id": "F15",
+   "literal": "R$ 21.440",
+   "negatives": [],
+   "operation": "edit_inside_span",
+   "paraphrases": [],
+   "primary": {
+    "id": "F15-P",
+    "path": "memory/lessons/2027-06-13-lesson-37.md",
+    "section": null,
+    "text": "O adiantamento de Marieta Sousa Brandão ficou em R$ 21.440."
+   },
+   "question": "Qual é o adiantamento de Marieta Sousa Brandão?"
+  },
+  {
+   "attribute": "tiragem",
+   "duplicate": false,
+   "entity": "Pequeno Atlas das Chuvas",
+   "entity_kind": "book",
+   "forms": [
+    "2.088",
+    "2088"
+   ],
+   "id": "F16",
+   "literal": "2.088",
+   "negatives": [],
+   "operation": "reingest_unchanged",
+   "paraphrases": [
+    {
+     "id": "F16-A0",
+     "path": "memory/2027-03-13.md",
+     "text": "Para Pequeno Atlas das Chuvas, a primeira impressão sai com 2088 cópias."
+    }
+   ],
+   "primary": {
+    "id": "F16-P",
+    "path": "memory/lessons/2027-03-28-lesson-19.md",
+    "section": null,
+    "text": "A tiragem inicial de Pequeno Atlas das Chuvas ficou definida em 2.088 exemplares."
+   },
+   "question": "Qual é a tiragem inicial de Pequeno Atlas das Chuvas?"
+  },
+  {
+   "attribute": "orcamento",
+   "duplicate": false,
+   "entity": "Reedição dos Cadernos",
+   "entity_kind": "project",
+   "forms": [
+    "R$ 3.330",
+    "3.330 reais"
+   ],
+   "id": "F17",
+   "literal": "R$ 3.330",
+   "negatives": [],
+   "operation": "delete",
+   "paraphrases": [],
+   "primary": {
+    "id": "F17-P",
+    "path": "memory/decisions/2027-04-16-decision-24.md",
+    "section": null,
+    "text": "O orçamento aprovado para Reedição dos Cadernos é de R$ 3.330."
+   },
+   "question": "Qual é o orçamento de Reedição dos Cadernos?"
+  },
+  {
+   "attribute": "contrato_autor",
+   "duplicate": false,
+   "entity": "Osório Fagundes Lemos",
+   "entity_kind": "author",
+   "forms": [
+    "AUT-WM4P"
+   ],
+   "id": "F18",
+   "literal": "AUT-WM4P",
+   "negatives": [],
+   "operation": "reingest_unchanged",
+   "paraphrases": [],
+   "primary": {
+    "id": "F18-P",
+    "path": "memory/decisions/2027-01-09-decision-01.md",
+    "section": null,
+    "text": "O contrato de Osório Fagundes Lemos com a editora tem o código AUT-WM4P."
+   },
+   "question": "Qual é o código do contrato de Osório Fagundes Lemos?"
+  },
+  {
+   "attribute": "orcamento",
+   "duplicate": false,
+   "entity": "Audiolivros da Casa",
+   "entity_kind": "project",
+   "forms": [
+    "R$ 3.410",
+    "3.410 reais"
+   ],
+   "id": "F19",
+   "literal": "R$ 3.410",
+   "negatives": [
+    {
+     "forms": [
+      "R$ 4.850",
+      "4.850 reais"
+     ],
+     "id": "F19-N0",
+     "kind": "rejected",
+     "literal": "R$ 4.850",
+     "path": "memory/2027-02-11.md",
+     "text": "Um orçamento de R$ 4.850 para Audiolivros da Casa foi apresentado e recusado."
+    }
+   ],
+   "operation": null,
+   "paraphrases": [
+    {
+     "id": "F19-A0",
+     "path": "memory/2027-04-29.md",
+     "text": "Audiolivros da Casa vai custar 3.410 reais no total."
+    }
+   ],
+   "primary": {
+    "id": "F19-P",
+    "path": "memory/2027-04-28.md",
+    "section": null,
+    "text": "O orçamento aprovado para Audiolivros da Casa é de R$ 3.410."
+   },
+   "question": "Qual é o orçamento de Audiolivros da Casa?"
+  },
+  {
+   "attribute": "contrato_autor",
+   "duplicate": false,
+   "entity": "Ismênia Valadares Tor",
+   "entity_kind": "author",
+   "forms": [
+    "AUT-W9TV"
+   ],
+   "id": "F20",
+   "literal": "AUT-W9TV",
+   "negatives": [
+    {
+     "forms": [
+      "AUT-XAJR"
+     ],
+     "id": "F20-N0",
+     "kind": "rejected",
+     "literal": "AUT-XAJR",
+     "path": "memory/2027-06-12.md",
+     "text": "O código AUT-XAJR chegou a ser reservado para o contrato de Ismênia Valadares Tor, mas não foi usado."
+    }
+   ],
+   "operation": null,
+   "paraphrases": [
+    {
+     "id": "F20-A0",
+     "path": "memory/2027-04-08.md",
+     "text": "Na pasta jurídica, o contrato de Ismênia Valadares Tor está arquivado como AUT-W9TV."
+    }
+   ],
+   "primary": {
+    "id": "F20-P",
+    "path": "memory/entities/autores/ismenia-valadares-tor.md",
+    "section": "compiled",
+    "text": "O contrato de Ismênia Valadares Tor com a editora tem o código AUT-W9TV."
+   },
+   "question": "Qual é o código do contrato de Ismênia Valadares Tor?"
+  },
+  {
+   "attribute": "lancamento",
+   "duplicate": true,
+   "entity": "A Última Linha do Bonde",
+   "entity_kind": "book",
+   "forms": [
+    "19/11/2027",
+    "19 de novembro de 2027"
+   ],
+   "id": "F21",
+   "literal": "19/11/2027",
+   "negatives": [],
+   "operation": null,
+   "paraphrases": [
+    {
+     "id": "F21-A0",
+     "path": "memory/2027-03-06.md",
+     "text": "A noite de autógrafos de A Última Linha do Bonde acontece em 19 de novembro de 2027."
+    },
+    {
+     "id": "F21-A1",
+     "path": "memory/2027-06-20.md",
+     "text": "A Última Linha do Bonde chega ao público em 19 de novembro de 2027."
+    },
+    {
+     "id": "F21-A2",
+     "path": "memory/2027-05-08.md",
+     "text": "A festa de A Última Linha do Bonde ficou para 19 de novembro de 2027."
+    }
+   ],
+   "primary": {
+    "id": "F21-P",
+    "path": "memory/2027-03-14.md",
+    "section": null,
+    "text": "O lançamento de A Última Linha do Bonde ficou marcado para 19/11/2027."
+   },
+   "question": "Quando é o lançamento de A Última Linha do Bonde?"
+  },
+  {
+   "attribute": "lancamento",
+   "duplicate": false,
+   "entity": "Sal e Ferrugem",
+   "entity_kind": "book",
+   "forms": [
+    "06/11/2027",
+    "6 de novembro de 2027"
+   ],
+   "id": "F22",
+   "literal": "06/11/2027",
+   "negatives": [],
+   "operation": "rename_with_reingest",
+   "paraphrases": [],
+   "primary": {
+    "id": "F22-P",
+    "path": "memory/decisions/2027-03-10-decision-13.md",
+    "section": null,
+    "text": "O lançamento de Sal e Ferrugem ficou marcado para 06/11/2027."
+   },
+   "question": "Quando é o lançamento de Sal e Ferrugem?"
+  },
+  {
+   "attribute": "tiragem",
+   "duplicate": false,
+   "entity": "Cartas de um Farol Apagado",
+   "entity_kind": "book",
+   "forms": [
+    "6.051",
+    "6051"
+   ],
+   "id": "F23",
+   "literal": "6.051",
+   "negatives": [],
+   "operation": "rename_with_reingest",
+   "paraphrases": [
+    {
+     "id": "F23-A0",
+     "path": "memory/2027-01-07.md",
+     "text": "Para Cartas de um Farol Apagado, a primeira impressão sai com 6051 cópias."
+    },
+    {
+     "id": "F23-A1",
+     "path": "memory/2027-06-08.md",
+     "text": "A gráfica confirmou 6051 cópias de Cartas de um Farol Apagado na primeira leva."
+    }
+   ],
+   "primary": {
+    "id": "F23-P",
+    "path": "memory/lessons/2027-06-19-lesson-38.md",
+    "section": null,
+    "text": "A tiragem inicial de Cartas de um Farol Apagado ficou definida em 6.051 exemplares."
+   },
+   "question": "Qual é a tiragem inicial de Cartas de um Farol Apagado?"
+  },
+  {
+   "attribute": "orcamento",
+   "duplicate": false,
+   "entity": "Coleção Faróis",
+   "entity_kind": "project",
+   "forms": [
+    "R$ 2.280",
+    "2.280 reais"
+   ],
+   "id": "F24",
+   "literal": "R$ 2.280",
+   "negatives": [],
+   "operation": "edit_inside_span",
+   "paraphrases": [],
+   "primary": {
+    "id": "F24-P",
+    "path": "memory/decisions/2027-03-07-decision-11.md",
+    "section": null,
+    "text": "O orçamento aprovado para Coleção Faróis é de R$ 2.280."
+   },
+   "question": "Qual é o orçamento de Coleção Faróis?"
+  },
+  {
+   "attribute": "lancamento",
+   "duplicate": false,
+   "entity": "Os Cadernos do Sótão",
+   "entity_kind": "book",
+   "forms": [
+    "25/09/2027",
+    "25 de setembro de 2027"
+   ],
+   "id": "F25",
+   "literal": "25/09/2027",
+   "negatives": [],
+   "operation": "delete",
+   "paraphrases": [
+    {
+     "id": "F25-A0",
+     "path": "memory/2027-06-24.md",
+     "text": "A noite de autógrafos de Os Cadernos do Sótão acontece em 25 de setembro de 2027."
+    },
+    {
+     "id": "F25-A1",
+     "path": "memory/2027-05-30.md",
+     "text": "Os Cadernos do Sótão chega ao público em 25 de setembro de 2027."
+    },
+    {
+     "id": "F25-A2",
+     "path": "memory/2027-03-02.md",
+     "text": "A festa de Os Cadernos do Sótão ficou para 25 de setembro de 2027."
+    }
+   ],
+   "primary": {
+    "id": "F25-P",
+    "path": "memory/decisions/2027-06-01-decision-35.md",
+    "section": null,
+    "text": "O lançamento de Os Cadernos do Sótão ficou marcado para 25/09/2027."
+   },
+   "question": "Quando é o lançamento de Os Cadernos do Sótão?"
+  },
+  {
+   "attribute": "prazo",
+   "duplicate": false,
+   "entity": "Audiolivros da Casa",
+   "entity_kind": "project",
+   "forms": [
+    "18 dias",
+    "dezoito dias"
+   ],
+   "id": "F26",
+   "literal": "18 dias",
+   "negatives": [],
+   "operation": "rename_without_reingest",
+   "paraphrases": [
+    {
+     "id": "F26-A0",
+     "path": "memory/2027-03-17.md",
+     "text": "A equipe tem dezoito dias para concluir Audiolivros da Casa."
+    }
+   ],
+   "primary": {
+    "id": "F26-P",
+    "path": "memory/decisions/2027-05-06-decision-28.md",
+    "section": null,
+    "text": "O prazo de Audiolivros da Casa ficou em 18 dias."
+   },
+   "question": "Qual é o prazo de Audiolivros da Casa?"
+  },
+  {
+   "attribute": "preco",
+   "duplicate": false,
+   "entity": "Os Cadernos do Sótão",
+   "entity_kind": "book",
+   "forms": [
+    "R$ 98,20",
+    "98,20 reais"
+   ],
+   "id": "F27",
+   "literal": "R$ 98,20",
+   "negatives": [
+    {
+     "forms": [
+      "R$ 80,55",
+      "80,55 reais"
+     ],
+     "id": "F27-N0",
+     "kind": "superseded",
+     "literal": "R$ 80,55",
+     "path": "memory/2027-03-18.md",
+     "text": "A primeira estimativa de preço para Os Cadernos do Sótão era R$ 80,55, valor depois abandonado."
+    }
+   ],
+   "operation": null,
+   "paraphrases": [],
+   "primary": {
+    "id": "F27-P",
+    "path": "memory/entities/livros/os-cadernos-do-sotao.md",
+    "section": "compiled",
+    "text": "O preço de capa de Os Cadernos do Sótão foi fixado em R$ 98,20."
+   },
+   "question": "Qual é o preço de capa de Os Cadernos do Sótão?"
+  },
+  {
+   "attribute": "lancamento",
+   "duplicate": false,
+   "entity": "O Rio Sem Margem",
+   "entity_kind": "book",
+   "forms": [
+    "21/09/2027",
+    "21 de setembro de 2027"
+   ],
+   "id": "F28",
+   "literal": "21/09/2027",
+   "negatives": [],
+   "operation": "reingest_unchanged",
+   "paraphrases": [],
+   "primary": {
+    "id": "F28-P",
+    "path": "memory/lessons/2027-03-11-lesson-14.md",
+    "section": null,
+    "text": "O lançamento de O Rio Sem Margem ficou marcado para 21/09/2027."
+   },
+   "question": "Quando é o lançamento de O Rio Sem Margem?"
+  },
+  {
+   "attribute": "adiantamento",
+   "duplicate": false,
+   "entity": "Osório Fagundes Lemos",
+   "entity_kind": "author",
+   "forms": [
+    "R$ 19.960",
+    "19.960 reais"
+   ],
+   "id": "F29",
+   "literal": "R$ 19.960",
+   "negatives": [],
+   "operation": "edit_outside_span",
+   "paraphrases": [
+    {
+     "id": "F29-A0",
+     "path": "memory/2027-01-26.md",
+     "text": "Osório Fagundes Lemos recebe 19.960 reais de adiantamento pelo contrato."
+    },
+    {
+     "id": "F29-A1",
+     "path": "memory/2027-05-09.md",
+     "text": "Já foram reservados 19.960 reais para o adiantamento de Osório Fagundes Lemos."
+    },
+    {
+     "id": "F29-A2",
+     "path": "memory/2027-03-21.md",
+     "text": "O financeiro separou 19.960 reais para adiantar a Osório Fagundes Lemos."
+    }
+   ],
+   "primary": {
+    "id": "F29-P",
+    "path": "memory/lessons/2027-03-25-lesson-16.md",
+    "section": null,
+    "text": "O adiantamento de Osório Fagundes Lemos ficou em R$ 19.960."
+   },
+   "question": "Qual é o adiantamento de Osório Fagundes Lemos?"
+  },
+  {
+   "attribute": "preco",
+   "duplicate": false,
+   "entity": "Ninguém Mora no Quinto Andar",
+   "entity_kind": "book",
+   "forms": [
+    "R$ 67,30",
+    "67,30 reais"
+   ],
+   "id": "F30",
+   "literal": "R$ 67,30",
+   "negatives": [
+    {
+     "forms": [
+      "R$ 76,85",
+      "76,85 reais"
+     ],
+     "id": "F30-N0",
+     "kind": "rejected",
+     "literal": "R$ 76,85",
+     "path": "memory/2027-03-24.md",
+     "text": "O comercial sugeriu vender Ninguém Mora no Quinto Andar a R$ 76,85, sugestão que não passou."
+    }
+   ],
+   "operation": "delete",
+   "paraphrases": [
+    {
+     "id": "F30-A0",
+     "path": "memory/2027-05-27.md",
+     "text": "Ninguém Mora no Quinto Andar chega às livrarias custando 67,30 reais."
+    }
+   ],
+   "primary": {
+    "id": "F30-P",
+    "path": "memory/lessons/2027-01-17-lesson-02.md",
+    "section": null,
+    "text": "O preço de capa de Ninguém Mora no Quinto Andar foi fixado em R$ 67,30."
+   },
+   "question": "Qual é o preço de capa de Ninguém Mora no Quinto Andar?"
+  },
+  {
+   "attribute": "prazo",
+   "duplicate": false,
+   "entity": "Coleção Faróis",
+   "entity_kind": "project",
+   "forms": [
+    "25 dias",
+    "vinte e cinco dias"
+   ],
+   "id": "F31",
+   "literal": "25 dias",
+   "negatives": [],
+   "operation": null,
+   "paraphrases": [],
+   "primary": {
+    "id": "F31-P",
+    "path": "memory/entities/projetos/colecao-farois.md",
+    "section": "compiled",
+    "text": "O prazo de Coleção Faróis ficou em 25 dias."
+   },
+   "question": "Qual é o prazo de Coleção Faróis?"
+  },
+  {
+   "attribute": "contrato_autor",
+   "duplicate": false,
+   "entity": "Celeste Arruda Mourão",
+   "entity_kind": "author",
+   "forms": [
+    "AUT-QENR"
+   ],
+   "id": "F32",
+   "literal": "AUT-QENR",
+   "negatives": [],
+   "operation": "reingest_unchanged",
+   "paraphrases": [
+    {
+     "id": "F32-A0",
+     "path": "memory/2027-04-12.md",
+     "text": "Na pasta jurídica, o contrato de Celeste Arruda Mourão está arquivado como AUT-QENR."
+    },
+    {
+     "id": "F32-A1",
+     "path": "memory/2027-03-01.md",
+     "text": "Quem procurar o contrato de Celeste Arruda Mourão deve buscar por AUT-QENR."
+    }
+   ],
+   "primary": {
+    "id": "F32-P",
+    "path": "memory/lessons/2027-05-02-lesson-27.md",
+    "section": null,
+    "text": "O contrato de Celeste Arruda Mourão com a editora tem o código AUT-QENR."
+   },
+   "question": "Qual é o código do contrato de Celeste Arruda Mourão?"
+  },
+  {
+   "attribute": "lancamento",
+   "duplicate": false,
+   "entity": "O Inverno de Vila Aurora",
+   "entity_kind": "book",
+   "forms": [
+    "25/07/2027",
+    "25 de julho de 2027"
+   ],
+   "id": "F33",
+   "literal": "25/07/2027",
+   "negatives": [],
+   "operation": "rename_without_reingest",
+   "paraphrases": [
+    {
+     "id": "F33-A0",
+     "path": "memory/2027-01-16.md",
+     "text": "A noite de autógrafos de O Inverno de Vila Aurora acontece em 25 de julho de 2027."
+    }
+   ],
+   "primary": {
+    "id": "F33-P",
+    "path": "memory/decisions/2027-05-29-decision-33.md",
+    "section": null,
+    "text": "O lançamento de O Inverno de Vila Aurora ficou marcado para 25/07/2027."
+   },
+   "question": "Quando é o lançamento de O Inverno de Vila Aurora?"
+  },
+  {
+   "attribute": "pedido",
+   "duplicate": false,
+   "entity": "Ninguém Mora no Quinto Andar",
+   "entity_kind": "book",
+   "forms": [
+    "PED-07888"
+   ],
+   "id": "F34",
+   "literal": "PED-07888",
+   "negatives": [],
+   "operation": "rename_without_reingest",
+   "paraphrases": [],
+   "primary": {
+    "id": "F34-P",
+    "path": "memory/lessons/2027-02-12-lesson-06.md",
+    "section": null,
+    "text": "O pedido de impressão de Ninguém Mora no Quinto Andar na gráfica recebeu o número PED-07888."
+   },
+   "question": "Qual é o número do pedido de impressão de Ninguém Mora no Quinto Andar?"
+  },
+  {
+   "attribute": "pedido",
+   "duplicate": false,
+   "entity": "O Rio Sem Margem",
+   "entity_kind": "book",
+   "forms": [
+    "PED-51447"
+   ],
+   "id": "F35",
+   "literal": "PED-51447",
+   "negatives": [
+    {
+     "forms": [
+      "PED-92879"
+     ],
+     "id": "F35-N0",
+     "kind": "superseded",
+     "literal": "PED-92879",
+     "path": "memory/2027-04-26.md",
+     "text": "O pedido PED-92879 de O Rio Sem Margem foi substituído por um novo."
+    }
+   ],
+   "operation": "delete",
+   "paraphrases": [],
+   "primary": {
+    "id": "F35-P",
+    "path": "memory/decisions/2027-02-04-decision-04.md",
+    "section": null,
+    "text": "O pedido de impressão de O Rio Sem Margem na gráfica recebeu o número PED-51447."
+   },
+   "question": "Qual é o número do pedido de impressão de O Rio Sem Margem?"
+  },
+  {
+   "attribute": "tiragem",
+   "duplicate": false,
+   "entity": "O Rio Sem Margem",
+   "entity_kind": "book",
+   "forms": [
+    "1.516",
+    "1516"
+   ],
+   "id": "F36",
+   "literal": "1.516",
+   "negatives": [
+    {
+     "forms": [
+      "5.935",
+      "5935"
+     ],
+     "id": "F36-N0",
+     "kind": "superseded",
+     "literal": "5.935",
+     "path": "memory/2027-04-15.md",
+     "text": "A conta antiga previa 5.935 exemplares para O Rio Sem Margem, número que depois foi revisto."
+    }
+   ],
+   "operation": "rename_with_reingest",
+   "paraphrases": [
+    {
+     "id": "F36-A0",
+     "path": "memory/2027-01-19.md",
+     "text": "Para O Rio Sem Margem, a primeira impressão sai com 1516 cópias."
+    },
+    {
+     "id": "F36-A1",
+     "path": "memory/2027-04-10.md",
+     "text": "A gráfica confirmou 1516 cópias de O Rio Sem Margem na primeira leva."
+    },
+    {
+     "id": "F36-A2",
+     "path": "memory/2027-01-07.md",
+     "text": "Ficou acertado: 1516 cópias de O Rio Sem Margem para começar."
+    }
+   ],
+   "primary": {
+    "id": "F36-P",
+    "path": "memory/decisions/2027-05-30-decision-34.md",
+    "section": null,
+    "text": "A tiragem inicial de O Rio Sem Margem ficou definida em 1.516 exemplares."
+   },
+   "question": "Qual é a tiragem inicial de O Rio Sem Margem?"
+  },
+  {
+   "attribute": "tiragem",
+   "duplicate": true,
+   "entity": "Vento Norte sobre a Serra Baixa",
+   "entity_kind": "book",
+   "forms": [
+    "3.259",
+    "3259"
+   ],
+   "id": "F37",
+   "literal": "3.259",
+   "negatives": [],
+   "operation": null,
+   "paraphrases": [
+    {
+     "id": "F37-A0",
+     "path": "memory/2027-05-27.md",
+     "text": "Para Vento Norte sobre a Serra Baixa, a primeira impressão sai com 3259 cópias."
+    }
+   ],
+   "primary": {
+    "id": "F37-P",
+    "path": "memory/2027-05-02.md",
+    "section": null,
+    "text": "A tiragem inicial de Vento Norte sobre a Serra Baixa ficou definida em 3.259 exemplares."
+   },
+   "question": "Qual é a tiragem inicial de Vento Norte sobre a Serra Baixa?"
+  },
+  {
+   "attribute": "tiragem",
+   "duplicate": false,
+   "entity": "A Cidade dos Relógios Parados",
+   "entity_kind": "book",
+   "forms": [
+    "4.301",
+    "4301"
+   ],
+   "id": "F38",
+   "literal": "4.301",
+   "negatives": [
+    {
+     "forms": [
+      "4.138",
+      "4138"
+     ],
+     "id": "F38-N0",
+     "kind": "superseded",
+     "literal": "4.138",
+     "path": "memory/2027-01-22.md",
+     "text": "A conta antiga previa 4.138 exemplares para A Cidade dos Relógios Parados, número que depois foi revisto."
+    }
+   ],
+   "operation": "edit_outside_span",
+   "paraphrases": [
+    {
+     "id": "F38-A0",
+     "path": "memory/2027-02-07.md",
+     "text": "Para A Cidade dos Relógios Parados, a primeira impressão sai com 4301 cópias."
+    },
+    {
+     "id": "F38-A1",
+     "path": "memory/2027-01-11.md",
+     "text": "A gráfica confirmou 4301 cópias de A Cidade dos Relógios Parados na primeira leva."
+    },
+    {
+     "id": "F38-A2",
+     "path": "memory/2027-05-23.md",
+     "text": "Ficou acertado: 4301 cópias de A Cidade dos Relógios Parados para começar."
+    }
+   ],
+   "primary": {
+    "id": "F38-P",
+    "path": "memory/lessons/2027-03-08-lesson-12.md",
+    "section": null,
+    "text": "A tiragem inicial de A Cidade dos Relógios Parados ficou definida em 4.301 exemplares."
+   },
+   "question": "Qual é a tiragem inicial de A Cidade dos Relógios Parados?"
+  },
+  {
+   "attribute": "preco",
+   "duplicate": false,
+   "entity": "O Inverno de Vila Aurora",
+   "entity_kind": "book",
+   "forms": [
+    "R$ 51,50",
+    "51,50 reais"
+   ],
+   "id": "F39",
+   "literal": "R$ 51,50",
+   "negatives": [],
+   "operation": "edit_outside_span",
+   "paraphrases": [
+    {
+     "id": "F39-A0",
+     "path": "memory/2027-03-23.md",
+     "text": "O Inverno de Vila Aurora chega às livrarias custando 51,50 reais."
+    }
+   ],
+   "primary": {
+    "id": "F39-P",
+    "path": "memory/lessons/2027-04-03-lesson-20.md",
+    "section": null,
+    "text": "O preço de capa de O Inverno de Vila Aurora foi fixado em R$ 51,50."
+   },
+   "question": "Qual é o preço de capa de O Inverno de Vila Aurora?"
+  },
+  {
+   "attribute": "tiragem",
+   "duplicate": true,
+   "entity": "O Inverno de Vila Aurora",
+   "entity_kind": "book",
+   "forms": [
+    "6.944",
+    "6944"
+   ],
+   "id": "F40",
+   "literal": "6.944",
+   "negatives": [],
+   "operation": null,
+   "paraphrases": [
+    {
+     "id": "F40-A0",
+     "path": "memory/2027-02-04.md",
+     "text": "Para O Inverno de Vila Aurora, a primeira impressão sai com 6944 cópias."
+    }
+   ],
+   "primary": {
+    "id": "F40-P",
+    "path": "memory/2027-03-23.md",
+    "section": null,
+    "text": "A tiragem inicial de O Inverno de Vila Aurora ficou definida em 6.944 exemplares."
+   },
+   "question": "Qual é a tiragem inicial de O Inverno de Vila Aurora?"
+  },
+  {
+   "attribute": "orcamento",
+   "duplicate": false,
+   "entity": "Clube de Leitura de Março",
+   "entity_kind": "project",
+   "forms": [
+    "R$ 2.370",
+    "2.370 reais"
+   ],
+   "id": "F41",
+   "literal": "R$ 2.370",
+   "negatives": [],
+   "operation": null,
+   "paraphrases": [],
+   "primary": {
+    "id": "F41-P",
+    "path": "memory/entities/projetos/clube-de-leitura-de-marco.md",
+    "section": "compiled",
+    "text": "O orçamento aprovado para Clube de Leitura de Março é de R$ 2.370."
+   },
+   "question": "Qual é o orçamento de Clube de Leitura de Março?"
+  },
+  {
+   "attribute": "contrato_autor",
+   "duplicate": false,
+   "entity": "Bartolomeu Quintanilha Reis",
+   "entity_kind": "author",
+   "forms": [
+    "AUT-T4EA"
+   ],
+   "id": "F42",
+   "literal": "AUT-T4EA",
+   "negatives": [],
+   "operation": null,
+   "paraphrases": [
+    {
+     "id": "F42-A0",
+     "path": "memory/2027-02-04.md",
+     "text": "Na pasta jurídica, o contrato de Bartolomeu Quintanilha Reis está arquivado como AUT-T4EA."
+    }
+   ],
+   "primary": {
+    "id": "F42-P",
+    "path": "memory/entities/autores/bartolomeu-quintanilha-reis.md",
+    "section": "compiled",
+    "text": "O contrato de Bartolomeu Quintanilha Reis com a editora tem o código AUT-T4EA."
+   },
+   "question": "Qual é o código do contrato de Bartolomeu Quintanilha Reis?"
+  },
+  {
+   "attribute": "tiragem",
+   "duplicate": false,
+   "entity": "Sal e Ferrugem",
+   "entity_kind": "book",
+   "forms": [
+    "2.595",
+    "2595"
+   ],
+   "id": "F43",
+   "literal": "2.595",
+   "negatives": [],
+   "operation": "rename_without_reingest",
+   "paraphrases": [],
+   "primary": {
+    "id": "F43-P",
+    "path": "memory/decisions/2027-04-12-decision-22.md",
+    "section": null,
+    "text": "A tiragem inicial de Sal e Ferrugem ficou definida em 2.595 exemplares."
+   },
+   "question": "Qual é a tiragem inicial de Sal e Ferrugem?"
+  },
+  {
+   "attribute": "lancamento",
+   "duplicate": false,
+   "entity": "O Jardim de Cera",
+   "entity_kind": "book",
+   "forms": [
+    "06/09/2027",
+    "6 de setembro de 2027"
+   ],
+   "id": "F44",
+   "literal": "06/09/2027",
+   "negatives": [],
+   "operation": "delete",
+   "paraphrases": [
+    {
+     "id": "F44-A0",
+     "path": "memory/2027-04-07.md",
+     "text": "A noite de autógrafos de O Jardim de Cera acontece em 6 de setembro de 2027."
+    }
+   ],
+   "primary": {
+    "id": "F44-P",
+    "path": "memory/decisions/2027-04-14-decision-23.md",
+    "section": null,
+    "text": "O lançamento de O Jardim de Cera ficou marcado para 06/09/2027."
+   },
+   "question": "Quando é o lançamento de O Jardim de Cera?"
+  }
+ ],
+ "files": [
+  {
+   "author_agent": "Quaresmeira",
+   "entity": "O Rio Sem Margem",
+   "entity_kind": "book",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/livros/o-rio-sem-margem.md",
+   "topics": [
+    "conversa com livrarias",
+    "release para a imprensa"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "entity": "Cartas de um Farol Apagado",
+   "entity_kind": "book",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/livros/cartas-de-um-farol-apagado.md",
+   "topics": [
+    "escolha de capa",
+    "ajuste de cronograma"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "entity": "A Cidade dos Relógios Parados",
+   "entity_kind": "book",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/livros/a-cidade-dos-relogios-parados.md",
+   "topics": [
+    "logística de envio",
+    "orientação aos estagiários"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "entity": "Mapa das Marés Altas",
+   "entity_kind": "book",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/livros/mapa-das-mares-altas.md",
+   "topics": [
+    "atendimento a leitores",
+    "leitura de originais"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "entity": "O Inverno de Vila Aurora",
+   "entity_kind": "book",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/livros/o-inverno-de-vila-aurora.md",
+   "topics": [
+    "cobrança de direitos",
+    "conversa com livrarias"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "entity": "Sal e Ferrugem",
+   "entity_kind": "book",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/livros/sal-e-ferrugem.md",
+   "topics": [
+    "logística de envio",
+    "leitura de originais"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "entity": "Os Cadernos do Sótão",
+   "entity_kind": "book",
+   "items": [
+    {
+     "count": 1,
+     "id": "F13-P",
+     "role": "primary",
+     "section": "compiled",
+     "text": "A tiragem inicial de Os Cadernos do Sótão ficou definida em 4.367 exemplares.",
+     "value": "F13"
+    },
+    {
+     "count": 1,
+     "id": "F27-P",
+     "role": "primary",
+     "section": "compiled",
+     "text": "O preço de capa de Os Cadernos do Sótão foi fixado em R$ 98,20.",
+     "value": "F27"
+    }
+   ],
+   "kind": "entity",
+   "path": "memory/entities/livros/os-cadernos-do-sotao.md",
+   "topics": [
+    "compra de papel",
+    "fotos para divulgação"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "entity": "Pequeno Atlas das Chuvas",
+   "entity_kind": "book",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/livros/pequeno-atlas-das-chuvas.md",
+   "topics": [
+    "inventário do depósito",
+    "organização do arquivo"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "entity": "Ninguém Mora no Quinto Andar",
+   "entity_kind": "book",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/livros/ninguem-mora-no-quinto-andar.md",
+   "topics": [
+    "reunião de pauta",
+    "release para a imprensa"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "entity": "A Última Linha do Bonde",
+   "entity_kind": "book",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/livros/a-ultima-linha-do-bonde.md",
+   "topics": [
+    "planejamento das redes",
+    "fotos para divulgação"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "entity": "Vento Norte sobre a Serra Baixa",
+   "entity_kind": "book",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/livros/vento-norte-sobre-a-serra-baixa.md",
+   "topics": [
+    "fotos para divulgação",
+    "inventário do depósito"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "entity": "O Jardim de Cera",
+   "entity_kind": "book",
+   "items": [
+    {
+     "count": 1,
+     "id": "F00-P",
+     "role": "primary",
+     "section": "compiled",
+     "text": "A tiragem inicial de O Jardim de Cera ficou definida em 5.357 exemplares.",
+     "value": "F00"
+    }
+   ],
+   "kind": "entity",
+   "path": "memory/entities/livros/o-jardim-de-cera.md",
+   "topics": [
+    "conversa com livrarias",
+    "ajuste de cronograma"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "entity": "Ismênia Valadares Tor",
+   "entity_kind": "author",
+   "items": [
+    {
+     "count": 1,
+     "id": "F20-P",
+     "role": "primary",
+     "section": "compiled",
+     "text": "O contrato de Ismênia Valadares Tor com a editora tem o código AUT-W9TV.",
+     "value": "F20"
+    }
+   ],
+   "kind": "entity",
+   "path": "memory/entities/autores/ismenia-valadares-tor.md",
+   "topics": [
+    "preparação de feira",
+    "leitura de originais"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "entity": "Bartolomeu Quintanilha Reis",
+   "entity_kind": "author",
+   "items": [
+    {
+     "count": 1,
+     "id": "F42-P",
+     "role": "primary",
+     "section": "compiled",
+     "text": "O contrato de Bartolomeu Quintanilha Reis com a editora tem o código AUT-T4EA.",
+     "value": "F42"
+    }
+   ],
+   "kind": "entity",
+   "path": "memory/entities/autores/bartolomeu-quintanilha-reis.md",
+   "topics": [
+    "planejamento das redes",
+    "conversa com livrarias"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "entity": "Celeste Arruda Mourão",
+   "entity_kind": "author",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/autores/celeste-arruda-mourao.md",
+   "topics": [
+    "leitura de originais",
+    "fotos para divulgação"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "entity": "Teodoro Lins Avelar",
+   "entity_kind": "author",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/autores/teodoro-lins-avelar.md",
+   "topics": [
+    "ajuste na diagramação",
+    "planejamento das redes"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "entity": "Marieta Sousa Brandão",
+   "entity_kind": "author",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/autores/marieta-sousa-brandao.md",
+   "topics": [
+    "organização do arquivo",
+    "parceria com bibliotecas"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "entity": "Osório Fagundes Lemos",
+   "entity_kind": "author",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/autores/osorio-fagundes-lemos.md",
+   "topics": [
+    "ajuste na diagramação",
+    "inventário do depósito"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "entity": "Gráfica Pedra Lisa",
+   "entity_kind": "printer",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/fornecedores/grafica-pedra-lisa.md",
+   "topics": [
+    "compra de papel",
+    "cobrança de direitos"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "entity": "Gráfica Três Ventos",
+   "entity_kind": "printer",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/fornecedores/grafica-tres-ventos.md",
+   "topics": [
+    "ajuste na diagramação",
+    "atendimento a leitores"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "entity": "Gráfica Agulha de Ouro",
+   "entity_kind": "printer",
+   "items": [
+    {
+     "count": 1,
+     "id": "F04-P",
+     "role": "primary",
+     "section": "compiled",
+     "text": "O contrato com a Gráfica Agulha de Ouro tem o código GRF-9MQV.",
+     "value": "F04"
+    }
+   ],
+   "kind": "entity",
+   "path": "memory/entities/fornecedores/grafica-agulha-de-ouro.md",
+   "topics": [
+    "ajuste de cronograma",
+    "reunião de pauta"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "entity": "Gráfica Lumiar Offset",
+   "entity_kind": "printer",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/fornecedores/grafica-lumiar-offset.md",
+   "topics": [
+    "cobrança de direitos",
+    "conversa com livrarias"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "entity": "Coleção Faróis",
+   "entity_kind": "project",
+   "items": [
+    {
+     "count": 1,
+     "id": "F31-P",
+     "role": "primary",
+     "section": "compiled",
+     "text": "O prazo de Coleção Faróis ficou em 25 dias.",
+     "value": "F31"
+    }
+   ],
+   "kind": "entity",
+   "path": "memory/entities/projetos/colecao-farois.md",
+   "topics": [
+    "leitura de originais",
+    "ajuste na diagramação"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "entity": "Clube de Leitura de Março",
+   "entity_kind": "project",
+   "items": [
+    {
+     "count": 1,
+     "id": "F41-P",
+     "role": "primary",
+     "section": "compiled",
+     "text": "O orçamento aprovado para Clube de Leitura de Março é de R$ 2.370.",
+     "value": "F41"
+    }
+   ],
+   "kind": "entity",
+   "path": "memory/entities/projetos/clube-de-leitura-de-marco.md",
+   "topics": [
+    "inventário do depósito",
+    "revisão de provas"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "entity": "Feira do Livro de Vila Aurora",
+   "entity_kind": "project",
+   "items": [
+    {
+     "count": 1,
+     "id": "F10-P",
+     "role": "primary",
+     "section": "compiled",
+     "text": "O orçamento aprovado para Feira do Livro de Vila Aurora é de R$ 7.920.",
+     "value": "F10"
+    }
+   ],
+   "kind": "entity",
+   "path": "memory/entities/projetos/feira-do-livro-de-vila-aurora.md",
+   "topics": [
+    "atendimento a leitores",
+    "escolha de capa"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "entity": "Reedição dos Cadernos",
+   "entity_kind": "project",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/projetos/reedicao-dos-cadernos.md",
+   "topics": [
+    "revisão de provas",
+    "orientação aos estagiários"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "entity": "Audiolivros da Casa",
+   "entity_kind": "project",
+   "items": [],
+   "kind": "entity",
+   "path": "memory/entities/projetos/audiolivros-da-casa.md",
+   "topics": [
+    "parceria com bibliotecas",
+    "fotos para divulgação"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "entity": "Site Novo da Editora",
+   "entity_kind": "project",
+   "items": [
+    {
+     "count": 1,
+     "id": "F01-P",
+     "role": "primary",
+     "section": "compiled",
+     "text": "O prazo de Site Novo da Editora ficou em 32 dias.",
+     "value": "F01"
+    }
+   ],
+   "kind": "entity",
+   "path": "memory/entities/projetos/site-novo-da-editora.md",
+   "topics": [
+    "revisão de provas",
+    "cobrança de direitos"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-01-04",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-01-04.md",
+   "topics": [
+    "escolha de capa",
+    "atendimento a leitores"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-01-05",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-01-05.md",
+   "topics": [
+    "cobrança de direitos",
+    "leitura de originais"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-01-06",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-01-06.md",
+   "topics": [
+    "ajuste na diagramação",
+    "escolha de capa"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-01-07",
+   "items": [
+    {
+     "count": 1,
+     "id": "F23-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Para Cartas de um Farol Apagado, a primeira impressão sai com 6051 cópias.",
+     "value": "F23"
+    },
+    {
+     "count": 1,
+     "id": "F36-A2",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Ficou acertado: 1516 cópias de O Rio Sem Margem para começar.",
+     "value": "F36"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-01-07.md",
+   "topics": [
+    "atendimento a leitores",
+    "planejamento das redes"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-01-08",
+   "items": [
+    {
+     "count": 1,
+     "id": "F09-A1",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Toda cobrança da Gráfica Lumiar Offset cita o contrato GRF-WEM9.",
+     "value": "F09"
+    },
+    {
+     "count": 1,
+     "id": "F13-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Para Os Cadernos do Sótão, a primeira impressão sai com 4367 cópias.",
+     "value": "F13"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-01-08.md",
+   "topics": [
+    "organização do arquivo",
+    "inventário do depósito"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-01-10",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-01-10.md",
+   "topics": [
+    "parceria com bibliotecas",
+    "conversa com a tradutora"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-01-11",
+   "items": [
+    {
+     "count": 1,
+     "id": "F38-A1",
+     "role": "paraphrase",
+     "section": null,
+     "text": "A gráfica confirmou 4301 cópias de A Cidade dos Relógios Parados na primeira leva.",
+     "value": "F38"
+    },
+    {
+     "count": 1,
+     "id": "F10-N0",
+     "role": "negative",
+     "section": null,
+     "text": "Um orçamento de R$ 6.880 para Feira do Livro de Vila Aurora foi apresentado e recusado.",
+     "value": "F10-N0"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-01-11.md",
+   "topics": [
+    "release para a imprensa",
+    "ajuste de cronograma"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-01-12",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-01-12.md",
+   "topics": [
+    "preparação de feira",
+    "escolha de capa"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-01-13",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-01-13.md",
+   "topics": [
+    "release para a imprensa",
+    "atendimento a leitores"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-01-15",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-01-15.md",
+   "topics": [
+    "conversa com a tradutora",
+    "escolha de capa"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-01-16",
+   "items": [
+    {
+     "count": 1,
+     "id": "F33-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "A noite de autógrafos de O Inverno de Vila Aurora acontece em 25 de julho de 2027.",
+     "value": "F33"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-01-16.md",
+   "topics": [
+    "conversa com a tradutora",
+    "fotos para divulgação"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-01-17",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-01-17.md",
+   "topics": [
+    "escolha de capa",
+    "compra de papel"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-01-18",
+   "items": [
+    {
+     "count": 1,
+     "id": "F07-N0",
+     "role": "negative",
+     "section": null,
+     "text": "A primeira estimativa de preço para Sal e Ferrugem era R$ 53,45, valor depois abandonado.",
+     "value": "F07-N0"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-01-18.md",
+   "topics": [
+    "ajuste de cronograma",
+    "fotos para divulgação"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-01-19",
+   "items": [
+    {
+     "count": 1,
+     "id": "F36-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Para O Rio Sem Margem, a primeira impressão sai com 1516 cópias.",
+     "value": "F36"
+    },
+    {
+     "count": 1,
+     "id": "F09-N0",
+     "role": "negative",
+     "section": null,
+     "text": "O código GRF-N7UF foi proposto para o contrato com a Gráfica Lumiar Offset, mas recusado.",
+     "value": "F09-N0"
+    },
+    {
+     "count": 1,
+     "id": "F08-N0",
+     "role": "negative",
+     "section": null,
+     "text": "O comercial sugeriu vender Pequeno Atlas das Chuvas a R$ 89,70, sugestão que não passou.",
+     "value": "F08-N0"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-01-19.md",
+   "topics": [
+    "preparação de feira",
+    "conversa com a tradutora"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-01-22",
+   "items": [
+    {
+     "count": 1,
+     "id": "F38-N0",
+     "role": "negative",
+     "section": null,
+     "text": "A conta antiga previa 4.138 exemplares para A Cidade dos Relógios Parados, número que depois foi revisto.",
+     "value": "F38-N0"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-01-22.md",
+   "topics": [
+    "release para a imprensa",
+    "parceria com bibliotecas"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-01-23",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-01-23.md",
+   "topics": [
+    "preparação de feira",
+    "organização do arquivo"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-01-25",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-01-25.md",
+   "topics": [
+    "cobrança de direitos",
+    "fotos para divulgação"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-01-26",
+   "items": [
+    {
+     "count": 1,
+     "id": "F29-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Osório Fagundes Lemos recebe 19.960 reais de adiantamento pelo contrato.",
+     "value": "F29"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-01-26.md",
+   "topics": [
+    "revisão de provas",
+    "compra de papel"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-01-27",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-01-27.md",
+   "topics": [
+    "planejamento das redes",
+    "fotos para divulgação"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-01-28",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-01-28.md",
+   "topics": [
+    "reunião de pauta",
+    "logística de envio"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-01-29",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-01-29.md",
+   "topics": [
+    "reunião de pauta",
+    "fotos para divulgação"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-02-01",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-02-01.md",
+   "topics": [
+    "compra de papel",
+    "revisão de provas"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-02-03",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-02-03.md",
+   "topics": [
+    "release para a imprensa",
+    "orientação aos estagiários"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-02-04",
+   "items": [
+    {
+     "count": 1,
+     "id": "F40-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Para O Inverno de Vila Aurora, a primeira impressão sai com 6944 cópias.",
+     "value": "F40"
+    },
+    {
+     "count": 1,
+     "id": "F42-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Na pasta jurídica, o contrato de Bartolomeu Quintanilha Reis está arquivado como AUT-T4EA.",
+     "value": "F42"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-02-04.md",
+   "topics": [
+    "fotos para divulgação",
+    "conversa com a tradutora"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-02-05",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-02-05.md",
+   "topics": [
+    "ajuste de cronograma",
+    "leitura de originais"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-02-07",
+   "items": [
+    {
+     "count": 1,
+     "id": "F38-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Para A Cidade dos Relógios Parados, a primeira impressão sai com 4301 cópias.",
+     "value": "F38"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-02-07.md",
+   "topics": [
+    "atendimento a leitores",
+    "release para a imprensa"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-02-08",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-02-08.md",
+   "topics": [
+    "atendimento a leitores",
+    "leitura de originais"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-02-09",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-02-09.md",
+   "topics": [
+    "inventário do depósito",
+    "conversa com livrarias"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-02-11",
+   "items": [
+    {
+     "count": 1,
+     "id": "F19-N0",
+     "role": "negative",
+     "section": null,
+     "text": "Um orçamento de R$ 4.850 para Audiolivros da Casa foi apresentado e recusado.",
+     "value": "F19-N0"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-02-11.md",
+   "topics": [
+    "compra de papel",
+    "release para a imprensa"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-02-13",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-02-13.md",
+   "topics": [
+    "parceria com bibliotecas",
+    "atendimento a leitores"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-02-14",
+   "items": [
+    {
+     "count": 1,
+     "id": "F06-N0",
+     "role": "negative",
+     "section": null,
+     "text": "A proposta inicial de adiantamento para Celeste Arruda Mourão era R$ 9.190 e foi renegociada.",
+     "value": "F06-N0"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-02-14.md",
+   "topics": [
+    "fotos para divulgação",
+    "leitura de originais"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-02-18",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-02-18.md",
+   "topics": [
+    "preparação de feira",
+    "organização do arquivo"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-02-19",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-02-19.md",
+   "topics": [
+    "orientação aos estagiários",
+    "planejamento das redes"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-02-22",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-02-22.md",
+   "topics": [
+    "atendimento a leitores",
+    "compra de papel"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-02-23",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-02-23.md",
+   "topics": [
+    "orientação aos estagiários",
+    "ajuste na diagramação"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-02-24",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-02-24.md",
+   "topics": [
+    "inventário do depósito",
+    "orientação aos estagiários"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-02-25",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-02-25.md",
+   "topics": [
+    "escolha de capa",
+    "atendimento a leitores"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-02-26",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-02-26.md",
+   "topics": [
+    "planejamento das redes",
+    "reunião de pauta"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-02-27",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-02-27.md",
+   "topics": [
+    "orientação aos estagiários",
+    "inventário do depósito"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-02-28",
+   "items": [
+    {
+     "count": 1,
+     "id": "F13-N0",
+     "role": "negative",
+     "section": null,
+     "text": "Chegou a circular a proposta de imprimir 3.329 exemplares de Os Cadernos do Sótão, mas ela foi descartada.",
+     "value": "F13-N0"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-02-28.md",
+   "topics": [
+    "logística de envio",
+    "organização do arquivo"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-03-01",
+   "items": [
+    {
+     "count": 1,
+     "id": "F32-A1",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Quem procurar o contrato de Celeste Arruda Mourão deve buscar por AUT-QENR.",
+     "value": "F32"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-03-01.md",
+   "topics": [
+    "atendimento a leitores",
+    "escolha de capa"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-03-02",
+   "items": [
+    {
+     "count": 1,
+     "id": "F03-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Na pasta jurídica, o contrato de Marieta Sousa Brandão está arquivado como AUT-NCXV.",
+     "value": "F03"
+    },
+    {
+     "count": 1,
+     "id": "F25-A2",
+     "role": "paraphrase",
+     "section": null,
+     "text": "A festa de Os Cadernos do Sótão ficou para 25 de setembro de 2027.",
+     "value": "F25"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-03-02.md",
+   "topics": [
+    "escolha de capa",
+    "ajuste na diagramação"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-03-03",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-03-03.md",
+   "topics": [
+    "orientação aos estagiários",
+    "compra de papel"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-03-04",
+   "items": [
+    {
+     "count": 1,
+     "id": "F11-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Para Mapa das Marés Altas, a primeira impressão sai com 1959 cópias.",
+     "value": "F11"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-03-04.md",
+   "topics": [
+    "reunião de pauta",
+    "release para a imprensa"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-03-06",
+   "items": [
+    {
+     "count": 1,
+     "id": "F21-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "A noite de autógrafos de A Última Linha do Bonde acontece em 19 de novembro de 2027.",
+     "value": "F21"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-03-06.md",
+   "topics": [
+    "ajuste de cronograma",
+    "compra de papel"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-03-07",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-03-07.md",
+   "topics": [
+    "reunião de pauta",
+    "inventário do depósito"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-03-09",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-03-09.md",
+   "topics": [
+    "fotos para divulgação",
+    "release para a imprensa"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-03-10",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-03-10.md",
+   "topics": [
+    "ajuste na diagramação",
+    "cobrança de direitos"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-03-11",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-03-11.md",
+   "topics": [
+    "inventário do depósito",
+    "release para a imprensa"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-03-13",
+   "items": [
+    {
+     "count": 2,
+     "id": "F09-P",
+     "role": "primary",
+     "section": null,
+     "text": "O contrato com a Gráfica Lumiar Offset tem o código GRF-WEM9.",
+     "value": "F09"
+    },
+    {
+     "count": 1,
+     "id": "F16-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Para Pequeno Atlas das Chuvas, a primeira impressão sai com 2088 cópias.",
+     "value": "F16"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-03-13.md",
+   "topics": [
+    "cobrança de direitos",
+    "conversa com livrarias"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-03-14",
+   "items": [
+    {
+     "count": 2,
+     "id": "F21-P",
+     "role": "primary",
+     "section": null,
+     "text": "O lançamento de A Última Linha do Bonde ficou marcado para 19/11/2027.",
+     "value": "F21"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-03-14.md",
+   "topics": [
+    "atendimento a leitores",
+    "leitura de originais"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-03-15",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-03-15.md",
+   "topics": [
+    "atendimento a leitores",
+    "preparação de feira"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-03-16",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-03-16.md",
+   "topics": [
+    "ajuste de cronograma",
+    "revisão de provas"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-03-17",
+   "items": [
+    {
+     "count": 1,
+     "id": "F26-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "A equipe tem dezoito dias para concluir Audiolivros da Casa.",
+     "value": "F26"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-03-17.md",
+   "topics": [
+    "ajuste de cronograma",
+    "organização do arquivo"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-03-18",
+   "items": [
+    {
+     "count": 1,
+     "id": "F27-N0",
+     "role": "negative",
+     "section": null,
+     "text": "A primeira estimativa de preço para Os Cadernos do Sótão era R$ 80,55, valor depois abandonado.",
+     "value": "F27-N0"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-03-18.md",
+   "topics": [
+    "revisão de provas",
+    "escolha de capa"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-03-19",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-03-19.md",
+   "topics": [
+    "conversa com a tradutora",
+    "leitura de originais"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-03-20",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-03-20.md",
+   "topics": [
+    "orientação aos estagiários",
+    "parceria com bibliotecas"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-03-21",
+   "items": [
+    {
+     "count": 1,
+     "id": "F29-A2",
+     "role": "paraphrase",
+     "section": null,
+     "text": "O financeiro separou 19.960 reais para adiantar a Osório Fagundes Lemos.",
+     "value": "F29"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-03-21.md",
+   "topics": [
+    "cobrança de direitos",
+    "reunião de pauta"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-03-22",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-03-22.md",
+   "topics": [
+    "ajuste de cronograma",
+    "planejamento das redes"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-03-23",
+   "items": [
+    {
+     "count": 1,
+     "id": "F39-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "O Inverno de Vila Aurora chega às livrarias custando 51,50 reais.",
+     "value": "F39"
+    },
+    {
+     "count": 2,
+     "id": "F40-P",
+     "role": "primary",
+     "section": null,
+     "text": "A tiragem inicial de O Inverno de Vila Aurora ficou definida em 6.944 exemplares.",
+     "value": "F40"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-03-23.md",
+   "topics": [
+    "organização do arquivo",
+    "atendimento a leitores"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-03-24",
+   "items": [
+    {
+     "count": 1,
+     "id": "F12-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "No sistema da gráfica, Vento Norte sobre a Serra Baixa aparece sob o pedido PED-18123.",
+     "value": "F12"
+    },
+    {
+     "count": 1,
+     "id": "F30-N0",
+     "role": "negative",
+     "section": null,
+     "text": "O comercial sugeriu vender Ninguém Mora no Quinto Andar a R$ 76,85, sugestão que não passou.",
+     "value": "F30-N0"
+    },
+    {
+     "count": 1,
+     "id": "F02-N0",
+     "role": "negative",
+     "section": null,
+     "text": "Houve quem defendesse lançar Ninguém Mora no Quinto Andar em 10/11/2027, mas a ideia não foi adiante.",
+     "value": "F02-N0"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-03-24.md",
+   "topics": [
+    "revisão de provas",
+    "organização do arquivo"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-03-25",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-03-25.md",
+   "topics": [
+    "fotos para divulgação",
+    "organização do arquivo"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-03-26",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-03-26.md",
+   "topics": [
+    "organização do arquivo",
+    "planejamento das redes"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-03-28",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-03-28.md",
+   "topics": [
+    "ajuste na diagramação",
+    "compra de papel"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-03-29",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-03-29.md",
+   "topics": [
+    "escolha de capa",
+    "compra de papel"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-03-31",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-03-31.md",
+   "topics": [
+    "atendimento a leitores",
+    "compra de papel"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-04-02",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-04-02.md",
+   "topics": [
+    "inventário do depósito",
+    "logística de envio"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-04-03",
+   "items": [
+    {
+     "count": 1,
+     "id": "F11-A1",
+     "role": "paraphrase",
+     "section": null,
+     "text": "A gráfica confirmou 1959 cópias de Mapa das Marés Altas na primeira leva.",
+     "value": "F11"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-04-03.md",
+   "topics": [
+    "compra de papel",
+    "ajuste de cronograma"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-04-04",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-04-04.md",
+   "topics": [
+    "reunião de pauta",
+    "release para a imprensa"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-04-07",
+   "items": [
+    {
+     "count": 1,
+     "id": "F44-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "A noite de autógrafos de O Jardim de Cera acontece em 6 de setembro de 2027.",
+     "value": "F44"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-04-07.md",
+   "topics": [
+    "ajuste na diagramação",
+    "escolha de capa"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-04-08",
+   "items": [
+    {
+     "count": 1,
+     "id": "F20-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Na pasta jurídica, o contrato de Ismênia Valadares Tor está arquivado como AUT-W9TV.",
+     "value": "F20"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-04-08.md",
+   "topics": [
+    "release para a imprensa",
+    "inventário do depósito"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-04-09",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-04-09.md",
+   "topics": [
+    "fotos para divulgação",
+    "leitura de originais"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-04-10",
+   "items": [
+    {
+     "count": 1,
+     "id": "F36-A1",
+     "role": "paraphrase",
+     "section": null,
+     "text": "A gráfica confirmou 1516 cópias de O Rio Sem Margem na primeira leva.",
+     "value": "F36"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-04-10.md",
+   "topics": [
+    "cobrança de direitos",
+    "atendimento a leitores"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-04-12",
+   "items": [
+    {
+     "count": 1,
+     "id": "F32-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Na pasta jurídica, o contrato de Celeste Arruda Mourão está arquivado como AUT-QENR.",
+     "value": "F32"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-04-12.md",
+   "topics": [
+    "compra de papel",
+    "atendimento a leitores"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-04-13",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-04-13.md",
+   "topics": [
+    "revisão de provas",
+    "ajuste de cronograma"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-04-14",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-04-14.md",
+   "topics": [
+    "compra de papel",
+    "atendimento a leitores"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-04-15",
+   "items": [
+    {
+     "count": 1,
+     "id": "F36-N0",
+     "role": "negative",
+     "section": null,
+     "text": "A conta antiga previa 5.935 exemplares para O Rio Sem Margem, número que depois foi revisto.",
+     "value": "F36-N0"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-04-15.md",
+   "topics": [
+    "escolha de capa",
+    "conversa com livrarias"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-04-16",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-04-16.md",
+   "topics": [
+    "inventário do depósito",
+    "organização do arquivo"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-04-17",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-04-17.md",
+   "topics": [
+    "ajuste na diagramação",
+    "planejamento das redes"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-04-19",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-04-19.md",
+   "topics": [
+    "fotos para divulgação",
+    "compra de papel"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-04-20",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-04-20.md",
+   "topics": [
+    "preparação de feira",
+    "logística de envio"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-04-21",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-04-21.md",
+   "topics": [
+    "escolha de capa",
+    "parceria com bibliotecas"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-04-25",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-04-25.md",
+   "topics": [
+    "escolha de capa",
+    "conversa com a tradutora"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-04-26",
+   "items": [
+    {
+     "count": 1,
+     "id": "F35-N0",
+     "role": "negative",
+     "section": null,
+     "text": "O pedido PED-92879 de O Rio Sem Margem foi substituído por um novo.",
+     "value": "F35-N0"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-04-26.md",
+   "topics": [
+    "preparação de feira",
+    "fotos para divulgação"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-04-27",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-04-27.md",
+   "topics": [
+    "conversa com livrarias",
+    "leitura de originais"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-04-28",
+   "items": [
+    {
+     "count": 1,
+     "id": "F19-P",
+     "role": "primary",
+     "section": null,
+     "text": "O orçamento aprovado para Audiolivros da Casa é de R$ 3.410.",
+     "value": "F19"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-04-28.md",
+   "topics": [
+    "leitura de originais",
+    "cobrança de direitos"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-04-29",
+   "items": [
+    {
+     "count": 1,
+     "id": "F19-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Audiolivros da Casa vai custar 3.410 reais no total.",
+     "value": "F19"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-04-29.md",
+   "topics": [
+    "ajuste de cronograma",
+    "planejamento das redes"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-05-01",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-05-01.md",
+   "topics": [
+    "conversa com livrarias",
+    "release para a imprensa"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-05-02",
+   "items": [
+    {
+     "count": 2,
+     "id": "F37-P",
+     "role": "primary",
+     "section": null,
+     "text": "A tiragem inicial de Vento Norte sobre a Serra Baixa ficou definida em 3.259 exemplares.",
+     "value": "F37"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-05-02.md",
+   "topics": [
+    "compra de papel",
+    "planejamento das redes"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-05-04",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-05-04.md",
+   "topics": [
+    "escolha de capa",
+    "revisão de provas"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-05-05",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-05-05.md",
+   "topics": [
+    "release para a imprensa",
+    "parceria com bibliotecas"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-05-06",
+   "items": [
+    {
+     "count": 1,
+     "id": "F05-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Na pasta de fornecedores, a Gráfica Pedra Lisa aparece com o contrato GRF-9FDJ.",
+     "value": "F05"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-05-06.md",
+   "topics": [
+    "ajuste de cronograma",
+    "compra de papel"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-05-07",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-05-07.md",
+   "topics": [
+    "atendimento a leitores",
+    "preparação de feira"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-05-08",
+   "items": [
+    {
+     "count": 1,
+     "id": "F21-A2",
+     "role": "paraphrase",
+     "section": null,
+     "text": "A festa de A Última Linha do Bonde ficou para 19 de novembro de 2027.",
+     "value": "F21"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-05-08.md",
+   "topics": [
+    "conversa com livrarias",
+    "reunião de pauta"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-05-09",
+   "items": [
+    {
+     "count": 1,
+     "id": "F29-A1",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Já foram reservados 19.960 reais para o adiantamento de Osório Fagundes Lemos.",
+     "value": "F29"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-05-09.md",
+   "topics": [
+    "revisão de provas",
+    "organização do arquivo"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-05-10",
+   "items": [
+    {
+     "count": 1,
+     "id": "F11-N0",
+     "role": "negative",
+     "section": null,
+     "text": "A conta antiga previa 6.441 exemplares para Mapa das Marés Altas, número que depois foi revisto.",
+     "value": "F11-N0"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-05-10.md",
+   "topics": [
+    "fotos para divulgação",
+    "orientação aos estagiários"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-05-14",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-05-14.md",
+   "topics": [
+    "parceria com bibliotecas",
+    "planejamento das redes"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-05-17",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-05-17.md",
+   "topics": [
+    "organização do arquivo",
+    "leitura de originais"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-05-18",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-05-18.md",
+   "topics": [
+    "compra de papel",
+    "orientação aos estagiários"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-05-19",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-05-19.md",
+   "topics": [
+    "preparação de feira",
+    "cobrança de direitos"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-05-22",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-05-22.md",
+   "topics": [
+    "organização do arquivo",
+    "orientação aos estagiários"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-05-23",
+   "items": [
+    {
+     "count": 1,
+     "id": "F38-A2",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Ficou acertado: 4301 cópias de A Cidade dos Relógios Parados para começar.",
+     "value": "F38"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-05-23.md",
+   "topics": [
+    "ajuste de cronograma",
+    "fotos para divulgação"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-05-24",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-05-24.md",
+   "topics": [
+    "planejamento das redes",
+    "orientação aos estagiários"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-05-26",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-05-26.md",
+   "topics": [
+    "ajuste de cronograma",
+    "logística de envio"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-05-27",
+   "items": [
+    {
+     "count": 1,
+     "id": "F30-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Ninguém Mora no Quinto Andar chega às livrarias custando 67,30 reais.",
+     "value": "F30"
+    },
+    {
+     "count": 1,
+     "id": "F37-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Para Vento Norte sobre a Serra Baixa, a primeira impressão sai com 3259 cópias.",
+     "value": "F37"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-05-27.md",
+   "topics": [
+    "release para a imprensa",
+    "organização do arquivo"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-05-28",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-05-28.md",
+   "topics": [
+    "escolha de capa",
+    "reunião de pauta"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-05-29",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-05-29.md",
+   "topics": [
+    "organização do arquivo",
+    "inventário do depósito"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-05-30",
+   "items": [
+    {
+     "count": 1,
+     "id": "F25-A1",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Os Cadernos do Sótão chega ao público em 25 de setembro de 2027.",
+     "value": "F25"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-05-30.md",
+   "topics": [
+    "leitura de originais",
+    "ajuste de cronograma"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-06-02",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-06-02.md",
+   "topics": [
+    "inventário do depósito",
+    "compra de papel"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-06-03",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-06-03.md",
+   "topics": [
+    "organização do arquivo",
+    "leitura de originais"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-06-04",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-06-04.md",
+   "topics": [
+    "planejamento das redes",
+    "inventário do depósito"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-06-05",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-06-05.md",
+   "topics": [
+    "parceria com bibliotecas",
+    "logística de envio"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-06-06",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-06-06.md",
+   "topics": [
+    "compra de papel",
+    "leitura de originais"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-06-07",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-06-07.md",
+   "topics": [
+    "logística de envio",
+    "release para a imprensa"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-06-08",
+   "items": [
+    {
+     "count": 1,
+     "id": "F23-A1",
+     "role": "paraphrase",
+     "section": null,
+     "text": "A gráfica confirmou 6051 cópias de Cartas de um Farol Apagado na primeira leva.",
+     "value": "F23"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-06-08.md",
+   "topics": [
+    "ajuste de cronograma",
+    "atendimento a leitores"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-06-09",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-06-09.md",
+   "topics": [
+    "planejamento das redes",
+    "escolha de capa"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-06-10",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-06-10.md",
+   "topics": [
+    "revisão de provas",
+    "cobrança de direitos"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-06-11",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-06-11.md",
+   "topics": [
+    "conversa com livrarias",
+    "parceria com bibliotecas"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-06-12",
+   "items": [
+    {
+     "count": 1,
+     "id": "F20-N0",
+     "role": "negative",
+     "section": null,
+     "text": "O código AUT-XAJR chegou a ser reservado para o contrato de Ismênia Valadares Tor, mas não foi usado.",
+     "value": "F20-N0"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-06-12.md",
+   "topics": [
+    "compra de papel",
+    "fotos para divulgação"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-06-15",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-06-15.md",
+   "topics": [
+    "cobrança de direitos",
+    "ajuste de cronograma"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-06-16",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-06-16.md",
+   "topics": [
+    "compra de papel",
+    "parceria com bibliotecas"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-06-17",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-06-17.md",
+   "topics": [
+    "logística de envio",
+    "revisão de provas"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-06-18",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-06-18.md",
+   "topics": [
+    "inventário do depósito",
+    "compra de papel"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-06-20",
+   "items": [
+    {
+     "count": 1,
+     "id": "F21-A1",
+     "role": "paraphrase",
+     "section": null,
+     "text": "A Última Linha do Bonde chega ao público em 19 de novembro de 2027.",
+     "value": "F21"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-06-20.md",
+   "topics": [
+    "preparação de feira",
+    "reunião de pauta"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-06-22",
+   "items": [
+    {
+     "count": 1,
+     "id": "F09-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "Na pasta de fornecedores, a Gráfica Lumiar Offset aparece com o contrato GRF-WEM9.",
+     "value": "F09"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-06-22.md",
+   "topics": [
+    "release para a imprensa",
+    "compra de papel"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-06-24",
+   "items": [
+    {
+     "count": 1,
+     "id": "F25-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "A noite de autógrafos de Os Cadernos do Sótão acontece em 25 de setembro de 2027.",
+     "value": "F25"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-06-24.md",
+   "topics": [
+    "leitura de originais",
+    "preparação de feira"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-06-25",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-06-25.md",
+   "topics": [
+    "planejamento das redes",
+    "revisão de provas"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-06-27",
+   "items": [
+    {
+     "count": 1,
+     "id": "F13-A1",
+     "role": "paraphrase",
+     "section": null,
+     "text": "A gráfica confirmou 4367 cópias de Os Cadernos do Sótão na primeira leva.",
+     "value": "F13"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-06-27.md",
+   "topics": [
+    "organização do arquivo",
+    "conversa com a tradutora"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-06-28",
+   "items": [],
+   "kind": "daily",
+   "path": "memory/2027-06-28.md",
+   "topics": [
+    "leitura de originais",
+    "inventário do depósito"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-06-30",
+   "items": [
+    {
+     "count": 1,
+     "id": "F14-A0",
+     "role": "paraphrase",
+     "section": null,
+     "text": "A Cidade dos Relógios Parados chega às livrarias custando 62,35 reais.",
+     "value": "F14"
+    }
+   ],
+   "kind": "daily",
+   "path": "memory/2027-06-30.md",
+   "topics": [
+    "orientação aos estagiários",
+    "parceria com bibliotecas"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-01-08",
+   "items": [],
+   "kind": "decision",
+   "path": "memory/decisions/2027-01-08-decision-00.md",
+   "topics": [
+    "escolha de capa",
+    "fotos para divulgação"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-01-09",
+   "items": [
+    {
+     "count": 1,
+     "id": "F18-P",
+     "role": "primary",
+     "section": null,
+     "text": "O contrato de Osório Fagundes Lemos com a editora tem o código AUT-WM4P.",
+     "value": "F18"
+    }
+   ],
+   "kind": "decision",
+   "path": "memory/decisions/2027-01-09-decision-01.md",
+   "topics": [
+    "compra de papel",
+    "ajuste na diagramação"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-01-17",
+   "items": [
+    {
+     "count": 1,
+     "id": "F30-P",
+     "role": "primary",
+     "section": null,
+     "text": "O preço de capa de Ninguém Mora no Quinto Andar foi fixado em R$ 67,30.",
+     "value": "F30"
+    }
+   ],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-01-17-lesson-02.md",
+   "topics": [
+    "ajuste de cronograma",
+    "preparação de feira"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-01-18",
+   "items": [
+    {
+     "count": 1,
+     "id": "F07-P",
+     "role": "primary",
+     "section": null,
+     "text": "O preço de capa de Sal e Ferrugem foi fixado em R$ 94,85.",
+     "value": "F07"
+    }
+   ],
+   "kind": "decision",
+   "path": "memory/decisions/2027-01-18-decision-03.md",
+   "topics": [
+    "conversa com livrarias",
+    "ajuste de cronograma"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-02-04",
+   "items": [
+    {
+     "count": 1,
+     "id": "F35-P",
+     "role": "primary",
+     "section": null,
+     "text": "O pedido de impressão de O Rio Sem Margem na gráfica recebeu o número PED-51447.",
+     "value": "F35"
+    }
+   ],
+   "kind": "decision",
+   "path": "memory/decisions/2027-02-04-decision-04.md",
+   "topics": [
+    "conversa com livrarias",
+    "parceria com bibliotecas"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-02-07",
+   "items": [
+    {
+     "count": 1,
+     "id": "F06-P",
+     "role": "primary",
+     "section": null,
+     "text": "O adiantamento de Celeste Arruda Mourão ficou em R$ 13.580.",
+     "value": "F06"
+    }
+   ],
+   "kind": "decision",
+   "path": "memory/decisions/2027-02-07-decision-05.md",
+   "topics": [
+    "release para a imprensa",
+    "escolha de capa"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-02-12",
+   "items": [
+    {
+     "count": 1,
+     "id": "F34-P",
+     "role": "primary",
+     "section": null,
+     "text": "O pedido de impressão de Ninguém Mora no Quinto Andar na gráfica recebeu o número PED-07888.",
+     "value": "F34"
+    }
+   ],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-02-12-lesson-06.md",
+   "topics": [
+    "reunião de pauta",
+    "ajuste na diagramação"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-02-13",
+   "items": [],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-02-13-lesson-07.md",
+   "topics": [
+    "atendimento a leitores",
+    "fotos para divulgação"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-02-15",
+   "items": [],
+   "kind": "decision",
+   "path": "memory/decisions/2027-02-15-decision-08.md",
+   "topics": [
+    "reunião de pauta",
+    "conversa com livrarias"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-02-17",
+   "items": [],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-02-17-lesson-09.md",
+   "topics": [
+    "planejamento das redes",
+    "conversa com a tradutora"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-02-25",
+   "items": [
+    {
+     "count": 1,
+     "id": "F11-P",
+     "role": "primary",
+     "section": null,
+     "text": "A tiragem inicial de Mapa das Marés Altas ficou definida em 1.959 exemplares.",
+     "value": "F11"
+    }
+   ],
+   "kind": "decision",
+   "path": "memory/decisions/2027-02-25-decision-10.md",
+   "topics": [
+    "release para a imprensa",
+    "fotos para divulgação"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-03-07",
+   "items": [
+    {
+     "count": 1,
+     "id": "F24-P",
+     "role": "primary",
+     "section": null,
+     "text": "O orçamento aprovado para Coleção Faróis é de R$ 2.280.",
+     "value": "F24"
+    }
+   ],
+   "kind": "decision",
+   "path": "memory/decisions/2027-03-07-decision-11.md",
+   "topics": [
+    "inventário do depósito",
+    "orientação aos estagiários"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-03-08",
+   "items": [
+    {
+     "count": 1,
+     "id": "F38-P",
+     "role": "primary",
+     "section": null,
+     "text": "A tiragem inicial de A Cidade dos Relógios Parados ficou definida em 4.301 exemplares.",
+     "value": "F38"
+    }
+   ],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-03-08-lesson-12.md",
+   "topics": [
+    "conversa com livrarias",
+    "ajuste na diagramação"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-03-10",
+   "items": [
+    {
+     "count": 1,
+     "id": "F22-P",
+     "role": "primary",
+     "section": null,
+     "text": "O lançamento de Sal e Ferrugem ficou marcado para 06/11/2027.",
+     "value": "F22"
+    }
+   ],
+   "kind": "decision",
+   "path": "memory/decisions/2027-03-10-decision-13.md",
+   "topics": [
+    "organização do arquivo",
+    "conversa com livrarias"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-03-11",
+   "items": [
+    {
+     "count": 1,
+     "id": "F28-P",
+     "role": "primary",
+     "section": null,
+     "text": "O lançamento de O Rio Sem Margem ficou marcado para 21/09/2027.",
+     "value": "F28"
+    }
+   ],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-03-11-lesson-14.md",
+   "topics": [
+    "reunião de pauta",
+    "leitura de originais"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-03-12",
+   "items": [],
+   "kind": "decision",
+   "path": "memory/decisions/2027-03-12-decision-15.md",
+   "topics": [
+    "atendimento a leitores",
+    "revisão de provas"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-03-25",
+   "items": [
+    {
+     "count": 1,
+     "id": "F29-P",
+     "role": "primary",
+     "section": null,
+     "text": "O adiantamento de Osório Fagundes Lemos ficou em R$ 19.960.",
+     "value": "F29"
+    }
+   ],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-03-25-lesson-16.md",
+   "topics": [
+    "reunião de pauta",
+    "cobrança de direitos"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-03-26",
+   "items": [],
+   "kind": "decision",
+   "path": "memory/decisions/2027-03-26-decision-17.md",
+   "topics": [
+    "orientação aos estagiários",
+    "escolha de capa"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-03-27",
+   "items": [
+    {
+     "count": 1,
+     "id": "F08-P",
+     "role": "primary",
+     "section": null,
+     "text": "O preço de capa de Pequeno Atlas das Chuvas foi fixado em R$ 67,50.",
+     "value": "F08"
+    }
+   ],
+   "kind": "decision",
+   "path": "memory/decisions/2027-03-27-decision-18.md",
+   "topics": [
+    "conversa com a tradutora",
+    "atendimento a leitores"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-03-28",
+   "items": [
+    {
+     "count": 1,
+     "id": "F16-P",
+     "role": "primary",
+     "section": null,
+     "text": "A tiragem inicial de Pequeno Atlas das Chuvas ficou definida em 2.088 exemplares.",
+     "value": "F16"
+    }
+   ],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-03-28-lesson-19.md",
+   "topics": [
+    "conversa com livrarias",
+    "inventário do depósito"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-04-03",
+   "items": [
+    {
+     "count": 1,
+     "id": "F39-P",
+     "role": "primary",
+     "section": null,
+     "text": "O preço de capa de O Inverno de Vila Aurora foi fixado em R$ 51,50.",
+     "value": "F39"
+    }
+   ],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-04-03-lesson-20.md",
+   "topics": [
+    "compra de papel",
+    "orientação aos estagiários"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-04-11",
+   "items": [],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-04-11-lesson-21.md",
+   "topics": [
+    "revisão de provas",
+    "release para a imprensa"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-04-12",
+   "items": [
+    {
+     "count": 1,
+     "id": "F43-P",
+     "role": "primary",
+     "section": null,
+     "text": "A tiragem inicial de Sal e Ferrugem ficou definida em 2.595 exemplares.",
+     "value": "F43"
+    }
+   ],
+   "kind": "decision",
+   "path": "memory/decisions/2027-04-12-decision-22.md",
+   "topics": [
+    "ajuste na diagramação",
+    "revisão de provas"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-04-14",
+   "items": [
+    {
+     "count": 1,
+     "id": "F44-P",
+     "role": "primary",
+     "section": null,
+     "text": "O lançamento de O Jardim de Cera ficou marcado para 06/09/2027.",
+     "value": "F44"
+    }
+   ],
+   "kind": "decision",
+   "path": "memory/decisions/2027-04-14-decision-23.md",
+   "topics": [
+    "compra de papel",
+    "parceria com bibliotecas"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-04-16",
+   "items": [
+    {
+     "count": 1,
+     "id": "F17-P",
+     "role": "primary",
+     "section": null,
+     "text": "O orçamento aprovado para Reedição dos Cadernos é de R$ 3.330.",
+     "value": "F17"
+    }
+   ],
+   "kind": "decision",
+   "path": "memory/decisions/2027-04-16-decision-24.md",
+   "topics": [
+    "leitura de originais",
+    "inventário do depósito"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-04-21",
+   "items": [],
+   "kind": "decision",
+   "path": "memory/decisions/2027-04-21-decision-25.md",
+   "topics": [
+    "preparação de feira",
+    "inventário do depósito"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-04-26",
+   "items": [
+    {
+     "count": 1,
+     "id": "F03-P",
+     "role": "primary",
+     "section": null,
+     "text": "O contrato de Marieta Sousa Brandão com a editora tem o código AUT-NCXV.",
+     "value": "F03"
+    }
+   ],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-04-26-lesson-26.md",
+   "topics": [
+    "release para a imprensa",
+    "ajuste de cronograma"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-05-02",
+   "items": [
+    {
+     "count": 1,
+     "id": "F32-P",
+     "role": "primary",
+     "section": null,
+     "text": "O contrato de Celeste Arruda Mourão com a editora tem o código AUT-QENR.",
+     "value": "F32"
+    }
+   ],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-05-02-lesson-27.md",
+   "topics": [
+    "inventário do depósito",
+    "ajuste na diagramação"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-05-06",
+   "items": [
+    {
+     "count": 1,
+     "id": "F26-P",
+     "role": "primary",
+     "section": null,
+     "text": "O prazo de Audiolivros da Casa ficou em 18 dias.",
+     "value": "F26"
+    }
+   ],
+   "kind": "decision",
+   "path": "memory/decisions/2027-05-06-decision-28.md",
+   "topics": [
+    "release para a imprensa",
+    "revisão de provas"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-05-09",
+   "items": [],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-05-09-lesson-29.md",
+   "topics": [
+    "planejamento das redes",
+    "compra de papel"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-05-10",
+   "items": [
+    {
+     "count": 1,
+     "id": "F05-P",
+     "role": "primary",
+     "section": null,
+     "text": "O contrato com a Gráfica Pedra Lisa tem o código GRF-9FDJ.",
+     "value": "F05"
+    }
+   ],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-05-10-lesson-30.md",
+   "topics": [
+    "leitura de originais",
+    "orientação aos estagiários"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-05-15",
+   "items": [
+    {
+     "count": 1,
+     "id": "F12-P",
+     "role": "primary",
+     "section": null,
+     "text": "O pedido de impressão de Vento Norte sobre a Serra Baixa na gráfica recebeu o número PED-18123.",
+     "value": "F12"
+    }
+   ],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-05-15-lesson-31.md",
+   "topics": [
+    "logística de envio",
+    "cobrança de direitos"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-05-25",
+   "items": [],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-05-25-lesson-32.md",
+   "topics": [
+    "ajuste na diagramação",
+    "parceria com bibliotecas"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-05-29",
+   "items": [
+    {
+     "count": 1,
+     "id": "F33-P",
+     "role": "primary",
+     "section": null,
+     "text": "O lançamento de O Inverno de Vila Aurora ficou marcado para 25/07/2027.",
+     "value": "F33"
+    }
+   ],
+   "kind": "decision",
+   "path": "memory/decisions/2027-05-29-decision-33.md",
+   "topics": [
+    "leitura de originais",
+    "preparação de feira"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-05-30",
+   "items": [
+    {
+     "count": 1,
+     "id": "F36-P",
+     "role": "primary",
+     "section": null,
+     "text": "A tiragem inicial de O Rio Sem Margem ficou definida em 1.516 exemplares.",
+     "value": "F36"
+    }
+   ],
+   "kind": "decision",
+   "path": "memory/decisions/2027-05-30-decision-34.md",
+   "topics": [
+    "conversa com a tradutora",
+    "ajuste de cronograma"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-06-01",
+   "items": [
+    {
+     "count": 1,
+     "id": "F25-P",
+     "role": "primary",
+     "section": null,
+     "text": "O lançamento de Os Cadernos do Sótão ficou marcado para 25/09/2027.",
+     "value": "F25"
+    }
+   ],
+   "kind": "decision",
+   "path": "memory/decisions/2027-06-01-decision-35.md",
+   "topics": [
+    "reunião de pauta",
+    "revisão de provas"
+   ]
+  },
+  {
+   "author_agent": "Ipê",
+   "date": "2027-06-02",
+   "items": [
+    {
+     "count": 1,
+     "id": "F14-P",
+     "role": "primary",
+     "section": null,
+     "text": "O preço de capa de A Cidade dos Relógios Parados foi fixado em R$ 62,35.",
+     "value": "F14"
+    }
+   ],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-06-02-lesson-36.md",
+   "topics": [
+    "fotos para divulgação",
+    "cobrança de direitos"
+   ]
+  },
+  {
+   "author_agent": "Quaresmeira",
+   "date": "2027-06-13",
+   "items": [
+    {
+     "count": 1,
+     "id": "F15-P",
+     "role": "primary",
+     "section": null,
+     "text": "O adiantamento de Marieta Sousa Brandão ficou em R$ 21.440.",
+     "value": "F15"
+    }
+   ],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-06-13-lesson-37.md",
+   "topics": [
+    "cobrança de direitos",
+    "atendimento a leitores"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-06-19",
+   "items": [
+    {
+     "count": 1,
+     "id": "F23-P",
+     "role": "primary",
+     "section": null,
+     "text": "A tiragem inicial de Cartas de um Farol Apagado ficou definida em 6.051 exemplares.",
+     "value": "F23"
+    }
+   ],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-06-19-lesson-38.md",
+   "topics": [
+    "escolha de capa",
+    "reunião de pauta"
+   ]
+  },
+  {
+   "author_agent": "Tucano",
+   "date": "2027-06-25",
+   "items": [],
+   "kind": "lesson",
+   "path": "memory/lessons/2027-06-25-lesson-39.md",
+   "topics": [
+    "release para a imprensa",
+    "planejamento das redes"
+   ]
+  },
+  {
+   "author_agent": "Jatobá",
+   "date": "2027-06-26",
+   "items": [
+    {
+     "count": 1,
+     "id": "F02-P",
+     "role": "primary",
+     "section": null,
+     "text": "O lançamento de Ninguém Mora no Quinto Andar ficou marcado para 27/08/2027.",
+     "value": "F02"
+    }
+   ],
+   "kind": "decision",
+   "path": "memory/decisions/2027-06-26-decision-40.md",
+   "topics": [
+    "ajuste na diagramação",
+    "escolha de capa"
+   ]
+  },
+  {
+   "author_agent": "Sabiá",
+   "date": "2027-06-30",
+   "items": [],
+   "kind": "decision",
+   "path": "memory/decisions/2027-06-30-decision-41.md",
+   "topics": [
+    "escolha de capa",
+    "release para a imprensa"
+   ]
+  }
+ ],
+ "operations": [
+  "reingest_unchanged",
+  "edit_outside_span",
+  "edit_inside_span",
+  "rename_with_reingest",
+  "rename_without_reingest",
+  "delete"
+ ],
+ "queries": [
+  {
+   "R": [
+    "F00-P"
+   ],
+   "T": [
+    "F00-P"
+   ],
+   "fact": "F00",
+   "id": "Q00",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é a tiragem inicial de O Jardim de Cera?"
+  },
+  {
+   "R": [
+    "F01-P"
+   ],
+   "T": [
+    "F01-P"
+   ],
+   "fact": "F01",
+   "id": "Q01",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o prazo de Site Novo da Editora?"
+  },
+  {
+   "R": [
+    "F02-P"
+   ],
+   "T": [
+    "F02-P"
+   ],
+   "fact": "F02",
+   "id": "Q02",
+   "kind": "fact",
+   "negatives": [
+    "F02-N0"
+   ],
+   "text": "Quando é o lançamento de Ninguém Mora no Quinto Andar?"
+  },
+  {
+   "R": [
+    "F03-P"
+   ],
+   "T": [
+    "F03-P",
+    "F03-A0"
+   ],
+   "fact": "F03",
+   "id": "Q03",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o código do contrato de Marieta Sousa Brandão?"
+  },
+  {
+   "R": [
+    "F04-P"
+   ],
+   "T": [
+    "F04-P"
+   ],
+   "fact": "F04",
+   "id": "Q04",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o código do contrato com a Gráfica Agulha de Ouro?"
+  },
+  {
+   "R": [
+    "F05-P",
+    "F05-A0"
+   ],
+   "T": [
+    "F05-P",
+    "F05-A0"
+   ],
+   "fact": "F05",
+   "id": "Q05",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o código do contrato com a Gráfica Pedra Lisa?"
+  },
+  {
+   "R": [
+    "F06-P"
+   ],
+   "T": [
+    "F06-P"
+   ],
+   "fact": "F06",
+   "id": "Q06",
+   "kind": "fact",
+   "negatives": [
+    "F06-N0"
+   ],
+   "text": "Qual é o adiantamento de Celeste Arruda Mourão?"
+  },
+  {
+   "R": [
+    "F07-P"
+   ],
+   "T": [
+    "F07-P"
+   ],
+   "fact": "F07",
+   "id": "Q07",
+   "kind": "fact",
+   "negatives": [
+    "F07-N0"
+   ],
+   "text": "Qual é o preço de capa de Sal e Ferrugem?"
+  },
+  {
+   "R": [
+    "F08-P"
+   ],
+   "T": [
+    "F08-P"
+   ],
+   "fact": "F08",
+   "id": "Q08",
+   "kind": "fact",
+   "negatives": [
+    "F08-N0"
+   ],
+   "text": "Qual é o preço de capa de Pequeno Atlas das Chuvas?"
+  },
+  {
+   "R": [
+    "F09-P",
+    "F09-A0"
+   ],
+   "T": [
+    "F09-P",
+    "F09-A0",
+    "F09-A1"
+   ],
+   "fact": "F09",
+   "id": "Q09",
+   "kind": "fact",
+   "negatives": [
+    "F09-N0"
+   ],
+   "text": "Qual é o código do contrato com a Gráfica Lumiar Offset?"
+  },
+  {
+   "R": [
+    "F10-P"
+   ],
+   "T": [
+    "F10-P"
+   ],
+   "fact": "F10",
+   "id": "Q10",
+   "kind": "fact",
+   "negatives": [
+    "F10-N0"
+   ],
+   "text": "Qual é o orçamento de Feira do Livro de Vila Aurora?"
+  },
+  {
+   "R": [
+    "F11-P"
+   ],
+   "T": [
+    "F11-P",
+    "F11-A0",
+    "F11-A1"
+   ],
+   "fact": "F11",
+   "id": "Q11",
+   "kind": "fact",
+   "negatives": [
+    "F11-N0"
+   ],
+   "text": "Qual é a tiragem inicial de Mapa das Marés Altas?"
+  },
+  {
+   "R": [
+    "F12-P",
+    "F12-A0"
+   ],
+   "T": [
+    "F12-P",
+    "F12-A0"
+   ],
+   "fact": "F12",
+   "id": "Q12",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o número do pedido de impressão de Vento Norte sobre a Serra Baixa?"
+  },
+  {
+   "R": [
+    "F13-P"
+   ],
+   "T": [
+    "F13-P",
+    "F13-A0",
+    "F13-A1"
+   ],
+   "fact": "F13",
+   "id": "Q13",
+   "kind": "fact",
+   "negatives": [
+    "F13-N0"
+   ],
+   "text": "Qual é a tiragem inicial de Os Cadernos do Sótão?"
+  },
+  {
+   "R": [
+    "F14-P"
+   ],
+   "T": [
+    "F14-P",
+    "F14-A0"
+   ],
+   "fact": "F14",
+   "id": "Q14",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o preço de capa de A Cidade dos Relógios Parados?"
+  },
+  {
+   "R": [
+    "F15-P"
+   ],
+   "T": [
+    "F15-P"
+   ],
+   "fact": "F15",
+   "id": "Q15",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o adiantamento de Marieta Sousa Brandão?"
+  },
+  {
+   "R": [
+    "F16-P"
+   ],
+   "T": [
+    "F16-P",
+    "F16-A0"
+   ],
+   "fact": "F16",
+   "id": "Q16",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é a tiragem inicial de Pequeno Atlas das Chuvas?"
+  },
+  {
+   "R": [
+    "F17-P"
+   ],
+   "T": [
+    "F17-P"
+   ],
+   "fact": "F17",
+   "id": "Q17",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o orçamento de Reedição dos Cadernos?"
+  },
+  {
+   "R": [
+    "F18-P"
+   ],
+   "T": [
+    "F18-P"
+   ],
+   "fact": "F18",
+   "id": "Q18",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o código do contrato de Osório Fagundes Lemos?"
+  },
+  {
+   "R": [
+    "F19-P"
+   ],
+   "T": [
+    "F19-P",
+    "F19-A0"
+   ],
+   "fact": "F19",
+   "id": "Q19",
+   "kind": "fact",
+   "negatives": [
+    "F19-N0"
+   ],
+   "text": "Qual é o orçamento de Audiolivros da Casa?"
+  },
+  {
+   "R": [
+    "F20-P",
+    "F20-A0"
+   ],
+   "T": [
+    "F20-P",
+    "F20-A0"
+   ],
+   "fact": "F20",
+   "id": "Q20",
+   "kind": "fact",
+   "negatives": [
+    "F20-N0"
+   ],
+   "text": "Qual é o código do contrato de Ismênia Valadares Tor?"
+  },
+  {
+   "R": [
+    "F21-P",
+    "F21-A0"
+   ],
+   "T": [
+    "F21-P",
+    "F21-A0",
+    "F21-A1",
+    "F21-A2"
+   ],
+   "fact": "F21",
+   "id": "Q21",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Quando é o lançamento de A Última Linha do Bonde?"
+  },
+  {
+   "R": [
+    "F22-P"
+   ],
+   "T": [
+    "F22-P"
+   ],
+   "fact": "F22",
+   "id": "Q22",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Quando é o lançamento de Sal e Ferrugem?"
+  },
+  {
+   "R": [
+    "F23-P",
+    "F23-A1"
+   ],
+   "T": [
+    "F23-P",
+    "F23-A0",
+    "F23-A1"
+   ],
+   "fact": "F23",
+   "id": "Q23",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é a tiragem inicial de Cartas de um Farol Apagado?"
+  },
+  {
+   "R": [
+    "F24-P"
+   ],
+   "T": [
+    "F24-P"
+   ],
+   "fact": "F24",
+   "id": "Q24",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o orçamento de Coleção Faróis?"
+  },
+  {
+   "R": [
+    "F25-P",
+    "F25-A1"
+   ],
+   "T": [
+    "F25-P",
+    "F25-A0",
+    "F25-A1",
+    "F25-A2"
+   ],
+   "fact": "F25",
+   "id": "Q25",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Quando é o lançamento de Os Cadernos do Sótão?"
+  },
+  {
+   "R": [
+    "F26-P"
+   ],
+   "T": [
+    "F26-P",
+    "F26-A0"
+   ],
+   "fact": "F26",
+   "id": "Q26",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o prazo de Audiolivros da Casa?"
+  },
+  {
+   "R": [
+    "F27-P"
+   ],
+   "T": [
+    "F27-P"
+   ],
+   "fact": "F27",
+   "id": "Q27",
+   "kind": "fact",
+   "negatives": [
+    "F27-N0"
+   ],
+   "text": "Qual é o preço de capa de Os Cadernos do Sótão?"
+  },
+  {
+   "R": [
+    "F28-P"
+   ],
+   "T": [
+    "F28-P"
+   ],
+   "fact": "F28",
+   "id": "Q28",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Quando é o lançamento de O Rio Sem Margem?"
+  },
+  {
+   "R": [
+    "F29-P"
+   ],
+   "T": [
+    "F29-P",
+    "F29-A0",
+    "F29-A1",
+    "F29-A2"
+   ],
+   "fact": "F29",
+   "id": "Q29",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o adiantamento de Osório Fagundes Lemos?"
+  },
+  {
+   "R": [
+    "F30-P"
+   ],
+   "T": [
+    "F30-P",
+    "F30-A0"
+   ],
+   "fact": "F30",
+   "id": "Q30",
+   "kind": "fact",
+   "negatives": [
+    "F30-N0"
+   ],
+   "text": "Qual é o preço de capa de Ninguém Mora no Quinto Andar?"
+  },
+  {
+   "R": [
+    "F31-P"
+   ],
+   "T": [
+    "F31-P"
+   ],
+   "fact": "F31",
+   "id": "Q31",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o prazo de Coleção Faróis?"
+  },
+  {
+   "R": [
+    "F32-P"
+   ],
+   "T": [
+    "F32-P",
+    "F32-A0",
+    "F32-A1"
+   ],
+   "fact": "F32",
+   "id": "Q32",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o código do contrato de Celeste Arruda Mourão?"
+  },
+  {
+   "R": [
+    "F33-P",
+    "F33-A0"
+   ],
+   "T": [
+    "F33-P",
+    "F33-A0"
+   ],
+   "fact": "F33",
+   "id": "Q33",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Quando é o lançamento de O Inverno de Vila Aurora?"
+  },
+  {
+   "R": [
+    "F34-P"
+   ],
+   "T": [
+    "F34-P"
+   ],
+   "fact": "F34",
+   "id": "Q34",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o número do pedido de impressão de Ninguém Mora no Quinto Andar?"
+  },
+  {
+   "R": [
+    "F35-P"
+   ],
+   "T": [
+    "F35-P"
+   ],
+   "fact": "F35",
+   "id": "Q35",
+   "kind": "fact",
+   "negatives": [
+    "F35-N0"
+   ],
+   "text": "Qual é o número do pedido de impressão de O Rio Sem Margem?"
+  },
+  {
+   "R": [
+    "F36-P"
+   ],
+   "T": [
+    "F36-P",
+    "F36-A0",
+    "F36-A1",
+    "F36-A2"
+   ],
+   "fact": "F36",
+   "id": "Q36",
+   "kind": "fact",
+   "negatives": [
+    "F36-N0"
+   ],
+   "text": "Qual é a tiragem inicial de O Rio Sem Margem?"
+  },
+  {
+   "R": [
+    "F37-P"
+   ],
+   "T": [
+    "F37-P",
+    "F37-A0"
+   ],
+   "fact": "F37",
+   "id": "Q37",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é a tiragem inicial de Vento Norte sobre a Serra Baixa?"
+  },
+  {
+   "R": [
+    "F38-P",
+    "F38-A0"
+   ],
+   "T": [
+    "F38-P",
+    "F38-A0",
+    "F38-A1",
+    "F38-A2"
+   ],
+   "fact": "F38",
+   "id": "Q38",
+   "kind": "fact",
+   "negatives": [
+    "F38-N0"
+   ],
+   "text": "Qual é a tiragem inicial de A Cidade dos Relógios Parados?"
+  },
+  {
+   "R": [
+    "F39-P"
+   ],
+   "T": [
+    "F39-P",
+    "F39-A0"
+   ],
+   "fact": "F39",
+   "id": "Q39",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o preço de capa de O Inverno de Vila Aurora?"
+  },
+  {
+   "R": [
+    "F40-P"
+   ],
+   "T": [
+    "F40-P",
+    "F40-A0"
+   ],
+   "fact": "F40",
+   "id": "Q40",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é a tiragem inicial de O Inverno de Vila Aurora?"
+  },
+  {
+   "R": [
+    "F41-P"
+   ],
+   "T": [
+    "F41-P"
+   ],
+   "fact": "F41",
+   "id": "Q41",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o orçamento de Clube de Leitura de Março?"
+  },
+  {
+   "R": [
+    "F42-P"
+   ],
+   "T": [
+    "F42-P",
+    "F42-A0"
+   ],
+   "fact": "F42",
+   "id": "Q42",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é o código do contrato de Bartolomeu Quintanilha Reis?"
+  },
+  {
+   "R": [
+    "F43-P"
+   ],
+   "T": [
+    "F43-P"
+   ],
+   "fact": "F43",
+   "id": "Q43",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Qual é a tiragem inicial de Sal e Ferrugem?"
+  },
+  {
+   "R": [
+    "F44-P",
+    "F44-A0"
+   ],
+   "T": [
+    "F44-P",
+    "F44-A0"
+   ],
+   "fact": "F44",
+   "id": "Q44",
+   "kind": "fact",
+   "negatives": [],
+   "text": "Quando é o lançamento de O Jardim de Cera?"
+  },
+  {
+   "R": [],
+   "T": [],
+   "attribute": "lancamento",
+   "entity": "A Cidade dos Relógios Parados",
+   "fact": null,
+   "id": "QP0",
+   "kind": "false_premise",
+   "negatives": [],
+   "text": "Quando é o lançamento de A Cidade dos Relógios Parados?"
+  },
+  {
+   "R": [],
+   "T": [],
+   "attribute": "preco",
+   "entity": "Mapa das Marés Altas",
+   "fact": null,
+   "id": "QP1",
+   "kind": "false_premise",
+   "negatives": [],
+   "text": "Qual é o preço de capa de Mapa das Marés Altas?"
+  },
+  {
+   "R": [],
+   "T": [],
+   "attribute": "pedido",
+   "entity": "Pequeno Atlas das Chuvas",
+   "fact": null,
+   "id": "QP2",
+   "kind": "false_premise",
+   "negatives": [],
+   "text": "Qual é o número do pedido de impressão de Pequeno Atlas das Chuvas?"
+  },
+  {
+   "R": [],
+   "T": [],
+   "attribute": "preco",
+   "entity": "Cartas de um Farol Apagado",
+   "fact": null,
+   "id": "QP3",
+   "kind": "false_premise",
+   "negatives": [],
+   "text": "Qual é o preço de capa de Cartas de um Farol Apagado?"
+  },
+  {
+   "R": [],
+   "T": [],
+   "attribute": "tiragem",
+   "entity": "A Última Linha do Bonde",
+   "fact": null,
+   "id": "QP4",
+   "kind": "false_premise",
+   "negatives": [],
+   "text": "Qual é a tiragem inicial de A Última Linha do Bonde?"
+  }
+ ],
+ "r_keep": 0.25,
+ "seed": 20261125
+}
