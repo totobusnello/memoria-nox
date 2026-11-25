@@ -18,7 +18,7 @@
    "date": "2026-11-25",
    "artifact": "synthetic-ptbr/README.md",
    "locator": "printed 0.7542",
-   "commit": "eb44723a",
+   "commit": "ac548ddb",
    "superseded_by": "s-mean-strict-v2",
    "note": "averaged per-query scores rounded to four places; superseded after the note review of 2026-11-25; first printed in synthetic-ptbr/results/etapa1.txt at 1fde4c1, the README records the correction"
   },
@@ -138,7 +138,7 @@
    "date": "2026-11-25",
    "artifact": "synthetic-ptbr/results/etapa1.txt",
    "locator": "mean_strict: 0.7543",
-   "commit": "eb44723a",
+   "commit": "ac548ddb",
    "superseded_by": null,
    "note": ""
   },
@@ -150,7 +150,7 @@
    "date": "2026-11-25",
    "artifact": "synthetic-ptbr/results/etapa1.txt",
    "locator": "mean_pooled: 0.7598",
-   "commit": "eb44723a",
+   "commit": "ac548ddb",
    "superseded_by": null,
    "note": ""
   }
