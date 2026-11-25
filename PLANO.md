@@ -193,7 +193,7 @@ no Setup de cada paper.
 Codex + Kimi no plano (challenge) aplicadas. PR (1): planejador com semente e matriz de cobertura,
 `check-corpus`, contrato do resolvedor, scorer com fixtures, testes offline (27 ok). Versões da matriz
 fixadas: 3.5.2 (ingest antigo) e 3.11.1. Próximo: PR (2), geração isolada paga (teto US$ 5).
-Worktree: `~/Claude-worktrees/memoria-nox/synthetic-ptbr-plan`. PR: (preencher ao abrir).
+Worktree: `~/Claude-worktrees/memoria-nox/synthetic-ptbr-plan`. PR: #740.
 
 Etapa: Deploy (paper A): **publicado** pelo Toto em 20/11, doi:10.5281/zenodo.24400444 (concept
 doi:10.5281/zenodo.24400443), v1.0, software link `baf4b80`, checksums do registro iguais aos do build
