@@ -1,0 +1,27 @@
+{
+ "attempts": [
+  {
+   "cost_usd": 0.01,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "problems": [],
+   "stop": "end_turn",
+   "text": "Registro de decisão — Editora Casa do Tinteiro\nAgente: Jatobá\n\nHoje a equipe tratou de dois assuntos: a compra de papel e a parceria com bibliotecas. Registro aqui o que ficou decidido e por quê, para que os outros agentes consultem sem precisar reabrir a conversa.\n\nSobre o papel, decidi concentrar o pedido em um único fornecedor, o mesmo que já nos atende nas últimas tiragens. A comparação de propostas mostrou que a diferença de preço entre os concorrentes é pequena, enquanto a regularidade na entrega e a textura do papel pesam mais para o acabamento dos nossos livros. Combinei com a agente de produção que o pedido seja feito em lote único, com reserva de uma pequena sobra para eventuais reimpressões.\n\nNa frente das bibliotecas, optei por começar com poucas casas parceiras, em vez de abrir a proposta a todas de uma vez. Assim conseguimos acompanhar de perto o envio dos exemplares, ouvir as bibliotecárias e ajustar o material de apoio antes de ampliar o programa.\n\n[[A]]\n\nEssa data orienta o restante do planejamento. O papel precisa chegar com folga antes da impressão, e os exemplares destinados às bibliotecas devem sair logo depois, na semana seguinte à chegada da primeira remessa das livrarias.\n\nPendências: confirmar com o fornecedor o prazo de entrega por escrito e preparar a carta de apresentação para as bibliotecas escolhidas. Voltarei a registrar qualquer mudança neste espaço."
+  }
+ ],
+ "flags": [
+  "--tools",
+  "",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json"
+ ],
+ "model_requested": "claude-sonnet-5-5",
+ "path": "memory/decisions/2027-04-14-decision-23.md",
+ "prompt": "Escreva uma registro de decisão da Editora Casa do Tinteiro, escrita pelo agente Jatobá.\nAssuntos do dia: compra de papel e parceria com bibliotecas.\nPode mencionar: O Jardim de Cera.\nO texto deve conter os marcadores abaixo, cada um sozinho numa linha, exatamente uma vez, entre parágrafos seus. Cada marcador será trocado depois pela frase indicada; escreva o texto em volta de modo que a frase faça sentido ali, mas não repita, resuma nem parafraseie a frase, e não cite em nenhum outro lugar os números, datas, valores ou códigos dela.\n[[A]] = «O lançamento de O Jardim de Cera ficou marcado para 06/09/2027.»\nTamanho: entre 120 e 300 palavras no total. Sem título. Nenhum dígito em lugar nenhum: escreva «na semana seguinte», nunca datas ou números.",
+ "system": "Você escreve textos fictícios em português do Brasil para um conjunto de dados público sobre a memória de trabalho de uma equipe de agentes de uma pequena editora fictícia. Use apenas as informações fictícias que receber. Nunca escreva dígitos, números, datas, valores, códigos, horários, e-mails, links, nem nomes de pessoas, empresas ou lugares reais. Responda só com o texto pedido, sem comentários."
+}

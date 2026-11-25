@@ -1,0 +1,27 @@
+{
+ "attempts": [
+  {
+   "cost_usd": 0.009126,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "problems": [],
+   "stop": "end_turn",
+   "text": "Registro de decisão — Editora Casa do Tinteiro\nAutor: agente Ipê\n\nContexto: na reunião de pauta, a equipe discutiu quais lançamentos entrariam no próximo ciclo e em que ordem. Havia duas propostas: abrir com a coletânea de contos de uma autora estreante ou com a reedição ilustrada de um clássico infantil. Na conversa com as livrarias parceiras, ouvi duas queixas repetidas: pedidos de reposição chegando tarde e pouca antecedência para montar vitrines.\n\nDecisão: abrir o ciclo com a reedição ilustrada, por ter público já conhecido e giro mais previsível, e deixar a coletânea de contos para a segunda posição, com divulgação própria e prova de leitura enviada antes às livrarias. Também ficou decidido que as livrarias receberão o calendário de lançamentos com antecedência maior do que a praticada até aqui, e que a reposição passará a ser conferida por mim toda semana, em vez de apenas quando alguém reclamar.\n\nMotivos: a reedição reduz o risco no começo do ciclo e dá tempo para ajustar a tiragem da coletânea. O calendário antecipado atende ao pedido mais frequente das livrarias e custa pouco.\n\nPendências: pedir à produção a confirmação do prazo de gráfica para a reedição; combinar com a editora responsável pelas ilustrações a entrega das imagens para divulgação; revisar esta decisão na semana seguinte ao primeiro retorno das livrarias.\n\nResponsável pelo acompanhamento: Ipê."
+  }
+ ],
+ "flags": [
+  "--tools",
+  "",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json"
+ ],
+ "model_requested": "claude-sonnet-5-5",
+ "path": "memory/decisions/2027-02-15-decision-08.md",
+ "prompt": "Escreva uma registro de decisão da Editora Casa do Tinteiro, escrita pelo agente Ipê.\nAssuntos do dia: reunião de pauta e conversa com livrarias.\nTamanho: entre 120 e 300 palavras no total. Sem título. Nenhum dígito em lugar nenhum: escreva «na semana seguinte», nunca datas ou números.",
+ "system": "Você escreve textos fictícios em português do Brasil para um conjunto de dados público sobre a memória de trabalho de uma equipe de agentes de uma pequena editora fictícia. Use apenas as informações fictícias que receber. Nunca escreva dígitos, números, datas, valores, códigos, horários, e-mails, links, nem nomes de pessoas, empresas ou lugares reais. Responda só com o texto pedido, sem comentários."
+}

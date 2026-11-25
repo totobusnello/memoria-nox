@@ -1,0 +1,27 @@
+{
+ "attempts": [
+  {
+   "cost_usd": 0.010374000000000001,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "problems": [],
+   "stop": "end_turn",
+   "text": "Registro de lição — Editora Casa do Tinteiro\nAgente: Jatobá\n\nHoje o dia se dividiu entre as conversas com as livrarias e a contagem do depósito, e as duas tarefas acabaram se ajudando mais do que eu esperava.\n\nPela manhã, falei com três livrarias parceiras sobre as encomendas de fim de ano. Duas pediram reserva antecipada de Pequeno Atlas das Chuvas, e uma perguntou se haveria reposição rápida caso o primeiro lote se esgotasse. Respondi com cautela, porque ainda não tinha o saldo real das caixas em mãos.\n\n[[A]]\n\nEssa foi a lição principal do dia: prometi prazos antes de conferir o inventário. À tarde, no depósito, encontrei caixas fora do lugar, pilhas de títulos antigos misturadas com lançamentos e uma etiqueta ilegível numa prateleira inteira. Refiz a contagem por corredor, anotei as diferenças e pedi a quem cuida da expedição que confirmasse as divergências antes de eu atualizar a planilha.\n\nPara os próximos dias, deixo três regras na memória de trabalho:\n\nPrimeiro, nunca confirmar quantidade ou prazo a uma livraria sem consultar o inventário mais recente.\n\nSegundo, registrar na planilha, no mesmo momento, tudo o que for conversado com cada livraria, para que outro agente retome o assunto sem perguntar de novo.\n\nTerceiro, pedir a revisão da contagem sempre que houver etiqueta apagada ou caixa aberta.\n\nNa semana seguinte, volto às livrarias com números conferidos e um prazo que eu possa cumprir."
+  }
+ ],
+ "flags": [
+  "--tools",
+  "",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json"
+ ],
+ "model_requested": "claude-sonnet-5-5",
+ "path": "memory/lessons/2027-03-28-lesson-19.md",
+ "prompt": "Escreva uma registro de lição da Editora Casa do Tinteiro, escrita pelo agente Jatobá.\nAssuntos do dia: conversa com livrarias e inventário do depósito.\nPode mencionar: Pequeno Atlas das Chuvas.\nO texto deve conter os marcadores abaixo, cada um sozinho numa linha, exatamente uma vez, entre parágrafos seus. Cada marcador será trocado depois pela frase indicada; escreva o texto em volta de modo que a frase faça sentido ali, mas não repita, resuma nem parafraseie a frase, e não cite em nenhum outro lugar os números, datas, valores ou códigos dela.\n[[A]] = «A tiragem inicial de Pequeno Atlas das Chuvas ficou definida em 2.088 exemplares.»\nTamanho: entre 120 e 300 palavras no total. Sem título. Nenhum dígito em lugar nenhum: escreva «na semana seguinte», nunca datas ou números.",
+ "system": "Você escreve textos fictícios em português do Brasil para um conjunto de dados público sobre a memória de trabalho de uma equipe de agentes de uma pequena editora fictícia. Use apenas as informações fictícias que receber. Nunca escreva dígitos, números, datas, valores, códigos, horários, e-mails, links, nem nomes de pessoas, empresas ou lugares reais. Responda só com o texto pedido, sem comentários."
+}

@@ -1,0 +1,27 @@
+{
+ "attempts": [
+  {
+   "cost_usd": 0.010121999999999999,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "problems": [],
+   "stop": "end_turn",
+   "text": "Registro de lição – Editora Casa do Tinteiro\nAutor: agente Sabiá\n\nHoje o trabalho girou em torno de dois assuntos que parecem distantes, mas se tocam no fim do mês: a logística de envio e a cobrança de direitos.\n\nComeço pela logística. Ao fechar a remessa de Vento Norte sobre a Serra Baixa, percebi que a conferência da gráfica só andou depois que o pedido ficou registrado com identificação clara, e que qualquer dúvida posterior se resolve mais rápido quando esse registro está à mão.\n\n[[A]]\n\nDeixo anotado que a equipe de expedição prefere receber o aviso de coleta com antecedência, para separar as caixas por destino. Na próxima remessa, vou avisar já no começo da semana e pedir confirmação por escrito do transportador, evitando recados soltos em conversas paralelas.\n\nSobre a cobrança de direitos, a lição é de método. Ao revisar o extrato da autora, notei que o relatório de vendas e o controle de devoluções estavam em planilhas separadas, o que gerou uma diferença pequena na primeira conferência. Passei a cruzar as duas fontes antes de qualquer cobrança ou repasse, e a registrar na nota interna quais livros ainda estão em consignação nas livrarias.\n\nPara a rotina daqui em diante: primeiro confirmar o registro do pedido, depois alinhar a coleta, e só então fechar o cálculo dos direitos, sempre com a conferência cruzada. Na semana seguinte, retomo o acompanhamento das devoluções e aviso a equipe se algo mudar."
+  }
+ ],
+ "flags": [
+  "--tools",
+  "",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json"
+ ],
+ "model_requested": "claude-sonnet-5-5",
+ "path": "memory/lessons/2027-05-15-lesson-31.md",
+ "prompt": "Escreva uma registro de lição da Editora Casa do Tinteiro, escrita pelo agente Sabiá.\nAssuntos do dia: logística de envio e cobrança de direitos.\nPode mencionar: Vento Norte sobre a Serra Baixa.\nO texto deve conter os marcadores abaixo, cada um sozinho numa linha, exatamente uma vez, entre parágrafos seus. Cada marcador será trocado depois pela frase indicada; escreva o texto em volta de modo que a frase faça sentido ali, mas não repita, resuma nem parafraseie a frase, e não cite em nenhum outro lugar os números, datas, valores ou códigos dela.\n[[A]] = «O pedido de impressão de Vento Norte sobre a Serra Baixa na gráfica recebeu o número PED-18123.»\nTamanho: entre 120 e 300 palavras no total. Sem título. Nenhum dígito em lugar nenhum: escreva «na semana seguinte», nunca datas ou números.",
+ "system": "Você escreve textos fictícios em português do Brasil para um conjunto de dados público sobre a memória de trabalho de uma equipe de agentes de uma pequena editora fictícia. Use apenas as informações fictícias que receber. Nunca escreva dígitos, números, datas, valores, códigos, horários, e-mails, links, nem nomes de pessoas, empresas ou lugares reais. Responda só com o texto pedido, sem comentários."
+}

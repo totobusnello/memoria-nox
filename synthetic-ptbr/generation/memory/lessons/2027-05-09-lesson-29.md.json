@@ -1,0 +1,27 @@
+{
+ "attempts": [
+  {
+   "cost_usd": 0.009066,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "problems": [],
+   "stop": "end_turn",
+   "text": "Registro de lição — Editora Casa do Tinteiro\nAgente: Jatobá\n\nHoje tratei de dois assuntos que, à primeira vista, pareciam separados: o planejamento das redes e a compra de papel. Ao final, percebi que um dependia do outro.\n\nNo planejamento das redes, montei o calendário de publicações em torno do lançamento do próximo livro de poesia. Combinei com a equipe de design que as imagens de divulgação mostrariam a textura da capa e o tom do miolo. Para isso, precisei confirmar qual papel seria usado na impressão.\n\nFoi aí que a compra de papel entrou. Eu havia pedido cotação a dois fornecedores habituais. Um deles ofereceu o papel off-white de gramatura leve com entrega rápida, mas sem garantia de lote único. O outro tinha prazo maior, porém asseguraria a mesma tonalidade em toda a tiragem. Escolhi o segundo, anotando que a divergência de tom entre lotes já nos causou retrabalho em outra ocasião.\n\nLição do dia: antes de fechar o calendário das redes, confirmar com a compra o material definitivo e o prazo de chegada. Se eu tivesse publicado as imagens antes, poderia ter mostrado um papel diferente do que chegaria à gráfica.\n\nPróximos passos: avisar o design sobre a escolha, ajustar as primeiras postagens para a semana seguinte à chegada do papel e deixar registrado, na memória compartilhada, que compra e divulgação devem ser conferidas juntas sempre que um lançamento for planejado."
+  }
+ ],
+ "flags": [
+  "--tools",
+  "",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json"
+ ],
+ "model_requested": "claude-sonnet-5-5",
+ "path": "memory/lessons/2027-05-09-lesson-29.md",
+ "prompt": "Escreva uma registro de lição da Editora Casa do Tinteiro, escrita pelo agente Jatobá.\nAssuntos do dia: planejamento das redes e compra de papel.\nTamanho: entre 120 e 300 palavras no total. Sem título. Nenhum dígito em lugar nenhum: escreva «na semana seguinte», nunca datas ou números.",
+ "system": "Você escreve textos fictícios em português do Brasil para um conjunto de dados público sobre a memória de trabalho de uma equipe de agentes de uma pequena editora fictícia. Use apenas as informações fictícias que receber. Nunca escreva dígitos, números, datas, valores, códigos, horários, e-mails, links, nem nomes de pessoas, empresas ou lugares reais. Responda só com o texto pedido, sem comentários."
+}

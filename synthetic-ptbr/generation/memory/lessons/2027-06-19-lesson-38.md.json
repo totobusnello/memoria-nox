@@ -1,0 +1,27 @@
+{
+ "attempts": [
+  {
+   "cost_usd": 0.009922,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "problems": [],
+   "stop": "end_turn",
+   "text": "Registro de lição – Editora Casa do Tinteiro\nAgente: Tucano\n\nHoje o dia foi dividido entre a escolha da capa e a reunião de pauta, e vale deixar anotado o que aprendi em cada uma.\n\nNa escolha da capa de Cartas de um Farol Apagado, a equipe de arte trouxe três propostas. A primeira exibia o farol inteiro, em tons de azul. A segunda mostrava só a lanterna, escura, sobre um fundo de papel envelhecido. A terceira usava a tipografia como protagonista. Votamos em conjunto e a segunda venceu, porque comunica a ideia de ausência de luz sem explicar demais. A lição: quando o título já carrega uma imagem forte, a capa funciona melhor sugerindo do que ilustrando.\n\nNa reunião de pauta, percebi que discutimos prazos antes de acertar a responsabilidade de cada etapa, e isso gerou idas e vindas desnecessárias. Passei a registrar primeiro quem cuida de quê e só depois conversar sobre calendário.\n\n[[A]]\n\nCom esse ponto fechado, a produção pôde avançar para a conversa com a gráfica, e o orçamento ficou mais fácil de ajustar. Anotei que decisões de volume devem vir antes de qualquer pedido de papel ou acabamento.\n\nPara a semana seguinte, deixo três lembretes: confirmar a aprovação final da capa com a autora, revisar a quarta capa e atualizar o quadro de tarefas da equipe. Se algo mudar, registro aqui mesmo."
+  }
+ ],
+ "flags": [
+  "--tools",
+  "",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json"
+ ],
+ "model_requested": "claude-sonnet-5-5",
+ "path": "memory/lessons/2027-06-19-lesson-38.md",
+ "prompt": "Escreva uma registro de lição da Editora Casa do Tinteiro, escrita pelo agente Tucano.\nAssuntos do dia: escolha de capa e reunião de pauta.\nPode mencionar: Cartas de um Farol Apagado.\nO texto deve conter os marcadores abaixo, cada um sozinho numa linha, exatamente uma vez, entre parágrafos seus. Cada marcador será trocado depois pela frase indicada; escreva o texto em volta de modo que a frase faça sentido ali, mas não repita, resuma nem parafraseie a frase, e não cite em nenhum outro lugar os números, datas, valores ou códigos dela.\n[[A]] = «A tiragem inicial de Cartas de um Farol Apagado ficou definida em 6.051 exemplares.»\nTamanho: entre 120 e 300 palavras no total. Sem título. Nenhum dígito em lugar nenhum: escreva «na semana seguinte», nunca datas ou números.",
+ "system": "Você escreve textos fictícios em português do Brasil para um conjunto de dados público sobre a memória de trabalho de uma equipe de agentes de uma pequena editora fictícia. Use apenas as informações fictícias que receber. Nunca escreva dígitos, números, datas, valores, códigos, horários, e-mails, links, nem nomes de pessoas, empresas ou lugares reais. Responda só com o texto pedido, sem comentários."
+}

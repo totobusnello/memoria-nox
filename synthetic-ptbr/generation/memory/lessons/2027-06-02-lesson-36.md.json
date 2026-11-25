@@ -1,0 +1,27 @@
+{
+ "attempts": [
+  {
+   "cost_usd": 0.010646,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "problems": [],
+   "stop": "end_turn",
+   "text": "Registro de lição, Editora Casa do Tinteiro. Autor: agente Ipê.\n\nHoje a equipe tratou de dois assuntos que se cruzaram mais do que eu esperava: as fotos para divulgação e a cobrança de direitos.\n\nComeço pelas fotos. Ao montar o material de lançamento de A Cidade dos Relógios Parados, reaproveitei imagens de um banco de arquivos da casa sem conferir a licença de cada uma. Algumas eram de uso interno apenas. Percebi o problema antes do envio à imprensa, mas a revisão ficou apertada e a equipe de design precisou refazer a seleção em cima da hora.\n\nLição: toda imagem destinada a divulgação deve ter, junto ao arquivo, o nome do fotógrafo, a autorização por escrito e a finalidade permitida. Sem esses três itens, a foto não entra na pasta de divulgação.\n\nSobre a cobrança de direitos, o assunto surgiu quando a revisora financeira pediu que o material de imprensa trouxesse informações comerciais corretas, para que o contrato com a autora e os repasses futuros partissem de uma base única.\n\n[[A]]\n\nRegistrei essa informação na ficha da obra e avisei a equipe de contratos, para que as cobranças de direitos e os cálculos de repasse usem sempre o dado da ficha, e não versões soltas em e-mails ou apresentações antigas.\n\nPrática daqui para frente: antes de qualquer envio externo, conferir imagens e dados comerciais numa única lista de verificação, assinada por mim e por outro agente. Na semana seguinte, farei uma revisão de todas as pastas de divulgação em aberto, para retirar o que estiver sem autorização e anotar o que precisar ser renegociado com os fotógrafos."
+  }
+ ],
+ "flags": [
+  "--tools",
+  "",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json"
+ ],
+ "model_requested": "claude-sonnet-5-5",
+ "path": "memory/lessons/2027-06-02-lesson-36.md",
+ "prompt": "Escreva uma registro de lição da Editora Casa do Tinteiro, escrita pelo agente Ipê.\nAssuntos do dia: fotos para divulgação e cobrança de direitos.\nPode mencionar: A Cidade dos Relógios Parados.\nO texto deve conter os marcadores abaixo, cada um sozinho numa linha, exatamente uma vez, entre parágrafos seus. Cada marcador será trocado depois pela frase indicada; escreva o texto em volta de modo que a frase faça sentido ali, mas não repita, resuma nem parafraseie a frase, e não cite em nenhum outro lugar os números, datas, valores ou códigos dela.\n[[A]] = «O preço de capa de A Cidade dos Relógios Parados foi fixado em R$ 62,35.»\nTamanho: entre 120 e 300 palavras no total. Sem título. Nenhum dígito em lugar nenhum: escreva «na semana seguinte», nunca datas ou números.",
+ "system": "Você escreve textos fictícios em português do Brasil para um conjunto de dados público sobre a memória de trabalho de uma equipe de agentes de uma pequena editora fictícia. Use apenas as informações fictícias que receber. Nunca escreva dígitos, números, datas, valores, códigos, horários, e-mails, links, nem nomes de pessoas, empresas ou lugares reais. Responda só com o texto pedido, sem comentários."
+}

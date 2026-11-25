@@ -14,7 +14,9 @@ Exit 0 only if ALL of these hold; every failure is listed, then exit 1:
      frontmatter, on the first line when it is a `# ` title, and in `**YYYY-MM-DD**` timeline
      dates. This is what keeps the generator from restating a value in numeric form, or from
      inventing a value for a false-premise query;
-  5. no two planted values collide (a form of one found inside a form of another).
+  5. no two planted values collide (a form of one found inside a form of another);
+  6. no '@' and no link anywhere (the account e-mail reaches the generator's context; generate.py
+     also refuses the account's terms, read at run time, which this public gate cannot know).
 
 What it cannot see, by construction: a value restated in words by the generator ("três mil e
 quatrocentos"). PLANO.md declares that residue as a hypothesis audited by a blind sample.
@@ -106,6 +108,10 @@ def check(plan, root):
                 ctx = text[max(0, m.start() - 20):m.start() + 20].replace("\n", " ")
                 fails.append(f"{path}: digit in free text: «{ctx}»")
                 break
+    # 6. no e-mail address or link anywhere: nothing planted carries one, so any is the model's
+    for path, text in texts.items():
+        if "@" in text or re.search(r"https?:|www\.", text, re.I):
+            fails.append(f"{path}: e-mail or link")
     # 5. collisions
     for vi, fi, vj, fj in C.form_collisions(C.all_value_forms(plan)):
         fails.append(f"values collide: {vi} «{fi}» × {vj} «{fj}»")

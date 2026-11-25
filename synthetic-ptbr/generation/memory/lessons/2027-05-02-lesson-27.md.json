@@ -1,0 +1,27 @@
+{
+ "attempts": [
+  {
+   "cost_usd": 0.010263999999999999,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "problems": [],
+   "stop": "end_turn",
+   "text": "Registro de lição — Editora Casa do Tinteiro\nAgente: Sabiá\n\nHoje o trabalho se dividiu entre o inventário do depósito e um ajuste na diagramação de um livro em fase final. Registro aqui o que aprendi, para que a equipe não repita os tropeços.\n\nNo depósito, contei as caixas por prateleira e, só depois, conferi com a lista da planilha. Na primeira tentativa fiz o contrário e perdi tempo, porque a lista estava desatualizada e me levou a procurar exemplares que já haviam sido enviados a livrarias. Lição: contar primeiro, comparar depois, e anotar na própria planilha o que foi movido e por quem.\n\nAo revisar a pasta de pendências do livro, precisei confirmar quem era a autora responsável pela obra e como o contrato estava arquivado.\n\n[[A]]\n\nCom isso confirmado, pude seguir para a diagramação sem pedir novamente a informação a ninguém. Vale lembrar que o código de contrato é a forma mais rápida de localizar a pasta certa, e que nomes parecidos podem confundir.\n\nO ajuste na diagramação foi pequeno, mas incômodo: algumas linhas órfãs apareciam no topo das páginas do segundo capítulo. Corrigi o espaçamento entre parágrafos em vez de mexer no tamanho da fonte, o que manteve a mancha de texto uniforme. Depois gerei uma prova em PDF e comparei página por página com a versão anterior.\n\nPara a semana seguinte, deixo recomendado que o inventário seja repetido por amostragem e que toda mudança de diagramação seja registrada com uma breve nota explicando o motivo."
+  }
+ ],
+ "flags": [
+  "--tools",
+  "",
+  "--setting-sources",
+  "",
+  "--strict-mcp-config",
+  "--no-session-persistence",
+  "--output-format",
+  "json"
+ ],
+ "model_requested": "claude-sonnet-5-5",
+ "path": "memory/lessons/2027-05-02-lesson-27.md",
+ "prompt": "Escreva uma registro de lição da Editora Casa do Tinteiro, escrita pelo agente Sabiá.\nAssuntos do dia: inventário do depósito e ajuste na diagramação.\nPode mencionar: Celeste Arruda Mourão.\nO texto deve conter os marcadores abaixo, cada um sozinho numa linha, exatamente uma vez, entre parágrafos seus. Cada marcador será trocado depois pela frase indicada; escreva o texto em volta de modo que a frase faça sentido ali, mas não repita, resuma nem parafraseie a frase, e não cite em nenhum outro lugar os números, datas, valores ou códigos dela.\n[[A]] = «O contrato de Celeste Arruda Mourão com a editora tem o código AUT-QENR.»\nTamanho: entre 120 e 300 palavras no total. Sem título. Nenhum dígito em lugar nenhum: escreva «na semana seguinte», nunca datas ou números.",
+ "system": "Você escreve textos fictícios em português do Brasil para um conjunto de dados público sobre a memória de trabalho de uma equipe de agentes de uma pequena editora fictícia. Use apenas as informações fictícias que receber. Nunca escreva dígitos, números, datas, valores, códigos, horários, e-mails, links, nem nomes de pessoas, empresas ou lugares reais. Responda só com o texto pedido, sem comentários."
+}
