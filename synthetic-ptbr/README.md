@@ -17,7 +17,9 @@ benchmark: it is public, so treat it as an open regression fixture.
 Steps 1 to 3 of the plan in `PLANO.md` («Objetivo (2026-11-25)»): the plan is fixed, the corpus is
 generated, checked and scanned, and the method tests ran on nox-mem 3.5.2 and 3.11.1. The note that
 reports them is `NOTE.md`, revised after two rounds of review (Codex and Kimi) and deposited with
-this directory on Zenodo.
+this directory on Zenodo: published 2026-11-25 as v1.0, doi:10.5281/zenodo.24535848 (concept
+doi:10.5281/zenodo.24535847), built from commit `70c82859`. The `NOTE.md` in this tree keeps the
+"working draft, not deposited" status line on purpose: it is byte-identical to the deposited copy.
 
 | file | what |
 |---|---|
