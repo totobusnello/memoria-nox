@@ -233,7 +233,35 @@ def one(instrument, mode, unit, budget, text):
             "model_returned": returned, "response": resp, "parsed": parsed}
 
 
+def reparse(instrument):
+    """Amendment 1: re-read the stored responses with the current parser. No call is made; the
+    label written at run time is kept as `parsed_at_run` when the new one differs."""
+    _, _, text = load()
+    for mode in ("smoke", "full", "rerun"):
+        p = RUNS / f"{instrument}-{mode}.jsonl"
+        if not p.exists():
+            continue
+        rows, changed = [], 0
+        for l in p.read_text().splitlines():
+            if not l.strip():
+                continue
+            r = json.loads(l)
+            new = J.parse(instrument, r["response"], text.get(r["chunk"])) if r["response"] is not None \
+                else {"valid": False}
+            if new != r["parsed"]:
+                r.setdefault("parsed_at_run", r["parsed"])
+                r["parsed"] = new
+                changed += 1
+            rows.append(r)
+        p.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows))
+        missing = sum(1 for r in rows if not r["parsed"].get("valid"))
+        print(f"{instrument} {mode}: reparsed, {changed} rows changed, {missing} of {len(rows)} missing")
+
+
 def main():
+    if len(sys.argv) == 3 and sys.argv[2] == "reparse" and sys.argv[1] in ORDER:
+        reparse(sys.argv[1])
+        return
     if len(sys.argv) < 3 or sys.argv[1] not in ORDER or sys.argv[2] not in ("smoke", "full", "rerun"):
         sys.exit(__doc__)
     instrument, mode, dry = sys.argv[1], sys.argv[2], "--dry" in sys.argv
