@@ -14,8 +14,9 @@ benchmark: it is public, so treat it as an open regression fixture.
 
 ## Status
 
-Steps 1 and 2 of the plan in `PLANO.md` («Objetivo (2026-11-25)»): the plan is fixed and the
-corpus is generated, checked and scanned. The method tests (step 3) have not run yet.
+Steps 1 to 3 of the plan in `PLANO.md` («Objetivo (2026-11-25)»): the plan is fixed, the corpus is
+generated, checked and scanned, and the method tests ran on nox-mem 3.5.2 and 3.11.1. The note that
+reports them is the next step.
 
 | file | what |
 |---|---|
@@ -26,12 +27,17 @@ corpus is generated, checked and scanned. The method tests (step 3) have not run
 | `generation/` | one record per file: system prompt, prompt, every attempt, reported cost, model returned |
 | `check-corpus.py` | gate: the corpus on disk is exactly what was planted, values appear only inside their planted sentences, free text has no digits, no e-mail or link |
 | `privacy-scan.py` | gate: no run of 8 words of this package is also in the private corpus; run on the host that holds it |
+| `check-ingest.py` | gate: after ingestion, every planted sentence lies whole in a chunk, a duplicated primary is two byte-identical chunks, every operation file has two or more chunks |
+| `method-tests.py`, `nm.mjs` | step 1: installs the two pinned versions, ingests, ranks the 50 queries (FTS path, no access tracking), runs the six operations, freezes everything under `results/`; `--analyze` reads only the frozen files |
+| `results/` | frozen per version (`chunks-baseline.json`, `rankings.json`, `operations.json`) and the report `etapa1.txt`/`etapa1.json` |
 | `metrics.py` | nDCG@10 with a gold ideal and a ranking ideal (an empty ideal is undefined, never 0 or 1), pooling, and hand-computed fixtures |
 | `test-synthetic.py` | offline tests: each gate passes on a valid state and fails on its infractor; also the contract of `eval/resolve-gold-anchors.py` |
 
 ```sh
 python3 -I synthetic-ptbr/plan.py --check
 python3 -I synthetic-ptbr/check-corpus.py --corpus synthetic-ptbr/corpus
+python3 -I synthetic-ptbr/generate.py --reassemble --check --out synthetic-ptbr/corpus --raw synthetic-ptbr/generation
+python3 -I synthetic-ptbr/method-tests.py --analyze --check
 python3 -I synthetic-ptbr/metrics.py --fixtures
 python3 -I synthetic-ptbr/test-synthetic.py
 ```
@@ -47,6 +53,45 @@ python3 -I synthetic-ptbr/test-synthetic.py
   written down), and `check-corpus.py` refuses any `@` or link.
 - Privacy scan: 0 shared runs of 8 words between this package (74,742 runs) and the 65,206 chunks
   of the private corpus, with a positive control that planted one private chunk and was caught.
+
+- Sections. nox-mem chunks markdown only at `##`/`###` headings, so the first assembly (one
+  section per file) gave one chunk per file, and an edit anywhere in a file would have changed the
+  planted sentence's chunk. The assembler now splits the model's text into `##` sections with fixed
+  headings; the committed corpus is exactly what `--reassemble` rebuilds from `generation/`. No
+  model call was repeated.
+- A second privacy scan after sectioning and with `results/` in the package: 0 shared runs of 8
+  words (99,999 package runs against 65,208 private chunks).
+
+### Step 1 results (`results/etapa1.txt`)
+
+The analysis rules were committed before the first run. Both versions built the same 851 chunks and
+returned the same 50 rankings, so findings 2 and 4 are the same on both; finding 1 differs.
+
+| after the operation (5 facts each) | 3.5.2: id / anchor | 3.11.1: id / anchor |
+|---|---|---|
+| re-ingest, file unchanged | none / live | live / live |
+| edit outside the planted sentence | none / live | live / live |
+| edit inside (value replaced) | none / none | none / none |
+| rename, then re-ingest | stale / stale | live / none |
+| rename, no re-ingest | stale / stale | stale / stale |
+| delete | stale / stale | stale / stale |
+
+*live*: reaches the sentence under the key of the file that holds it now; *stale*: reaches the
+sentence in a chunk whose file is gone or moved (or tombstoned); *none*: reaches nothing.
+
+- Finding 1 holds for the old ingest (3.5.2 replaces every id of a file on each re-ingest) and no
+  longer holds for the current one, where the id survives re-ingest and edits elsewhere in the
+  file, and survives a rename that the anchor does not. Neither reference notices a delete: the
+  chunks stay, with or without a tombstone, and both still reach the deleted sentence.
+- Finding 2 does not reproduce here: no query scores zero under the registered labels, so the
+  symptom Paper A measured (a zero made of unjudged results) has nothing to act on. Registered
+  labels miss the truth in both directions (12 queries above it, 8 below, 25 equal; means 0.7542
+  against 0.7372). Pooled labels can never score below the truth (same numerator, smaller or equal
+  ideal: arithmetic, not a finding); they scored above it on 5 of 45 queries. The plumbing control
+  (removing exactly the pooled additions gives back the registered score) held on all 45.
+- Finding 4: the ranking ideal changed the score of 5 of 45 queries, by +0.2033 on average (at most
+  +0.2441); its direction is arithmetic, the frequency and size are what this corpus measures.
+- Context negatives ranked above the first positive on 4 of 45 queries.
 
 ### Known marks of the generated text
 
