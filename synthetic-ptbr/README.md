@@ -16,7 +16,8 @@ benchmark: it is public, so treat it as an open regression fixture.
 
 Steps 1 to 3 of the plan in `PLANO.md` («Objetivo (2026-11-25)»): the plan is fixed, the corpus is
 generated, checked and scanned, and the method tests ran on nox-mem 3.5.2 and 3.11.1. The note that
-reports them is the next step.
+reports them is `NOTE.md`, revised after two rounds of review (Codex and Kimi) and deposited with
+this directory on Zenodo.
 
 | file | what |
 |---|---|
@@ -60,7 +61,9 @@ python3 -I synthetic-ptbr/test-synthetic.py
   headings; the committed corpus is exactly what `--reassemble` rebuilds from `generation/`. No
   model call was repeated.
 - A second privacy scan after sectioning and with `results/` in the package: 0 shared runs of 8
-  words (99,999 package runs against 65,208 private chunks).
+  words (99,999 package runs against 65,208 private chunks). On release day (2026-11-25), a scan of
+  the generated material alone (corpus, plan, generation records, results): 0 shared runs (99,165
+  runs against 65,211 private chunks).
 
 ### Step 1 results (`results/etapa1.txt`)
 
@@ -104,7 +107,8 @@ direct resolutions in the database against the disk, not search results.
 
 These do not touch the method tests, and are left as they are:
 
-- "na semana seguinte" ("the following week") appears in 181 of the 200 files: the prompt gave it
+- "semana seguinte" ("the following week") appears in 181 of the 200 files (115 as "na semana
+  seguinte", the prompt's own wording): the prompt gave it
   as the example of how to avoid writing a date. The queries do not contain it.
 - 3 files open by echoing the prompt ("Assuntos do dia: ...").
 - 12 decision and lesson titles repeat, because titles come from a pool of 20 topics.
