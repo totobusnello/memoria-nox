@@ -170,8 +170,12 @@ def run_version(v, plan, work):
         {"source_file": r["path"], "anchor": r["sentence"], "chunk_id": r["id"]}]}, ensure_ascii=False) + "\n"
         for i, r in enumerate(refs)), encoding="utf-8")
     rout = work / f"resolved-{v}.json"
-    subprocess.run([sys.executable, "-I", str(RESOLVER), str(gold), str(rout)], capture_output=True,
-                   env={**os.environ, "GOLD_DB": str(db), "ANCHOR_PREFIX": "100000"})
+    rout.unlink(missing_ok=True)  # a failed run must not leave an earlier run's output to be read
+    rr = subprocess.run([sys.executable, "-I", str(RESOLVER), str(gold), str(rout)], capture_output=True,
+                        env={**os.environ, "GOLD_DB": str(db), "ANCHOR_PREFIX": "100000"})
+    # rc 1 is the resolver's own verdict when an anchor is ambiguous or unresolved; anything else is a failure
+    if rr.returncode not in (0, 1) or not rout.exists():
+        raise SystemExit(f"resolver failed (rc {rr.returncode}): {rr.stderr.decode()[-400:]}")
     resolved = json.loads(rout.read_text())["entries"]
     on_disk = {}
     for r in refs:
@@ -241,6 +245,7 @@ def analyze(plan):
         ideal = collections.Counter({k: 0 for k in ("changed", "unchanged", "ranking_ideal_undefined")})
         diffs = []
         per_q = []
+        raw = collections.defaultdict(list)  # unrounded scores: means are taken over these, not over per_q
         zero_r_top = zero_r_rel = 0
         for q in plan["queries"]:
             if q["kind"] != "fact":
@@ -274,11 +279,12 @@ def analyze(plan):
             first_pos = next((i for i, x in enumerate(rank) if x in T), None)
             neg_above = sum(1 for i, x in enumerate(rank) if x in negs and (first_pos is None or i < first_pos))
             f2["queries_with_negative_above_first_positive"] += 1 if neg_above else 0
+            raw["strict"].append(st); raw["pooled"].append(po); raw["true"].append(tr)
             per_q.append({"query": q["id"], "T": len(T), "R": len(R), "P": len(P),
                           "strict": round(st, 4), "pooled": round(po, 4), "true": round(tr, 4),
                           "ranking_ideal": None if ri is None else round(ri, 4)})
         n = len(per_q)
-        mean = lambda k: round(sum(x[k] for x in per_q) / n, 4)  # noqa: E731
+        mean = lambda k: round(sum(raw[k]) / n, 4)  # noqa: E731
         f2_out = {"queries": n, "mean_strict": mean("strict"), "mean_pooled": mean("pooled"),
                   "mean_true": mean("true"), **dict(sorted(f2.items())),
                   "zero_strict_top10_slots": zero_r_top, "of_which_truly_relevant": zero_r_rel}

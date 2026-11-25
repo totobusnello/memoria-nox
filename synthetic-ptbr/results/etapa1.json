@@ -38,7 +38,7 @@
    "finding2": {
     "control_failed": 0,
     "mean_pooled": 0.7598,
-    "mean_strict": 0.7542,
+    "mean_strict": 0.7543,
     "mean_true": 0.7372,
     "of_which_truly_relevant": 0,
     "pooled_above": 5,
@@ -551,7 +551,7 @@
    "finding2": {
     "control_failed": 0,
     "mean_pooled": 0.7598,
-    "mean_strict": 0.7542,
+    "mean_strict": 0.7543,
     "mean_true": 0.7372,
     "of_which_truly_relevant": 0,
     "pooled_above": 5,
