@@ -51,6 +51,80 @@ Temos a infraestrutura para medir as duas com pré-registro.
 O ablation de saliência no ranking ficou de fora: o G7 (20/05) mediu a fórmula v2 ligada contra
 desligada, nDCG 0,5845 × 0,5872 (n=100), e `pain` é tópico e degenerado (62.425 chunks em 0,2).
 
+## Objetivo (2026-11-25): corpus sintético PT-BR público
+
+- **Problema:** o Paper A (doi:10.5281/zenodo.24400444) declara o corpus privado e publica só
+  contagens, hashes e código; ninguém de fora roda os testes de método. A Pendência 3 prometia um
+  corpus pequeno, PT-BR e público para isso, e ficou sem fazer e sem ser declarada fora. Além disso,
+  o §3 do A admite que, sem referência independente, a concordância entre juízes «não diz nada sobre
+  precisão»: num corpus com gabarito plantado, essa referência existe.
+- **Para quem:** quem quiser rodar os testes de método do A, ou aplicar a mesma régua a outro
+  sistema de memória.
+- **O que a nota afirma, e só isso** (revisto em 25/11 depois de Codex e Kimi): «num corpus público
+  construído, com versões fixadas do pacote, estes mecanismos produzem (ou não) estas falhas da
+  régua». É uma suíte pública e executável dos mecanismos de falha do §3, **não** uma reprodução
+  independente dos achados empíricos, nem medida de qualidade de busca (valores únicos favorecem o
+  BM25), nem benchmark não contaminado (é público: fixture aberta de regressão).
+- **Entrega mínima (critério de aceite):** dataset no Zenodo (CC BY 4.0, ligado ao A por related
+  identifier) com corpus, verdade latente, rótulos observados, scripts e uma nota curta em inglês com
+  os resultados da etapa 1; card no labf.bio. Gates do corpus, pós-ingest, do resolvedor, de
+  privacidade e de reanálise verdes.
+
+| etapa | testes do A | LLM | custo |
+|---|---|---|---|
+| **1** | achado 1 como **matriz de operações × duas versões fixadas do `nox-mem`** (antes e depois de nox-supermem#42, 14/10); achado 2 com **verdade latente separada dos rótulos observados**; achado 4 em frequência e magnitude | só para escrever o texto | teto US$ 5 |
+| **2** | achados 3 e 5 contra o gabarito plantado, com população, modelos, repetições e regra de parada fixados antes da 1ª chamada (pré-registro próprio) | juízes | teto US$ 20; começa só depois da etapa 1 publicada |
+
+**Desenho da etapa 1.**
+
+- *Achado 1, âncora × id.* Matriz pré-registrada, cada célula com os dois resultados possíveis:
+  reingest sem mudança; edição fora do trecho; edição dentro do trecho (o valor muda); renomear com
+  reingest; renomear sem reingest; excluir. Cada operação roda contra duas versões fixadas do pacote:
+  a **3.5.2** (última com o ingest antigo: `DELETE FROM chunks WHERE source_file = ?` e reinsere o
+  arquivo inteiro, conferido no tarball em 25/11; publicada 14/10 03:03 UTC, antes do merge do #42 às
+  14:33) e a **3.11.1** (atual, preserva o id do chunk inalterado desde a 3.6.0). Para cada célula e cada referência (id, âncora): alcança o **trecho
+  correto**? Publica-se o que sair, inclusive id ganhando de âncora (o H-A2 do A já viu 119 × 117 por
+  uma renomeação) e nenhum id mudando no pacote atual. Troca de id injetada por script fica fora: é
+  tautologia.
+- *Achado 2, rótulo não julgado ≠ erro.* Três conjuntos por query sobre o **mesmo** ranking BM25
+  congelado: verdade latente completa (T); rótulos registrados (R), obtidos de T por mascaramento
+  mecânico com semente fixado antes de rodar o BM25; e pooled (P) = R mais os positivos de T no
+  top-10. Publicam-se nDCG@10 em T, R e P e quantas queries sobem, empatam e caem. Controle de
+  encanamento: zerar só as adições de P faz P coincidir com R (substitui o «inverter todos os
+  rótulos», que pode virar negativo em positivo).
+- *Achado 4, ideal.* A direção é matemática (ganho binário, mesmo numerador). Fixtures calculadas à
+  mão antes: 1 relevante no topo e 4 ausentes; todos recuperados; nenhum recuperado; query sem
+  resposta (regra explícita para ideal zero). Nas queries do corpus, mede-se só com que frequência e
+  por quanto a escolha do ideal muda o escore, inclusive zero.
+- *Matriz de cobertura das ~50 queries, fixada antes da geração:* quantas com vários relevantes, com
+  positivo parafraseado (forma alternativa do valor: «duas semanas» × «14 dias», «25/11» × «25 de
+  novembro»), com valor em contexto que **não** responde (negado, proposta rejeitada, outra entidade),
+  com duplicata exata, com par de entidade, com premissa falsa, e alvo de cada operação da matriz.
+
+**Corpus.** Pasta `synthetic-ptbr/`. Uma equipe fictícia de agentes de uma editora independente,
+~200 arquivos nas formas do corpus real (notas diárias, decisões, lições, arquivos de entidade com
+frontmatter/compiled/timeline). Um script com semente planeja arquivos, fatos, variantes e
+negativos; o Claude escreve cada arquivo em volta das frases que lhe são dadas e é instruído a não
+restatar os fatos; positivos parafraseados, negativos de contexto, duplicatas e cópias são escritos
+pelo script, não pelo modelo. Ingestão pelo pacote `nox-mem` fixado, num banco isolado (`NOX_DB_PATH`
+e `GOLD_DB` explícitos); ranker BM25 (`--no-hybrid`). O texto gerado não é reproduzível; o corpus
+congelado é o artefato, e prompt, semente, id do modelo e custo ficam registrados. Paráfrase
+espontânea do gerador que nenhum gate textual pega fica declarada como hipótese auditada por amostra
+cega (leitura de pares fora das frases plantadas), não como completude.
+
+**Geração isolada (privacidade antes da chamada externa).** `claude -p` roda num diretório vazio do
+scratchpad, sem ferramentas, sem `CLAUDE.md` nem configurações herdadas, só com os insumos fictícios
+do planejador; o prompt efetivamente enviado de cada arquivo é gravado e publicado. Antes de qualquer
+push, o pacote exato de publicação (corpus, prompts, queries, rótulos, rankings, banco) passa pela
+comparação local por trechos de 8 palavras contra os backups privados, a mesma técnica da varredura
+de 08/11, além do gate de privacidade existente. Infrator: uma frase-canário sem nome, host ou
+caminho, plantada numa fixture privada de teste.
+
+**PRs previstos:** (1) PLANO, planejador com semente e matriz de cobertura, gates do corpus,
+pós-ingest e do resolvedor com seus infratores, fixtures do achado 4, tudo offline e sem custo;
+(2) geração paga isolada, varredura por trechos e corpus congelado; (3) matriz de operações nas duas
+versões, T/R/P e resultados; (4) nota, vozes se você pedir, depósito e card.
+
 ## Fora do escopo
 
 - Publicar texto do corpus privado, queries reais, nomes de arquivo do corpus ou endereço de host.
@@ -58,6 +132,8 @@ desligada, nDCG 0,5845 × 0,5872 (n=100), e `pain` é tópico e degenerado (62.4
 - C2 ativo em produção; e o shadow vivo do D sem protocolo próprio e sem o seu ok.
 - Afirmar «não uso» comportamental no C sem uma corrida com controle positivo válido.
 - arXiv, salvo pedido seu.
+- Corpus sintético: condicionar a geração em qualquer trecho do corpus privado; rodar o pipeline
+  H-A1 nele (o H-A1 é afirmação sobre o sistema de produção, não sobre a régua).
 
 ## Intake
 
@@ -88,7 +164,14 @@ no Setup de cada paper.
 | Exportação por lista | os artefatos públicos saem só por `export.py`, com lista explícita de campos permitidos e ids aleatórios (nunca hash de query) | 0 | todo PR | acrescentar um campo de texto ao registro exportado | | |
 | PDF | build + `check-layout.py`, zero glifos faltando | 0 | todo PR | inserir δ na fonte | | |
 | Reanálise sem chave | `<runner>.py --analyze` reproduz o `.txt`; checksum de cada artefato no manifesto | 0 | todo PR | editar uma linha que muda o resultado | | |
-| A: âncoras | `python3 eval/resolve-gold-anchors.py --db <snapshot> --gold <arquivo>`, contagem não vazia, ambíguas reportadas | 0 | antes da corrida | apontar um gold para trecho inexistente | | |
+| A: âncoras | `GOLD_DB=<snapshot> python3 -I eval/resolve-gold-anchors.py <arquivo>` (o script lê o banco de `GOLD_DB` e o gold do 1º argumento posicional; corrigido em 25/11, a linha antiga dizia `--db`/`--gold`), contagem não vazia, ambíguas reportadas | 0 | antes da corrida | apontar um gold para trecho inexistente | | |
+| S: corpus | `python3 -I synthetic-ptbr/check-corpus.py --corpus <dir>`: arquivos = os do plano; cada item plantado aparece no arquivo e na seção registrados, `count` vezes, e em nenhum outro; toda forma de todo valor só dentro de item daquele valor; **nenhum dígito no texto livre** (só em item, frontmatter, título e data da timeline); nenhum par de valores colide | 0 | todo PR do S | 9 infratores em `test-synthetic.py` (frase tirada; valor em arquivo não rotulado; variante por extenso fora de T; valor de negativo em outro arquivo; duplicata desfeita; dígito solto; item de entidade fora da seção; arquivo a mais; arquivo a menos) e 4 sabotagens do gate | 1 nos 9; teste reprova as 4 sabotagens | 2026-11-25 |
+| S: pós-ingest | `python3 -I synthetic-ptbr/check-ingest.py` sobre o banco isolado: cada positivo de T cai em chunk que contém a frase INTEIRA (não só o prefixo); cada negativo de contexto fica rotulado 0; nenhuma frase plantada cortada por fronteira de chunk | 0 | todo PR do S, a partir do (2) | frase cortada entre dois chunks; valor em contexto negado rotulado 1 | | |
+| S: resolvedor | contrato rodado de verdade (`GOLD_DB=<fixture>`, parte C de `test-synthetic.py`): duplicata exata → `ambiguous_duplicate`, os dois ids, rc 0; par frontmatter+compiled → aceito, rc 0; dois textos distintos com o mesmo trecho → `ambiguous`, rc 1; renomeado sem reingest → `unresolved`; com o prefixo default de 160 uma conclusão trocada ainda resolve (risco documentado), com `ANCHOR_PREFIX=100000` não resolve | conforme cada caso | todo PR do S | cada caso com o estado esperado trocado | 9 casos conforme | 2026-11-25 |
+| S: achado 4 | `python3 -I synthetic-ptbr/metrics.py --fixtures`: 5 fixtures calculadas à mão (1 no topo + 4 ausentes; todos recuperados; nenhum recuperado; sem resposta; 1 de 1 na posição 2) × 2 ideais, mais o controle do pooled | 0 | todo PR do S | ideal do ranking no lugar do gold; ideal zero contado como 1 | 1 nos dois | 2026-11-25 |
+| S: reanálise | `python3 -I synthetic-ptbr/method-tests.py --analyze` reproduz `results/etapa1.txt` dos artefatos congelados, sem rede; e `--rebuild` reconstrói banco e BM25 dos Markdown com as versões fixadas e compara por identidade de evidência | 0 | todo PR do S, a partir do (3) | editar uma linha de ranking congelado | | |
+| S: plano fixo | `python3 -I synthetic-ptbr/plan.py --check`: o plano regenerado pela semente é byte a byte o commitado | 0 | todo PR do S | outra semente; plano com arquivo de operação compartilhado; premissa falsa plantada | 1 nos três | 2026-11-25 |
+| S: privacidade do pacote | comparação por trechos de 8 palavras do pacote exato de publicação contra os backups privados | 0 | antes de todo push do (2) em diante | frase-canário numa fixture privada de teste | | |
 | D: não interferência | replay offline: roda C0 e C2 sobre banco de fixture e confere que nenhuma tabela, arquivo ou fila fora do diretório de saída mudou (hash antes e depois) | 0 | todo PR do D | fazer o C2 gravar em qualquer tabela do banco | | |
 
 ## Verificações manuais
@@ -101,9 +184,16 @@ no Setup de cada paper.
 | O que vai para a Decisions API e onde ficam prompts e respostas | Claude, por escrito no protocolo | seção de dados do protocolo | |
 | Preview do card no labf.bio | você | URL do preview | |
 | Publicação no Zenodo | você | DOI público + `--readback` | |
+| Corpus sintético: leitura de 10 arquivos sorteados (PT-BR natural, nenhum nome real) e leitura cega de pares fora das frases plantadas (paráfrase espontânea do gerador) | Claude sorteia e lê; você confere 3. Não substitui o gate de privacidade do pacote, que é o que cobre o corpus privado | lista dos sorteados e veredito no PR (2) | |
 | Shadow vivo do D, se houver | você aprova; Claude executa com limite de custo, de tempo e desligamento rápido | log do shadow e `/api/health` | |
 
 ## Etapa atual
+
+**Corpus sintético (objetivo de 25/11):** etapa Work, PR (1). Intake fechada com o Toto em 25/11; vozes
+Codex + Kimi no plano (challenge) aplicadas. PR (1): planejador com semente e matriz de cobertura,
+`check-corpus`, contrato do resolvedor, scorer com fixtures, testes offline (27 ok). Versões da matriz
+fixadas: 3.5.2 (ingest antigo) e 3.11.1. Próximo: PR (2), geração isolada paga (teto US$ 5).
+Worktree: `~/Claude-worktrees/memoria-nox/synthetic-ptbr-plan`. PR: #740.
 
 Etapa: Deploy (paper A): **publicado** pelo Toto em 20/11, doi:10.5281/zenodo.24400444 (concept
 doi:10.5281/zenodo.24400443), v1.0, software link `baf4b80`, checksums do registro iguais aos do build
@@ -189,8 +279,13 @@ taguea»), tag `paper-b-prereg-v1.0`. Em 07/11: congelamento (#676, semente 3335
 76 divergências, 37 marcadores, 60 sorteadas) em `~/Backups/paper-b-freeze-2026-11-07/`.
 Em 07/11 à noite: B lido (#688, B-F 0,913 [0,876; 0,940], controles passam, kappa 0,155). B2: vozes Codex e DeepSeek antes da tag (Codex pediu bloquear; retenção redefinida, universo fixo, fluxo sem reescritas), tag `paper-b2-prereg-v1.0` (#687), reparo pelo `claude -p` (#689, US$ 7,93 a preço de lista), juízes nas 106 reescritas (#690), planilha de 60 (#691), desvio 1 (três trechos vazios no .xlsx, regraduados; #692), notas (#693), leitura (#694): precisão 0,913 → 0,990, retenção estrita 0,650, só filtrando 0,989. Nota do B e do B2 em `paper-b-kg/NOTE.md` (#695); vozes Codex e Kimi na nota a pedido do Toto (Codex: revisões maiores, achados aceitos — filtro dito como comparação de subconjuntos, controle negativo testa o conferidor, kappa só nas linhas em que os juízes concordam, post da Anthropic compara condições, impacto da regraduação; Kimi: aprovado, denominador do §1), sensibilidade da regraduação (#696: precisão depois 0,979 com as primeiras notas), proveniência 42 registros, 0 falhas; avoid-ai-writing nos trechos novos (#698). Publicada no Zenodo em 07/11: doi:10.5281/zenodo.24046282. Estudo do
 shadow do C2: rascunho do pré-registro (#673) com o redator GLM sob exceção ao §3 do protocolo e a
-regra de parada aprovadas em 07/11; a tag espera o ok.
-Último resultado dos gates: 2026-11-07 · `b-test.py` 53 verificações, 0 falhas (mutações no
+regra de parada aprovadas em 07/11; tag posta em 08/11 (`paper-d-shadow-prereg-v1.0`; vale a `-v1.1`,
+com a semente). Contagem semanal na VPS (domingo 12:31 UTC, só contagens): 15/11 38 sessões / 165 blocos;
+22/11 66 / 313 (meta 100 / 300; blocos já passaram, faltam sessões). Leitura não antes de 01/12 e só com
+as duas metas cumpridas; próxima contagem em 29/11.
+Último resultado dos gates: 2026-11-25 · S (corpus sintético): `test-synthetic.py` 27 ok, 0 falhas;
+sabotagens do `check-corpus` (sempre verde, sem dígito, sem forma, sem contagem) reprovam o teste;
+`plan.py --check` ok; `metrics.py --fixtures` ok. 2026-11-07 · `b-test.py` 53 verificações, 0 falhas (mutações no
 conferidor, na seleção da planilha e no sorteio reprovam); 2026-11-06 · `d-test.py` 50 verificações, 0 falhas (cada recusa testada
 com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 89 números, 0 falhas
 (mutação: um número trocado no RESULTS reprova)
@@ -225,7 +320,8 @@ com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 
 2. **A: holdout.** Escrever queries novas antes de ver qualquer ranking delas; sem isso a parte nova
    se chama «remedição de estabilidade», não confirmação.
 3. **A: corpus sintético.** Pequeno, PT-BR, público, só para os testes de método. Os números de
-   produção ficam como estudo de caso agregado.
+   produção ficam como estudo de caso agregado. **Aberto como objetivo próprio em 25/11** (seção
+   «Objetivo (2026-11-25)»).
 4. **D: o `session-distill.ts` vive só na VPS.** Trazer o runner para um artefato versionado antes
    de qualquer experimento.
 5. **Item 2 (GTM Phase 2):** memo separado; inclui tirar «retenção» da fala.
@@ -248,6 +344,11 @@ com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 
 | 2026-11-07 | E = fatorial critério × extrator, não ablation de saliência no ranking | escolha do Toto; o G7 já mediu a saliência no ranking como neutra, e a regra fixa que move o resultado no nosso sistema é o critério de escrita |
 | 2026-11-07 | B2: reparador Claude Opus 5.5 | escolha do Toto; família distinta dos dois juízes do B, e é o «dreaming» como o post o descreve |
 | 2026-11-07 | B2 pré-registrado com tag antes do `b-read.py` do B | escolha do Toto; o desenho do reparo não pode conhecer o resultado do B. Atrasa a leitura do B em um a dois dias |
+| 2026-11-25 | Abrir o corpus sintético PT-BR público (Pendência 3) | Toto: «segue vamos comecar», depois da fila recomendada |
+| 2026-11-25 | Etapa 1 = âncora × id + strict × pooled + ideal; etapa 2 = juiz contra gabarito plantado (teto US$ 20); H-A1 fora | Toto: «Fechar assim»; a etapa 1 é determinística e de custo ~zero, a 2 dá ao juiz a referência independente que o A não teve |
+| 2026-11-25 | Texto por LLM (Claude via `claude -p`), memória fictícia; ~200 arquivos, ~50 queries; CC BY 4.0; dataset + nota curta; Zenodo + card | escolhas do Toto em 25/11. Descartados: Wikipédia PT (forma não é de memória; BY-SA obrigatória), templates (texto artificial), 50 ou 1.000 arquivos |
+| 2026-11-25 | Ranker BM25; fatos com valor inventado e único; domínio fictício = editora independente | do Claude, para o Toto revisar: a etapa mede a régua, não o sistema, e assim a reanálise não precisa de chave; valor único torna «o chunk responde» um teste exato de texto; o domínio não encosta em negócio do Toto |
+| 2026-11-25 | Corpus sintético reenquadrado: suíte pública dos mecanismos de falha, não reprodução; achado 1 como matriz de operações × duas versões do pacote; achado 2 com T/R/P; achado 4 em frequência e magnitude; geração isolada e varredura por trechos antes do push | Codex e Kimi, independentes, convergiram: o desenho de 09:24 tirava o resultado da construção (troca de id injetada; rótulos completos por construção; ideal com direção matemática) e contradizia o resolvedor (duplicata exata é aceita, não recusada) |
 | 2026-11-06 | D: tag `paper-d-prereg-v1.0` sem revisão adversarial antes | Toto escolheu «Tag hoje, sem vozes»; o pré-registro registra a ausência de revisão (§10) |
 
 ## Vozes
@@ -263,6 +364,7 @@ com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 
 | 2026-11-20 | diff do #730, review (2ª rodada) | Codex gpt-6-astra (153 s), Kimi k3.1-pro (321 s) | `adversary-receipt-codex-2026-11-20T121103-8117.txt`, `adversary-receipt-kimi-2026-11-20T121157-9490.txt`, `exit 0` | as duas: revisão menor, sem 3ª rodada. Aplicados (#731): unidades do reparo (38 entradas em 28 perguntas; errata no audit de 27/10), «still scored low», strict pelo gold registrado, ressalva de data dos commits reescritos |
 | 2026-11-20 | descrição do Zenodo + diff do #731, review (3ª rodada) | Codex gpt-6-astra (58 s), Kimi k3.1-pro (253 s) | `adversary-receipt-codex-2026-11-20T140419-93847.txt`, `adversary-receipt-kimi-2026-11-20T140430-94363.txt`, `exit 0`, cwd do clone | as duas: revisão menor, segurar só até os ajustes. Aplicados (#733): PROVENANCE em queries (6 de 28; 22 e 21 queries), população do «10 of 14» nomeada, ressalva da reescrita na descrição. Rascunho refeito em `baf4b80`, readback sem divergência |
 | 2026-11-20 | nota #723 inteira + descrição + diff desde o rascunho, review | Codex gpt-6-astra (229 s), Kimi k3.1-pro (856 s) | `adversary-receipt-codex-2026-11-20T190455-80669.txt`, `adversary-receipt-kimi-2026-11-20T190458-81042.txt`, `exit 0`, cwd do clone | Codex: rodada curta de correções (9 achados, nenhum alto); Kimi: NO-GO editorial, não dos dados (1 alto: T2 não é «uma frase»). Aplicados (#736): T2 como revisão de escopo, S1 0,63, escrita, contraste, registro interno com horários, recontagem por timestamp (14 chamadas, todas pós-deploy), disponibilidade pública × privada |
+| 2026-11-25 | plano do corpus sintético, challenge | Codex gpt-6.2-astra (113 s), Kimi k3.1-pro (363 s; subiu na 4ª tentativa, ver Lições) | `adversary-receipt-codex-2026-11-25T092603-29153.txt`, `adversary-receipt-kimi-2026-11-25T092945-33434.txt`, `exit 0`, cwd do clone; pareceres copiados para `~/Claude/logs/adversary-outputs/` | Codex: revisão maior antes da geração paga (9 achados, 5 altos); Kimi: suíte de mecanismos, não reprodução (17). Conferidos no código e no manuscrito: duplicata exata aceita pelo resolvedor e exigida pelo selftest; CLI `--db`/`--gold` inexistente; ids preservados desde 14/10 (§4, linhas 345–354); 119 × 117 no H-A2. Todos aplicados no desenho |
 | 2026-11-20 | nota #723 corrigida + diff do #736, review | DeepSeek v4-pro (159 s) | `adversary-receipt-deepseek-2026-11-20T194434-57083.txt`, `exit 0`, attach 121.998 | 3 achados (59 vs 54 corridas: o 59 conta qualquer chamada de memória; fontes de AFTER/BEFORE; PR #89 no texto). Aplicados (#737) |
 
 ## Lições
@@ -274,4 +376,6 @@ com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 
 | 2026-11-04 | O gate de proveniência reprovou o próprio README do A por citar valores superados como história, e depois achou dois defeitos dele mesmo (trecho compartilhado entre registros; faixa como valor). Contar correções é o assunto do A, então o gate ganhou `history` explícito por registro | só aqui | sim |
 | 2026-11-05 | Um audit inverteu a própria tabela («60% das golds não respondem» quando a tabela diz 57 de 95 ACEITAS), e o registro de proveniência herdou a frase, não a tabela. Nenhum gate pega isso: o locator casa com o texto errado. Só apareceu ao ler o audit por inteiro para resolver um item aberto | errata nos dois audits; registro superado | sim |
 | 2026-11-05 | A proveniência marcava o número registrado da abstenção como «superado» pelo do juiz, gravando como fato uma interpretação («corrected») que os audits não fazem. Supersessão é decisão de leitura, não só de cronologia | só aqui | sim |
+| 2026-11-25 | Escrevi um gate («duplicata exata sai ≠ 0») sem abrir o resolvedor, cujo selftest exige o contrário; as duas vozes pegaram. Gate novo sobre código existente: ler o código e o selftest antes de escrever o rc esperado | só aqui | sim (gate S: resolvedor) |
+| 2026-11-25 | Kimi não arrancou 3× (linha cortada em 1.024 bytes); a regra manual não bastou. Virou hook `voz-arranque-guard` (Claude#181) | `~/.claude/CLAUDE.md` + skill `painel-adversarial` | PR aberto |
 | 2026-11-04 | Plano montado a partir da MEMÓRIA herdou números superados (0,833; 0,44–0,51; 9.398; 523); a memória guarda a 1ª versão e o audit guarda a correção | memória (feedback) | sim |
