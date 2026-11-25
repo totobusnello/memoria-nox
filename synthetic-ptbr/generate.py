@@ -139,19 +139,78 @@ def validate(text, f, mk, forbidden_forms, acct):
     return probs
 
 
+SECTION_HEADINGS = ["Manhã", "Tarde", "Contexto", "Andamento", "Registro", "Observações",
+                    "Conversas", "Encaminhamentos"]
+SECTION_MIN_WORDS = 35      # a section closes once it holds this many words
+DUP_MIN_WORDS = 22          # a duplicated section must survive the chunker's <20-word merge
+
+
+def sectioned(text, mk, items, rng):
+    """Split the model's text into `## ` sections, the unit nox-mem chunks on (chunkMarkdown splits
+    on `##`/`###` headings and merges a piece under 20 words into the one before it; measured on
+    3.5.2 and 3.11.1, 2026-11-25). Without sections every file was ONE chunk, and an edit anywhere
+    in a file would change the planted sentence's chunk.
+
+    Rules: a marker never opens a section (the planted sentence stays with the paragraph that
+    introduces it); a duplicated primary's section holds that marker and nothing planted besides,
+    and is written twice, identical, so the chunker makes two byte-identical chunks."""
+    marker_of = {m: iid for iid, m in mk.items()}
+    dup = {m for iid, m in mk.items() if items[iid]["count"] > 1}
+    paras = [p.strip() for p in re.split(r"\n\s*\n", text.strip()) if p.strip()]
+
+    def plain(p):
+        return items[marker_of[p]]["text"] if p in marker_of else p
+
+    def words(ps):
+        return sum(len(plain(p).split()) for p in ps)
+
+    secs, cur = [], []
+    for i, p in enumerate(paras):
+        nxt = paras[i + 1] if i + 1 < len(paras) else None
+        if cur and p not in marker_of and (nxt in dup or words(cur) >= SECTION_MIN_WORDS):
+            secs.append(cur)
+            cur = []
+        cur.append(p)
+        if p in dup:
+            secs.append(cur)
+            cur = []
+    if cur:
+        secs.append(cur)
+    # a duplicated section too short to survive the merge takes in the plain section before it
+    for k in range(len(secs)):
+        if secs[k] and secs[k][-1] in dup:
+            while words(secs[k]) < DUP_MIN_WORDS and k > 0 and secs[k - 1] and \
+                    not any(q in marker_of for q in secs[k - 1]):
+                secs[k] = secs[k - 1] + secs[k]
+                secs[k - 1] = []
+    secs = [x for x in secs if x]
+    heads = rng.sample(SECTION_HEADINGS, min(len(SECTION_HEADINGS), len(secs)))
+    heads += [SECTION_HEADINGS[i % len(SECTION_HEADINGS)] for i in range(len(secs) - len(heads))]
+    first_is_dup = bool(secs) and secs[0][-1] in dup
+    out = []
+    for k, sec in enumerate(secs):
+        body = "\n\n".join(plain(p) for p in sec)
+        block = body if (k == 0 and not first_is_dup) else f"## {heads[k]}\n\n{body}"
+        out.append(block)
+        if sec[-1] in dup:
+            out.append(block)
+    return "\n\n".join(out)
+
+
 def assemble(f, text, mk, rng):
     items = {it["id"]: it for it in f["items"]}
+    if f["kind"] in ("daily", "decision", "lesson"):
+        body = sectioned(text, mk, items, rng)
+        if f["kind"] == "daily":
+            return f"# {f['date']}\n\n{body}\n"
+        title = ("Decisão" if f["kind"] == "decision" else "Lição") + ": " + f["topics"][0]
+        return f"# {title}\n\n{body}\n"
     body = text.strip()
     for iid, m in mk.items():
         it = items[iid]
         rep = it["text"] if it["count"] == 1 else "\n\n".join([it["text"]] * it["count"])
         body = re.sub(r"[ \t]*" + re.escape(m) + r"[ \t]*", lambda _m: rep, body)
     body = re.sub(r"\n{3,}", "\n\n", body)
-    if f["kind"] == "daily":
-        return f"# {f['date']}\n\n{body}\n"
-    if f["kind"] in ("decision", "lesson"):
-        title = ("Decisão" if f["kind"] == "decision" else "Lição") + ": " + f["topics"][0]
-        return f"# {title}\n\n{body}\n"
     compiled, timeline = body.split(TIMELINE_SPLIT, 1)
     events = [ln.strip()[2:].strip() for ln in timeline.splitlines() if ln.strip().startswith("- ")]
     days = sorted(rng.sample(range(178), len(events)), reverse=True)
@@ -160,6 +219,29 @@ def assemble(f, text, mk, rng):
     fm = (f"---\nname: {f['entity']}\ndescription: Ficha de {f['entity']} na {EDITORA}, editora "
           f"fictícia.\ntype: reference\n---\n\n")
     return f"{fm}{compiled.strip()}\n\n## Timeline\n\n{tl}\n"
+
+
+def reassemble(plan, raw, out, check=False):
+    """Rebuild the corpus from the generation records alone, with no model call. With check=True,
+    compare against what is on disk instead of writing; the committed corpus must be exactly this."""
+    diff = []
+    for f in plan["files"]:
+        rec = json.loads((pathlib.Path(raw) / (f["path"] + ".json")).read_text(encoding="utf-8"))
+        last = rec["attempts"][-1]
+        if last["problems"]:
+            diff.append(f"{f['path']}: no accepted attempt")
+            continue
+        _, mk = prompt_for(f, plan)
+        rng = random.Random(f"{plan['seed']}:{f['path']}")
+        want = assemble(f, last["text"], mk, rng)
+        op = pathlib.Path(out) / f["path"]
+        if check:
+            if not op.exists() or op.read_text(encoding="utf-8") != want:
+                diff.append(f["path"])
+        else:
+            op.parent.mkdir(parents=True, exist_ok=True)
+            op.write_text(want, encoding="utf-8")
+    return diff
 
 
 def call_claude(prompt, workdir, budget_call):
@@ -184,9 +266,19 @@ def main():
     ap.add_argument("--budget", type=float, default=5.0)
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--reassemble", action="store_true",
+                    help="rebuild --out from the records in --raw, no model call")
+    ap.add_argument("--check", action="store_true",
+                    help="with --reassemble: exit 1 if --out differs from the rebuild")
     a = ap.parse_args()
 
     plan = C.load_plan()
+    if a.reassemble:
+        diff = reassemble(plan, a.raw, a.out, check=a.check)
+        for d in diff[:20]:
+            print(f"  ! {d}")
+        print(f"reassemble{' --check' if a.check else ''}: {'FAIL, ' + str(len(diff)) if diff else 'ok'}")
+        return 1 if diff else 0
     files = plan["files"]
     if a.only:
         want = set(a.only.split(","))
