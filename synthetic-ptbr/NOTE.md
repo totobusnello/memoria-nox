@@ -16,9 +16,9 @@ is known by construction and kept apart from the labels an evaluator would recor
 three of the five mechanisms against the published nox-mem package at two pinned versions, one
 before and one after a change to how it ingests files.
 
-Under the old ingest, a gold reference keyed by chunk id was lost on every re-ingest of its file
-while the evidence anchor survived, as Paper A found. Under the current ingest the id survived a
-re-ingest and an edit to another section, and in the one rename sequence we ran (rename, tombstone
+Under the old ingest, a gold reference keyed by chunk id was lost when its file was re-ingested
+unchanged or edited outside the evidence's section, while the evidence anchor survived, as Paper A
+found. Under the current ingest the id survived both, and in the one rename sequence we ran (rename, tombstone
 on the old path, ingest of the new path) the id still reached the evidence while the anchor, looked
 up by its recorded path, did not. Both references still reached the evidence after its file was deleted. Registered
 labels that omit some true positives changed the score of all 20 questions where they were
@@ -68,9 +68,10 @@ a link, any form of a planted value, or a term of the account the generator ran 
 passed on its first attempt, at a reported cost of US$ 1.91. The generator ran in an empty
 directory with no tools, settings, hooks, memory or MCP servers; the one piece of account context
 the client attaches to every call (the account e-mail) could not be removed and is the reason for
-the account-term check. A scan for every run of 8 words of the released package inside the private
-corpus found none (99,999 runs against 65,208 private chunks); a positive control that planted one
-private chunk in a copy of the package was caught.
+the account-term check. A scan for every run of 8 words of the generated material (corpus, plan,
+generation records and frozen results) inside the private corpus found none (99,165 runs against
+65,211 private chunks, on the day of release); a positive control, run with an earlier scan of the
+same kind, planted one private chunk in a copy of the package and was caught.
 
 nox-mem cuts markdown into chunks only at `##` and `###` headings. A first assembly with no
 sub-headings gave one chunk per file, which would have made any edit to a file an edit to its
@@ -96,7 +97,7 @@ these:
 | operation | what the harness does |
 |---|---|
 | re-ingest, file unchanged | ingest the same path |
-| edit outside the planted sentence | append one fixed sentence to another `##` section, ingest |
+| edit outside the planted sentence | append one fixed sentence to the opening block, before the first `##`, ingest |
 | edit inside (value replaced) | replace the value in the planted sentence with words, ingest |
 | rename, then re-ingest | rename to `<name>-movido.md`, watcher routine on the old path, ingest the new path |
 | rename, no re-ingest | rename to `<name>-movido.md` and nothing else (watcher down) |
@@ -111,8 +112,8 @@ reference is resolved directly in the database, with no search, and compared wit
 disk. It is *live* if a chunk it reaches holds the whole sentence, under the key of a file that
 holds the sentence on disk now and is not tombstoned; *stale* if it reaches the sentence only in a
 chunk whose file is gone, moved or tombstoned; and *none* if no chunk it reaches holds the sentence.
-In every *none* of this run the id no longer existed and the anchor resolved to no chunk; no anchor
-was ambiguous.
+In this run every id classed *none* no longer existed, and every anchor classed *none* resolved to
+no chunk; no anchor was ambiguous.
 
 ## 4. Results
 
@@ -130,13 +131,14 @@ Five facts per operation:
 | delete | stale / stale | stale / stale |
 
 Under 3.5.2 the five tracked ids were lost on a re-ingest of an unchanged file and on an edit to
-another section, while the anchor survived both. That fits Paper A's account of the old ingest, in
+the file's opening block, while the anchor survived both. That fits Paper A's account of the old ingest, in
 which every re-ingest replaced every id of a file; the harness tracked only the primary's id, so the
 table shows those five ids per operation, not every id in the file. Under 3.11.1 the id survived
 both operations. In the rename sequence above, the id still reached the sentence under the new
 path, and the anchor, looked up by its recorded path, reached nothing; with no re-ingest after the
-rename, both stayed on the old, stale chunk. Paper A met the same reversal in its own data, where a
-path migration left 119 questions reaching their evidence by id and 117 by anchor; over a longer
+rename, both stayed on the old, stale chunk. Paper A met the same reversal in its own data: a path
+migration made three anchors miss their evidence and an unrelated edit made one id miss, leaving 119
+questions reaching their evidence by id and 117 by anchor; over a longer
 window spanning both ingests, its retrospective reading found the anchor reaching 404 of 406
 surviving passages and the id 265. Replacing the value inside the sentence leaves nothing for either
 reference to find, which is what a changed fact should do. After a deletion both references still
@@ -150,9 +152,10 @@ truth and 0.7598 under pooled labels (the registered ones plus the true positive
 Every one of the 20 questions with incomplete labels changed score: 12 rose above the truth and 8
 fell below it, and the other 25 were equal. The direction depends on where the omitted positives
 sit. A true positive that was retrieved but not registered is counted as a miss in the numerator,
-which is Paper A's mechanism, and it also leaves the registered ideal smaller. When the omitted
-positive is ranked low, the smaller ideal outweighs the lost gain and the score rises: in 7 of the
-12 questions that rose, every true positive was in the top 10. Registered and pooled scores
+which is Paper A's mechanism, and it also leaves the registered ideal smaller. When omitting a
+positive cuts the ideal by a larger share than it cuts the discounted gain, which happens when the
+positive sits lower than the ones registered, the score rises: in 7 of the 12 questions that rose,
+every true positive was in the top 10. Registered and pooled scores
 therefore need not bracket the truth: on 5 questions both sat strictly above it.
 
 What did not occur is the extreme case Paper A measured: a zero made almost entirely of results
@@ -196,16 +199,17 @@ It does not claim:
 - anything about retrieval quality, of nox-mem or of BM25: the values are invented and unique, the
   questions name their entity, and a full-text ranker finds them easily;
 - independence from the generator: one model family wrote all the free text, with marks of its own
-  that the release lists (a stock phrase in 181 of 200 files that came from the prompt's own
-  example);
+  that the release lists ("semana seguinte", "the following week", in 181 of 200 files, from the
+  prompt's own example);
 - that the corpus is uncontaminated for future use; it is public, so it is a regression fixture.
 
 ## 6. What transfers
 
 Which of the two, id or anchor, is the safer key for gold depends on what the system's ingest does
 to ids, and in this system that changed between two releases published the same day. A ruler that
-must survive both should record both and report which one resolved. A deleted source stays
-reachable by both unless the resolver checks for it, so a ruler over a living memory also needs
+must survive both should record both and report which one resolved. When the ingest keeps
+the chunks of a deleted file, as both versions did, the deleted source stays reachable by both
+unless the resolver checks for it, so a ruler over a living memory also needs
 either a tombstone-aware resolver or a check that its evidence is still on disk. And reproducing
 the zero-scoring case of finding 2 needs questions on which no registered positive is retrieved,
 and labels that record which results a judge saw; this corpus has neither, which is the main thing

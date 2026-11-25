@@ -103,7 +103,7 @@
    "artifact": "synthetic-ptbr/README.md",
    "locator": "99,999 package runs",
    "commit": "1fde4c1",
-   "superseded_by": null,
+   "superseded_by": "s-scan-runs-v2",
    "note": ""
   },
   {
@@ -115,7 +115,7 @@
    "artifact": "synthetic-ptbr/README.md",
    "locator": "65,208 private chunks",
    "commit": "1fde4c1",
-   "superseded_by": null,
+   "superseded_by": "s-scan-chunks-v2",
    "note": ""
   },
   {
@@ -151,6 +151,30 @@
    "artifact": "synthetic-ptbr/results/etapa1.txt",
    "locator": "mean_pooled: 0.7598",
    "commit": "ac548ddb",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "s-scan-runs-v2",
+   "value": "99,165",
+   "what": "runs of 8 words in the generated material (corpus, plan, generation records, results), release-day privacy scan",
+   "population": "synthetic-ptbr/{corpus,plan,generation,results} at 79a24a83, against the live production corpus read-only",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/README.md",
+   "locator": "(99,165\n  runs against 65,211 private chunks)",
+   "commit": "21fc6b46",
+   "superseded_by": null,
+   "note": "replaces the package-wide count of an earlier scan, whose package (README, code) changed after it"
+  },
+  {
+   "id": "s-scan-chunks-v2",
+   "value": "65,211",
+   "what": "private chunks compared in the release-day privacy scan",
+   "population": "live production corpus on 2026-11-25",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/README.md",
+   "locator": "65,211 private chunks",
+   "commit": "21fc6b46",
    "superseded_by": null,
    "note": ""
   }
