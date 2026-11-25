@@ -1,6 +1,10 @@
 # Running a memory ruler's failure mechanisms in public: a synthetic Portuguese corpus and two versions of nox-mem
 
-Luiz Antonio Busnello · draft, 2026-11-25
+Luiz Antonio Busnello
+
+Status: working draft, not deposited, not peer reviewed. A dataset with a short note: the corpus was
+generated and both versions were run on 2026-11-25. `PROVENANCE.json` holds the source of every
+decimal number and percentage in this note, and a gate checks each one against it.
 
 ## Abstract
 
@@ -220,7 +224,7 @@ under CC BY 4.0. The commands run from the repository root:
 ```sh
 python3 -I synthetic-ptbr/test-synthetic.py
 python3 -I synthetic-ptbr/method-tests.py --analyze --check
-python3 -I synthetic-ptbr/method-tests.py --run --work <scratch dir>   # needs npm and the network
+python3 -I synthetic-ptbr/method-tests.py --run --work <scratch dir>   # npm, network
 ```
 
 ## References

@@ -190,7 +190,10 @@ no Setup de cada paper.
 
 ## Etapa atual
 
-**Corpus sintético (objetivo de 25/11):** etapa Work, PR (5): nota revista depois das vozes Codex + Kimi
+**Corpus sintético (objetivo de 25/11):** etapa Ship, PR (6): pacote de depósito (status na nota, build do PDF,
+`deposit/deposit-note.py`, descrição). Toto aprovou a nota em 25/11 11:48 («otima nota segue»). Depois do merge:
+rascunho no Zenodo pelo commit da `main`, build, fill, readback; o Toto publica; card no labf.bio.
+PR (5) #744: nota revista depois das vozes Codex + Kimi
 (seção Vozes), ~2.650 palavras, proveniência 12 afirmações / 0 falhas; analisador corrigido (média
 sem arredondamento duplo, rc do resolvedor); só `mean_strict` mudou (0,7542 → 0,7543). Próximo: o Toto
 lê a nota; depois pacote de depósito (o Toto publica) e card no labf.bio (preview antes do merge).
@@ -206,7 +209,7 @@ Achado 2 — nenhuma query com strict zero (o mecanismo do §3 não aparece nest
 erra a verdade nos dois sentidos (12 acima, 8 abaixo); pooled nunca abaixo da verdade, por
 aritmética, e acima em 5 de 45. Achado 4 — o ideal do ranking muda 5 de 45 queries, +0,2033 em média.
 Varredura de privacidade de novo: 0 trechos (99.999 × 65.208). Próximo: PR (4), a nota.
-Worktree: `~/Claude-worktrees/memoria-nox/synthetic-ptbr-note-rev`. PR: #744.
+Worktree: `~/Claude-worktrees/memoria-nox/synthetic-ptbr-deposit`. PR: #746.
 
 Etapa: Deploy (paper A): **publicado** pelo Toto em 20/11, doi:10.5281/zenodo.24400444 (concept
 doi:10.5281/zenodo.24400443), v1.0, software link `baf4b80`, checksums do registro iguais aos do build
@@ -404,4 +407,5 @@ com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 
 | 2026-11-25 | A chamada de CONTROLE (sem isolamento) do `claude -p` reportou `total_cost_usd` 3,78 com 0 tokens e `refusal`, acima do `--max-budget-usd 0.30`; não guardei o JSON. Toda chamada paga grava a resposta inteira antes de ser lida | só aqui | sim (generate.py grava cada tentativa) |
 | 2026-11-25 | O PR (1) testou o gate do corpus num corpus falso, mas não passou esse corpus pelo chunker do pacote; a granularidade (1 chunk por arquivo) só apareceu na 1ª ingestão real, depois da geração paga. O gate pós-ingest agora existe; corpus de teste passa pelo pacote antes de gastar | só aqui | sim (gate S: pós-ingest) |
 | 2026-11-25 | Presumi o nome da tabela de tombstone (`file_tombstones`); o certo era `chunk_tombstones`, e o erro faria «stale» virar «live» em silêncio. Pego antes da 1ª corrida por ler o código; nome de tabela vem do código, nunca da memória | só aqui | sim |
+| 2026-11-25 | No #744 ancorei 3 afirmações do `PROVENANCE.json` no commit da branch (`eb44723a`). O CI do PR passou, porque ali o commit está na história; o squash-merge o apagou e a `main` ficou vermelha no `guarda-lastro` até o #745 (apontar para `ac548ddb`). Afirmação nova só pode citar commit que já está na `main`: artefato produzido no PR é citado pelo commit do squash, num PR seguinte | o `deposit-note.py` da nota sintética recusa `NOTE_COMMIT` fora de `origin/main` (provado: recusou o commit da branch). Proposta ao Toto: o mesmo teste no `tools/provenance.py` quando roda em PR | parcial |
 | 2026-11-04 | Plano montado a partir da MEMÓRIA herdou números superados (0,833; 0,44–0,51; 9.398; 523); a memória guarda a 1ª versão e o audit guarda a correção | memória (feedback) | sim |

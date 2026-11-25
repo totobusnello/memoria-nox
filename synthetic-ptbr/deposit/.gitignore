@@ -1,0 +1,6 @@
+.draft-id-*
+__pycache__/
+*.pdf
+*.zip
+memory-ruler-failure-mechanisms-synthetic-ptbr-v*.md
+SHA256SUMS
