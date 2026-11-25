@@ -69,3 +69,8 @@ jobs:
             python3 tools/provenance.py --check "$d" || rc=1
           done
           exit $rc
+      - name: synthetic-ptbr step 2, offline tests (prompts against their sources, population, parsing)
+        run: |
+          python3 -I synthetic-ptbr/stage2/pairs.py --check
+          python3 -I synthetic-ptbr/stage2/test-stage2.py
+          python3 -I synthetic-ptbr/stage2/test-stage2.py --sabotage
