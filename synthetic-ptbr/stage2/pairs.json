@@ -1,0 +1,6539 @@
+{
+ "seed": 20261126,
+ "inputs": {
+  "plan": "plan/plan.json",
+  "baseline": "results/3.11.1"
+ },
+ "counts": {
+  "pairs": 555,
+  "by_source": {
+   "top": 500,
+   "truth_outside_top": 5,
+   "context_negative": 0,
+   "random": 50
+  },
+  "T_true": 89,
+  "R_true": 59,
+  "context_negative_pairs": 15,
+  "gold_check": {
+   "correct": 59,
+   "wrong_superseded_or_rejected": 15,
+   "random": 50
+  },
+  "gold_controls_outside_population": 48,
+  "human_sample": {
+   "truth": 30,
+   "context_negative": 15,
+   "false_premise": 10,
+   "other_false": 45
+  },
+  "premise_pairs": 110
+ },
+ "pairs": [
+  {
+   "query": "Q00",
+   "kind": "fact",
+   "chunk": 74,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q00",
+   "kind": "fact",
+   "chunk": 73,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q00",
+   "kind": "fact",
+   "chunk": 442,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q00",
+   "kind": "fact",
+   "chunk": 770,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q00",
+   "kind": "fact",
+   "chunk": 441,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q00",
+   "kind": "fact",
+   "chunk": 565,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q00",
+   "kind": "fact",
+   "chunk": 435,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q00",
+   "kind": "fact",
+   "chunk": 838,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q00",
+   "kind": "fact",
+   "chunk": 750,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q00",
+   "kind": "fact",
+   "chunk": 352,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q00",
+   "kind": "fact",
+   "chunk": 493,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q01",
+   "kind": "fact",
+   "chunk": 174,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q01",
+   "kind": "fact",
+   "chunk": 173,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q01",
+   "kind": "fact",
+   "chunk": 290,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q01",
+   "kind": "fact",
+   "chunk": 205,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q01",
+   "kind": "fact",
+   "chunk": 567,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q01",
+   "kind": "fact",
+   "chunk": 477,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q01",
+   "kind": "fact",
+   "chunk": 273,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q01",
+   "kind": "fact",
+   "chunk": 532,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q01",
+   "kind": "fact",
+   "chunk": 752,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q01",
+   "kind": "fact",
+   "chunk": 528,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q01",
+   "kind": "fact",
+   "chunk": 461,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q02",
+   "kind": "fact",
+   "chunk": 54,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q02",
+   "kind": "fact",
+   "chunk": 409,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q02",
+   "kind": "fact",
+   "chunk": 55,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q02",
+   "kind": "fact",
+   "chunk": 697,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q02",
+   "kind": "fact",
+   "chunk": 410,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": true
+  },
+  {
+   "query": "Q02",
+   "kind": "fact",
+   "chunk": 847,
+   "source": "top6",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q02",
+   "kind": "fact",
+   "chunk": 678,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q02",
+   "kind": "fact",
+   "chunk": 845,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q02",
+   "kind": "fact",
+   "chunk": 677,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q02",
+   "kind": "fact",
+   "chunk": 407,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q02",
+   "kind": "fact",
+   "chunk": 33,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q03",
+   "kind": "fact",
+   "chunk": 105,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q03",
+   "kind": "fact",
+   "chunk": 784,
+   "source": "top2",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q03",
+   "kind": "fact",
+   "chunk": 833,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q03",
+   "kind": "fact",
+   "chunk": 106,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q03",
+   "kind": "fact",
+   "chunk": 333,
+   "source": "top5",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q03",
+   "kind": "fact",
+   "chunk": 789,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q03",
+   "kind": "fact",
+   "chunk": 230,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q03",
+   "kind": "fact",
+   "chunk": 362,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q03",
+   "kind": "fact",
+   "chunk": 363,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q03",
+   "kind": "fact",
+   "chunk": 790,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q03",
+   "kind": "fact",
+   "chunk": 645,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q04",
+   "kind": "fact",
+   "chunk": 131,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q04",
+   "kind": "fact",
+   "chunk": 130,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q04",
+   "kind": "fact",
+   "chunk": 362,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q04",
+   "kind": "fact",
+   "chunk": 363,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q04",
+   "kind": "fact",
+   "chunk": 230,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q04",
+   "kind": "fact",
+   "chunk": 789,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q04",
+   "kind": "fact",
+   "chunk": 134,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q04",
+   "kind": "fact",
+   "chunk": 790,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q04",
+   "kind": "fact",
+   "chunk": 784,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q04",
+   "kind": "fact",
+   "chunk": 806,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q04",
+   "kind": "fact",
+   "chunk": 694,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q05",
+   "kind": "fact",
+   "chunk": 118,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q05",
+   "kind": "fact",
+   "chunk": 119,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q05",
+   "kind": "fact",
+   "chunk": 806,
+   "source": "top3",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q05",
+   "kind": "fact",
+   "chunk": 527,
+   "source": "top4",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q05",
+   "kind": "fact",
+   "chunk": 362,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q05",
+   "kind": "fact",
+   "chunk": 363,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q05",
+   "kind": "fact",
+   "chunk": 230,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q05",
+   "kind": "fact",
+   "chunk": 131,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q05",
+   "kind": "fact",
+   "chunk": 789,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q05",
+   "kind": "fact",
+   "chunk": 790,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q05",
+   "kind": "fact",
+   "chunk": 83,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q06",
+   "kind": "fact",
+   "chunk": 92,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q06",
+   "kind": "fact",
+   "chunk": 294,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": true
+  },
+  {
+   "query": "Q06",
+   "kind": "fact",
+   "chunk": 93,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q06",
+   "kind": "fact",
+   "chunk": 694,
+   "source": "top4",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q06",
+   "kind": "fact",
+   "chunk": 789,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q06",
+   "kind": "fact",
+   "chunk": 329,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q06",
+   "kind": "fact",
+   "chunk": 692,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q06",
+   "kind": "fact",
+   "chunk": 457,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q06",
+   "kind": "fact",
+   "chunk": 96,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q06",
+   "kind": "fact",
+   "chunk": 94,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q06",
+   "kind": "fact",
+   "chunk": 304,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q07",
+   "kind": "fact",
+   "chunk": 34,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q07",
+   "kind": "fact",
+   "chunk": 682,
+   "source": "top2",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q07",
+   "kind": "fact",
+   "chunk": 226,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": true
+  },
+  {
+   "query": "Q07",
+   "kind": "fact",
+   "chunk": 35,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q07",
+   "kind": "fact",
+   "chunk": 763,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q07",
+   "kind": "fact",
+   "chunk": 684,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q07",
+   "kind": "fact",
+   "chunk": 225,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q07",
+   "kind": "fact",
+   "chunk": 724,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q07",
+   "kind": "fact",
+   "chunk": 764,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q07",
+   "kind": "fact",
+   "chunk": 723,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q07",
+   "kind": "fact",
+   "chunk": 337,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q08",
+   "kind": "fact",
+   "chunk": 47,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q08",
+   "kind": "fact",
+   "chunk": 746,
+   "source": "top2",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q08",
+   "kind": "fact",
+   "chunk": 750,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q08",
+   "kind": "fact",
+   "chunk": 48,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q08",
+   "kind": "fact",
+   "chunk": 231,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": true
+  },
+  {
+   "query": "Q08",
+   "kind": "fact",
+   "chunk": 365,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q08",
+   "kind": "fact",
+   "chunk": 745,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q08",
+   "kind": "fact",
+   "chunk": 49,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q08",
+   "kind": "fact",
+   "chunk": 682,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q08",
+   "kind": "fact",
+   "chunk": 50,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q08",
+   "kind": "fact",
+   "chunk": 661,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q09",
+   "kind": "fact",
+   "chunk": 362,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q09",
+   "kind": "fact",
+   "chunk": 363,
+   "source": "top2",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q09",
+   "kind": "fact",
+   "chunk": 230,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": true
+  },
+  {
+   "query": "Q09",
+   "kind": "fact",
+   "chunk": 136,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q09",
+   "kind": "fact",
+   "chunk": 137,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q09",
+   "kind": "fact",
+   "chunk": 647,
+   "source": "top6",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q09",
+   "kind": "fact",
+   "chunk": 195,
+   "source": "top7",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q09",
+   "kind": "fact",
+   "chunk": 131,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q09",
+   "kind": "fact",
+   "chunk": 789,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q09",
+   "kind": "fact",
+   "chunk": 790,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q09",
+   "kind": "fact",
+   "chunk": 236,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q10",
+   "kind": "fact",
+   "chunk": 156,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q10",
+   "kind": "fact",
+   "chunk": 155,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q10",
+   "kind": "fact",
+   "chunk": 203,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": true
+  },
+  {
+   "query": "Q10",
+   "kind": "fact",
+   "chunk": 27,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q10",
+   "kind": "fact",
+   "chunk": 816,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q10",
+   "kind": "fact",
+   "chunk": 403,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q10",
+   "kind": "fact",
+   "chunk": 404,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q10",
+   "kind": "fact",
+   "chunk": 755,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q10",
+   "kind": "fact",
+   "chunk": 28,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q10",
+   "kind": "fact",
+   "chunk": 218,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q10",
+   "kind": "fact",
+   "chunk": 656,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q11",
+   "kind": "fact",
+   "chunk": 20,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q11",
+   "kind": "fact",
+   "chunk": 544,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": true
+  },
+  {
+   "query": "Q11",
+   "kind": "fact",
+   "chunk": 341,
+   "source": "top3",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q11",
+   "kind": "fact",
+   "chunk": 712,
+   "source": "top4",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q11",
+   "kind": "fact",
+   "chunk": 21,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q11",
+   "kind": "fact",
+   "chunk": 433,
+   "source": "top6",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q11",
+   "kind": "fact",
+   "chunk": 711,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q11",
+   "kind": "fact",
+   "chunk": 543,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q11",
+   "kind": "fact",
+   "chunk": 565,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q11",
+   "kind": "fact",
+   "chunk": 23,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q11",
+   "kind": "fact",
+   "chunk": 650,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q12",
+   "kind": "fact",
+   "chunk": 808,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q12",
+   "kind": "fact",
+   "chunk": 67,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q12",
+   "kind": "fact",
+   "chunk": 408,
+   "source": "top3",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q12",
+   "kind": "fact",
+   "chunk": 68,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q12",
+   "kind": "fact",
+   "chunk": 576,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q12",
+   "kind": "fact",
+   "chunk": 513,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q12",
+   "kind": "fact",
+   "chunk": 514,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q12",
+   "kind": "fact",
+   "chunk": 697,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q12",
+   "kind": "fact",
+   "chunk": 765,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q12",
+   "kind": "fact",
+   "chunk": 71,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q12",
+   "kind": "fact",
+   "chunk": 305,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q13",
+   "kind": "fact",
+   "chunk": 42,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q13",
+   "kind": "fact",
+   "chunk": 41,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q13",
+   "kind": "fact",
+   "chunk": 652,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q13",
+   "kind": "fact",
+   "chunk": 587,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q13",
+   "kind": "fact",
+   "chunk": 326,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": true
+  },
+  {
+   "query": "Q13",
+   "kind": "fact",
+   "chunk": 385,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q13",
+   "kind": "fact",
+   "chunk": 660,
+   "source": "top7",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q13",
+   "kind": "fact",
+   "chunk": 823,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q13",
+   "kind": "fact",
+   "chunk": 334,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q13",
+   "kind": "fact",
+   "chunk": 565,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q13",
+   "kind": "fact",
+   "chunk": 196,
+   "source": "truth_outside_top",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q13",
+   "kind": "fact",
+   "chunk": 109,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q14",
+   "kind": "fact",
+   "chunk": 14,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q14",
+   "kind": "fact",
+   "chunk": 829,
+   "source": "top2",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q14",
+   "kind": "fact",
+   "chunk": 15,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q14",
+   "kind": "fact",
+   "chunk": 201,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q14",
+   "kind": "fact",
+   "chunk": 565,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q14",
+   "kind": "fact",
+   "chunk": 235,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q14",
+   "kind": "fact",
+   "chunk": 718,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q14",
+   "kind": "fact",
+   "chunk": 719,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q14",
+   "kind": "fact",
+   "chunk": 275,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q14",
+   "kind": "fact",
+   "chunk": 667,
+   "source": "top10",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q14",
+   "kind": "fact",
+   "chunk": 423,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q15",
+   "kind": "fact",
+   "chunk": 105,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q15",
+   "kind": "fact",
+   "chunk": 833,
+   "source": "top2",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q15",
+   "kind": "fact",
+   "chunk": 106,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q15",
+   "kind": "fact",
+   "chunk": 784,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q15",
+   "kind": "fact",
+   "chunk": 333,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q15",
+   "kind": "fact",
+   "chunk": 109,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q15",
+   "kind": "fact",
+   "chunk": 107,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q15",
+   "kind": "fact",
+   "chunk": 540,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q15",
+   "kind": "fact",
+   "chunk": 110,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q15",
+   "kind": "fact",
+   "chunk": 111,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q15",
+   "kind": "fact",
+   "chunk": 361,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q16",
+   "kind": "fact",
+   "chunk": 750,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q16",
+   "kind": "fact",
+   "chunk": 47,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q16",
+   "kind": "fact",
+   "chunk": 48,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q16",
+   "kind": "fact",
+   "chunk": 231,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q16",
+   "kind": "fact",
+   "chunk": 746,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q16",
+   "kind": "fact",
+   "chunk": 365,
+   "source": "top6",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q16",
+   "kind": "fact",
+   "chunk": 745,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q16",
+   "kind": "fact",
+   "chunk": 49,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q16",
+   "kind": "fact",
+   "chunk": 565,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q16",
+   "kind": "fact",
+   "chunk": 435,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q16",
+   "kind": "fact",
+   "chunk": 257,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q17",
+   "kind": "fact",
+   "chunk": 775,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q17",
+   "kind": "fact",
+   "chunk": 161,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q17",
+   "kind": "fact",
+   "chunk": 162,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q17",
+   "kind": "fact",
+   "chunk": 42,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q17",
+   "kind": "fact",
+   "chunk": 163,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q17",
+   "kind": "fact",
+   "chunk": 41,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q17",
+   "kind": "fact",
+   "chunk": 652,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q17",
+   "kind": "fact",
+   "chunk": 587,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q17",
+   "kind": "fact",
+   "chunk": 706,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q17",
+   "kind": "fact",
+   "chunk": 211,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q17",
+   "kind": "fact",
+   "chunk": 563,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q18",
+   "kind": "fact",
+   "chunk": 112,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q18",
+   "kind": "fact",
+   "chunk": 540,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q18",
+   "kind": "fact",
+   "chunk": 113,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q18",
+   "kind": "fact",
+   "chunk": 673,
+   "source": "top4",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q18",
+   "kind": "fact",
+   "chunk": 737,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q18",
+   "kind": "fact",
+   "chunk": 248,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q18",
+   "kind": "fact",
+   "chunk": 395,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q18",
+   "kind": "fact",
+   "chunk": 789,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q18",
+   "kind": "fact",
+   "chunk": 230,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q18",
+   "kind": "fact",
+   "chunk": 362,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q18",
+   "kind": "fact",
+   "chunk": 818,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q19",
+   "kind": "fact",
+   "chunk": 286,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": true
+  },
+  {
+   "query": "Q19",
+   "kind": "fact",
+   "chunk": 501,
+   "source": "top2",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q19",
+   "kind": "fact",
+   "chunk": 167,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q19",
+   "kind": "fact",
+   "chunk": 504,
+   "source": "top4",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q19",
+   "kind": "fact",
+   "chunk": 796,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q19",
+   "kind": "fact",
+   "chunk": 168,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q19",
+   "kind": "fact",
+   "chunk": 380,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q19",
+   "kind": "fact",
+   "chunk": 574,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q19",
+   "kind": "fact",
+   "chunk": 556,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q19",
+   "kind": "fact",
+   "chunk": 775,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q19",
+   "kind": "fact",
+   "chunk": 132,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q20",
+   "kind": "fact",
+   "chunk": 80,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q20",
+   "kind": "fact",
+   "chunk": 79,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q20",
+   "kind": "fact",
+   "chunk": 446,
+   "source": "top3",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q20",
+   "kind": "fact",
+   "chunk": 626,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q20",
+   "kind": "fact",
+   "chunk": 625,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": true
+  },
+  {
+   "query": "Q20",
+   "kind": "fact",
+   "chunk": 789,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q20",
+   "kind": "fact",
+   "chunk": 83,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q20",
+   "kind": "fact",
+   "chunk": 230,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q20",
+   "kind": "fact",
+   "chunk": 362,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q20",
+   "kind": "fact",
+   "chunk": 363,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q20",
+   "kind": "fact",
+   "chunk": 556,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q21",
+   "kind": "fact",
+   "chunk": 61,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q21",
+   "kind": "fact",
+   "chunk": 369,
+   "source": "top2",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q21",
+   "kind": "fact",
+   "chunk": 370,
+   "source": "top3",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q21",
+   "kind": "fact",
+   "chunk": 62,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q21",
+   "kind": "fact",
+   "chunk": 643,
+   "source": "top5",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q21",
+   "kind": "fact",
+   "chunk": 535,
+   "source": "top6",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q21",
+   "kind": "fact",
+   "chunk": 345,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q21",
+   "kind": "fact",
+   "chunk": 347,
+   "source": "top8",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q21",
+   "kind": "fact",
+   "chunk": 534,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q21",
+   "kind": "fact",
+   "chunk": 66,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q21",
+   "kind": "fact",
+   "chunk": 679,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q22",
+   "kind": "fact",
+   "chunk": 34,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q22",
+   "kind": "fact",
+   "chunk": 724,
+   "source": "top2",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q22",
+   "kind": "fact",
+   "chunk": 35,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q22",
+   "kind": "fact",
+   "chunk": 226,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q22",
+   "kind": "fact",
+   "chunk": 763,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q22",
+   "kind": "fact",
+   "chunk": 684,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q22",
+   "kind": "fact",
+   "chunk": 225,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q22",
+   "kind": "fact",
+   "chunk": 682,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q22",
+   "kind": "fact",
+   "chunk": 764,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q22",
+   "kind": "fact",
+   "chunk": 723,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q22",
+   "kind": "fact",
+   "chunk": 587,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q23",
+   "kind": "fact",
+   "chunk": 7,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q23",
+   "kind": "fact",
+   "chunk": 838,
+   "source": "top2",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q23",
+   "kind": "fact",
+   "chunk": 8,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q23",
+   "kind": "fact",
+   "chunk": 610,
+   "source": "top4",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q23",
+   "kind": "fact",
+   "chunk": 191,
+   "source": "top5",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q23",
+   "kind": "fact",
+   "chunk": 837,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q23",
+   "kind": "fact",
+   "chunk": 192,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q23",
+   "kind": "fact",
+   "chunk": 565,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q23",
+   "kind": "fact",
+   "chunk": 10,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q23",
+   "kind": "fact",
+   "chunk": 435,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q23",
+   "kind": "fact",
+   "chunk": 421,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q24",
+   "kind": "fact",
+   "chunk": 143,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q24",
+   "kind": "fact",
+   "chunk": 144,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q24",
+   "kind": "fact",
+   "chunk": 715,
+   "source": "top3",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q24",
+   "kind": "fact",
+   "chunk": 145,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q24",
+   "kind": "fact",
+   "chunk": 574,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q24",
+   "kind": "fact",
+   "chunk": 148,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q24",
+   "kind": "fact",
+   "chunk": 147,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q24",
+   "kind": "fact",
+   "chunk": 556,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q24",
+   "kind": "fact",
+   "chunk": 775,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q24",
+   "kind": "fact",
+   "chunk": 525,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q24",
+   "kind": "fact",
+   "chunk": 409,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q25",
+   "kind": "fact",
+   "chunk": 42,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q25",
+   "kind": "fact",
+   "chunk": 41,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q25",
+   "kind": "fact",
+   "chunk": 652,
+   "source": "top3",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q25",
+   "kind": "fact",
+   "chunk": 587,
+   "source": "top4",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q25",
+   "kind": "fact",
+   "chunk": 823,
+   "source": "top5",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q25",
+   "kind": "fact",
+   "chunk": 385,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q25",
+   "kind": "fact",
+   "chunk": 326,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q25",
+   "kind": "fact",
+   "chunk": 660,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q25",
+   "kind": "fact",
+   "chunk": 334,
+   "source": "top9",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q25",
+   "kind": "fact",
+   "chunk": 822,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q25",
+   "kind": "fact",
+   "chunk": 718,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q26",
+   "kind": "fact",
+   "chunk": 796,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q26",
+   "kind": "fact",
+   "chunk": 167,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q26",
+   "kind": "fact",
+   "chunk": 501,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q26",
+   "kind": "fact",
+   "chunk": 168,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q26",
+   "kind": "fact",
+   "chunk": 286,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q26",
+   "kind": "fact",
+   "chunk": 504,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q26",
+   "kind": "fact",
+   "chunk": 380,
+   "source": "top7",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q26",
+   "kind": "fact",
+   "chunk": 169,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q26",
+   "kind": "fact",
+   "chunk": 223,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q26",
+   "kind": "fact",
+   "chunk": 425,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q26",
+   "kind": "fact",
+   "chunk": 384,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q27",
+   "kind": "fact",
+   "chunk": 42,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q27",
+   "kind": "fact",
+   "chunk": 385,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": true
+  },
+  {
+   "query": "Q27",
+   "kind": "fact",
+   "chunk": 41,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q27",
+   "kind": "fact",
+   "chunk": 652,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q27",
+   "kind": "fact",
+   "chunk": 587,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q27",
+   "kind": "fact",
+   "chunk": 326,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q27",
+   "kind": "fact",
+   "chunk": 334,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q27",
+   "kind": "fact",
+   "chunk": 660,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q27",
+   "kind": "fact",
+   "chunk": 823,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q27",
+   "kind": "fact",
+   "chunk": 822,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q27",
+   "kind": "fact",
+   "chunk": 386,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q28",
+   "kind": "fact",
+   "chunk": 728,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q28",
+   "kind": "fact",
+   "chunk": 1,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q28",
+   "kind": "fact",
+   "chunk": 492,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q28",
+   "kind": "fact",
+   "chunk": 2,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q28",
+   "kind": "fact",
+   "chunk": 453,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q28",
+   "kind": "fact",
+   "chunk": 467,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q28",
+   "kind": "fact",
+   "chunk": 193,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q28",
+   "kind": "fact",
+   "chunk": 686,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q28",
+   "kind": "fact",
+   "chunk": 820,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q28",
+   "kind": "fact",
+   "chunk": 687,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q28",
+   "kind": "fact",
+   "chunk": 213,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q29",
+   "kind": "fact",
+   "chunk": 112,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q29",
+   "kind": "fact",
+   "chunk": 540,
+   "source": "top2",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q29",
+   "kind": "fact",
+   "chunk": 395,
+   "source": "top3",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q29",
+   "kind": "fact",
+   "chunk": 113,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q29",
+   "kind": "fact",
+   "chunk": 737,
+   "source": "top5",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q29",
+   "kind": "fact",
+   "chunk": 248,
+   "source": "top6",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q29",
+   "kind": "fact",
+   "chunk": 673,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q29",
+   "kind": "fact",
+   "chunk": 114,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q29",
+   "kind": "fact",
+   "chunk": 115,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q29",
+   "kind": "fact",
+   "chunk": 116,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q29",
+   "kind": "fact",
+   "chunk": 513,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q30",
+   "kind": "fact",
+   "chunk": 54,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q30",
+   "kind": "fact",
+   "chunk": 678,
+   "source": "top2",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q30",
+   "kind": "fact",
+   "chunk": 409,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": true
+  },
+  {
+   "query": "Q30",
+   "kind": "fact",
+   "chunk": 55,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q30",
+   "kind": "fact",
+   "chunk": 697,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q30",
+   "kind": "fact",
+   "chunk": 845,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q30",
+   "kind": "fact",
+   "chunk": 410,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q30",
+   "kind": "fact",
+   "chunk": 677,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q30",
+   "kind": "fact",
+   "chunk": 847,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q30",
+   "kind": "fact",
+   "chunk": 407,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q30",
+   "kind": "fact",
+   "chunk": 576,
+   "source": "truth_outside_top",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q30",
+   "kind": "fact",
+   "chunk": 79,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q31",
+   "kind": "fact",
+   "chunk": 144,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q31",
+   "kind": "fact",
+   "chunk": 143,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q31",
+   "kind": "fact",
+   "chunk": 715,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q31",
+   "kind": "fact",
+   "chunk": 145,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q31",
+   "kind": "fact",
+   "chunk": 278,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q31",
+   "kind": "fact",
+   "chunk": 148,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q31",
+   "kind": "fact",
+   "chunk": 147,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q31",
+   "kind": "fact",
+   "chunk": 146,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q31",
+   "kind": "fact",
+   "chunk": 186,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q31",
+   "kind": "fact",
+   "chunk": 419,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q31",
+   "kind": "fact",
+   "chunk": 596,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q32",
+   "kind": "fact",
+   "chunk": 789,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q32",
+   "kind": "fact",
+   "chunk": 92,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q32",
+   "kind": "fact",
+   "chunk": 93,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q32",
+   "kind": "fact",
+   "chunk": 294,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q32",
+   "kind": "fact",
+   "chunk": 329,
+   "source": "top5",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q32",
+   "kind": "fact",
+   "chunk": 694,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q32",
+   "kind": "fact",
+   "chunk": 457,
+   "source": "top7",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q32",
+   "kind": "fact",
+   "chunk": 692,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q32",
+   "kind": "fact",
+   "chunk": 230,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q32",
+   "kind": "fact",
+   "chunk": 362,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q32",
+   "kind": "fact",
+   "chunk": 753,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q33",
+   "kind": "fact",
+   "chunk": 816,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q33",
+   "kind": "fact",
+   "chunk": 27,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q33",
+   "kind": "fact",
+   "chunk": 28,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q33",
+   "kind": "fact",
+   "chunk": 403,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q33",
+   "kind": "fact",
+   "chunk": 404,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q33",
+   "kind": "fact",
+   "chunk": 755,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q33",
+   "kind": "fact",
+   "chunk": 155,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q33",
+   "kind": "fact",
+   "chunk": 156,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q33",
+   "kind": "fact",
+   "chunk": 218,
+   "source": "top9",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q33",
+   "kind": "fact",
+   "chunk": 405,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q33",
+   "kind": "fact",
+   "chunk": 248,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q34",
+   "kind": "fact",
+   "chunk": 697,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q34",
+   "kind": "fact",
+   "chunk": 54,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q34",
+   "kind": "fact",
+   "chunk": 409,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q34",
+   "kind": "fact",
+   "chunk": 55,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q34",
+   "kind": "fact",
+   "chunk": 576,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q34",
+   "kind": "fact",
+   "chunk": 410,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q34",
+   "kind": "fact",
+   "chunk": 678,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q34",
+   "kind": "fact",
+   "chunk": 845,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q34",
+   "kind": "fact",
+   "chunk": 677,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q34",
+   "kind": "fact",
+   "chunk": 407,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q34",
+   "kind": "fact",
+   "chunk": 739,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q35",
+   "kind": "fact",
+   "chunk": 687,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q35",
+   "kind": "fact",
+   "chunk": 467,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q35",
+   "kind": "fact",
+   "chunk": 1,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q35",
+   "kind": "fact",
+   "chunk": 492,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": true
+  },
+  {
+   "query": "Q35",
+   "kind": "fact",
+   "chunk": 728,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q35",
+   "kind": "fact",
+   "chunk": 697,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q35",
+   "kind": "fact",
+   "chunk": 453,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q35",
+   "kind": "fact",
+   "chunk": 808,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q35",
+   "kind": "fact",
+   "chunk": 765,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q35",
+   "kind": "fact",
+   "chunk": 229,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q35",
+   "kind": "fact",
+   "chunk": 801,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q36",
+   "kind": "fact",
+   "chunk": 1,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q36",
+   "kind": "fact",
+   "chunk": 820,
+   "source": "top2",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q36",
+   "kind": "fact",
+   "chunk": 687,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q36",
+   "kind": "fact",
+   "chunk": 728,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q36",
+   "kind": "fact",
+   "chunk": 492,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q36",
+   "kind": "fact",
+   "chunk": 453,
+   "source": "top6",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q36",
+   "kind": "fact",
+   "chunk": 467,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": true
+  },
+  {
+   "query": "Q36",
+   "kind": "fact",
+   "chunk": 2,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q36",
+   "kind": "fact",
+   "chunk": 193,
+   "source": "top9",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q36",
+   "kind": "fact",
+   "chunk": 686,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q36",
+   "kind": "fact",
+   "chunk": 229,
+   "source": "truth_outside_top",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q36",
+   "kind": "fact",
+   "chunk": 822,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q37",
+   "kind": "fact",
+   "chunk": 67,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q37",
+   "kind": "fact",
+   "chunk": 68,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q37",
+   "kind": "fact",
+   "chunk": 808,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q37",
+   "kind": "fact",
+   "chunk": 408,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q37",
+   "kind": "fact",
+   "chunk": 513,
+   "source": "top5",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q37",
+   "kind": "fact",
+   "chunk": 514,
+   "source": "top6",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q37",
+   "kind": "fact",
+   "chunk": 576,
+   "source": "top7",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q37",
+   "kind": "fact",
+   "chunk": 71,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q37",
+   "kind": "fact",
+   "chunk": 69,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q37",
+   "kind": "fact",
+   "chunk": 70,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q37",
+   "kind": "fact",
+   "chunk": 114,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q38",
+   "kind": "fact",
+   "chunk": 565,
+   "source": "top1",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q38",
+   "kind": "fact",
+   "chunk": 14,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q38",
+   "kind": "fact",
+   "chunk": 235,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": true
+  },
+  {
+   "query": "Q38",
+   "kind": "fact",
+   "chunk": 719,
+   "source": "top4",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q38",
+   "kind": "fact",
+   "chunk": 201,
+   "source": "top5",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q38",
+   "kind": "fact",
+   "chunk": 15,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q38",
+   "kind": "fact",
+   "chunk": 275,
+   "source": "top7",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q38",
+   "kind": "fact",
+   "chunk": 829,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q38",
+   "kind": "fact",
+   "chunk": 718,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q38",
+   "kind": "fact",
+   "chunk": 667,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q38",
+   "kind": "fact",
+   "chunk": 366,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q39",
+   "kind": "fact",
+   "chunk": 27,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q39",
+   "kind": "fact",
+   "chunk": 755,
+   "source": "top2",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q39",
+   "kind": "fact",
+   "chunk": 816,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q39",
+   "kind": "fact",
+   "chunk": 28,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q39",
+   "kind": "fact",
+   "chunk": 156,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q39",
+   "kind": "fact",
+   "chunk": 403,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q39",
+   "kind": "fact",
+   "chunk": 404,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q39",
+   "kind": "fact",
+   "chunk": 155,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q39",
+   "kind": "fact",
+   "chunk": 218,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q39",
+   "kind": "fact",
+   "chunk": 268,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q39",
+   "kind": "fact",
+   "chunk": 405,
+   "source": "truth_outside_top",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q39",
+   "kind": "fact",
+   "chunk": 626,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q40",
+   "kind": "fact",
+   "chunk": 403,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q40",
+   "kind": "fact",
+   "chunk": 404,
+   "source": "top2",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q40",
+   "kind": "fact",
+   "chunk": 27,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q40",
+   "kind": "fact",
+   "chunk": 816,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q40",
+   "kind": "fact",
+   "chunk": 755,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q40",
+   "kind": "fact",
+   "chunk": 28,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q40",
+   "kind": "fact",
+   "chunk": 155,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q40",
+   "kind": "fact",
+   "chunk": 156,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q40",
+   "kind": "fact",
+   "chunk": 218,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q40",
+   "kind": "fact",
+   "chunk": 405,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q40",
+   "kind": "fact",
+   "chunk": 268,
+   "source": "truth_outside_top",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q40",
+   "kind": "fact",
+   "chunk": 417,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q41",
+   "kind": "fact",
+   "chunk": 150,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q41",
+   "kind": "fact",
+   "chunk": 149,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q41",
+   "kind": "fact",
+   "chunk": 151,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q41",
+   "kind": "fact",
+   "chunk": 154,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q41",
+   "kind": "fact",
+   "chunk": 804,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q41",
+   "kind": "fact",
+   "chunk": 152,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q41",
+   "kind": "fact",
+   "chunk": 153,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q41",
+   "kind": "fact",
+   "chunk": 364,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q41",
+   "kind": "fact",
+   "chunk": 524,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q41",
+   "kind": "fact",
+   "chunk": 574,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q41",
+   "kind": "fact",
+   "chunk": 269,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q42",
+   "kind": "fact",
+   "chunk": 87,
+   "source": "top1",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q42",
+   "kind": "fact",
+   "chunk": 86,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q42",
+   "kind": "fact",
+   "chunk": 269,
+   "source": "top3",
+   "T": true,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q42",
+   "kind": "fact",
+   "chunk": 789,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q42",
+   "kind": "fact",
+   "chunk": 90,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q42",
+   "kind": "fact",
+   "chunk": 230,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q42",
+   "kind": "fact",
+   "chunk": 362,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q42",
+   "kind": "fact",
+   "chunk": 363,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q42",
+   "kind": "fact",
+   "chunk": 790,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q42",
+   "kind": "fact",
+   "chunk": 784,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q42",
+   "kind": "fact",
+   "chunk": 546,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q43",
+   "kind": "fact",
+   "chunk": 34,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q43",
+   "kind": "fact",
+   "chunk": 764,
+   "source": "top2",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q43",
+   "kind": "fact",
+   "chunk": 35,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q43",
+   "kind": "fact",
+   "chunk": 226,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q43",
+   "kind": "fact",
+   "chunk": 763,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q43",
+   "kind": "fact",
+   "chunk": 684,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q43",
+   "kind": "fact",
+   "chunk": 225,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q43",
+   "kind": "fact",
+   "chunk": 565,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q43",
+   "kind": "fact",
+   "chunk": 682,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q43",
+   "kind": "fact",
+   "chunk": 724,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q43",
+   "kind": "fact",
+   "chunk": 379,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q44",
+   "kind": "fact",
+   "chunk": 74,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q44",
+   "kind": "fact",
+   "chunk": 73,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q44",
+   "kind": "fact",
+   "chunk": 770,
+   "source": "top3",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q44",
+   "kind": "fact",
+   "chunk": 442,
+   "source": "top4",
+   "T": true,
+   "R": true,
+   "context_negative": false
+  },
+  {
+   "query": "Q44",
+   "kind": "fact",
+   "chunk": 441,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q44",
+   "kind": "fact",
+   "chunk": 76,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q44",
+   "kind": "fact",
+   "chunk": 78,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q44",
+   "kind": "fact",
+   "chunk": 77,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q44",
+   "kind": "fact",
+   "chunk": 75,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q44",
+   "kind": "fact",
+   "chunk": 359,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "Q44",
+   "kind": "fact",
+   "chunk": 273,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP0",
+   "kind": "false_premise",
+   "chunk": 14,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP0",
+   "kind": "false_premise",
+   "chunk": 201,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP0",
+   "kind": "false_premise",
+   "chunk": 15,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP0",
+   "kind": "false_premise",
+   "chunk": 565,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP0",
+   "kind": "false_premise",
+   "chunk": 235,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP0",
+   "kind": "false_premise",
+   "chunk": 829,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP0",
+   "kind": "false_premise",
+   "chunk": 718,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP0",
+   "kind": "false_premise",
+   "chunk": 827,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP0",
+   "kind": "false_premise",
+   "chunk": 275,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP0",
+   "kind": "false_premise",
+   "chunk": 667,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP0",
+   "kind": "false_premise",
+   "chunk": 40,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP1",
+   "kind": "false_premise",
+   "chunk": 20,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP1",
+   "kind": "false_premise",
+   "chunk": 21,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP1",
+   "kind": "false_premise",
+   "chunk": 433,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP1",
+   "kind": "false_premise",
+   "chunk": 543,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP1",
+   "kind": "false_premise",
+   "chunk": 544,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP1",
+   "kind": "false_premise",
+   "chunk": 341,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP1",
+   "kind": "false_premise",
+   "chunk": 711,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP1",
+   "kind": "false_premise",
+   "chunk": 712,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP1",
+   "kind": "false_premise",
+   "chunk": 23,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP1",
+   "kind": "false_premise",
+   "chunk": 26,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP1",
+   "kind": "false_premise",
+   "chunk": 432,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP2",
+   "kind": "false_premise",
+   "chunk": 47,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP2",
+   "kind": "false_premise",
+   "chunk": 750,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP2",
+   "kind": "false_premise",
+   "chunk": 48,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP2",
+   "kind": "false_premise",
+   "chunk": 365,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP2",
+   "kind": "false_premise",
+   "chunk": 231,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP2",
+   "kind": "false_premise",
+   "chunk": 746,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP2",
+   "kind": "false_premise",
+   "chunk": 697,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP2",
+   "kind": "false_premise",
+   "chunk": 745,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP2",
+   "kind": "false_premise",
+   "chunk": 808,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP2",
+   "kind": "false_premise",
+   "chunk": 765,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP2",
+   "kind": "false_premise",
+   "chunk": 307,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP3",
+   "kind": "false_premise",
+   "chunk": 7,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP3",
+   "kind": "false_premise",
+   "chunk": 8,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP3",
+   "kind": "false_premise",
+   "chunk": 610,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP3",
+   "kind": "false_premise",
+   "chunk": 837,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP3",
+   "kind": "false_premise",
+   "chunk": 191,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP3",
+   "kind": "false_premise",
+   "chunk": 838,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP3",
+   "kind": "false_premise",
+   "chunk": 10,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP3",
+   "kind": "false_premise",
+   "chunk": 192,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP3",
+   "kind": "false_premise",
+   "chunk": 13,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP3",
+   "kind": "false_premise",
+   "chunk": 9,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP3",
+   "kind": "false_premise",
+   "chunk": 34,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP4",
+   "kind": "false_premise",
+   "chunk": 61,
+   "source": "top1",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP4",
+   "kind": "false_premise",
+   "chunk": 62,
+   "source": "top2",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP4",
+   "kind": "false_premise",
+   "chunk": 369,
+   "source": "top3",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP4",
+   "kind": "false_premise",
+   "chunk": 370,
+   "source": "top4",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP4",
+   "kind": "false_premise",
+   "chunk": 643,
+   "source": "top5",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP4",
+   "kind": "false_premise",
+   "chunk": 535,
+   "source": "top6",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP4",
+   "kind": "false_premise",
+   "chunk": 345,
+   "source": "top7",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP4",
+   "kind": "false_premise",
+   "chunk": 347,
+   "source": "top8",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP4",
+   "kind": "false_premise",
+   "chunk": 534,
+   "source": "top9",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP4",
+   "kind": "false_premise",
+   "chunk": 565,
+   "source": "top10",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  },
+  {
+   "query": "QP4",
+   "kind": "false_premise",
+   "chunk": 184,
+   "source": "random",
+   "T": false,
+   "R": false,
+   "context_negative": false
+  }
+ ],
+ "gold_check": [
+  {
+   "query": "Q00",
+   "chunk": 74,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q00",
+   "chunk": 157,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q01",
+   "chunk": 174,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q01",
+   "chunk": 52,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q02",
+   "chunk": 847,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q02",
+   "chunk": 410,
+   "as_gold": "wrong_superseded_or_rejected",
+   "T": false
+  },
+  {
+   "query": "Q02",
+   "chunk": 828,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q03",
+   "chunk": 784,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q03",
+   "chunk": 133,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q04",
+   "chunk": 131,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q04",
+   "chunk": 196,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q05",
+   "chunk": 527,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q05",
+   "chunk": 806,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q05",
+   "chunk": 613,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q06",
+   "chunk": 694,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q06",
+   "chunk": 294,
+   "as_gold": "wrong_superseded_or_rejected",
+   "T": false
+  },
+  {
+   "query": "Q06",
+   "chunk": 193,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q07",
+   "chunk": 682,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q07",
+   "chunk": 226,
+   "as_gold": "wrong_superseded_or_rejected",
+   "T": false
+  },
+  {
+   "query": "Q07",
+   "chunk": 419,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q08",
+   "chunk": 746,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q08",
+   "chunk": 231,
+   "as_gold": "wrong_superseded_or_rejected",
+   "T": false
+  },
+  {
+   "query": "Q08",
+   "chunk": 104,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q09",
+   "chunk": 362,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q09",
+   "chunk": 363,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q09",
+   "chunk": 647,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q09",
+   "chunk": 230,
+   "as_gold": "wrong_superseded_or_rejected",
+   "T": false
+  },
+  {
+   "query": "Q09",
+   "chunk": 233,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q10",
+   "chunk": 156,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q10",
+   "chunk": 203,
+   "as_gold": "wrong_superseded_or_rejected",
+   "T": false
+  },
+  {
+   "query": "Q10",
+   "chunk": 27,
+   "as_gold": "random",
+   "T": false,
+   "in_population": true
+  },
+  {
+   "query": "Q11",
+   "chunk": 712,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q11",
+   "chunk": 544,
+   "as_gold": "wrong_superseded_or_rejected",
+   "T": false
+  },
+  {
+   "query": "Q11",
+   "chunk": 29,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q12",
+   "chunk": 408,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q12",
+   "chunk": 808,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q12",
+   "chunk": 505,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q13",
+   "chunk": 42,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q13",
+   "chunk": 326,
+   "as_gold": "wrong_superseded_or_rejected",
+   "T": false
+  },
+  {
+   "query": "Q13",
+   "chunk": 432,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q14",
+   "chunk": 829,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q14",
+   "chunk": 431,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q15",
+   "chunk": 833,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q15",
+   "chunk": 568,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q16",
+   "chunk": 750,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q16",
+   "chunk": 843,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q17",
+   "chunk": 775,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q17",
+   "chunk": 42,
+   "as_gold": "random",
+   "T": false,
+   "in_population": true
+  },
+  {
+   "query": "Q18",
+   "chunk": 673,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q18",
+   "chunk": 81,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q19",
+   "chunk": 501,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q19",
+   "chunk": 286,
+   "as_gold": "wrong_superseded_or_rejected",
+   "T": false
+  },
+  {
+   "query": "Q19",
+   "chunk": 747,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q20",
+   "chunk": 80,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q20",
+   "chunk": 446,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q20",
+   "chunk": 625,
+   "as_gold": "wrong_superseded_or_rejected",
+   "T": false
+  },
+  {
+   "query": "Q20",
+   "chunk": 444,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q21",
+   "chunk": 347,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q21",
+   "chunk": 369,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q21",
+   "chunk": 370,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q21",
+   "chunk": 239,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q22",
+   "chunk": 724,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q22",
+   "chunk": 796,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q23",
+   "chunk": 610,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q23",
+   "chunk": 838,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q23",
+   "chunk": 507,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q24",
+   "chunk": 715,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q24",
+   "chunk": 762,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q25",
+   "chunk": 587,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q25",
+   "chunk": 823,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q25",
+   "chunk": 723,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q26",
+   "chunk": 796,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q26",
+   "chunk": 213,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q27",
+   "chunk": 42,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q27",
+   "chunk": 385,
+   "as_gold": "wrong_superseded_or_rejected",
+   "T": false
+  },
+  {
+   "query": "Q27",
+   "chunk": 262,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q28",
+   "chunk": 728,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q28",
+   "chunk": 394,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q29",
+   "chunk": 737,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q29",
+   "chunk": 833,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q30",
+   "chunk": 678,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q30",
+   "chunk": 409,
+   "as_gold": "wrong_superseded_or_rejected",
+   "T": false
+  },
+  {
+   "query": "Q30",
+   "chunk": 178,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q31",
+   "chunk": 144,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q31",
+   "chunk": 206,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q32",
+   "chunk": 789,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q32",
+   "chunk": 497,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q33",
+   "chunk": 218,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q33",
+   "chunk": 816,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q33",
+   "chunk": 799,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q34",
+   "chunk": 697,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q34",
+   "chunk": 335,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q35",
+   "chunk": 687,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q35",
+   "chunk": 492,
+   "as_gold": "wrong_superseded_or_rejected",
+   "T": false
+  },
+  {
+   "query": "Q35",
+   "chunk": 418,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q36",
+   "chunk": 820,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q36",
+   "chunk": 467,
+   "as_gold": "wrong_superseded_or_rejected",
+   "T": false
+  },
+  {
+   "query": "Q36",
+   "chunk": 133,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q37",
+   "chunk": 513,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q37",
+   "chunk": 514,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q37",
+   "chunk": 266,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q38",
+   "chunk": 275,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q38",
+   "chunk": 719,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q38",
+   "chunk": 235,
+   "as_gold": "wrong_superseded_or_rejected",
+   "T": false
+  },
+  {
+   "query": "Q38",
+   "chunk": 378,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q39",
+   "chunk": 755,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q39",
+   "chunk": 327,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q40",
+   "chunk": 403,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q40",
+   "chunk": 404,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q40",
+   "chunk": 90,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q41",
+   "chunk": 150,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q41",
+   "chunk": 12,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q42",
+   "chunk": 87,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q42",
+   "chunk": 824,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q43",
+   "chunk": 764,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q43",
+   "chunk": 121,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "Q44",
+   "chunk": 442,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q44",
+   "chunk": 770,
+   "as_gold": "correct",
+   "T": true
+  },
+  {
+   "query": "Q44",
+   "chunk": 674,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "QP0",
+   "chunk": 220,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "QP1",
+   "chunk": 273,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "QP2",
+   "chunk": 314,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "QP3",
+   "chunk": 578,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  },
+  {
+   "query": "QP4",
+   "chunk": 663,
+   "as_gold": "random",
+   "T": false,
+   "in_population": false
+  }
+ ],
+ "human_sample": [
+  {
+   "pair": 472,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 1
+  },
+  {
+   "pair": 505,
+   "stratum": "false_premise",
+   "inclusion": 0.18181818181818182,
+   "row": 2
+  },
+  {
+   "pair": 149,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 3
+  },
+  {
+   "pair": 123,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 4
+  },
+  {
+   "pair": 54,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 5
+  },
+  {
+   "pair": 462,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 6
+  },
+  {
+   "pair": 293,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 7
+  },
+  {
+   "pair": 445,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 8
+  },
+  {
+   "pair": 549,
+   "stratum": "false_premise",
+   "inclusion": 0.18181818181818182,
+   "row": 9
+  },
+  {
+   "pair": 291,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 10
+  },
+  {
+   "pair": 487,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 11
+  },
+  {
+   "pair": 317,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 12
+  },
+  {
+   "pair": 217,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 13
+  },
+  {
+   "pair": 499,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 14
+  },
+  {
+   "pair": 418,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 15
+  },
+  {
+   "pair": 421,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 16
+  },
+  {
+   "pair": 78,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 17
+  },
+  {
+   "pair": 26,
+   "stratum": "context_negative",
+   "inclusion": 1.0,
+   "row": 18
+  },
+  {
+   "pair": 49,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 19
+  },
+  {
+   "pair": 202,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 20
+  },
+  {
+   "pair": 136,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 21
+  },
+  {
+   "pair": 497,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 22
+  },
+  {
+   "pair": 210,
+   "stratum": "context_negative",
+   "inclusion": 1.0,
+   "row": 23
+  },
+  {
+   "pair": 300,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 24
+  },
+  {
+   "pair": 380,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 25
+  },
+  {
+   "pair": 22,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 26
+  },
+  {
+   "pair": 367,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 27
+  },
+  {
+   "pair": 306,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 28
+  },
+  {
+   "pair": 398,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 29
+  },
+  {
+   "pair": 81,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 30
+  },
+  {
+   "pair": 404,
+   "stratum": "context_negative",
+   "inclusion": 1.0,
+   "row": 31
+  },
+  {
+   "pair": 67,
+   "stratum": "context_negative",
+   "inclusion": 1.0,
+   "row": 32
+  },
+  {
+   "pair": 89,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 33
+  },
+  {
+   "pair": 104,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 34
+  },
+  {
+   "pair": 92,
+   "stratum": "context_negative",
+   "inclusion": 1.0,
+   "row": 35
+  },
+  {
+   "pair": 267,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 36
+  },
+  {
+   "pair": 178,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 37
+  },
+  {
+   "pair": 309,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 38
+  },
+  {
+   "pair": 403,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 39
+  },
+  {
+   "pair": 551,
+   "stratum": "false_premise",
+   "inclusion": 0.18181818181818182,
+   "row": 40
+  },
+  {
+   "pair": 515,
+   "stratum": "false_premise",
+   "inclusion": 0.18181818181818182,
+   "row": 41
+  },
+  {
+   "pair": 369,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 42
+  },
+  {
+   "pair": 354,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 43
+  },
+  {
+   "pair": 416,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 44
+  },
+  {
+   "pair": 225,
+   "stratum": "context_negative",
+   "inclusion": 1.0,
+   "row": 45
+  },
+  {
+   "pair": 535,
+   "stratum": "false_premise",
+   "inclusion": 0.18181818181818182,
+   "row": 46
+  },
+  {
+   "pair": 299,
+   "stratum": "context_negative",
+   "inclusion": 1.0,
+   "row": 47
+  },
+  {
+   "pair": 1,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 48
+  },
+  {
+   "pair": 37,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 49
+  },
+  {
+   "pair": 70,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 50
+  },
+  {
+   "pair": 298,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 51
+  },
+  {
+   "pair": 533,
+   "stratum": "false_premise",
+   "inclusion": 0.18181818181818182,
+   "row": 52
+  },
+  {
+   "pair": 511,
+   "stratum": "false_premise",
+   "inclusion": 0.18181818181818182,
+   "row": 53
+  },
+  {
+   "pair": 397,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 54
+  },
+  {
+   "pair": 255,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 55
+  },
+  {
+   "pair": 215,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 56
+  },
+  {
+   "pair": 406,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 57
+  },
+  {
+   "pair": 164,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 58
+  },
+  {
+   "pair": 456,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 59
+  },
+  {
+   "pair": 349,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 60
+  },
+  {
+   "pair": 433,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 61
+  },
+  {
+   "pair": 270,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 62
+  },
+  {
+   "pair": 182,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 63
+  },
+  {
+   "pair": 333,
+   "stratum": "context_negative",
+   "inclusion": 1.0,
+   "row": 64
+  },
+  {
+   "pair": 236,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 65
+  },
+  {
+   "pair": 204,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 66
+  },
+  {
+   "pair": 325,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 67
+  },
+  {
+   "pair": 431,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 68
+  },
+  {
+   "pair": 112,
+   "stratum": "context_negative",
+   "inclusion": 1.0,
+   "row": 69
+  },
+  {
+   "pair": 344,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 70
+  },
+  {
+   "pair": 114,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 71
+  },
+  {
+   "pair": 508,
+   "stratum": "false_premise",
+   "inclusion": 0.18181818181818182,
+   "row": 72
+  },
+  {
+   "pair": 413,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 73
+  },
+  {
+   "pair": 280,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 74
+  },
+  {
+   "pair": 82,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 75
+  },
+  {
+   "pair": 442,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 76
+  },
+  {
+   "pair": 122,
+   "stratum": "context_negative",
+   "inclusion": 1.0,
+   "row": 77
+  },
+  {
+   "pair": 528,
+   "stratum": "false_premise",
+   "inclusion": 0.18181818181818182,
+   "row": 78
+  },
+  {
+   "pair": 128,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 79
+  },
+  {
+   "pair": 388,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 80
+  },
+  {
+   "pair": 385,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 81
+  },
+  {
+   "pair": 275,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 82
+  },
+  {
+   "pair": 455,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 83
+  },
+  {
+   "pair": 423,
+   "stratum": "context_negative",
+   "inclusion": 1.0,
+   "row": 84
+  },
+  {
+   "pair": 237,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 85
+  },
+  {
+   "pair": 167,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 86
+  },
+  {
+   "pair": 382,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 87
+  },
+  {
+   "pair": 339,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 88
+  },
+  {
+   "pair": 260,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 89
+  },
+  {
+   "pair": 274,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 90
+  },
+  {
+   "pair": 357,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 91
+  },
+  {
+   "pair": 390,
+   "stratum": "context_negative",
+   "inclusion": 1.0,
+   "row": 92
+  },
+  {
+   "pair": 365,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 93
+  },
+  {
+   "pair": 79,
+   "stratum": "context_negative",
+   "inclusion": 1.0,
+   "row": 94
+  },
+  {
+   "pair": 147,
+   "stratum": "context_negative",
+   "inclusion": 1.0,
+   "row": 95
+  },
+  {
+   "pair": 101,
+   "stratum": "context_negative",
+   "inclusion": 1.0,
+   "row": 96
+  },
+  {
+   "pair": 211,
+   "stratum": "truth",
+   "inclusion": 0.33707865168539325,
+   "row": 97
+  },
+  {
+   "pair": 319,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 98
+  },
+  {
+   "pair": 281,
+   "stratum": "other_false",
+   "inclusion": 0.11363636363636363,
+   "row": 99
+  },
+  {
+   "pair": 526,
+   "stratum": "false_premise",
+   "inclusion": 0.18181818181818182,
+   "row": 100
+  }
+ ],
+ "premise_pairs": [
+  500,
+  501,
+  502,
+  503,
+  504,
+  505,
+  506,
+  507,
+  508,
+  509,
+  510,
+  511,
+  512,
+  513,
+  514,
+  515,
+  516,
+  517,
+  518,
+  519,
+  520,
+  521,
+  522,
+  523,
+  524,
+  525,
+  526,
+  527,
+  528,
+  529,
+  530,
+  531,
+  532,
+  533,
+  534,
+  535,
+  536,
+  537,
+  538,
+  539,
+  540,
+  541,
+  542,
+  543,
+  544,
+  545,
+  546,
+  547,
+  548,
+  549,
+  550,
+  551,
+  552,
+  553,
+  554,
+  27,
+  34,
+  37,
+  44,
+  57,
+  99,
+  126,
+  132,
+  134,
+  143,
+  167,
+  202,
+  221,
+  223,
+  233,
+  234,
+  237,
+  293,
+  332,
+  343,
+  354,
+  360,
+  406,
+  421,
+  424,
+  425,
+  442,
+  444,
+  479,
+  492,
+  55,
+  62,
+  80,
+  90,
+  97,
+  141,
+  145,
+  152,
+  161,
+  166,
+  171,
+  190,
+  231,
+  250,
+  282,
+  313,
+  314,
+  326,
+  386,
+  412,
+  418,
+  439,
+  448,
+  481,
+  489
+ ]
+}

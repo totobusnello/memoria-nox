@@ -1,130 +1,215 @@
 # Step 2 pre-registration: the judges of Paper A against a planted answer key
 
-Status: DRAFT, not frozen. It is frozen by the tag `synthetic-ptbr-stage2-prereg` on the commit that
-also carries the scripts named below; no model call of step 2 happens before that tag exists, except
-the offline tests, which call no model.
+Status: DRAFT, revised after a challenge round by Codex and Kimi (2026-11-25). It is frozen by the
+tag `synthetic-ptbr-stage2-prereg` on the commit that also carries the scripts named below. No model
+call of step 2 happens before that tag exists and before the human annotations of §6 are committed.
 
-## 1. Why
+## 1. What this step can and cannot say
 
-Paper A (doi:10.5281/zenodo.24400444, §3) reports two failures of its LLM judges and says, of the
-second, that "with no independent reference, this says nothing either way about precision". The
-synthetic corpus of step 1 (doi:10.5281/zenodo.24535848) has that reference: every question was
-written from a sentence the planner placed, so whether a chunk answers a question is known by
-construction. Step 2 re-runs the judges of Paper A, with their own prompts and models, on this corpus
-and reads them against that key.
+Paper A (doi:10.5281/zenodo.24400444, §3) reports failures of its LLM judges and says, of one of
+them, that "with no independent reference, this says nothing either way about precision". The
+synthetic corpus of step 1 (doi:10.5281/zenodo.24535848) carries a key: every question was written
+from sentences the planner placed. Step 2 re-runs the judges of Paper A, with the same model ids,
+prompts and request bodies, on this corpus and reads them against that key and against a blind
+human reading of a sample.
 
-Findings of Paper A under test:
+What it can say: how these judges behave on this corpus, against the planted key and against the
+human sample. What it cannot say:
 
-- **Third.** The quoting oracle presents paraphrase as verbatim quotation; the 8-word citation check
-  built on its quotes lowered agreement with a second judge; the oracle could not hold a negative on a
-  false-premise question.
-- **Fifth.** A second judge rejected much of the recorded gold, and Paper A could not say whether the
-  rejections were right.
-- **Judge stability** (§3, "How much the judge's own reading moves the pooled score"): an identical
-  request returned identical labels; the same predicate reworded changed some labels and moved pooled.
+- Whether the citation check misbehaves the way it did in Paper A. Paper A's failures came from
+  copyable formatting (Markdown table pipes, `<u>`, an escaped currency sign) and from quotes that
+  drift after 13 to 53 characters. Here the 85 planted sentences have 43 to 95 characters, the largest
+  chunk has 924, and no chunk carries `|`, `<u>` or `\R$`. Readings 1 and 2 hold for this corpus only;
+  the check itself is described separately on offline fixtures (§5).
+- Whether Paper A's 38 gold rejections were right. Its wrong gold came from a fallible build (one
+  documented case confused a per-call limit with a storage capacity). Here wrong gold is introduced
+  by the planner, as values that were rejected or superseded. The step measures acceptance of
+  correct gold and of these two kinds of impostor, nothing about the private pairs.
+- Anything about the same model versions Paper A used. The model ids are the same; whether a
+  provider serves the same weights under an id is not observable. Every output records the model id
+  the API returned.
 
 ## 2. Fixed inputs
 
-- Corpus, plan and baseline: the v1.0 deposit, commit `70c82859`, files `synthetic-ptbr/plan/plan.json`
-  and `synthetic-ptbr/results/3.11.1/{chunks-baseline.json,rankings.json}` (nox-mem 3.11.1, BM25,
-  frozen in step 1). No re-ingest and no new ranking: chunk text is read from `chunks-baseline.json`.
-- Truth `T` for a (query, chunk) pair: the chunk contains, verbatim, the planted primary sentence or a
-  planted paraphrase listed in the query's `T` (the rule used in step 1). Every pair of a
-  false-premise query is false in `T`. Registered gold `R`: the same rule over the query's `R`.
-- Population, built by `stage2/pairs.py` and committed as `stage2/pairs.json` before the tag:
-  for each of the 50 queries, the top 10 of the frozen ranking, every chunk in `T` outside the top 10,
-  every chunk holding a context negative of the query's fact (negated value, rejected proposal, other
-  entity), and one chunk drawn at random from the rest (seed `20261126`). As computed before writing
-  this: 555 pairs (500 top-10, 5 `T` outside the top 10, 50 random; the 15 context-negative chunks are
-  all inside the top 10), 89 of them true in `T`, 59 in `R`.
-- Gold-check population (finding five): the 59 `R` pairs (correct gold, by construction), the 15
-  context-negative pairs presented as gold (wrong gold that shares the value), and the 50 random pairs
-  presented as gold (Paper A's random-chunk control): 124 pairs.
+- Corpus, plan and baseline: the v1.0 deposit, commit `70c82859`: `synthetic-ptbr/plan/plan.json` and
+  `synthetic-ptbr/results/3.11.1/{chunks-baseline.json,rankings.json}` (nox-mem 3.11.1, BM25, frozen in
+  step 1). Chunk text is read from `chunks-baseline.json`; nothing is re-ingested or re-ranked.
+- Key `T` for a (query, chunk) pair: the chunk contains, verbatim, the planted primary sentence or a
+  planted paraphrase listed in the query's `T` (step 1's rule). Every pair of a false-premise query is
+  false in `T`. Registered gold `R`: the same rule over the query's `R`. `T` is a key of planted
+  evidence, not a semantic truth; §6 measures how far the two differ.
+- Population, built by `stage2/pairs.py` and committed as `stage2/pairs.json` (`--check` fails on
+  drift): for each of the 50 queries, the top 10 of the frozen ranking, every chunk in `T` outside the
+  top 10, and one chunk drawn from the rest (candidates sorted by id, `random.Random(20261126).choice`,
+  in query order). Result: 555 pairs (500 top-10, 5 `T` outside the top 10, 50 drawn), 89 true in `T`,
+  59 true in `R`. Context negatives: 15 pairs, all inside the top 10, each holding a value for the
+  asked entity and attribute that the corpus marks as rejected (8) or superseded (7); none holds a
+  correct form of the asked value. A pair counts once even when two chunks have the same text.
+- Gold-check groups (finding five), over the same 555 pairs plus one control per query: correct gold
+  = the 59 `R` pairs; wrong gold = the 15 context-negative pairs; random control = one chunk per query
+  drawn as Paper A drew it (all chunk ids sorted, `random.Random(20261027)`, redrawn while equal to the
+  query's first gold chunk; for false-premise queries, no exclusion). Controls outside the 555 are
+  judged by J-gold only.
 
-## 3. Instruments (copied, not rewritten)
+## 3. Instruments
 
-Prompts are copied character for character from the scripts named, with only the input plumbing
-changed (chunk text from the frozen JSON instead of a SQLite file). `stage2/judges.py` holds them,
-and `stage2/test-stage2.py` checks that each prompt string equals the one in its source script at the
-cited commit.
+Prompts and request bodies are copied from the sources below, at the commits given, with only the
+input plumbing changed (chunk text from the frozen JSON). `stage2/judges.py` holds them;
+`stage2/test-stage2.py` renders each request for a fixed pair and compares the prompt strings with
+the source files at those commits, and the request bodies (fields, generation settings, question
+names) with the bodies the sources build.
 
-| id | instrument | model and API | source in this repository |
+| id | role | model, API, settings | source (commit) |
 |---|---|---|---|
-| J-closed | closed-book answer per query (input of the oracle) | `gemini-2.5-flash-lite`, Gemini `generateContent`, temperature 0 | `audits/2026-10-22-gold-oracle.py`, `CLOSED` |
-| J-oracle | quoting oracle: answer, verbatim quote, `trecho_responde` | same | `audits/2026-10-22-gold-oracle.py`, `JUDGE` |
-| J-repass | 8-word second pass, on oracle positives whose quote failed | same | `audits/2026-10-22-gold-repass.py`, `P` |
-| J-pool | pooling judge with the 8-word citation leg | same | `audits/2026-10-22-gold-pooling.py`, `P` |
-| J-reg | registered judge: predicate plus four levels, p > 0.5 | `gpt-6-luna`, OpenAI Decisions API | `eval/judge-relevance.py`, `PREDICATE`, `LEVELS` |
-| J-reg-2 | J-reg again, identical request, separate run | same | same |
-| J-reword | same predicate, sent alone, passage wrapped in `TRECHO:` | same | `audits/2026-10-27-judge-reread-full.py`, `PRED` |
-| J-gold | "does the recorded gold answer the question" | same | `audits/2026-10-27-does-the-recorded-gold-answer-the-question.py`, `RESPONDE` |
-| J-premise | premise check, on the 55 false-premise pairs and on 55 fact pairs drawn with seed `20261126` | `gemini-2.5-flash-lite` | **reconstructed**: Paper A's premise-check prompt was never committed; the text in `judges.py` is new and is reported as such |
+| J-closed | closed-book answer per query, input of J-oracle | `gemini-2.5-flash-lite`, `generateContent`, temperature 0, `maxOutputTokens` 1200, JSON mime | `audits/2026-10-22-gold-oracle.py` `CLOSED` (`582a8cee`) |
+| J-oracle | answer, verbatim quote, `trecho_responde`, `sem_fonte_ja_responde` | same | same file, `JUDGE` |
+| J-repass | first 8 words, on J-oracle positives whose quote fails the 160-character check | same, `maxOutputTokens` 900 | `audits/2026-10-22-gold-repass.py` `P` (`b3dcc47c`) |
+| J-pool | `trecho_responde` plus first 8 words | same, `maxOutputTokens` 700 | `audits/2026-10-22-gold-pooling.py` `P` (`0c628152`) |
+| J-reg | registered judge: predicate `contem_resposta` plus four-level score, p > 0.5 | `gpt-6-luna`, OpenAI Decisions API | `eval/judge-relevance.py` `PREDICATE`, `LEVEL_Q`, `LEVELS` (`0c628152`) |
+| J-reg-2 | J-reg again, identical request, separate run after J-reg ends | same | same |
+| J-envelope | same predicate string sent alone, chunk wrapped in `TRECHO:\n---\n…\n---`, p > 0.5 | same | `audits/2026-10-27-judge-reread-full.py` `PRED` (`0c063e73`) |
+| J-gold | "contains information that answers, totally or partly", chunk wrapped, p > 0.5 | same | `RESPONDE` of `audits/2026-10-27-does-the-recorded-gold-answer-the-question.py`, removed from the public tree on 2026-11-08 because it carried private anchors; the prompt string, which carries no corpus text, is copied; private file sha256 prefix `43bd20fd8419` |
+| J-premise | exploratory: does the chunk support, contradict or say nothing about the question's premise | `gemini-2.5-flash-lite`, temperature 0, `maxOutputTokens` 700, JSON mime | **new**: Paper A's premise-check prompt was never committed; the text in `judges.py` is written for this step and reported as new |
 
-Citation checks, as in the sources: oracle quote `norm(quote)[:160] in norm(chunk)`; 8-word leg
-`len(norm(q8)) >= 12 and norm(q8) in norm(chunk)`, with `norm` = NFKD, accents stripped, whitespace
-collapsed, lower case. A full-quote check (the whole normalised quote) is added and reported beside
-the 160-character one. Chunk text is cut at 6,000 characters for every judge, as in the sources.
+Deviations from the sources, all declared: J-oracle judges every pair directly, without the
+triage that showed 12 candidates and kept 3, and without the closed-book gate in the label;
+J-repass selects pairs (J-oracle positives failing the quote check), where the source selected
+queries and re-judged all their candidates; chunk text comes from JSON (the 6,000-character cut is
+kept and is inert: the largest chunk has 924 characters). J-envelope changes two things at once
+(no level question; wrapped chunk) and is read as sensitivity to the request envelope, not as a
+reworded predicate.
 
-J-oracle, J-pool, J-reg, J-reg-2 and J-reword judge all 555 pairs. J-gold judges the 124 gold-check
-pairs. J-closed runs once per query (50 calls).
+Labels. A Gemini response is read with the source's tolerant extractor (`jload`, copied verbatim)
+and is valid only if it yields a JSON object whose fields read below have the right JSON type
+(`true`/`false` for booleans; the string `"false"` is not a boolean); a Decisions response is valid
+only if it carries the expected answer name with a numeric probability. Anything else is a missing
+label, never `false`. The sources coerced with `bool(...)`; this step does not, and says so. Positive label per
+instrument: J-oracle `trecho_responde` (reported also with the source's full rule: `trecho_responde
+AND NOT sem_fonte_ja_responde AND quote check`); J-pool `trecho_responde`, and with the leg
+`trecho_responde AND citacao_confere`; J-reg, J-reg-2, J-envelope, J-gold probability > 0.5.
+
+Citation checks, as in the sources, with `norm` = NFKD, accents stripped, whitespace collapsed,
+lower case. Oracle quote: `bool(quote) and norm(quote)[:160] in norm(chunk)`. 8-word leg:
+`bool(q8) and len(norm(q8)) >= 12 and norm(q8) in norm(chunk)` (the source checks 12 normalised
+characters and a substring; it does not count words, and neither does this step). Added beside the
+oracle check, not replacing it: the whole normalised quote as a substring.
+
+Who judges what: J-closed, 50 queries; J-oracle, J-pool, J-reg, J-reg-2, J-envelope, J-gold, the
+555 pairs; J-gold also the random controls outside the 555; J-repass, the eligible J-oracle pairs;
+J-premise, the 55 false-premise pairs and 55 fact pairs (30 true in `T`, 25 false, drawn with seed
+`20261126` and committed in `pairs.json`).
 
 ## 4. Readings
 
-All readings are descriptive. Precision, recall and Cohen's kappa are computed against `T` per judge.
-Kappa between judges is reported next to each judge's kappa against `T`.
+Every rate is printed with its numerator and denominator; a rate with denominator zero prints as
+undefined. Agreement between two instruments is computed on the pairs where both have a valid
+label. Results are reported over all 555 pairs and, separately, over the 500 top-10 pairs (the
+population a pooling pass would judge).
 
-1. **Quotation.** Among J-oracle positives: the share whose quote fails the 160-character check, the
-   share failing the full-quote check, and, of the failures, the share J-repass verifies.
-2. **The citation leg.** For J-pool: precision and recall against `T` of `trecho_responde` alone and of
-   `trecho_responde AND citacao_confere`; kappa of each with J-reg. This is the reading Paper A could
-   not make: whether the kappa the check costs is a loss of precision, of recall, or neither.
-3. **Negatives.** Pairs of the 5 false-premise queries labelled as answering, per judge; and, for the
-   15 context-negative pairs, the same count. J-premise: the premise flag against the known premise
-   (false for the 55 false-premise pairs, true for the 55 fact pairs); the `motivo` texts are published,
-   no number is derived from them.
-4. **Gold check.** J-gold acceptance on correct gold (59), on wrong gold with the value (15), and on
-   random chunks (50).
-5. **Stability.** Labels changed between J-reg and J-reg-2, and between J-reg and J-reword. Pooled
-   nDCG@10 (gold `R` plus the judge's positives in the top 10, step 1's definition) under J-reg, J-reg-2
-   and J-reword, against nDCG@10 on `T`.
+1. **Quotation (J-oracle, J-repass), this corpus only.** Among J-oracle positives: quotes empty;
+   failing the 160-character check; passing it but failing the whole-quote check; and, of the
+   160-character failures, those J-repass verifies.
+2. **The citation leg (J-pool).** The paired table of J-pool positives: leg passed or failed × `T`
+   × J-reg label, with counts. From it: precision and recall against `T` without and with the leg,
+   and kappa with J-reg without and with the leg, on the same pairs. The leg can only lower recall
+   or leave it; precision can move either way or become undefined; the table shows which pairs
+   moved.
+3. **Negatives.** For each of the 5 false-premise queries and each of the 15 context-negative pairs,
+   which instruments labelled it as answering. J-premise (exploratory): for the 55 false-premise
+   pairs, how many it says support the premise (an error: the premise is absent from the corpus);
+   for the 30 fact pairs true in `T`, how many it says support it; the other 25 are reported without
+   a reading. Its `motivo` texts are published; no number is derived from them.
+4. **Gold check (J-gold).** Acceptance of correct gold (59), wrong gold (15) and random controls
+   (50), and the fact queries whose whole `R` J-gold rejects. Also J-gold against `T` on the 555.
+5. **Stability.** J-reg against J-reg-2 and J-reg against J-envelope: labels changed, their direction,
+   and the absolute change in probability in the bands 0–0.1, 0.1–0.3, 0.3–0.5 crossing, and over.
+   Pooled nDCG@10 (step 1's definition: `R` plus the instrument's positives in the top 10) under
+   J-reg, J-reg-2 and J-envelope, and nDCG@10 on `T`, over the fact queries whose top 10 has a valid
+   label in all three runs; the other fact queries and the 5 false-premise queries (empty ideal) are
+   listed apart.
+6. **Each instrument against `T`** (primary, all pairs it judged): true and false positives and
+   negatives, precision, recall, kappa against `T`; and kappa between each pair of the judges J-oracle,
+   J-pool, J-reg, J-gold, beside their kappas against `T`.
+7. **Against the human sample** (secondary, §6): the same counts for each instrument against the
+   human reading, per stratum and weighted by inverse inclusion probability.
 
-## 5. Predictions carried over from Paper A
+## 5. The citation check on fixtures (offline, no model)
 
-Read as "seen again" or "not seen again"; none is a pass mark for the method.
+`stage2/citation-fixtures.json` holds chunks and quotes built from the formats Paper A documented: a
+Markdown table row, `<u>` wrapping, an escaped currency sign, a quote that drifts into paraphrase
+after 13, 30 and 53 characters, a quote longer than 160 characters that diverges after character
+160, an empty quote and a quote assembled from two places. The report prints, for each, the result
+of the oracle check, the whole-quote check and the 8-word rule. This describes what the check
+vetoes; it is not a measurement of any judge.
 
-- P1: some J-oracle positives fail the 160-character quote check.
-- P2: J-pool with the citation leg has lower kappa with J-reg than J-pool without it.
-- P3: J-reg and J-reg-2 differ on no label.
-- P4: J-reword differs from J-reg on at least one label.
-- P5: J-gold accepts under 5% of the random pairs.
+## 6. Human reading of a sample
 
-Nothing is predicted about precision against `T`: that is what the step measures.
+Before any model call, `pairs.py` draws a stratified sample of 100 pairs (seed `20261126`) and
+writes `stage2/human/SHEET.md` with only the question and the chunk text, in shuffled order, with
+no key, no source, no rank; codes go into `stage2/human/annotations.tsv` (row, code, note). Strata and inclusion: 30 of the 89 pairs true in `T`; all 15 context-negative pairs; 10 of
+the 55 false-premise pairs (2 per query); 45 of the 396 other pairs false in `T`.
 
-## 6. Truth gaps
+The owner (Luiz Antonio Busnello) reads every row alone and marks one code:
 
-The key is as good as the generator's discipline: a generated sentence could answer a question
-without being planted (step 1 audited a sample and found none, which is not completeness). Every pair
-that any judge labels as answering and `T` labels false is put in a blind sheet together with an
-equal number of pairs that `T` and the judges label false, shuffled with seed `20261126`, with the
-question and the chunk and no label. Claude reads all of it and the owner reads 10 rows; each row is
-marked "answers" or "does not answer". Readings in §4 are reported against `T` as registered
-(primary) and against `T` corrected by this sheet (secondary), side by side.
+- **C**, complete: a sentence gives the asked datum for the asked entity, as current;
+- **P**, partial: a sentence gives part of the asked datum;
+- **D**, discarded: a sentence gives a value for the asked entity and attribute that the text marks as
+  rejected, superseded or negated;
+- **M**, mention: the asked entity or subject appears without the datum;
+- **F**, off: none of the above;
+- **?**, cannot decide, with a one-line note; these rows are counted and left out.
+
+Mapping, fixed now: "answers" is C for J-oracle, J-pool, J-reg, J-reg-2 and J-envelope, and C or P
+for J-gold. The key `T` is compared with C. No model reads the sheet and nobody revises a code after
+the first model call. The annotations are committed before the first model call; the runner refuses
+to start without them. Reported: the rate at which the human reading and `T` disagree per stratum,
+the weighted estimate over the 555, and every disagreeing row with its code and note.
 
 ## 7. Runs, money and stopping
 
-- Each instrument first runs a smoke of 10 pairs, which is counted in the ledger and excluded from
-  every reading. Then one full run. No instrument is re-run, except one complete re-run when more than
-  10% of its pairs end without a label after the scripts' own retries; that re-run is reported.
-- Pairs without a label after retries are reported per instrument and left out of that instrument's
-  denominators.
-- `stage2/ledger.json` records the reported cost of every call. The runner refuses any call that would
-  start with the ledger at or above US$ 20 and stops; an instrument cut by the ceiling is reported as
-  incomplete, with how far it got. Expected cost from Paper A's recorded prices: well under US$ 1.
-- Keys are read from the environment (`GEMINI_API_KEY`, `OPENAI_API_KEY`), never from a file in the
-  repository; outputs carry the model id each API returned.
+- Order, fixed: J-closed, J-oracle, J-pool, J-reg, J-reg-2, J-envelope, J-gold, J-repass, J-premise.
+  Within an instrument, the order of `pairs.json`. At most 4 calls in flight.
+- Smoke: the first 10 units of each instrument in that order (queries for J-closed; for J-repass,
+  up to 10 of the eligible pairs), counted in the ledger and excluded from every reading. The full
+  run then calls every unit again, smoke units included.
+- Retries: up to 5 attempts on timeouts, HTTP 429 and 5xx, as in the sources; none on other HTTP
+  errors and none on an invalid response. A pair still without a valid label is missing and is
+  reported per instrument and per stratum.
+- One complete re-run of an instrument is allowed only if more than 10% of its units are missing; the
+  decision reads the missing count only. The re-run replaces the first run as primary; both are
+  published. J-reg-2 runs after the primary J-reg is settled.
+- Ledger: `stage2/ledger.json` records every attempt with timestamp, instrument, unit, sha256 of the
+  request body, HTTP status, usage returned and cost from `stage2/prices.json` (frozen with the tag).
+  A call starts only if spent plus US$ 0.01 for every call in flight, including itself, stays at or
+  under US$ 20. An instrument cut by the ceiling is reported as incomplete, with how far it got.
+  Expected spend, from Paper A's recorded costs: under US$ 1.
+- Keys come from the environment (`GEMINI_API_KEY`, `OPENAI_API_KEY`), never from a file in the
+  repository.
 
-## 8. What changes after the tag
+## 8. Predictions carried over from Paper A
 
-Nothing in §2 to §7. An error found later in a script is fixed in a dated amendment that states what
-it changes and whether any reading had been seen; readings computed under the frozen scripts stay in
-the record.
+Each is read as "seen again" or "not seen again" and printed with its counts. P1 and P4 can be met by
+a single case, and P3 by two runs that happen to agree; they are weak by design and are not a
+validation of anything.
+
+- P1: at least one J-oracle positive fails the 160-character check.
+- P2: J-pool with the leg has lower kappa with J-reg than without it (undefined if either kappa is).
+- P3: J-reg and J-reg-2 differ on no label.
+- P4: J-envelope differs from J-reg on at least one label.
+- P5: J-gold accepts at most 2 of the 50 random controls (under 5%), read together with its
+  acceptance of the 59 correct gold: a judge that rejects everything meets P5.
+
+Nothing is predicted about agreement with `T` or with the human reading.
+
+## 9. Frozen files, review and amendments
+
+Frozen by the tag, in `synthetic-ptbr/stage2/`: this file, `pairs.py`, `pairs.json`,
+`human/SHEET.md`, `prompts.py`, `judges.py`, `run.py`, `analyze.py`, `prices.json`,
+`citation-fixtures.json` and `test-stage2.py` (offline; it compares every copied prompt and the two
+copied helpers with their sources, checks the population, the parsing, the citation fixtures and
+the ceiling, and runs the analysis end to end on fabricated runs; `--sabotage` must fail).
+
+Codex and Kimi challenged the first draft on 2026-11-25 (both "do not freeze"); this version answers
+their findings, and the record of the round is in `PLANO.md`. After the tag, nothing in §2 to §8
+changes; an error found in a script is fixed in a dated amendment that says what it changes and
+whether any reading had been seen, and readings computed under the frozen scripts stay in the record.

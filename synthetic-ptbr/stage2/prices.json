@@ -1,0 +1,7 @@
+{
+ "note": "Frozen with the pre-registration tag. US$ per million tokens. Used only by the ledger to bound spend; the deposit reports the usage each API returned.",
+ "gemini-2.5-flash-lite": {"input": 0.10, "output": 0.40, "source": "Google AI pricing for gemini-2.5-flash-lite, paid tier, as known on 2026-11-25; thinking tokens, if any, are priced as output"},
+ "gpt-6-luna": {"input": 0.10, "output": 0.0, "source": "the estimate eval/judge-relevance.py uses (input tokens x US$ 0.10 per million); Decisions returns no free text"},
+ "reserve_per_call_usd": 0.01,
+ "ceiling_usd": 20.0
+}

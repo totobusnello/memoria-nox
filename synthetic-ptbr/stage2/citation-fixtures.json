@@ -1,0 +1,62 @@
+[
+ {
+  "case": "table row, quote de-tabulated",
+  "chunk": "| Item | Valor |\n|---|---|\n| Tiragem | 5.357 exemplares |",
+  "quote": "Tiragem: 5.357 exemplares"
+ },
+ {
+  "case": "table row, quote copied with pipes",
+  "chunk": "| Item | Valor |\n|---|---|\n| Tiragem | 5.357 exemplares |",
+  "quote": "| Tiragem | 5.357 exemplares |"
+ },
+ {
+  "case": "<u> wrapping dropped in the quote",
+  "chunk": "O prazo do site novo é de <u>32 dias</u> a partir da assinatura do contrato.",
+  "quote": "O prazo do site novo é de 32 dias a partir da assinatura do contrato."
+ },
+ {
+  "case": "escaped currency sign unescaped in the quote",
+  "chunk": "O preço de capa ficou em \\R$ 49,90 depois da revisão de custos.",
+  "quote": "O preço de capa ficou em R$ 49,90 depois da revisão de custos."
+ },
+ {
+  "case": "drift into paraphrase after 13 characters",
+  "chunk": "A gráfica confirmou que a primeira tiragem de O Jardim de Cera sai com 5.357 exemplares, impressos em papel pólen de 80 gramas e entregues no depósito da editora na segunda quinzena.",
+  "quote": "A gráfica conna primeira impressão terá 5.357 cópias."
+ },
+ {
+  "case": "drift into paraphrase after 30 characters",
+  "chunk": "A gráfica confirmou que a primeira tiragem de O Jardim de Cera sai com 5.357 exemplares, impressos em papel pólen de 80 gramas e entregues no depósito da editora na segunda quinzena.",
+  "quote": "A gráfica confirmou que a prim a tiragem inicial vai ter 5.357 cópias."
+ },
+ {
+  "case": "drift into paraphrase after 53 characters",
+  "chunk": "A gráfica confirmou que a primeira tiragem de O Jardim de Cera sai com 5.357 exemplares, impressos em papel pólen de 80 gramas e entregues no depósito da editora na segunda quinzena.",
+  "quote": "A gráfica confirmou que a primeira tiragem de O Jardi terá 5.357 cópias em papel pólen."
+ },
+ {
+  "case": "longer than 160 characters, diverging after 160",
+  "chunk": "A gráfica confirmou que a primeira tiragem de O Jardim de Cera sai com 5.357 exemplares, impressos em papel pólen de 80 gramas e entregues no depósito da editora na segunda quinzena. O transporte fica por conta da gráfica, que já reservou o caminhão para a semana da entrega.",
+  "quote": "A gráfica confirmou que a primeira tiragem de O Jardim de Cera sai com 5.357 exemplares, impressos em papel pólen de 80 gramas e entregues no depósito da editor e o frete será pago pela editora, não pela gráfica."
+ },
+ {
+  "case": "verbatim, differing only in accents and spacing",
+  "chunk": "A gráfica confirmou que a primeira tiragem de O Jardim de Cera sai com 5.357 exemplares, impressos em papel pólen de 80 gramas e entregues no depósito da editora na segunda quinzena.",
+  "quote": "A  grafica  confirmou  que  a  primeira  tiragem  de  O  Jardim  de  Cera  sai  com  5.357  exe"
+ },
+ {
+  "case": "assembled from two places",
+  "chunk": "A gráfica confirmou que a primeira tiragem de O Jardim de Cera sai com 5.357 exemplares, impressos em papel pólen de 80 gramas e entregues no depósito da editora na segunda quinzena. O transporte fica por conta da gráfica, que já reservou o caminhão para a semana da entrega.",
+  "quote": "A gráfica confirmou que a primeira tirag que já reservou o caminhão para a semana da entrega."
+ },
+ {
+  "case": "empty quote",
+  "chunk": "A gráfica confirmou que a primeira tiragem de O Jardim de Cera sai com 5.357 exemplares, impressos em papel pólen de 80 gramas e entregues no depósito da editora na segunda quinzena.",
+  "quote": ""
+ },
+ {
+  "case": "verbatim but under 12 normalised characters",
+  "chunk": "A gráfica confirmou que a primeira tiragem de O Jardim de Cera sai com 5.357 exemplares, impressos em papel pólen de 80 gramas e entregues no depósito da editora na segunda quinzena.",
+  "quote": "A gráfica"
+ }
+]
