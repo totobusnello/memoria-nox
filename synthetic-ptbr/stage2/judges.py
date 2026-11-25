@@ -168,7 +168,10 @@ def parse(instrument, resp, chunk=None):
         r = o.get("resposta")
         return {"valid": isinstance(r, str), "resposta": r if isinstance(r, str) else None}
     if instrument == "oracle":
+        # Amendment 1: a null or absent quote is an empty quote, as in the source
+        # (`(j.get("citacao_verbatim") or "")`), not a missing label.
         tr, sf, q = _bool(o, "trecho_responde"), _bool(o, "sem_fonte_ja_responde"), o.get("citacao_verbatim")
+        q = "" if q is None else q
         if tr is None or sf is None or not isinstance(q, str):
             return {"valid": False}
         q = q.strip()
@@ -177,7 +180,10 @@ def parse(instrument, resp, chunk=None):
                 "label_source_rule": tr and not sf and oracle_quote_ok(q, chunk),
                 "motivo": o.get("motivo") if isinstance(o.get("motivo"), str) else None}
     if instrument in ("repass", "pool"):
+        # Amendment 1: a null or absent `oito_palavras` is an empty string, as in the source
+        # (`(j.get("oito_palavras") or "")`), not a missing label.
         tr, q8 = _bool(o, "trecho_responde"), o.get("oito_palavras")
+        q8 = "" if q8 is None else q8
         if tr is None or not isinstance(q8, str):
             return {"valid": False}
         q8 = q8.strip()

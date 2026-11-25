@@ -110,6 +110,12 @@ def test_parse(parse=J.parse):
     check("pool valid response parses, leg passes", ok["valid"] and ok["label"] and ok["citacao_confere"])
     check("string 'false' is not a boolean", not parse("pool", gem('{"trecho_responde": "false", "oito_palavras": ""}'), chunk)["valid"])
     check("missing field is a missing label", not parse("pool", gem('{"oito_palavras": "x"}'), chunk)["valid"])
+    n = parse("pool", gem('{"trecho_responde": false, "oito_palavras": null}'), chunk)
+    check("amendment 1: null oito_palavras on a 'no' is a valid negative", n["valid"] and n["label"] is False
+          and not n["citacao_confere"])
+    o0 = parse("oracle", gem('{"trecho_responde": false, "sem_fonte_ja_responde": false, "citacao_verbatim": null}'), chunk)
+    check("amendment 1: null quote on a 'no' is a valid negative", o0["valid"] and o0["label"] is False)
+    check("a numeric oito_palavras is still invalid", not parse("pool", gem('{"trecho_responde": true, "oito_palavras": 8}'), chunk)["valid"])
     check("unparseable text is a missing label", not parse("oracle", gem("não sei responder"), chunk)["valid"])
     check("no candidates is a missing label", not parse("oracle", {"candidates": []}, chunk)["valid"])
     o = parse("oracle", gem('{"trecho_responde": true, "sem_fonte_ja_responde": false, "citacao_verbatim": ""}'), chunk)
