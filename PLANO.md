@@ -190,9 +190,11 @@ no Setup de cada paper.
 
 ## Etapa atual
 
-**Corpus sintético (objetivo de 25/11):** etapa Work, PR (4): rascunho da nota (`synthetic-ptbr/NOTE.md`,
-~1.960 palavras, proveniência 10 afirmações / 0 falhas, passe avoid-ai-writing feito). Próximo: pergunta
-das vozes sobre a nota; depois depósito (Toto) e card. PR (3) #742 mergeado em 25/11 (`1fde4c1`).
+**Corpus sintético (objetivo de 25/11):** etapa Work, PR (5): nota revista depois das vozes Codex + Kimi
+(seção Vozes), ~2.650 palavras, proveniência 12 afirmações / 0 falhas; analisador corrigido (média
+sem arredondamento duplo, rc do resolvedor); só `mean_strict` mudou (0,7542 → 0,7543). Próximo: o Toto
+lê a nota; depois pacote de depósito (o Toto publica) e card no labf.bio (preview antes do merge).
+PR (4) #743 (rascunho) mergeado em 25/11 (`4196290`). PR (3) #742 mergeado em 25/11 (`1fde4c1`).
 Antes: PRs (1) #740 e (2) #741 mergeados em 25/11.
 PR (3): corpus em seções `##` (remontado dos registros, sem chamada nova), gate pós-ingest, runner da
 etapa 1 commitado antes de rodar (`88b1f02`, 10:39), corrida nas versões 3.5.2 e 3.11.1 e análise.
@@ -204,7 +206,7 @@ Achado 2 — nenhuma query com strict zero (o mecanismo do §3 não aparece nest
 erra a verdade nos dois sentidos (12 acima, 8 abaixo); pooled nunca abaixo da verdade, por
 aritmética, e acima em 5 de 45. Achado 4 — o ideal do ranking muda 5 de 45 queries, +0,2033 em média.
 Varredura de privacidade de novo: 0 trechos (99.999 × 65.208). Próximo: PR (4), a nota.
-Worktree: `~/Claude-worktrees/memoria-nox/synthetic-ptbr-note`. PR: #743.
+Worktree: `~/Claude-worktrees/memoria-nox/synthetic-ptbr-note-rev`. PR: #744.
 
 Etapa: Deploy (paper A): **publicado** pelo Toto em 20/11, doi:10.5281/zenodo.24400444 (concept
 doi:10.5281/zenodo.24400443), v1.0, software link `baf4b80`, checksums do registro iguais aos do build
@@ -384,6 +386,7 @@ com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 
 | 2026-11-20 | descrição do Zenodo + diff do #731, review (3ª rodada) | Codex gpt-6-astra (58 s), Kimi k3.1-pro (253 s) | `adversary-receipt-codex-2026-11-20T140419-93847.txt`, `adversary-receipt-kimi-2026-11-20T140430-94363.txt`, `exit 0`, cwd do clone | as duas: revisão menor, segurar só até os ajustes. Aplicados (#733): PROVENANCE em queries (6 de 28; 22 e 21 queries), população do «10 of 14» nomeada, ressalva da reescrita na descrição. Rascunho refeito em `baf4b80`, readback sem divergência |
 | 2026-11-20 | nota #723 inteira + descrição + diff desde o rascunho, review | Codex gpt-6-astra (229 s), Kimi k3.1-pro (856 s) | `adversary-receipt-codex-2026-11-20T190455-80669.txt`, `adversary-receipt-kimi-2026-11-20T190458-81042.txt`, `exit 0`, cwd do clone | Codex: rodada curta de correções (9 achados, nenhum alto); Kimi: NO-GO editorial, não dos dados (1 alto: T2 não é «uma frase»). Aplicados (#736): T2 como revisão de escopo, S1 0,63, escrita, contraste, registro interno com horários, recontagem por timestamp (14 chamadas, todas pós-deploy), disponibilidade pública × privada |
 | 2026-11-25 | plano do corpus sintético, challenge | Codex gpt-6.2-astra (113 s), Kimi k3.1-pro (363 s; subiu na 4ª tentativa, ver Lições) | `adversary-receipt-codex-2026-11-25T092603-29153.txt`, `adversary-receipt-kimi-2026-11-25T092945-33434.txt`, `exit 0`, cwd do clone; pareceres copiados para `~/Claude/logs/adversary-outputs/` | Codex: revisão maior antes da geração paga (9 achados, 5 altos); Kimi: suíte de mecanismos, não reprodução (17). Conferidos no código e no manuscrito: duplicata exata aceita pelo resolvedor e exigida pelo selftest; CLI `--db`/`--gold` inexistente; ids preservados desde 14/10 (§4, linhas 345–354); 119 × 117 no H-A2. Todos aplicados no desenho |
+| 2026-11-25 | rascunho da nota do corpus sintético (#743), challenge | Codex gpt-6.2-astra (175 s; subiu na 3ª tentativa, o hook voz-arranque-guard fechou os 2 panes mortos), Kimi k3.1-pro (439 s) | `adversary-receipt-codex-2026-11-25T105332-91623.txt`, `adversary-receipt-kimi-2026-11-25T105230-89276.txt`; pareceres em `~/Claude/logs/adversary-outputs/{codex-2026-11-25T105332-sintetico-nota,parecer-kimi-nota-synthetic-ptbr-2026-11-25}.out` | as duas: revisão maior, números transcritos certo, interpretação não. Testado e aceito: explicação do sinal de strict errada (7 das 12 acima tinham todo T no top 10); 20/20 perguntas com R incompleto mudaram de nota; rename sem reingest não passa pelo watcher; `none` definido largo (nos dados, id ausente + âncora sem chunk); controle 45/45 tautológico (fixture ganhou as notas à mão); R sempre guarda a primária (nota dizia 0,25 para as duas); média strict 0,7542 → 0,7543 (arredondamento duplo, analisador corrigido); pooled = ideal do ranking em 45/45 (achados 2 e 4 são as mesmas 5 perguntas); deleção invisível só porque os resolvedores ignoram o tombstone; resolvedor sem conferência de rc. Datas 3.5.2/3.6.0 conferidas no npm (14/10). Nota reescrita em #744 |
 | 2026-11-20 | nota #723 corrigida + diff do #736, review | DeepSeek v4-pro (159 s) | `adversary-receipt-deepseek-2026-11-20T194434-57083.txt`, `exit 0`, attach 121.998 | 3 achados (59 vs 54 corridas: o 59 conta qualquer chamada de memória; fontes de AFTER/BEFORE; PR #89 no texto). Aplicados (#737) |
 
 ## Lições

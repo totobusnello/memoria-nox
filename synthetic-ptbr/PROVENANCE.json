@@ -16,11 +16,11 @@
    "what": "mean nDCG@10 under the registered labels R",
    "population": "45 fact questions, frozen BM25 rankings, nox-mem 3.5.2 and 3.11.1 (identical)",
    "date": "2026-11-25",
-   "artifact": "synthetic-ptbr/results/etapa1.txt",
-   "locator": "mean_strict: 0.7542",
-   "commit": "1fde4c1",
-   "superseded_by": null,
-   "note": ""
+   "artifact": "synthetic-ptbr/README.md",
+   "locator": "printed 0.7542",
+   "commit": "eb44723a",
+   "superseded_by": "s-mean-strict-v2",
+   "note": "averaged per-query scores rounded to four places; superseded after the note review of 2026-11-25; first printed in synthetic-ptbr/results/etapa1.txt at 1fde4c1, the README records the correction"
   },
   {
    "id": "s-mean-true",
@@ -127,6 +127,30 @@
    "artifact": "paper-a-eval-ptbr/MANUSCRIPT.md",
    "locator": "96.9% of the",
    "commit": "1fde4c1",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "s-mean-strict-v2",
+   "value": "0.7543",
+   "what": "mean nDCG@10 under the registered labels R, over unrounded per-query scores",
+   "population": "45 fact questions, frozen BM25 rankings, nox-mem 3.5.2 and 3.11.1 (identical)",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/results/etapa1.txt",
+   "locator": "mean_strict: 0.7543",
+   "commit": "eb44723a",
+   "superseded_by": null,
+   "note": ""
+  },
+  {
+   "id": "s-mean-pooled",
+   "value": "0.7598",
+   "what": "mean nDCG@10 under pooled labels (R plus true positives in the top 10)",
+   "population": "45 fact questions, same rankings",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/results/etapa1.txt",
+   "locator": "mean_pooled: 0.7598",
+   "commit": "eb44723a",
    "superseded_by": null,
    "note": ""
   }

@@ -81,6 +81,13 @@ def run_fixtures(gold=ndcg_gold, rank=ndcg_ranking_ideal, tol=1e-6):
         fails.append(f"pooled gave {sorted(p)}, want ['a', 'b']")
     if p - (p - reg) != reg or ndcg_gold(ranking, p - (p - reg)) != ndcg_gold(ranking, reg):
         fails.append("removing the pooled additions does not give back R")
+    # the scores of the same case, computed by hand (positions 2 and 4; ideals of 2, 3 and 1 items):
+    # pooled (1/log2 3 + 1/log2 5) / (1 + 1/log2 3), truth over (1 + 1/log2 3 + 1/2), strict (1/log2 5) / 1
+    for label, rel, want in (("pooled", p, 0.6509209298), ("truth", truth, 0.4981892575),
+                             ("strict", reg, 0.4306765581)):
+        got = ndcg_gold(ranking, rel)
+        if got is None or abs(got - want) > 1e-9:
+            fails.append(f"pooling control: {label} nDCG gave {got}, want {want}")
     return fails
 
 

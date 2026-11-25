@@ -77,18 +77,25 @@ returned the same 50 rankings, so findings 2 and 4 are the same on both; finding
 | delete | stale / stale | stale / stale |
 
 *live*: reaches the sentence under the key of the file that holds it now; *stale*: reaches the
-sentence in a chunk whose file is gone or moved (or tombstoned); *none*: reaches nothing.
+sentence in a chunk whose file is gone or moved (or tombstoned); *none*: no chunk it reaches holds
+the sentence (in this run: the id no longer existed and the anchor resolved to nothing). These are
+direct resolutions in the database against the disk, not search results.
 
-- Finding 1 holds for the old ingest (3.5.2 replaces every id of a file on each re-ingest) and no
-  longer holds for the current one, where the id survives re-ingest and edits elsewhere in the
-  file, and survives a rename that the anchor does not. Neither reference notices a delete: the
-  chunks stay, with or without a tombstone, and both still reach the deleted sentence.
-- Finding 2 does not reproduce here: no query scores zero under the registered labels, so the
-  symptom Paper A measured (a zero made of unjudged results) has nothing to act on. Registered
-  labels miss the truth in both directions (12 queries above it, 8 below, 25 equal; means 0.7542
-  against 0.7372). Pooled labels can never score below the truth (same numerator, smaller or equal
-  ideal: arithmetic, not a finding); they scored above it on 5 of 45 queries. The plumbing control
-  (removing exactly the pooled additions gives back the registered score) held on all 45.
+- Finding 1: under 3.5.2 the tracked ids were lost on a re-ingest and on an edit to another
+  section, while the anchor survived. Under 3.11.1 the id survived both, and in the one rename
+  sequence run (rename to `-movido.md`, watcher routine on the old path, ingest of the new path) the
+  id reached the sentence and the anchor did not; with no re-ingest after the rename both stayed
+  stale. No live watcher ran: the harness calls each version's routine directly. After a delete
+  both references still reach the sentence, because neither the id lookup nor the anchor resolver
+  consults the tombstone.
+- Finding 2: all 20 queries with incomplete registered labels changed score, 12 upward and 8
+  downward (25 equal; means 0.7543 registered, 0.7372 truth, 0.7598 pooled). A retrieved positive
+  left out of R counts as a miss, but it also shrinks the ideal, and in 7 of the 12 upward queries
+  every true positive was in the top 10. The zero-scoring case Paper A measured did not occur: R
+  always holds the primary and every registered positive was retrieved. Pooled labels cannot score
+  below the truth with a perfect oracle (arithmetic); they scored above it on 5 of 45 queries, the
+  same five as finding 4. Means are taken over unrounded scores (corrected 2026-11-25 after the
+  note's review: the first analysis averaged scores rounded to four places and printed 0.7542).
 - Finding 4: the ranking ideal changed the score of 5 of 45 queries, by +0.2033 on average (at most
   +0.2441); its direction is arithmetic, the frequency and size are what this corpus measures.
 - Context negatives ranked above the first positive on 4 of 45 queries.

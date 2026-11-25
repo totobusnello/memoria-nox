@@ -16,7 +16,7 @@ Finding 1: after each operation (5 facts each), where each reference lands
 Finding 2: nDCG@10, same ranking, three label sets
 
 - queries: 45
-- mean_strict: 0.7542
+- mean_strict: 0.7543
 - mean_pooled: 0.7598
 - mean_true: 0.7372
 - control_failed: 0
@@ -54,7 +54,7 @@ Finding 1: after each operation (5 facts each), where each reference lands
 Finding 2: nDCG@10, same ranking, three label sets
 
 - queries: 45
-- mean_strict: 0.7542
+- mean_strict: 0.7543
 - mean_pooled: 0.7598
 - mean_true: 0.7372
 - control_failed: 0
