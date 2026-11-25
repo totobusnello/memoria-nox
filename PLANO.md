@@ -201,7 +201,7 @@ Achado 2 — nenhuma query com strict zero (o mecanismo do §3 não aparece nest
 erra a verdade nos dois sentidos (12 acima, 8 abaixo); pooled nunca abaixo da verdade, por
 aritmética, e acima em 5 de 45. Achado 4 — o ideal do ranking muda 5 de 45 queries, +0,2033 em média.
 Varredura de privacidade de novo: 0 trechos (99.999 × 65.208). Próximo: PR (4), a nota.
-Worktree: `~/Claude-worktrees/memoria-nox/synthetic-ptbr-method`. PR: (preencher ao abrir).
+Worktree: `~/Claude-worktrees/memoria-nox/synthetic-ptbr-method`. PR: #742.
 
 Etapa: Deploy (paper A): **publicado** pelo Toto em 20/11, doi:10.5281/zenodo.24400444 (concept
 doi:10.5281/zenodo.24400443), v1.0, software link `baf4b80`, checksums do registro iguais aos do build
