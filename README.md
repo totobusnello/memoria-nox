@@ -386,6 +386,30 @@ since 2026-09-03.
 }
 ```
 
+## Other publications from this repository
+
+After the nox-mem paper, the lab kept measuring the system in production and published each study
+on Zenodo, with its code, data and (where it had one) its pre-registration in this repository. None
+is peer reviewed. The DOIs below are concept DOIs: they always resolve to the latest version.
+
+| Work | Kind | DOI | In this repository |
+|---|---|---|---|
+| *Five ways the ruler misleads: evaluating retrieval on a living Portuguese agent memory* | paper | [`10.5281/zenodo.24400443`](https://doi.org/10.5281/zenodo.24400443) | [`paper-a-eval-ptbr/`](paper-a-eval-ptbr/) |
+| *Running a memory ruler's failure mechanisms in public: a synthetic Portuguese corpus and two versions of nox-mem* | dataset with note | [`10.5281/zenodo.24535847`](https://doi.org/10.5281/zenodo.24535847) | [`synthetic-ptbr/`](synthetic-ptbr/) |
+| *Construction before search: a pre-registered factorial test of two repairs to LLM-extracted agent memory* | paper | [`10.5281/zenodo.23716612`](https://doi.org/10.5281/zenodo.23716612) | [`paper3-construction/`](paper3-construction/) |
+| *Construction before search: a pre-registered test of what an LLM memory builder keeps* | paper | [`10.5281/zenodo.23964959`](https://doi.org/10.5281/zenodo.23964959) | [`paper3-construction/`](paper3-construction/) |
+| *Writing rules for agent memory with two extractor models: a paired extension* | paper | [`10.5281/zenodo.24057927`](https://doi.org/10.5281/zenodo.24057927) | [`paper-e-extractor/`](paper-e-extractor/) |
+| *What an LLM-built knowledge graph keeps, and what a repair pass against its sources changes* | paper | [`10.5281/zenodo.24046281`](https://doi.org/10.5281/zenodo.24046281) | [`paper-b-kg/`](paper-b-kg/), [`paper-b2-kg-repair/`](paper-b2-kg-repair/) |
+| *Replaying a production memory distiller: a fidelity control that failed, and what it found* | paper | [`10.5281/zenodo.24017486`](https://doi.org/10.5281/zenodo.24017486) | [`paper-d-c2-production/`](paper-d-c2-production/) |
+| *No textual match to a pushed memory brief in agent replies* | paper | [`10.5281/zenodo.24017458`](https://doi.org/10.5281/zenodo.24017458) | [`paper-c-pushed-memory/`](paper-c-pushed-memory/) |
+| *The memory the agent does not consult: a server instruction that works in evaluation and is rarely acted on in use* | paper | [`10.5281/zenodo.24408078`](https://doi.org/10.5281/zenodo.24408078) | [`note-unconsulted-memory/`](note-unconsulted-memory/) |
+| *A registered horizon that outlived the intervention the trial ran: a pre-registered randomized trial of memory dosing in a production agent fleet* | paper | [`10.5281/zenodo.21964093`](https://doi.org/10.5281/zenodo.21964093) | [`paper2-interventional/`](paper2-interventional/) |
+| *Spare capacity, narrow surface: the exposure record of a production agent-memory system* | paper | [`10.5281/zenodo.22181414`](https://doi.org/10.5281/zenodo.22181414) | [`paper2-interventional/`](paper2-interventional/) |
+| *Expensive writes, noisy reads: provider-call telemetry from a production agent-memory system* | paper | [`10.5281/zenodo.23354362`](https://doi.org/10.5281/zenodo.23354362) | [`datanote-telemetry/`](datanote-telemetry/) |
+| *Phase-attributed provider-call telemetry from a production agent-memory system (32-day window, 2026-08-07 to 2026-09-08)* | dataset | [`10.5281/zenodo.23130190`](https://doi.org/10.5281/zenodo.23130190) | [`datanote-telemetry/`](datanote-telemetry/) |
+
+The same list, with a short summary of each, is on [labf.bio/research](https://labf.bio/research/).
+
 ## Citation
 
 If you use nox-mem in your research or production:
@@ -412,6 +436,8 @@ The repo is a research lab and a working product; the tree reflects both.
 | Path | What's in it |
 |---|---|
 | [`paper/`](paper/) | The paper (`paper-tecnico-nox-mem.md`), built PDF (`build/`), `refs.bib`, `CHANGELOG.md` |
+| `paper-*/` · `paper2-interventional/` · `paper3-construction/` · `note-unconsulted-memory/` · `datanote-telemetry/` · `synthetic-ptbr/` | One directory per later publication (see [Other publications](#other-publications-from-this-repository)): manuscript, pre-registration, analysis code, the numbers' provenance (`PROVENANCE.json`) and the deposit script |
+| [`PLANO.md`](PLANO.md) | The research plan these studies follow: current stage, gates, pending decisions, voice reviews, lessons |
 | [`eval/`](eval/) | Evaluation harnesses — EverMemBench, LongMemEval, LoCoMo, the Q4 cross-system comparison (`q4-comparison/`) |
 | [`benchmark/`](benchmark/) | Cross-system comparison harness + `latency-cost/` operational measurements |
 | [`staged/`](staged/) | Implementation patch sets cited by the paper as *"Implementation:"* pointers — see [`staged/README.md`](staged/README.md) |
