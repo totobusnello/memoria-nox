@@ -26,6 +26,11 @@ Fails (exit 1) when:
   * a claim's value is printed in the text while its `superseded_by` is set;
   * a claim's artifact does not exist in the repository, or its locator is not in it;
   * a claim's commit does not exist, is not an ancestor of HEAD, or the artifact is not in it;
+  * a claim's commit is not an ancestor of the base branch (`PROVENANCE_BASE`, default
+    `origin/main`), or that ref does not resolve. A commit of a pull request's own branch passes
+    the HEAD check in the pull request and disappears when it is squash-merged (#744 → #745,
+    2026-11-25): only commits already on the base branch may be cited. A missing base ref fails
+    rather than skips, so a shallow or detached checkout cannot pass by not having the data;
   * `superseded_by` names a claim id that does not exist;
   * a `history` fragment (below) is not in the text, or does not contain its claim's value.
 
@@ -39,6 +44,7 @@ true and a "sha256" of the file; the gate then checks only that the claim is not
 says the artifact was not verified.
 """
 import json
+import os
 import pathlib
 import re
 import subprocess
@@ -66,6 +72,10 @@ def check(d):
     claims = {c["id"]: c for c in man["claims"]}
     ignore = set(man.get("ignore", []))
     errs, notes = [], []
+    base = os.environ.get("PROVENANCE_BASE", "origin/main")
+    base_ok = git_ok("-C", str(root), "rev-parse", "--verify", "--quiet", f"{base}^{{commit}}")
+    if not base_ok:
+        errs.append(f"base ref {base!r} does not resolve (fetch it, or set PROVENANCE_BASE)")
     original = {t: (d / t).read_text(encoding="utf-8") for t in man["text"]}
     texts = dict(original)
     # every fragment is checked against the ORIGINAL text, then all are removed: two claims may
@@ -112,6 +122,9 @@ def check(d):
             # An object can survive in one clone after a history rewrite and in no other: on
             # 2026-11-20 this gate passed 197 claims here and failed 175 of them on a fresh clone.
             errs.append(f"{cid}: commit {c['commit']} is not an ancestor of HEAD")
+        elif base_ok and not git_ok("-C", str(root), "merge-base", "--is-ancestor", c["commit"], base):
+            errs.append(f"{cid}: commit {c['commit']} is not on {base}; cite a commit of the base "
+                        "branch, not of this branch (a squash merge drops it)")
         elif not git_ok("-C", str(root), "cat-file", "-e", f"{c['commit']}:{c['artifact']}"):
             errs.append(f"{cid}: {c['artifact']} is not in commit {c['commit']}")
     for n in notes:
