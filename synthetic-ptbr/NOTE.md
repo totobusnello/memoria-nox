@@ -27,14 +27,16 @@ measured did not occur. An ideal built from the ranking changed 5 of 45 scores.
 
 In a second, pre-registered step we re-ran Paper A's LLM judges, with their model ids, prompts and
 request bodies, on 555 question–chunk pairs and read them against the planted key, which a blind
-human reading of 100 pairs contradicted once. Every judge found every planted positive but one;
-their errors were acceptances, mostly of a value the text marks as rejected or superseded. The
-judge Paper A used to check its gold accepted all 59 correct entries, none of 50 random chunks and
-12 of 15 such discarded values. Two judges that share this error agreed with each other more than
-either agreed with the key. The citation check that lowered agreement in Paper A removed one pair
-here; the corpus does not carry the formatting that drove Paper A's case. The corpus, the plan that
-built it, the generation records, the frozen results, both steps' code and the step 2 runs are
-released together.
+reading of 100 pairs by the author contradicted once. The judges found every planted positive but
+one, and their other errors were acceptances. Among the pairs they judged were 15 planted
+decoys: chunks giving the asked entity and attribute a value the text marks as rejected or
+superseded. Every judge accepted some of these (from 7 to all 15), and they were half of all false
+acceptances. The judge Paper A used to check its gold accepted all 59 correct entries, none of 50
+random chunks and 12 of the 15 decoys; the pooling judge accepted the same 12, and the two agreed
+with each other more than either agreed with the key. The citation check that lowered agreement in
+Paper A removed one pair here; the corpus does not carry the formatting behind Paper A's case. The
+corpus, the plan that built it, the generation records, the frozen results, both steps' code and
+the step 2 runs are released together.
 
 ## 1. Why a constructed corpus
 
@@ -193,56 +195,92 @@ first positive on 4 of 45 questions, 4 of the 15 that had a negative.
 
 ## 5. Step 2: Paper A's judges against the planted key
 
-Paper A could not say whether its judges were right: it had no reference. This corpus has one.
-Step 2 was pre-registered (tag `synthetic-ptbr-stage2-prereg`, frozen on 2026-11-25 after a
-challenge round by Codex and Kimi) and re-ran Paper A's judges with the same model ids, prompts and
-request bodies, copied by code from the scripts that ran them and checked against those scripts by a
-test. Three are prompts to `gemini-2.5-flash-lite`: an oracle asked to quote its evidence, a pooling
-judge with the 8-word citation leg, and an 8-word second pass on failed quotes. Four are requests to
-`gpt-6-luna` through OpenAI's Decisions API: the registered judge, the same request sent again, the
-same predicate in another request envelope, and the gold check behind Paper A's fifth finding ("does
-the recorded gold answer the question"). The same model id does not prove the same weights.
+For the judgements behind its third and fifth findings, Paper A had no adjudicated reference: nobody
+had checked the pairs its judges labelled. This corpus has one by construction. Step 2 was
+pre-registered (tag `synthetic-ptbr-stage2-prereg`, frozen on 2026-11-25 after a challenge round by
+Codex and Kimi) and re-ran Paper A's judges with the same model ids, prompts and request bodies. The
+prompts were copied by code from the scripts that ran them, and a test compares each with its source
+(the gold check's by a pinned hash, since its script left the public tree for privacy) and checks the
+request bodies field by field. The procedure is not identical: the oracle judged every pair without
+the triage that used to pick its candidates, and its second pass took pairs rather than questions;
+the pre-registration lists both. Three judges are prompts to `gemini-2.5-flash-lite`: an oracle asked
+to quote its evidence, a pooling judge with the 8-word citation leg, and an 8-word second pass on
+failed quotes. Four are requests to `gpt-6-luna` through OpenAI's Decisions API: the registered judge,
+the same request sent again, the same predicate in another request envelope, and the gold check
+behind Paper A's fifth finding ("does the recorded gold answer the question"). The same model id
+does not prove the same weights.
 
 The judges read 555 pairs: the top 10 of the frozen ranking for all 50 questions, the 5 true
-positives ranked below it, and one random chunk per question. The key T marks planted evidence
-and says nothing about meaning, so before any model call the author read a stratified sample of 100 pairs
+positives ranked below it, and one random chunk per question. The key T marks planted evidence and
+says nothing about meaning, so before any model call the author read a stratified sample of 100 pairs
 blind, question and chunk only, and coded each (complete, partial, discarded value, mention, off).
 The reading disagreed with T on one row, a partial answer that T counts as positive: a weighted
-estimate of 0.0053 over the 555. The judges are read against T below. One parser rule changed after
-the runs began (amendment 1, committed with the runs): a null quote returned with a "no" had been read
-as a missing label rather than, as in the source scripts, an empty quote. The stored responses were
-re-read with no new call. The ledger records under US$ 1 in all.
+estimate of 0.0053 over the 555, from one reader. The judges are read against T below; the same
+counts against the human reading, per stratum, are in the supplement.
 
-**Errors of acceptance.** Every judge found every planted positive (89 of 89; the gold check, 88).
-They differed in what else they accepted. Precision against T was 0.6096 for the quoting oracle,
-0.8318 for the pooling judge, 0.8641 for the registered judge, 0.89 in the other envelope and 0.88
-for the gold check. The false positives fall mostly on the 15 context negatives, chunks that give
-the asked entity and attribute a value the text marks as rejected or superseded: the oracle
-accepted all 15, the pooling judge 14, the gold check 12, the registered judge 8 and the other
-envelope 7. The author's blind reading coded all 15 as a discarded value.
+One parser rule changed after the runs began. The pooling judge's first full run came back with 329
+of 555 labels missing: 328 were "no" answers carrying a null quote, which the frozen parser read as a
+missing label where the source scripts read an empty quote, and one response did not parse. The
+registered re-run started and was stopped after 172 attempts; amendment 1 restored the source rule
+and re-read the stored responses with no new call (`run.py <judge> reparse`), leaving one label
+missing. Nothing had been compared with T or with the human reading before the fix. The ledger records
+under US$ 1 in all. Some readings the pre-registration promised were not printed by the frozen
+analysis; a dated supplement (`stage2/supplement.py`) computes them from the same stored labels, and
+also holds the three post-hoc checks used below.
 
-**The gold check, with a key.** Asked whether a recorded gold entry answers its question, the gold
-check accepted all 59 correct entries, none of the 50 random chunks and 12 of the 15 context
-negatives presented as gold. On this corpus its error ran in the direction Paper A could not test:
-it never rejected correct gold, and it took a discarded value for gold. This corpus
-cannot say whether Paper A's 38 rejections were right; its wrong gold is of one planted kind.
+### Errors of acceptance
 
-**Agreement is not accuracy.** The pooling judge and the gold check agreed with each other at kappa
-0.9584, more than either agreed with T (0.8886 and 0.9172): they make the same acceptances. Paper A
-warned that agreement between judges says nothing about precision; here the reference is beside it.
-Pooled with the registered judge's positives, mean nDCG@10 over the 45 fact questions was 0.7688,
-above both the truth (0.7372) and pooling with a perfect judge (0.7598, section 4): a judge's false
-positives raise a pooled score.
+Every judge found every planted positive (89 of 89), except the gold check,
+which missed one. Their other errors were acceptances, and they differed in how many. Precision
+against T was 0.6096 for the quoting oracle (0.6268 under the full rule of its source, which also
+requires a verified quote and a closed-book answer that did not already hold the answer), 0.8318 for the pooling
+judge, 0.8641 for the registered judge, 0.89 in the other envelope and 0.88 for the gold check. The
+15 context negatives were planted for this purpose: they give the asked entity and attribute a value
+the text marks as rejected (8) or superseded (7). The oracle accepted all 15, the pooling judge 14,
+the gold check 12, the registered judge 8 and the other envelope 7, and the author coded all 15 as a
+discarded value. They were 12 of the gold check's 12 false positives, 14 of the pooling judge's 18,
+8 of the registered judge's 14, 7 of the other envelope's 11 and 15 of the oracle's 57; across the
+five judges, 56 of 112. These counts describe how the judges handle a decoy built
+to test them; the overall precision depends on the mix of pairs, and nothing here measures how often
+a live memory holds such decoys.
 
-**The citation leg.** On this corpus the 8-word check removed one pooled positive, a pair T counts
-as negative, and kappa with the registered judge rose from 0.906 to 0.9115, so Paper A's drop was not
+### The gold check, with a key
+
+Asked whether a recorded gold entry answers its question, the gold
+check accepted all 59 correct entries, none of the 50 random chunks drawn as Paper A drew them, and
+12 of the 15 decoys presented as gold. A random-chunk control alone would have found no error in this
+judge; the decoys found 12. This corpus cannot say whether Paper A's 38 rejections were right; its wrong gold is of one
+planted kind.
+
+### Agreement is not accuracy
+
+The pooling judge accepted the same 12 decoys as the gold check. On
+the 554 pairs both labelled, the two agreed at kappa 0.9584, more than either agreed with T on those
+pairs (0.8886 and 0.9171). Of the six pairs of judges this is the closest; it is an example, picked
+after seeing the table. Paper A warned that agreement between judges says nothing about precision;
+here a shared error shows it.
+
+### Pooled scores
+
+Mean nDCG@10 over the 45 fact questions was 0.7372 under T and 0.7598 under pooling
+with a perfect judge (section 4): the 5 true positives ranked below the top 10 drop out of the pooled
+ideal. Pooling with the registered judge's positives gave 0.7688. Against perfect pooling, the judge's
+labels raised 6 questions, lowered 5 and left 34 equal; on this ranking its false positives raised
+the mean while lowering five scores.
+
+### The citation leg
+
+On this corpus the 8-word check removed one pooled positive, a pair T counts as
+negative, and kappa with the registered judge rose from 0.906 to 0.9115, so Paper A's drop was not
 seen again. That says little about Paper A. Its failures came from copyable formatting (table pipes,
 `<u>`, an escaped currency sign) and from quotes that drift after 13 to 53 characters; here the
 planted sentences have 43 to 95 characters and no chunk carries any of those formats. Offline
-fixtures released with the step show the check vetoing a quote that drops those formats. The quoting oracle's
-quote failed the check on 4 of its 146 positives, and the second pass verified 2 of those 4.
+fixtures released with the step show the check vetoing a quote that drops those formats. The quoting
+oracle's quote failed the check on 4 of its 146 positives, and the second pass verified 2 of those 4.
 
-**False premises and stability.** None of the Decisions requests labelled any of the 55
+### False premises and stability
+
+None of the Decisions requests labelled any of the 55
 false-premise pairs as answering; the oracle labelled 4 and the pooling judge 1. A premise check
 written for this step, since Paper A's was never committed, said that 6 of those 55 chunks supported
 a premise the corpus never states; it is exploratory. As in Paper A, the identical request changed
@@ -289,10 +327,10 @@ and labels that record which results a judge saw; this corpus has neither, which
 a next version should change.
 
 A ruler that pools with an LLM judge needs, among its controls, negatives that carry a plausible
-value the text has discarded: on this corpus those were where every judge failed, and a check of
-gold against random chunks, which every judge passed, would not have found it. And high agreement
-between two judges shows only that they err alike or not at all; telling the two apart takes a key,
-which even a small planted corpus can supply.
+value the text has discarded: on this corpus every judge accepted some of them, while the gold check
+passed Paper A's random-chunk control without error. And agreement between two judges is not
+evidence that either is right; on this corpus the two judges that agreed most closely shared twelve of
+their errors, and only the key showed it.
 
 ## 8. Data and code availability
 
@@ -314,8 +352,9 @@ python3 -I synthetic-ptbr/stage2/analyze.py --check
 
 Step 2 is in `synthetic-ptbr/stage2/`: the pre-registration and its amendment, the population and
 the blind sheet with the author's codes, the copied prompts, the runner with its ledger, every
-request's stored response, and the analysis. `analyze.py --check` recomputes every step 2 number
-from the stored responses; re-running the judges (`run.py`) needs the two providers' keys and is
+request's stored response, and the analysis. `analyze.py --check` and `supplement.py --check` recompute every
+step 2 number from the stored labels (`run.py <judge> reparse` re-reads the stored responses into
+those labels); re-running the judges (`run.py`) needs the two providers' keys and is
 not expected to return identical labels.
 
 ## References
