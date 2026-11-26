@@ -21,6 +21,11 @@ this directory on Zenodo: published 2026-11-25 as v1.0, doi:10.5281/zenodo.24535
 doi:10.5281/zenodo.24535847), built from commit `70c82859`. The `NOTE.md` in this tree keeps the
 "working draft, not deposited" status line on purpose: it is byte-identical to the deposited copy.
 
+Step 2 (`stage2/`, pre-registered by the tag `synthetic-ptbr-stage2-prereg`) re-ran Paper A's LLM
+judges on 555 question–chunk pairs and read them against the planted key and a blind human reading
+of 100 pairs; its runs, ledger and results are committed, and `NOTE.md` now has a section on it, to
+be deposited as v1.1 of the same record.
+
 | file | what |
 |---|---|
 | `plan.py` | deterministic planner (seed 20261125): 200 files, 45 planted facts, 5 false-premise queries, variants, context negatives, duplicates, operation targets, latent truth `T` and registered labels `R` |
