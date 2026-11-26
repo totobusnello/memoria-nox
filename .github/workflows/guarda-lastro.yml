@@ -75,3 +75,4 @@ jobs:
           python3 -I synthetic-ptbr/stage2/test-stage2.py
           python3 -I synthetic-ptbr/stage2/test-stage2.py --sabotage
           python3 -I synthetic-ptbr/stage2/analyze.py --check
+          python3 -I synthetic-ptbr/stage2/supplement.py --check
