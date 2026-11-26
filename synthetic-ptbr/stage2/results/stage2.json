@@ -1,0 +1,805 @@
+{
+ "missing": {
+  "oracle": {
+   "missing": 0,
+   "units": 555
+  },
+  "pool": {
+   "missing": 1,
+   "units": 555
+  },
+  "reg": {
+   "missing": 0,
+   "units": 555
+  },
+  "reg2": {
+   "missing": 0,
+   "units": 555
+  },
+  "envelope": {
+   "missing": 0,
+   "units": 555
+  },
+  "gold": {
+   "missing": 0,
+   "units": 603
+  }
+ },
+ "against_T": {
+  "oracle/all": {
+   "tp": 89,
+   "fp": 57,
+   "fn": 0,
+   "tn": 409,
+   "precision": {
+    "n": 89,
+    "d": 146,
+    "value": 0.6096
+   },
+   "recall": {
+    "n": 89,
+    "d": 89,
+    "value": 1.0
+   },
+   "kappa": 0.6971
+  },
+  "oracle/top10": {
+   "tp": 84,
+   "fp": 55,
+   "fn": 0,
+   "tn": 361,
+   "precision": {
+    "n": 84,
+    "d": 139,
+    "value": 0.6043
+   },
+   "recall": {
+    "n": 84,
+    "d": 84,
+    "value": 1.0
+   },
+   "kappa": 0.688
+  },
+  "pool/all": {
+   "tp": 89,
+   "fp": 18,
+   "fn": 0,
+   "tn": 447,
+   "precision": {
+    "n": 89,
+    "d": 107,
+    "value": 0.8318
+   },
+   "recall": {
+    "n": 89,
+    "d": 89,
+    "value": 1.0
+   },
+   "kappa": 0.8886
+  },
+  "pool/top10": {
+   "tp": 84,
+   "fp": 18,
+   "fn": 0,
+   "tn": 398,
+   "precision": {
+    "n": 84,
+    "d": 102,
+    "value": 0.8235
+   },
+   "recall": {
+    "n": 84,
+    "d": 84,
+    "value": 1.0
+   },
+   "kappa": 0.8814
+  },
+  "pool_leg/all": {
+   "tp": 89,
+   "fp": 17,
+   "fn": 0,
+   "tn": 448,
+   "precision": {
+    "n": 89,
+    "d": 106,
+    "value": 0.8396
+   },
+   "recall": {
+    "n": 89,
+    "d": 89,
+    "value": 1.0
+   },
+   "kappa": 0.8944
+  },
+  "pool_leg/top10": {
+   "tp": 84,
+   "fp": 17,
+   "fn": 0,
+   "tn": 399,
+   "precision": {
+    "n": 84,
+    "d": 101,
+    "value": 0.8317
+   },
+   "recall": {
+    "n": 84,
+    "d": 84,
+    "value": 1.0
+   },
+   "kappa": 0.8875
+  },
+  "reg/all": {
+   "tp": 89,
+   "fp": 14,
+   "fn": 0,
+   "tn": 452,
+   "precision": {
+    "n": 89,
+    "d": 103,
+    "value": 0.8641
+   },
+   "recall": {
+    "n": 89,
+    "d": 89,
+    "value": 1.0
+   },
+   "kappa": 0.9119
+  },
+  "reg/top10": {
+   "tp": 84,
+   "fp": 14,
+   "fn": 0,
+   "tn": 402,
+   "precision": {
+    "n": 84,
+    "d": 98,
+    "value": 0.8571
+   },
+   "recall": {
+    "n": 84,
+    "d": 84,
+    "value": 1.0
+   },
+   "kappa": 0.9061
+  },
+  "reg2/all": {
+   "tp": 89,
+   "fp": 14,
+   "fn": 0,
+   "tn": 452,
+   "precision": {
+    "n": 89,
+    "d": 103,
+    "value": 0.8641
+   },
+   "recall": {
+    "n": 89,
+    "d": 89,
+    "value": 1.0
+   },
+   "kappa": 0.9119
+  },
+  "reg2/top10": {
+   "tp": 84,
+   "fp": 14,
+   "fn": 0,
+   "tn": 402,
+   "precision": {
+    "n": 84,
+    "d": 98,
+    "value": 0.8571
+   },
+   "recall": {
+    "n": 84,
+    "d": 84,
+    "value": 1.0
+   },
+   "kappa": 0.9061
+  },
+  "envelope/all": {
+   "tp": 89,
+   "fp": 11,
+   "fn": 0,
+   "tn": 455,
+   "precision": {
+    "n": 89,
+    "d": 100,
+    "value": 0.89
+   },
+   "recall": {
+    "n": 89,
+    "d": 89,
+    "value": 1.0
+   },
+   "kappa": 0.9299
+  },
+  "envelope/top10": {
+   "tp": 84,
+   "fp": 10,
+   "fn": 0,
+   "tn": 406,
+   "precision": {
+    "n": 84,
+    "d": 94,
+    "value": 0.8936
+   },
+   "recall": {
+    "n": 84,
+    "d": 84,
+    "value": 1.0
+   },
+   "kappa": 0.9317
+  },
+  "gold/all": {
+   "tp": 88,
+   "fp": 12,
+   "fn": 1,
+   "tn": 454,
+   "precision": {
+    "n": 88,
+    "d": 100,
+    "value": 0.88
+   },
+   "recall": {
+    "n": 88,
+    "d": 89,
+    "value": 0.9888
+   },
+   "kappa": 0.9172
+  },
+  "gold/top10": {
+   "tp": 83,
+   "fp": 12,
+   "fn": 1,
+   "tn": 404,
+   "precision": {
+    "n": 83,
+    "d": 95,
+    "value": 0.8737
+   },
+   "recall": {
+    "n": 83,
+    "d": 84,
+    "value": 0.9881
+   },
+   "kappa": 0.9116
+  }
+ },
+ "between": {
+  "oracle~pool": {
+   "n": 554,
+   "kappa": 0.8016
+  },
+  "oracle~reg": {
+   "n": 555,
+   "kappa": 0.7279
+  },
+  "oracle~gold": {
+   "n": 555,
+   "kappa": 0.7621
+  },
+  "pool~reg": {
+   "n": 554,
+   "kappa": 0.906
+  },
+  "pool~gold": {
+   "n": 554,
+   "kappa": 0.9584
+  },
+  "reg~gold": {
+   "n": 555,
+   "kappa": 0.9337
+  }
+ },
+ "quotation": {
+  "positives": 146,
+  "empty": {
+   "n": 0,
+   "d": 146,
+   "value": 0.0
+  },
+  "fail_160": {
+   "n": 4,
+   "d": 146,
+   "value": 0.0274
+  },
+  "pass_160_fail_whole": {
+   "n": 1,
+   "d": 146,
+   "value": 0.0068
+  },
+  "repass_verified": {
+   "n": 2,
+   "d": 4,
+   "value": 0.5
+  },
+  "repass_missing": 0
+ },
+ "citation_leg": {
+  "table": {
+   "leg_fail/notT/reg_no": 1,
+   "leg_pass/T/reg_yes": 89,
+   "leg_pass/notT/reg_no": 9,
+   "leg_pass/notT/reg_yes": 8
+  },
+  "n": 554,
+  "kappa_with_reg_without_leg": 0.906,
+  "kappa_with_reg_with_leg": 0.9115,
+  "against_T_without": {
+   "tp": 89,
+   "fp": 18,
+   "fn": 0,
+   "tn": 447,
+   "precision": {
+    "n": 89,
+    "d": 107,
+    "value": 0.8318
+   },
+   "recall": {
+    "n": 89,
+    "d": 89,
+    "value": 1.0
+   },
+   "kappa": 0.8886
+  },
+  "against_T_with": {
+   "tp": 89,
+   "fp": 17,
+   "fn": 0,
+   "tn": 448,
+   "precision": {
+    "n": 89,
+    "d": 106,
+    "value": 0.8396
+   },
+   "recall": {
+    "n": 89,
+    "d": 89,
+    "value": 1.0
+   },
+   "kappa": 0.8944
+  }
+ },
+ "negatives": {
+  "false_premise": {
+   "QP0": {
+    "oracle": 2,
+    "pool": 1,
+    "reg": 0,
+    "envelope": 0,
+    "gold": 0
+   },
+   "QP1": {
+    "oracle": 0,
+    "pool": 0,
+    "reg": 0,
+    "envelope": 0,
+    "gold": 0
+   },
+   "QP2": {
+    "oracle": 2,
+    "pool": 0,
+    "reg": 0,
+    "envelope": 0,
+    "gold": 0
+   },
+   "QP3": {
+    "oracle": 0,
+    "pool": 0,
+    "reg": 0,
+    "envelope": 0,
+    "gold": 0
+   },
+   "QP4": {
+    "oracle": 0,
+    "pool": 0,
+    "reg": 0,
+    "envelope": 0,
+    "gold": 0
+   }
+  },
+  "context_negative": {
+   "Q02:410": [
+    "oracle"
+   ],
+   "Q06:294": [
+    "oracle",
+    "pool",
+    "reg",
+    "envelope",
+    "gold"
+   ],
+   "Q07:226": [
+    "oracle",
+    "pool"
+   ],
+   "Q08:231": [
+    "oracle",
+    "pool",
+    "reg",
+    "gold"
+   ],
+   "Q09:230": [
+    "oracle",
+    "pool",
+    "reg",
+    "envelope",
+    "gold"
+   ],
+   "Q10:203": [
+    "oracle",
+    "pool",
+    "reg",
+    "envelope",
+    "gold"
+   ],
+   "Q11:544": [
+    "oracle",
+    "pool",
+    "gold"
+   ],
+   "Q13:326": [
+    "oracle",
+    "pool"
+   ],
+   "Q19:286": [
+    "oracle",
+    "pool",
+    "reg",
+    "envelope",
+    "gold"
+   ],
+   "Q20:625": [
+    "oracle",
+    "pool",
+    "reg",
+    "envelope",
+    "gold"
+   ],
+   "Q27:385": [
+    "oracle",
+    "pool",
+    "reg",
+    "gold"
+   ],
+   "Q30:409": [
+    "oracle",
+    "pool",
+    "envelope",
+    "gold"
+   ],
+   "Q35:492": [
+    "oracle",
+    "pool",
+    "reg",
+    "envelope",
+    "gold"
+   ],
+   "Q36:467": [
+    "oracle",
+    "pool",
+    "gold"
+   ],
+   "Q38:235": [
+    "oracle",
+    "pool",
+    "gold"
+   ]
+  }
+ },
+ "premise": {
+  "false_premise_supports": {
+   "n": 6,
+   "d": 55,
+   "value": 0.1091
+  },
+  "fact_T_supports": {
+   "n": 30,
+   "d": 30,
+   "value": 1.0
+  }
+ },
+ "gold_check": {
+  "correct": {
+   "n": 59,
+   "d": 59,
+   "value": 1.0
+  },
+  "wrong_superseded_or_rejected": {
+   "n": 12,
+   "d": 15,
+   "value": 0.8
+  },
+  "random": {
+   "n": 0,
+   "d": 50,
+   "value": 0.0
+  },
+  "queries_all_R_rejected": []
+ },
+ "stability": {
+  "reg2": {
+   "n": 555,
+   "flips": 0,
+   "to_positive": 0,
+   "to_negative": 0,
+   "bands": {
+    "0-0.1": 555
+   }
+  },
+  "envelope": {
+   "n": 555,
+   "flips": 9,
+   "to_positive": 3,
+   "to_negative": 6,
+   "bands": {
+    "0-0.1": 511,
+    "over 0.3": 11,
+    "0.1-0.3": 24,
+    "crossing": 9
+   }
+  },
+  "ndcg_pooled": {
+   "reg": 0.7688,
+   "reg2": 0.7688,
+   "envelope": 0.7652,
+   "T": 0.7372
+  },
+  "ndcg_queries": {
+   "complete": 45,
+   "apart": [
+    "QP0",
+    "QP1",
+    "QP2",
+    "QP3",
+    "QP4"
+   ]
+  }
+ },
+ "human": {
+  "undecided": 0,
+  "other_false": {
+   "n": 0,
+   "d": 45,
+   "value": 0.0
+  },
+  "false_premise": {
+   "n": 0,
+   "d": 10,
+   "value": 0.0
+  },
+  "truth": {
+   "n": 1,
+   "d": 30,
+   "value": 0.0333
+  },
+  "context_negative": {
+   "n": 0,
+   "d": 15,
+   "value": 0.0
+  },
+  "weighted_disagreement": 0.0053,
+  "disagreeing_rows": [
+   {
+    "row": 85,
+    "pair": "Q21:535",
+    "stratum": "truth",
+    "code": "P",
+    "T": true,
+    "note": ""
+   }
+  ],
+  "instruments": {
+   "oracle": {
+    "tp": 29,
+    "fp": 20,
+    "fn": 0,
+    "tn": 51,
+    "precision": {
+     "n": 29,
+     "d": 49,
+     "value": 0.5918
+    },
+    "recall": {
+     "n": 29,
+     "d": 29,
+     "value": 1.0
+    },
+    "kappa": 0.5966,
+    "weighted_precision": 0.6181,
+    "weighted_recall": 1.0
+   },
+   "pool": {
+    "tp": 29,
+    "fp": 15,
+    "fn": 0,
+    "tn": 56,
+    "precision": {
+     "n": 29,
+     "d": 44,
+     "value": 0.6591
+    },
+    "recall": {
+     "n": 29,
+     "d": 29,
+     "value": 1.0
+    },
+    "kappa": 0.6841,
+    "weighted_precision": 0.8353,
+    "weighted_recall": 1.0
+   },
+   "pool_leg": {
+    "tp": 29,
+    "fp": 15,
+    "fn": 0,
+    "tn": 56,
+    "precision": {
+     "n": 29,
+     "d": 44,
+     "value": 0.6591
+    },
+    "recall": {
+     "n": 29,
+     "d": 29,
+     "value": 1.0
+    },
+    "kappa": 0.6841,
+    "weighted_precision": 0.8353,
+    "weighted_recall": 1.0
+   },
+   "reg": {
+    "tp": 29,
+    "fp": 9,
+    "fn": 0,
+    "tn": 62,
+    "precision": {
+     "n": 29,
+     "d": 38,
+     "value": 0.7632
+    },
+    "recall": {
+     "n": 29,
+     "d": 29,
+     "value": 1.0
+    },
+    "kappa": 0.7998,
+    "weighted_precision": 0.8869,
+    "weighted_recall": 1.0
+   },
+   "envelope": {
+    "tp": 29,
+    "fp": 8,
+    "fn": 0,
+    "tn": 63,
+    "precision": {
+     "n": 29,
+     "d": 37,
+     "value": 0.7838
+    },
+    "recall": {
+     "n": 29,
+     "d": 29,
+     "value": 1.0
+    },
+    "kappa": 0.8204,
+    "weighted_precision": 0.8962,
+    "weighted_recall": 1.0
+   },
+   "gold": {
+    "tp": 30,
+    "fp": 12,
+    "fn": 0,
+    "tn": 58,
+    "precision": {
+     "n": 30,
+     "d": 42,
+     "value": 0.7143
+    },
+    "recall": {
+     "n": 30,
+     "d": 30,
+     "value": 1.0
+    },
+    "kappa": 0.7436,
+    "weighted_precision": 0.8812,
+    "weighted_recall": 1.0
+   }
+  }
+ },
+ "predictions": {
+  "P1": {
+   "result": "seen again",
+   "counts": "4/146 = 0.0274 J-oracle positives fail the 160 check"
+  },
+  "P2": {
+   "result": "not seen again",
+   "counts": "kappa with J-reg 0.906 -> 0.9115"
+  },
+  "P3": {
+   "result": "seen again",
+   "counts": "0 of 555 labels changed"
+  },
+  "P4": {
+   "result": "seen again",
+   "counts": "9 of 555 labels changed"
+  },
+  "P5": {
+   "result": "seen again",
+   "counts": "random accepted 0/50 = 0.0; correct gold accepted 59/59 = 1.0"
+  }
+ },
+ "fixtures": [
+  {
+   "case": "table row, quote de-tabulated",
+   "oracle_160": false,
+   "whole_quote": false,
+   "eight_words": false
+  },
+  {
+   "case": "table row, quote copied with pipes",
+   "oracle_160": true,
+   "whole_quote": true,
+   "eight_words": true
+  },
+  {
+   "case": "<u> wrapping dropped in the quote",
+   "oracle_160": false,
+   "whole_quote": false,
+   "eight_words": false
+  },
+  {
+   "case": "escaped currency sign unescaped in the quote",
+   "oracle_160": false,
+   "whole_quote": false,
+   "eight_words": false
+  },
+  {
+   "case": "drift into paraphrase after 13 characters",
+   "oracle_160": false,
+   "whole_quote": false,
+   "eight_words": false
+  },
+  {
+   "case": "drift into paraphrase after 30 characters",
+   "oracle_160": false,
+   "whole_quote": false,
+   "eight_words": false
+  },
+  {
+   "case": "drift into paraphrase after 53 characters",
+   "oracle_160": false,
+   "whole_quote": false,
+   "eight_words": false
+  },
+  {
+   "case": "longer than 160 characters, diverging after 160",
+   "oracle_160": true,
+   "whole_quote": false,
+   "eight_words": false
+  },
+  {
+   "case": "verbatim, differing only in accents and spacing",
+   "oracle_160": true,
+   "whole_quote": true,
+   "eight_words": true
+  },
+  {
+   "case": "assembled from two places",
+   "oracle_160": false,
+   "whole_quote": false,
+   "eight_words": false
+  },
+  {
+   "case": "empty quote",
+   "oracle_160": false,
+   "whole_quote": false,
+   "eight_words": false
+  },
+  {
+   "case": "verbatim but under 12 normalised characters",
+   "oracle_160": true,
+   "whole_quote": true,
+   "eight_words": false
+  }
+ ]
+}
