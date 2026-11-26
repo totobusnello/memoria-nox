@@ -307,6 +307,28 @@
    "artifact": "synthetic-ptbr/stage2/results/stage2.txt",
    "locator": "with the leg 0.9115",
    "commit": "618cbe6e"
+  },
+  {
+   "id": "s2-prec-oracle-fullrule",
+   "value": "0.6268",
+   "what": "precision against T, quoting oracle under the source's full rule",
+   "population": "555 pairs",
+   "date": "2026-11-26",
+   "artifact": "synthetic-ptbr/stage2/results/stage2-supplement.txt",
+   "locator": "precision 89/142 = 0.6268",
+   "commit": "6cfb52e7",
+   "note": "post-hoc or registered-but-unprinted reading, from the dated supplement"
+  },
+  {
+   "id": "s2-kappa-gold-T-common",
+   "value": "0.9171",
+   "what": "kappa of the gold check against T on the pairs the pooling judge also labelled",
+   "population": "554 pairs",
+   "date": "2026-11-26",
+   "artifact": "synthetic-ptbr/stage2/results/stage2-supplement.txt",
+   "locator": "gold ~ T 0.9171 (n=554)",
+   "commit": "6cfb52e7",
+   "note": "post-hoc or registered-but-unprinted reading, from the dated supplement"
   }
  ]
 }
