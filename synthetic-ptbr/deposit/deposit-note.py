@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""The synthetic PT-BR corpus and its note, as one Zenodo record (a NEW record, resource type dataset).
+"""The synthetic PT-BR corpus and its note, as one Zenodo record (resource type dataset). v1.0 was a new
+record (24535848, concept 24535847); v1.1 adds the step 2 section and is a new version of it.
 
 The Zenodo helpers (token, req, md5, sha256, creators, privacy_scan, agrees) are Paper 3's
 (paper3-construction/deposit/deposit.py), imported, so every deposit goes the same way and the
@@ -7,8 +8,9 @@ publish refusal lives in one place.
 
   --plan            read-only, no token: archive file list, gates, privacy gate, and whether the
                     note is ready (status line in place, PUB_DATE and NOTE_COMMIT set).
-  --create-draft    WRITE: POST /api/records, reserves the DOI, stores the id in
-                    .draft-id-note-v<VERSION> (gitignored). Refuses if it exists.
+  --create-draft    WRITE: POST /api/records/<PREV>/versions (refuses unless PREV is the latest
+                    published version), reserves the DOI, stores the id in .draft-id-note-v<VERSION>
+                    (gitignored). Refuses if it exists. Files are uploaded fresh, never imported.
   --build           local: deposit copy of ../NOTE.md (status line only), the PDF with the
                     DOI line, the dataset archive, SHA256SUMS, privacy gate. Never edits ../NOTE.md.
   --fill            WRITE: metadata and files, md5-checked.
@@ -37,7 +39,8 @@ spec = importlib.util.spec_from_file_location("dep", ROOT / "paper3-construction
 dep = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(dep)
 
-VERSION = "1.0"
+VERSION = "1.1"
+PREV = "24535848"  # v1.0, published 2026-11-25
 SLUG = "memory-ruler-failure-mechanisms-synthetic-ptbr"
 MD, PDF = f"{SLUG}-v{VERSION}.md", f"{SLUG}-v{VERSION}.pdf"
 CODE = f"synthetic-ptbr-corpus-and-code-v{VERSION}.zip"
@@ -50,17 +53,21 @@ TITLE = ("Running a memory ruler's failure mechanisms in public: a synthetic Por
 REPO_COMMIT = os.environ.get("NOTE_COMMIT", "")
 EXTRA = ["eval/resolve-gold-anchors.py", "tools/provenance.py", "LICENSE"]
 SUBJECTS = ["agent memory", "retrieval evaluation", "synthetic corpus", "Brazilian Portuguese",
-            "nDCG", "incomplete relevance judgments", "gold references", "reproducibility", "dataset"]
+            "nDCG", "incomplete relevance judgments", "gold references", "reproducibility", "dataset",
+            "LLM judges", "pre-registration"]
 STATUS_OLD = ("Status: working draft, not deposited, not peer reviewed. A dataset with a short note: the corpus was\n"
-              "generated and both versions were run on 2026-11-25. `PROVENANCE.json` holds the source of every\n"
+              "generated, both versions were run and Paper A's judges were re-run on it on 2026-11-25. "
+              "`PROVENANCE.json` holds the source of every\n"
               "decimal number and percentage in this note, and a gate checks each one against it.")
 
 
 def status_new(doi):
     return (f"Version {VERSION} ({PUB_DATE}), doi:{doi}. Not peer reviewed. A dataset with a short note: "
-            "the corpus was generated and both versions were run on 2026-11-25. `PROVENANCE.json`, in the "
-            "archive of this record, holds the source of every decimal number and percentage in this note, "
-            "and a gate checks each one against it. The archive carries everything section 7 lists.")
+            "the corpus was generated, both versions were run and Paper A's judges were re-run on it on "
+            "2026-11-25. Version 1.1 adds section 5 (step 2); version 1.0 is doi:10.5281/zenodo.24535848. "
+            "`PROVENANCE.json`, in the archive of this record, holds the source of every decimal number and "
+            "percentage in this note, and a gate checks each one against it. The archive carries everything "
+            "section 8 lists.")
 
 
 def archive_files():
@@ -126,7 +133,11 @@ def gates():
     ok = True
     for cmd in (["python3", "-I", "tools/provenance.py", "--check", "synthetic-ptbr"],
                 ["python3", "-I", "synthetic-ptbr/test-synthetic.py"],
-                ["python3", "-I", "synthetic-ptbr/method-tests.py", "--analyze", "--check"]):
+                ["python3", "-I", "synthetic-ptbr/method-tests.py", "--analyze", "--check"],
+                ["python3", "-I", "synthetic-ptbr/stage2/pairs.py", "--check"],
+                ["python3", "-I", "synthetic-ptbr/stage2/test-stage2.py"],
+                ["python3", "-I", "synthetic-ptbr/stage2/analyze.py", "--check"],
+                ["python3", "-I", "synthetic-ptbr/stage2/supplement.py", "--check"]):
         r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
         print("  " + (r.stdout.strip() or r.stderr.strip()).splitlines()[-1])
         ok = ok and r.returncode == 0
@@ -204,13 +215,19 @@ def create_draft():
     if why:
         sys.exit("refusing: " + "; ".join(why))
     tok = dep.token()
-    st, d = dep.req("POST", "/records", {"metadata": metadata(), "access":
-                    {"record": "public", "files": "public"}, "files": {"enabled": True}}, tok)
-    assert st in (200, 201), f"draft: {st} {d}"
-    rid = d["id"]
-    DRAFT_ID.write_text(str(rid) + "\n")
+    st, latest = dep.req("GET", f"/records/{PREV}/versions/latest", None, tok)
+    lid = str(latest.get("id")) if st == 200 and isinstance(latest, dict) else None
+    if lid != PREV:
+        sys.exit(f"refusing: v1.0 ({PREV}) is not the latest version (latest = {lid})")
+    st, d = dep.req("POST", f"/records/{PREV}/versions", None, tok)
+    assert st in (200, 201), f"new version: {st} {str(d)[:400]}"
+    rid = str(d["id"])
+    DRAFT_ID.write_text(rid + "\n")
+    st, _ = dep.req("PUT", f"/records/{rid}/draft", {"metadata": metadata()}, tok)
+    assert st == 200, f"metadata PUT: {st}"
     st2, d2 = dep.req("POST", f"/records/{rid}/draft/pids/doi", {}, tok)
-    print(f"draft {rid} · reserve doi {st2} · {d2.get('pids', {}).get('doi', {}).get('identifier')}")
+    print(f"draft {rid} (new version of {PREV}, NOT published) · reserve doi {st2} · "
+          f"{d2.get('pids', {}).get('doi', {}).get('identifier')}")
     return 0
 
 
