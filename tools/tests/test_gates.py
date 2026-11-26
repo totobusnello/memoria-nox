@@ -122,6 +122,8 @@ class Provenance(unittest.TestCase):
         self.r.write("audits/a.md", "fidelity 0.900 (135/150); first figure 0.833\n")
         self.r.commit()
         self.sha = run(["git", "rev-parse", "--short", "HEAD"], self.r.p).stdout.strip()
+        # the base branch the gate requires: here the commit above is already "on main"
+        run(["git", "update-ref", "refs/remotes/origin/main", "HEAD"], self.r.p)
         self.claims = [
             {"id": "fid-old", "value": "0.833", "population": "150", "date": "2026-10-22",
              "artifact": "audits/a.md", "locator": "0.833", "commit": self.sha,
@@ -159,6 +161,28 @@ class Provenance(unittest.TestCase):
     def test_unknown_commit_fails(self):
         c = [dict(self.claims[1], commit="deadbeef")]
         self.assertEqual(self.check("Fidelity 0.900.\n", claims=c).returncode, 1)
+
+    def test_branch_commit_not_on_base_fails(self):
+        # #744 → #745: the artifact's commit exists and is an ancestor of HEAD, but only on the
+        # pull request's branch; the squash merge would drop it
+        self.r.write("audits/b.md", "recall 0.71\n")
+        self.r.commit()
+        branch = run(["git", "rev-parse", "--short", "HEAD"], self.r.p).stdout.strip()
+        c = self.claims + [{"id": "rec", "value": "0.71", "population": "x", "date": "2026-11-25",
+                            "artifact": "audits/b.md", "locator": "0.71", "commit": branch,
+                            "superseded_by": None}]
+        res = self.check("Fidelity 0.900, recall 0.71.\n", claims=c)
+        self.assertEqual(res.returncode, 1)
+        self.assertIn("is not on origin/main", res.stderr)
+        # once the base branch has it, the same claim passes
+        run(["git", "update-ref", "refs/remotes/origin/main", "HEAD"], self.r.p)
+        self.assertEqual(self.check("Fidelity 0.900, recall 0.71.\n", claims=c).returncode, 0)
+
+    def test_missing_base_ref_fails(self):
+        run(["git", "update-ref", "-d", "refs/remotes/origin/main"], self.r.p)
+        res = self.check("Fidelity was 0.900 in 2026.\n")
+        self.assertEqual(res.returncode, 1)
+        self.assertIn("does not resolve", res.stderr)
 
     def test_history_fragment_allows_only_where_declared(self):
         c = [dict(self.claims[0], history=["first reported as 0.833"]), self.claims[1]]
