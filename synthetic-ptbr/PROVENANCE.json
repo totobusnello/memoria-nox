@@ -177,6 +177,136 @@
    "commit": "21fc6b46",
    "superseded_by": null,
    "note": ""
+  },
+  {
+   "id": "s2-human-weighted",
+   "value": "0.0053",
+   "what": "weighted share of the 555 pairs where the blind human reading disagrees with T",
+   "population": "100-pair stratified sample, owner's codes",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/stage2/results/stage2.txt",
+   "locator": "weighted estimate over the 555: 0.0053",
+   "commit": "618cbe6e"
+  },
+  {
+   "id": "s2-prec-oracle",
+   "value": "0.6096",
+   "what": "precision against T, quoting oracle (gemini-2.5-flash-lite)",
+   "population": "555 pairs",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/stage2/results/stage2.txt",
+   "locator": "precision 89/146 = 0.6096",
+   "commit": "618cbe6e"
+  },
+  {
+   "id": "s2-prec-pool",
+   "value": "0.8318",
+   "what": "precision against T, pooling judge without the citation leg",
+   "population": "554 valid pairs",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/stage2/results/stage2.txt",
+   "locator": "precision 89/107 = 0.8318",
+   "commit": "618cbe6e"
+  },
+  {
+   "id": "s2-prec-reg",
+   "value": "0.8641",
+   "what": "precision against T, registered judge (gpt-6-luna Decisions)",
+   "population": "555 pairs",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/stage2/results/stage2.txt",
+   "locator": "precision 89/103 = 0.8641",
+   "commit": "618cbe6e"
+  },
+  {
+   "id": "s2-prec-envelope",
+   "value": "0.89",
+   "what": "precision against T, registered predicate in the other request envelope",
+   "population": "555 pairs",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/stage2/results/stage2.txt",
+   "locator": "precision 89/100 = 0.89",
+   "commit": "618cbe6e"
+  },
+  {
+   "id": "s2-prec-gold",
+   "value": "0.88",
+   "what": "precision against T, gold-check judge",
+   "population": "555 pairs",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/stage2/results/stage2.txt",
+   "locator": "precision 88/100 = 0.88",
+   "commit": "618cbe6e"
+  },
+  {
+   "id": "s2-kappa-pool-gold",
+   "value": "0.9584",
+   "what": "kappa between the pooling judge and the gold check",
+   "population": "554 pairs valid in both",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/stage2/results/stage2.txt",
+   "locator": "pool ~ gold: 0.9584",
+   "commit": "618cbe6e"
+  },
+  {
+   "id": "s2-kappa-pool-T",
+   "value": "0.8886",
+   "what": "kappa of the pooling judge against T",
+   "population": "554 valid pairs",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/stage2/results/stage2.txt",
+   "locator": "precision 89/107 = 0.8318; recall 89/89 = 1.0; kappa 0.8886",
+   "commit": "618cbe6e"
+  },
+  {
+   "id": "s2-kappa-gold-T",
+   "value": "0.9172",
+   "what": "kappa of the gold check against T",
+   "population": "555 pairs",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/stage2/results/stage2.txt",
+   "locator": "precision 88/100 = 0.88; recall 88/89 = 0.9888; kappa 0.9172",
+   "commit": "618cbe6e"
+  },
+  {
+   "id": "s2-ndcg-reg",
+   "value": "0.7688",
+   "what": "mean pooled nDCG@10 with the registered judge's positives",
+   "population": "45 fact questions",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/stage2/results/stage2.txt",
+   "locator": "reg 0.7688",
+   "commit": "618cbe6e"
+  },
+  {
+   "id": "s2-ndcg-envelope",
+   "value": "0.7652",
+   "what": "mean pooled nDCG@10 with the other envelope's positives",
+   "population": "45 fact questions",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/stage2/results/stage2.txt",
+   "locator": "envelope 0.7652",
+   "commit": "618cbe6e"
+  },
+  {
+   "id": "s2-leg-kappa-without",
+   "value": "0.906",
+   "what": "kappa of the pooling judge with the registered judge, without the citation leg",
+   "population": "554 pairs",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/stage2/results/stage2.txt",
+   "locator": "without the leg 0.906",
+   "commit": "618cbe6e"
+  },
+  {
+   "id": "s2-leg-kappa-with",
+   "value": "0.9115",
+   "what": "kappa of the pooling judge with the registered judge, with the citation leg",
+   "population": "554 pairs",
+   "date": "2026-11-25",
+   "artifact": "synthetic-ptbr/stage2/results/stage2.txt",
+   "locator": "with the leg 0.9115",
+   "commit": "618cbe6e"
   }
  ]
 }

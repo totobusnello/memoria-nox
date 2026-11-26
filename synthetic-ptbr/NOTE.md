@@ -3,7 +3,7 @@
 Luiz Antonio Busnello
 
 Status: working draft, not deposited, not peer reviewed. A dataset with a short note: the corpus was
-generated and both versions were run on 2026-11-25. `PROVENANCE.json` holds the source of every
+generated, both versions were run and Paper A's judges were re-run on it on 2026-11-25. `PROVENANCE.json` holds the source of every
 decimal number and percentage in this note, and a gate checks each one against it.
 
 ## Abstract
@@ -23,8 +23,18 @@ on the old path, ingest of the new path) the id still reached the evidence while
 up by its recorded path, did not. Both references still reached the evidence after its file was deleted. Registered
 labels that omit some true positives changed the score of all 20 questions where they were
 incomplete, upward on 12 and downward on 8; no question scored zero, so the extreme case Paper A
-measured did not occur. An ideal built from the ranking changed 5 of 45 scores. The corpus, the
-plan that built it, the generation records, the frozen results and the code are released together.
+measured did not occur. An ideal built from the ranking changed 5 of 45 scores.
+
+In a second, pre-registered step we re-ran Paper A's LLM judges, with their model ids, prompts and
+request bodies, on 555 question–chunk pairs and read them against the planted key, which a blind
+human reading of 100 pairs contradicted once. Every judge found every planted positive but one;
+their errors were acceptances, mostly of a value the text marks as rejected or superseded. The
+judge Paper A used to check its gold accepted all 59 correct entries, none of 50 random chunks and
+12 of 15 such discarded values. Two judges that share this error agreed with each other more than
+either agreed with the key. The citation check that lowered agreement in Paper A removed one pair
+here; the corpus does not carry the formatting that drove Paper A's case. The corpus, the plan that
+built it, the generation records, the frozen results, both steps' code and the step 2 runs are
+released together.
 
 ## 1. Why a constructed corpus
 
@@ -181,7 +191,65 @@ ranking-ideal score on all 45. Here they are one observation, counted twice.
 Context negatives, which share the entity and the attribute with the question, ranked above its
 first positive on 4 of 45 questions, 4 of the 15 that had a negative.
 
-## 5. What this note claims, and what it does not
+## 5. Step 2: Paper A's judges against the planted key
+
+Paper A could not say whether its judges were right: it had no reference. This corpus has one.
+Step 2 was pre-registered (tag `synthetic-ptbr-stage2-prereg`, frozen on 2026-11-25 after a
+challenge round by Codex and Kimi) and re-ran Paper A's judges with the same model ids, prompts and
+request bodies, copied by code from the scripts that ran them and checked against those scripts by a
+test. Three are prompts to `gemini-2.5-flash-lite`: an oracle asked to quote its evidence, a pooling
+judge with the 8-word citation leg, and an 8-word second pass on failed quotes. Four are requests to
+`gpt-6-luna` through OpenAI's Decisions API: the registered judge, the same request sent again, the
+same predicate in another request envelope, and the gold check behind Paper A's fifth finding ("does
+the recorded gold answer the question"). The same model id does not prove the same weights.
+
+The judges read 555 pairs: the top 10 of the frozen ranking for all 50 questions, the 5 true
+positives ranked below it, and one random chunk per question. The key T marks planted evidence
+and says nothing about meaning, so before any model call the author read a stratified sample of 100 pairs
+blind, question and chunk only, and coded each (complete, partial, discarded value, mention, off).
+The reading disagreed with T on one row, a partial answer that T counts as positive: a weighted
+estimate of 0.0053 over the 555. The judges are read against T below. One parser rule changed after
+the runs began (amendment 1, committed with the runs): a null quote returned with a "no" had been read
+as a missing label rather than, as in the source scripts, an empty quote. The stored responses were
+re-read with no new call. The ledger records under US$ 1 in all.
+
+**Errors of acceptance.** Every judge found every planted positive (89 of 89; the gold check, 88).
+They differed in what else they accepted. Precision against T was 0.6096 for the quoting oracle,
+0.8318 for the pooling judge, 0.8641 for the registered judge, 0.89 in the other envelope and 0.88
+for the gold check. The false positives fall mostly on the 15 context negatives, chunks that give
+the asked entity and attribute a value the text marks as rejected or superseded: the oracle
+accepted all 15, the pooling judge 14, the gold check 12, the registered judge 8 and the other
+envelope 7. The author's blind reading coded all 15 as a discarded value.
+
+**The gold check, with a key.** Asked whether a recorded gold entry answers its question, the gold
+check accepted all 59 correct entries, none of the 50 random chunks and 12 of the 15 context
+negatives presented as gold. On this corpus its error ran in the direction Paper A could not test:
+it never rejected correct gold, and it took a discarded value for gold. This corpus
+cannot say whether Paper A's 38 rejections were right; its wrong gold is of one planted kind.
+
+**Agreement is not accuracy.** The pooling judge and the gold check agreed with each other at kappa
+0.9584, more than either agreed with T (0.8886 and 0.9172): they make the same acceptances. Paper A
+warned that agreement between judges says nothing about precision; here the reference is beside it.
+Pooled with the registered judge's positives, mean nDCG@10 over the 45 fact questions was 0.7688,
+above both the truth (0.7372) and pooling with a perfect judge (0.7598, section 4): a judge's false
+positives raise a pooled score.
+
+**The citation leg.** On this corpus the 8-word check removed one pooled positive, a pair T counts
+as negative, and kappa with the registered judge rose from 0.906 to 0.9115, so Paper A's drop was not
+seen again. That says little about Paper A. Its failures came from copyable formatting (table pipes,
+`<u>`, an escaped currency sign) and from quotes that drift after 13 to 53 characters; here the
+planted sentences have 43 to 95 characters and no chunk carries any of those formats. Offline
+fixtures released with the step show the check vetoing a quote that drops those formats. The quoting oracle's
+quote failed the check on 4 of its 146 positives, and the second pass verified 2 of those 4.
+
+**False premises and stability.** None of the Decisions requests labelled any of the 55
+false-premise pairs as answering; the oracle labelled 4 and the pooling judge 1. A premise check
+written for this step, since Paper A's was never committed, said that 6 of those 55 chunks supported
+a premise the corpus never states; it is exploratory. As in Paper A, the identical request changed
+none of 555 labels, and the other envelope changed 9, which moved pooled nDCG@10 from 0.7688 to
+0.7652.
+
+## 6. What this note claims, and what it does not
 
 It claims that, on this corpus, these two pinned versions and the operations as the harness ran
 them, the references and scores behave as the tables and counts above say, and that anyone can
@@ -201,9 +269,14 @@ It does not claim:
 - independence from the generator: one model family wrote all the free text, with marks of its own
   that the release lists ("semana seguinte", "the following week", in 181 of 200 files, from the
   prompt's own example);
-- that the corpus is uncontaminated for future use; it is public, so it is a regression fixture.
+- that the corpus is uncontaminated for future use; it is public, so it is a regression fixture;
+- that the judges of step 2 behave this way on other text: the planted positives are short and
+  clean, the hard negatives are of two kinds (a rejected and a superseded value), and one reader,
+  the author, coded the human sample;
+- anything about Paper A's private pairs: step 2 describes the judges on this corpus, and settling
+  what happened in Paper A would need a blind reading of those pairs.
 
-## 6. What transfers
+## 7. What transfers
 
 Which of the two, id or anchor, is the safer key for gold depends on what the system's ingest does
 to ids, and in this system that changed between two releases published the same day. A ruler that
@@ -215,7 +288,13 @@ the zero-scoring case of finding 2 needs questions on which no registered positi
 and labels that record which results a judge saw; this corpus has neither, which is the main thing
 a next version should change.
 
-## 7. Data and code availability
+A ruler that pools with an LLM judge needs, among its controls, negatives that carry a plausible
+value the text has discarded: on this corpus those were where every judge failed, and a check of
+gold against random chunks, which every judge passed, would not have found it. And high agreement
+between two judges shows only that they err alike or not at all; telling the two apart takes a key,
+which even a small planted corpus can supply.
+
+## 8. Data and code availability
 
 Everything is in `synthetic-ptbr/` of the nox-mem research repository (github.com/totobusnello/memoria-nox),
 except the anchor resolver, which the full run calls from `eval/resolve-gold-anchors.py` in the same
@@ -229,7 +308,15 @@ under CC BY 4.0. The commands run from the repository root:
 python3 -I synthetic-ptbr/test-synthetic.py
 python3 -I synthetic-ptbr/method-tests.py --analyze --check
 python3 -I synthetic-ptbr/method-tests.py --run --work <scratch dir>   # npm, network
+python3 -I synthetic-ptbr/stage2/test-stage2.py
+python3 -I synthetic-ptbr/stage2/analyze.py --check
 ```
+
+Step 2 is in `synthetic-ptbr/stage2/`: the pre-registration and its amendment, the population and
+the blind sheet with the author's codes, the copied prompts, the runner with its ledger, every
+request's stored response, and the analysis. `analyze.py --check` recomputes every step 2 number
+from the stored responses; re-running the judges (`run.py`) needs the two providers' keys and is
+not expected to return identical labels.
 
 ## References
 
