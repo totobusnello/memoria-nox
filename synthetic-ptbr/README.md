@@ -19,12 +19,14 @@ generated, checked and scanned, and the method tests ran on nox-mem 3.5.2 and 3.
 reports them is `NOTE.md`, revised after two rounds of review (Codex and Kimi) and deposited with
 this directory on Zenodo: published 2026-11-25 as v1.0, doi:10.5281/zenodo.24535848 (concept
 doi:10.5281/zenodo.24535847), built from commit `70c82859`. The `NOTE.md` in this tree keeps the
-"working draft, not deposited" status line on purpose: it is byte-identical to the deposited copy.
+"working draft, not deposited" status line on purpose: it is byte-identical to the copy in the
+archive of the latest version.
 
 Step 2 (`stage2/`, pre-registered by the tag `synthetic-ptbr-stage2-prereg`) re-ran Paper A's LLM
 judges on 555 question–chunk pairs and read them against the planted key and a blind human reading
-of 100 pairs; its runs, ledger and results are committed, and `NOTE.md` now has a section on it, to
-be deposited as v1.1 of the same record.
+of 100 pairs; its runs, ledger and results are committed, and section 5 of `NOTE.md` reports them.
+It was published on 2026-11-26 as v1.1 of the same record, doi:10.5281/zenodo.24570881, built from
+commit `7ba30a12`.
 
 | file | what |
 |---|---|
