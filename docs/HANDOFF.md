@@ -1,3 +1,39 @@
+## ▶ Quinta 26/11, 20h30 BRT — corpus sintético encerrado (v1.0 e v1.1); fila nova com as decisões do Toto
+
+**Feito de 21 a 26/11:**
+- **Corpus sintético PT-BR** (`synthetic-ptbr/`, objetivo de 25/11 no PLANO), item 1 da fila de 20/11:
+  - etapa 1, mecanismos da régua em nox-mem 3.5.2 e 3.11.1: v1.0 publicada pelo Toto em 25/11,
+    doi:10.5281/zenodo.24535848; card site-labf#77;
+  - etapa 2, juízes LLM do Paper A contra o gabarito plantado, pré-registrada (tag
+    `synthetic-ptbr-stage2-prereg`): v1.1 publicada em 26/11, doi:10.5281/zenodo.24570881
+    (concept 24535847, software `7ba30a12`); card site-labf#79; PLANO e README em #760;
+  - resultado central: os juízes acharam 88–89 de 89 positivos plantados, todos aceitaram parte de 15 iscas
+    (valor rejeitado ou substituído), e o juiz que conferiu o gold do Paper A aceitou 12 delas, as
+    mesmas 12 que o juiz de pooling aceitou.
+- **Pendência 6 do PLANO (backup dos privados):** os 13 arquivos ignorados em duas cópias com
+  sha256 conferido no destino (Mac `~/Backups/memoria-nox-privado-2026-11-26/` e VPS Pesquisa).
+- **Gate de proveniência (#761):** commit citado tem de estar na `origin/main`, não só no HEAD
+  (lição do #744 → #745); ref ausente reprova; os testes dos gates passaram a rodar na CI.
+- **Pendência 4 (distiller):** cópia fixa do `session-distill.ts` de produção e do shadow do C2,
+  com sha256 (#762).
+- **README do repo:** seção com as 13 publicações posteriores ao Paper 1 e as pastas de cada uma.
+
+**Decisões do Toto em 26/11:** pendência 1 (reescrever histórico): fica como está. Paper 1 num
+venue: alphaXiv ou Elsevier (pesquisa de encaixe em andamento). GTM Phase 2: explicar o que falta.
+Evoluir os quatro estudos de uso e construção abaixo.
+
+**Fila:**
+1. **Com data:** contagem do shadow do C2 no domingo 29/11 (em 22/11: 66 de 100 sessões, 313 de
+   300 blocos); leitura só a partir de 01/12 e com as duas metas; H-A2 de 18 a 23/05/2027.
+2. **Paper 1 num venue** (ROADMAP A7): alphaXiv publica direto (trilha de papers feitos com IA,
+   com declaração por etapa), ou uma revista da Elsevier; decisão do Toto com a pesquisa de encaixe.
+3. **Estudos a evoluir** (ROADMAP B2, B3, B4 e pesquisa 3), escopo no PLANO:
+   - T2 nos agentes do OpenClaw, pré-registrado;
+   - escopo derivado do banco contra frase escrita à mão, em mais de um modelo e cliente;
+   - escrita: achar uma condição em que o agente grava (0 de 30 em todas até aqui);
+   - construção como protocolo, depois de delimitar a novidade.
+4. **GTM Phase 2** (PLANO pendência 5 = ROADMAP B8): pricing e lançamento, no `nox-supermem`.
+
 ## ▶ Sexta 20/11, 21h40 BRT — fim do dia; retomar no sábado 21/11
 
 **Feito em 20/11:** Paper A publicado (doi:10.5281/zenodo.24400444) com card no labf.bio (site-labf#69); nota #723

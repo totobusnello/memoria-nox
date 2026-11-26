@@ -125,6 +125,26 @@ pós-ingest e do resolvedor com seus infratores, fixtures do achado 4, tudo offl
 (2) geração paga isolada, varredura por trechos e corpus congelado; (3) matriz de operações nas duas
 versões, T/R/P e resultados; (4) nota, vozes se você pedir, depósito e card.
 
+## Objetivo (2026-11-26): o agente consulta e escreve? (quatro estudos)
+
+Pedido do Toto em 26/11: «evoluir 10 a 13». Os papers publicados medem a **construção** da memória;
+o que está aberto é o **uso**: o agente busca sozinho, e grava? Hoje a evidência diz que não
+(nenhuma busca de agente da VPS até 21/10; T2 no Claude Code: +0,46 na avaliação, 2 de 38 sessões no campo;
+escrita 0 de 30 em todos os braços). Ordem proposta: o 12 e o 11 rodam no harness local que já
+existe (`~/nox-skill-eval`, fora do repo, com corpus e juiz calibrado, kappa 0,89 com o Toto); o
+10 mexe em produção e espera um sim; o 13 só abre depois da delimitação da novidade.
+
+| # | estudo | pergunta | desenho mínimo | custo | decisão pendente do Toto |
+|---|---|---|---|---|---|
+| 10 | T2 nos agentes do OpenClaw (ROADMAP B3) | O texto T2 com escopo faz os 6 agentes da VPS buscarem no nox-mem? | Pré-registrado. Linha de base medida até 21/10 (0 de 382 buscas eram de agente; 337 eram a sonda canária); remedir antes de ligar. Ligar `NOX_MEM_INSTRUCTIONS` com uma frase de escopo **por agente**, alternando ligado/desligado em blocos de dias (6 agentes são poucos para sortear entre agentes). Desfecho: fração de sessões de agente com ≥1 busca; falso gatilho = busca fora do escopo do agente; 10 buscas lidas à mão. Os transcripts são podados a 7 dias: a coleta precisa de cópia diária antes de começar | tokens do próprio agente; M de trabalho | é produção: ligar instruções nos agentes; quem escreve a frase de escopo de cada um |
+| 11 | Escopo derivado do banco (ROADMAP B2) | Uma frase de escopo gerada a partir do próprio banco funciona tão bem quanto a escrita à mão? | Função determinística que monta a frase das fontes e entidades mais frequentes do banco; braços T2-mão × T2-derivado × S0 nas tarefas K e G do harness; dois modelos e dois clientes (Claude Code e Codex CLI; Cursor se der para automatizar). Critério igual ao do T2: ganho em K e falso gatilho em G ≤ 15 pp | US$ 100–300 | teto de gasto; quais clientes |
+| 12 | Escrita (ROADMAP B4) | Existe uma condição em que o agente grava uma decisão quando a tarefa pede? | Três braços novos contra o T2: (a) o resultado da busca, quando não acha nada, sugere registrar; (b) hook de fim de sessão que propõe o `decision_set` com o texto pronto; (c) ferramenta de escrita citada nas `instructions` com o critério de quando gravar. Desfecho W+ (grava quando devia, 30 tarefas por braço) e W− (grava sem motivo, nas tarefas G). Para cedo: um braço com W+ ≥ 10 de 30 e W− ≤ 15 pp responde a pergunta | ~US$ 10–20 por braço (o T2 custou US$ 16 em 180 corridas) | ok para pré-registrar e rodar no harness local |
+| 13 | Construção como protocolo (ROADMAP pesquisa 3) | O que um construtor de memória deve escrever, medido pelo que o agente consegue responder depois? | Janela × critério × extrator, com BM25 e evidência crua como controles, juiz calibrado e piso de ruído, num benchmark além do LongMemEval. Antes: delimitar a novidade frente aos trabalhos mais próximos (em andamento em 26/11) | o E custou US$ 150,55; teto a fixar | teto; abrir ou não depois da delimitação |
+
+Gates: os mesmos do eval do T2 (instrumentos, modelo devolvido, conexão), proveniência em toda nota,
+e voz só se o Toto pedir. O 10 começa pelo script de coleta diária dos transcripts e pelo
+pré-registro; nada liga em produção antes do sim.
+
 ## Fora do escopo
 
 - Publicar texto do corpus privado, queries reais, nomes de arquivo do corpus ou endereço de host.
@@ -337,19 +357,30 @@ com o infrator correspondente); 2026-11-05 · proveniência do A 197 registros, 
    das perguntas, 26 IPs da tailnet num plano de 14/10 e nomes de host. Reescrever o histórico
    troca o hash dos commits citados pelos pré-registros e pelos links `tree/<hash>` dos papers, e
    não apaga os refs de PR sem pedido ao suporte do GitHub.
+   **Decidido em 26/11 (Toto: «nao ligo deixa como esta»):** o histórico e as menções antigas de
+   baixa sensibilidade ficam como estão; o gate de privacidade continua barrando menção nova.
 2. **A: holdout.** Escrever queries novas antes de ver qualquer ranking delas; sem isso a parte nova
    se chama «remedição de estabilidade», não confirmação.
 3. **A: corpus sintético.** Pequeno, PT-BR, público, só para os testes de método. Os números de
    produção ficam como estudo de caso agregado. **Aberto como objetivo próprio em 25/11** (seção
    «Objetivo (2026-11-25)»).
 4. **D: o `session-distill.ts` vive só na VPS.** Trazer o runner para um artefato versionado antes
-   de qualquer experimento.
-5. **Item 2 (GTM Phase 2):** memo separado; inclui tirar «retenção» da fala.
+   de qualquer experimento. **Feito em 26/11 (Toto: «8 - faz»):** a versão de produção já estava
+   versionada no repo privado do workspace (`9ec24c39`, sem mudança pendente) e a versão
+   generalizada no pacote público `nox-mem` (`e4035e5`); a cópia fixa da de produção e do shadow
+   do C2, com sha256 e as quatro mudanças posteriores ao shadow (nenhuma no prompt), está em
+   `paper-d-c2-production/distiller-snapshot/` (#762).
+5. **Item 2 (GTM Phase 2):** memo separado; inclui tirar «retenção» da fala. A parte da «retenção»
+   já saiu do discurso em 08/11 (ROADMAP A3(a)); o resto coincide com o B8 do ROADMAP.
 6. **Backups privados sumiram (achado de 25/11).** `~/Backups/memoria-nox-privado-2026-11-04/` e
    `-2026-11-08/`, citados no item 1 como «backup verificado», não existem mais em lugar nenhum da
    home. Os arquivos privados retirados do repo (golden v2/v3, KG S1, os 6 audits de 27/10) existem
    hoje numa cópia só: ignorados dentro do clone, onde um `git clean -X` os apagaria. Refazer o
-   backup é decisão do Toto (onde guardar, com hash).
+   backup é decisão do Toto (onde guardar, com hash). **Feito em 26/11 (Toto: «pode fazer o 3»):**
+   os 13 arquivos ignorados (6 audits de 22 e 27/10, 3 saídas de `audits/out/`, golden queries
+   v2/v3 e negatives v1/v2) em duas cópias com `SHA256SUMS`: `~/Backups/memoria-nox-privado-2026-11-26/`
+   no Mac e `/var/backups/nox-mem/memoria-nox-privado-2026-11-26/` na VPS Pesquisa, os 13 hashes
+   conferidos no destino, permissões só do dono.
 
 ## Decisões
 
