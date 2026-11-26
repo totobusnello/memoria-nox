@@ -28,7 +28,7 @@ measured did not occur. An ideal built from the ranking changed 5 of 45 scores.
 In a second, pre-registered step we re-ran Paper A's LLM judges, with their model ids, prompts and
 request bodies, on 555 question–chunk pairs and read them against the planted key, which a blind
 reading of 100 pairs by the author contradicted once. The judges found every planted positive but
-one, and their other errors were acceptances. Among the pairs that tempted them were 15 planted
+one, and their other errors were acceptances. Among the pairs they judged were 15 planted
 decoys: chunks giving the asked entity and attribute a value the text marks as rejected or
 superseded. Every judge accepted some of these (from 7 to all 15), and they were half of all false
 acceptances. The judge Paper A used to check its gold accepted all 59 correct entries, none of 50
@@ -228,7 +228,9 @@ under US$ 1 in all. Some readings the pre-registration promised were not printed
 analysis; a dated supplement (`stage2/supplement.py`) computes them from the same stored labels, and
 also holds the three post-hoc checks used below.
 
-**Errors of acceptance.** Every judge found every planted positive (89 of 89), except the gold check,
+### Errors of acceptance
+
+Every judge found every planted positive (89 of 89), except the gold check,
 which missed one. Their other errors were acceptances, and they differed in how many. Precision
 against T was 0.6096 for the quoting oracle (0.6268 under the full rule of its source, which also
 requires a verified quote and a closed-book answer that did not already hold the answer), 0.8318 for the pooling
@@ -242,25 +244,33 @@ five judges, 56 of 112. These counts describe how the judges handle a decoy buil
 to test them; the overall precision depends on the mix of pairs, and nothing here measures how often
 a live memory holds such decoys.
 
-**The gold check, with a key.** Asked whether a recorded gold entry answers its question, the gold
+### The gold check, with a key
+
+Asked whether a recorded gold entry answers its question, the gold
 check accepted all 59 correct entries, none of the 50 random chunks drawn as Paper A drew them, and
-12 of the 15 decoys presented as gold. A random-chunk control would have passed this judge; the decoys
-did not. This corpus cannot say whether Paper A's 38 rejections were right; its wrong gold is of one
+12 of the 15 decoys presented as gold. A random-chunk control alone would have found no error in this
+judge; the decoys found 12. This corpus cannot say whether Paper A's 38 rejections were right; its wrong gold is of one
 planted kind.
 
-**Agreement is not accuracy.** The pooling judge accepted the same 12 decoys as the gold check. On
+### Agreement is not accuracy
+
+The pooling judge accepted the same 12 decoys as the gold check. On
 the 554 pairs both labelled, the two agreed at kappa 0.9584, more than either agreed with T on those
 pairs (0.8886 and 0.9171). Of the six pairs of judges this is the closest; it is an example, picked
 after seeing the table. Paper A warned that agreement between judges says nothing about precision;
 here a shared error shows it.
 
-**Pooled scores.** Mean nDCG@10 over the 45 fact questions was 0.7372 under T and 0.7598 under pooling
+### Pooled scores
+
+Mean nDCG@10 over the 45 fact questions was 0.7372 under T and 0.7598 under pooling
 with a perfect judge (section 4): the 5 true positives ranked below the top 10 drop out of the pooled
 ideal. Pooling with the registered judge's positives gave 0.7688. Against perfect pooling, the judge's
 labels raised 6 questions, lowered 5 and left 34 equal; on this ranking its false positives raised
 the mean while lowering five scores.
 
-**The citation leg.** On this corpus the 8-word check removed one pooled positive, a pair T counts as
+### The citation leg
+
+On this corpus the 8-word check removed one pooled positive, a pair T counts as
 negative, and kappa with the registered judge rose from 0.906 to 0.9115, so Paper A's drop was not
 seen again. That says little about Paper A. Its failures came from copyable formatting (table pipes,
 `<u>`, an escaped currency sign) and from quotes that drift after 13 to 53 characters; here the
@@ -268,7 +278,9 @@ planted sentences have 43 to 95 characters and no chunk carries any of those for
 fixtures released with the step show the check vetoing a quote that drops those formats. The quoting
 oracle's quote failed the check on 4 of its 146 positives, and the second pass verified 2 of those 4.
 
-**False premises and stability.** None of the Decisions requests labelled any of the 55
+### False premises and stability
+
+None of the Decisions requests labelled any of the 55
 false-premise pairs as answering; the oracle labelled 4 and the pooling judge 1. A premise check
 written for this step, since Paper A's was never committed, said that 6 of those 55 chunks supported
 a premise the corpus never states; it is exploratory. As in Paper A, the identical request changed
