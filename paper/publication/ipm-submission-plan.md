@@ -1,6 +1,7 @@
 # Paper 1 → Information Processing & Management: submission plan
 
-Status: plan, 2026-11-26. Decided by the project owner on 2026-11-26: a peer-reviewed Elsevier
+Status: draft written 2026-11-27 (`ipm/manuscript.md`; what is left in `ipm/SUBMISSION-CHECKLIST.md`).
+Plan of 2026-11-26 below. Decided by the project owner on 2026-11-26: a peer-reviewed Elsevier
 venue for Paper 1 (*nox-mem: Pain-Weighted Hybrid Memory for LLM Agents*, Zenodo
 doi:10.5281/zenodo.22649268, v1.0.6). Primary venue: Information Processing & Management (IP&M),
 subscription route (no APC). Fallbacks: Journal of Systems and Software (subscription), then
