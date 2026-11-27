@@ -152,7 +152,7 @@ existe (`~/nox-skill-eval`, fora do repo, com corpus e juiz calibrado, kappa 0,8
   antes de fixar teto. Delimitação de novidade feita em 26/11 (o mais próximo: Yang et al., nov/2026).
 - Paper 1: IP&M pela rota sem taxa, alphaXiv fora por ora; plano em
   `paper/publication/ipm-submission-plan.md` (revisão duplamente anônima, resumo ≤ 250 palavras,
-  corte de ~28 mil para ~11 mil palavras, título sem «Pain-Weighted» a decidir pelo Toto).
+  corte de ~28 mil para ~11 mil palavras, título sem «Pain-Weighted», decidido pelo Toto em 26/11 21h19).
 - GTM: pricing adiado; antes vem o B1 (onboarding observado).
 
 Gates: os mesmos do eval do T2 (instrumentos, modelo devolvido, conexão), proveniência em toda nota,

@@ -42,8 +42,10 @@ Not stated on the guide page: highlights and graphical abstract (Elsevier journa
 
 1. **Title without "Pain-Weighted".** The pain dimension's isolated effect is +0.0065 [−0.0143,
    +0.0338], n = 31 (§7.1); the roadmap took it out of the product slogan on 2026-11-08. A reviewer
-   will read the title as the claim. Candidate: *nox-mem: a single-file hybrid memory for LLM
-   agents, and a pre-specified comparison against five memory systems*. Owner's call.
+   will read the title as the claim. **Decided by the owner on 2026-11-26 21:19 («pode tirar o
+   pain-weighted do título»).** Working title: *nox-mem: a single-file hybrid memory for LLM
+   agents, and a pre-specified comparison against five memory systems*. The pain dimension stays
+   in the article as one salience signal with its measured, non-significant effect.
 2. **Centre on the pre-specified comparison (§6)**, cut to ≈ 4,000 words: methodology, the
    per-dataset table, the per-category table, the fair-comparison and anti-cherry-pick statements,
    the findings that cut against the headline.
