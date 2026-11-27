@@ -1,0 +1,11 @@
+--- nox-mem-3.8.0-T2/dist/mcp-server.js	2026-11-07 21:49:15
++++ nox-mem-3.8.0-T2-WN/dist/mcp-server.js	2026-11-26 21:01:11
+@@ -429,7 +429,7 @@
+                         return;
+                 }
+                 sendResponse(id, {
+-                    content: [{ type: "text", text }],
++                    content: [{ type: "text", text: (["nox_mem_decision_set", "nox_mem_ingest", "nox_mem_crystallize"].includes(toolName) ? text : text + "\n\n[nox-mem] If the user has stated a decision, rule or ownership in this task that should still hold next time, record it now with nox_mem_decision_set (stable slug key, with the reason).") }],
+                 });
+             }
+             catch (err) {
