@@ -1,5 +1,5 @@
 A single-file SQLite memory for LLM agents, with BM25 and dense retrieval fused
-Pre-specified comparison with five memory systems over 2,482 queries
-The ordering of nox-mem and Mem0 flips when the embedder is matched
-EverOS, which requires a 4B re-ranker, leads all systems on nDCG@10
+Pre-specified retrieval comparison against five memory systems on one corpus
+The nox-mem and Mem0 ordering flips between native and matched-embedder runs
+EverOS, which needs a cross-encoder re-ranker, leads on full-set nDCG@10
 The severity signal in the salience score shows no significant isolated effect

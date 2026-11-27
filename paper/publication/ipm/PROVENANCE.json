@@ -1844,6 +1844,16 @@
    "superseded_by": null
   },
   {
+   "id": "n-6.3.2",
+   "value": "6.3.2",
+   "population": "carried verbatim from the technical report v1.0.6 (condensation; no new measurement)",
+   "date": "2026-11-27",
+   "artifact": "paper/paper-tecnico-nox-mem.md",
+   "locator": " isolate architecture (§6.3.2). This variant inverts ",
+   "commit": "e1a1a67ee007",
+   "superseded_by": null
+  },
+  {
    "id": "n-6.4",
    "value": "6.4",
    "population": "carried verbatim from the technical report v1.0.6 (condensation; no new measurement)",
