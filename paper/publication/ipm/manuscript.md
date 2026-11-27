@@ -346,7 +346,7 @@ During the preparation of this work the author used Anthropic's Claude models (O
 
 ## Data availability
 
-The source code (MIT license), the evaluation harness and adapters, the per-query outputs of the full-set runs, and an evidence dataset with a verifier for the Section 4 figures are publicly available. Their links are withheld for double-anonymized review and are given on the title page.
+The source code (MIT license), the evaluation harness and adapters, the per-query outputs of the full-set runs, and an evidence dataset with a verifier for the Section 4 figures are publicly available. Their links are withheld for double-anonymized review and are given on the title page; an anonymized copy of the code, the harness, the execution plan and the evidence dataset is Supplementary material S4.
 
 ## Declaration of competing interest
 
@@ -361,6 +361,7 @@ This research did not receive any specific grant from funding agencies in the pu
 S1. The full technical report from which this article is condensed (anonymized), with the sections moved out of this article: classical multi-hop QA, LoCoMo cross-benchmark results, the EverMemBench multi-hop analysis, the orchestration experiments, the five-batch protocol, and the measured account of the session brief.
 S2. Cross-backbone analysis and the retrieval add-on experiments on EverMemBench.
 S3. Operational appendices: interfaces, schedule, backups, and the author's unmeasured estimates of the compared systems' footprints.
+S4. Code and evidence (anonymized, zip): the system's source and tests, the cross-system harness with one adapter per system, the execution plan committed before the first run, and the per-query outputs with the verifier that recomputes the Section 4 figures.
 
 ---
 

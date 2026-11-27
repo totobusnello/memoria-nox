@@ -45,37 +45,23 @@ Plan: `../ipm-submission-plan.md`. The owner submits; no script here submits any
       LoCoMo queries in ten conversations). Rewritten without new numbers; abstract still 249 words;
       provenance and PDF gates pass.
 
+- [x] **S4, anonymous code for reviewers** (owner's request, 27/11; scope decided the same day:
+      a zip uploaded with S1–S3, no external service; anonymous.4open.science rejected because it needs
+      the owner's GitHub login and would mirror the whole repository).
+      `build_s4_code.py` -> `supplement/S4-code-and-evidence.zip` (406 files, 4.85 MB, deterministic):
+      the engine at tag v3.4.0 (the first tag, nearest to the runs), `eval/q4-comparison` without
+      `output*/`, `cache/` and `ambiente-congelado/`, `eval/evermembench`, the execution plan, the
+      published evidence record (md5 pinned to the Zenodo copy) and `README-REVIEW.md` mapping each folder
+      to its section. Text files only are edited; the engine's tests pass unchanged on the anonymized copy
+      (638 pass, 0 fail, the same as the original tag); `verify_dataset.py` passes 135/135 on the
+      anonymized evidence; no EverMemBench result file changes. Negative tests: a planted e-mail,
+      handle and address fail the build and nothing is written; a different evidence zip is refused; a
+      stale zip fails `--check`. Data availability and "Supplementary material" name S4; PDF rebuilt.
+
 ## Left
 
-1. **Anonymous code for reviewers** (optional, but both voices flag that reviewers cannot reach
-   the code while the links sit on the title page). Without it, the data statement stands as written.
-   The owner asked for it on 27/11. The session ended at its context limit after scoping it and before
-   building it. The scoping decided the following:
-   - **Form:** an anonymized `S4-code.zip`, uploaded as supplementary material next to S1–S3, so reviewers
-     receive it with no external service and no login.
-   - **Rejected:** anonymous.4open.science. It needs the owner's GitHub login. It would also mirror this
-     whole repository with term replacement, and identifying text sits in hundreds of files.
-   - **Contents** (all three were checked on 27/11):
-     - The tracked files of `eval/q4-comparison`, without `output*/`, `cache/` and `ambiente-congelado/`.
-       The untracked cache reaches 1.7 GB. `adapters/nox_mem.py` is the Python hybrid pipeline that
-       Section 4 measured.
-     - The tracked files of `eval/evermembench`, the harness of Section 5. Together with the first item:
-       99 MB, before the exclusions.
-     - The engine, from the separate public repository at a release tag. It was 3.4 MB on 27/11, with tags
-       up to v3.11.1. Pick the tag nearest to the runs.
-     - A short `README-REVIEW.md` that maps each folder to the manuscript section it backs.
-   - **Anonymization:**
-     - Replace the author's name and handle, the repository name, host names and addresses, e-mails,
-       ORCID and the author's Zenodo DOIs.
-     - Re-scan until nothing matches. Scan a list that excludes `@`, because `nDCG@10` is a false hit.
-     - Edit only text files. Never use `sed` on a binary or a `.db`.
-   - **Then:**
-     - Change the Data availability sentence to name S4.
-     - Add S4 to "Supplementary material".
-     - Rebuild the PDF and run the gates, through a PR.
-     - Copy the zip to `~/Desktop/IPM-submissao/`.
-2. Not fixable by text, declared in the manuscript: a paired run that changes only the embedder, and
+1. Not fixable by text, declared in the manuscript: a paired run that changes only the embedder, and
    intervals that account for the ten LoCoMo conversations.
-3. **Owner submits** through Elsevier's system: `latex/manuscript.pdf` (or `manuscript.tex` with
+2. **Owner submits** through Elsevier's system: `latex/manuscript.pdf` (or `manuscript.tex` with
    `figures/figure1.pdf`), `latex/highlights.txt`, `latex/title-page.pdf`, `cover-letter.md` as text,
-   `supplement/S1-S3`, and the declarations the form asks for.
+   `supplement/S1-S3` and `supplement/S4-code-and-evidence.zip`, and the declarations the form asks for.

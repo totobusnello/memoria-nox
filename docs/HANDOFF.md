@@ -1,3 +1,11 @@
+## ▶ Sexta 27/11, 21h BRT — S4 montado; o Paper 1 está pronto para o Toto submeter ao IP&M
+
+- O S4 é o código anonimizado em zip (`paper/publication/ipm/supplement/S4-code-and-evidence.zip`, construído por
+  `build_s4_code.py`), dentro do escopo decidido no checklist. Os testes do engine passam iguais ao original, o
+  verificador da evidência dá 135/135, e os gates de proveniência e do PDF continuam verdes.
+- A pasta `~/Desktop/IPM-submissao/` tem o zip e o roteiro atualizado. **Próximo:** o Toto submete em
+  https://submit.elsevier.com/IPM. Nunca submeter por ele.
+
 ## ▶ Sexta 27/11, 20h30 BRT — Paper 1 pronto para o IP&M; próximo passo é o S4 (código anônimo)
 
 **Feito:**
