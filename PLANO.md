@@ -141,6 +141,20 @@ existe (`~/nox-skill-eval`, fora do repo, com corpus e juiz calibrado, kappa 0,8
 | 12 | Escrita (ROADMAP B4) | Existe uma condição em que o agente grava uma decisão quando a tarefa pede? | Três braços novos contra o T2: (a) o resultado da busca, quando não acha nada, sugere registrar; (b) hook de fim de sessão que propõe o `decision_set` com o texto pronto; (c) ferramenta de escrita citada nas `instructions` com o critério de quando gravar. Desfecho W+ (grava quando devia, 30 tarefas por braço) e W− (grava sem motivo, nas tarefas G). Para cedo: um braço com W+ ≥ 10 de 30 e W− ≤ 15 pp responde a pergunta | ~US$ 10–20 por braço (o T2 custou US$ 16 em 180 corridas) | ok para pré-registrar e rodar no harness local |
 | 13 | Construção como protocolo (ROADMAP pesquisa 3) | O que um construtor de memória deve escrever, medido pelo que o agente consegue responder depois? | Janela × critério × extrator, com BM25 e evidência crua como controles, juiz calibrado e piso de ruído, num benchmark além do LongMemEval. Antes: delimitar a novidade frente aos trabalhos mais próximos (em andamento em 26/11) | o E custou US$ 150,55; teto a fixar | teto; abrir ou não depois da delimitação |
 
+**Decidido em 26/11, 20h55–21h00 (Toto: «ok 30 fecha, pode seguir com o resto»):**
+- 12 e 11 pré-registrados juntos em `use-studies/PREREGISTRATION.md`, tag `use-studies-prereg-v1.0`
+  (`62728791`, 26/11 21h07, antes de qualquer corrida do banco). O 11 com teto de US$ 30 em gasto
+  real, só a frase derivada, comparada com as corridas de 07/11 no mesmo build (fase 2 no Codex
+  CLI só se a fase 1 passar). Corridas disparadas em 26/11 21h08 (W: 240, S: 180).
+- 10: a coleta diária já existe (`nox-archive-transcripts.sh`, 4×/dia, 3.424 sessões desde 15/08,
+  sem poda); ligar as instruções nos agentes espera o sim do Toto e as frases de escopo por agente.
+- 13: não abre agora; volta depois da leitura do shadow do C2 (dezembro), com piloto de até US$ 30
+  antes de fixar teto. Delimitação de novidade feita em 26/11 (o mais próximo: Yang et al., nov/2026).
+- Paper 1: IP&M pela rota sem taxa, alphaXiv fora por ora; plano em
+  `paper/publication/ipm-submission-plan.md` (revisão duplamente anônima, resumo ≤ 250 palavras,
+  corte de ~28 mil para ~11 mil palavras, título sem «Pain-Weighted» a decidir pelo Toto).
+- GTM: pricing adiado; antes vem o B1 (onboarding observado).
+
 Gates: os mesmos do eval do T2 (instrumentos, modelo devolvido, conexão), proveniência em toda nota,
 e voz só se o Toto pedir. O 10 começa pelo script de coleta diária dos transcripts e pelo
 pré-registro; nada liga em produção antes do sim.
