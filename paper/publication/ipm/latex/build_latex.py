@@ -82,6 +82,9 @@ PREAMBLE = r"""\PassOptionsToPackage{hyphens}{url}
 \def\textpagefraction{.001}
 """
 
+# built outside the f-string: Python before 3.12 rejects a backslash inside its expressions
+highlights_tex = "\n".join("\\item " + pandoc(h).strip() for h in highlights)
+keywords_tex = " \\sep ".join(keywords)
 tex = PREAMBLE + f"""\\shorttitle{{nox-mem: a pre-specified comparison of agent memory systems}}
 \\shortauthors{{Anonymous}}
 \\title[mode=title]{{{pandoc(title).strip()}}}
@@ -89,10 +92,10 @@ tex = PREAMBLE + f"""\\shorttitle{{nox-mem: a pre-specified comparison of agent 
 {pandoc(abstract).strip()}
 \\end{{abstract}}
 \\begin{{highlights}}
-{chr(10).join("\\item " + pandoc(h).strip() for h in highlights)}
+{highlights_tex}
 \\end{{highlights}}
 \\begin{{keywords}}
-{" \\sep ".join(keywords)}
+{keywords_tex}
 \\end{{keywords}}
 \\maketitle
 
