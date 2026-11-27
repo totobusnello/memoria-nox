@@ -36,11 +36,21 @@ Plan: `../ipm-submission-plan.md`. The owner submits; no script here submits any
       `title-page.pdf`; the build checks that the PDF prints exactly the manuscript's numbers
       (negative test: 0.6455 changed to 0.6465 in the Markdown fails it).
 - [x] Cover letter (`cover-letter.md`): preprint, pre-specification, no new number.
+- [x] Voices, chosen by the owner (2026-11-27 18:24, «codex e grok»), challenge on the manuscript against
+      S1: Codex (exit 0, 115 s) and Grok 4.7 (exit 0, 470 s, attach_bytes 253099 = manuscript + S1).
+      Raw outputs in `voices/`. Every finding was checked against S1 before the text changed; all were
+      sentences stronger than the report (the embedder named as the cause of the reversal, "five
+      systems" without the limits, the 4 B re-ranker as a requirement, the full-context baseline outside
+      Gemini-3-flash, documented stacks read as measured, MuSiQue across splits, the clustering of
+      LoCoMo queries in ten conversations). Rewritten without new numbers; abstract still 249 words;
+      provenance and PDF gates pass.
 
 ## Left
 
-1. **Anonymous code link for reviewers** (optional). Without it, the data statement stands as written.
-2. Voices only if the owner asks.
+1. **Anonymous code link for reviewers** (optional, but both voices flag that reviewers cannot reach
+   the code while the links sit on the title page). Without it, the data statement stands as written.
+2. Not fixable by text, declared in the manuscript: a paired run that changes only the embedder, and
+   intervals that account for the ten LoCoMo conversations.
 3. **Owner submits** through Elsevier's system: `latex/manuscript.pdf` (or `manuscript.tex` with
    `figures/figure1.pdf`), `latex/highlights.txt`, `latex/title-page.pdf`, `cover-letter.md` as text,
    `supplement/S1-S3`, and the declarations the form asks for.
