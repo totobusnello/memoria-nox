@@ -155,6 +155,16 @@ existe (`~/nox-skill-eval`, fora do repo, com corpus e juiz calibrado, kappa 0,8
   corte de ~28 mil para ~11 mil palavras, título sem «Pain-Weighted», decidido pelo Toto em 26/11 21h19).
 - GTM: pricing adiado; antes vem o B1 (onboarding observado).
 
+**Resultado de 12 e 11, 26/11 22h37 (`use-studies/RESULTS.md`):** todos os gates passaram, 0 falha
+de conexão em 420 corridas. **12:** o gancho de fim de sessão (WH) grava a decisão em 30 de 30 (W0:
+1 de 30), +0,967 [0,900; 1,000], sem gravar nada nas tarefas W−; o lembrete no resultado das tools
+(WN) não tem efeito detectável. **11:** a frase derivada (SD) passa na regra do T2: K pass 0,579 contra
+0,528 do T2, SD − T2 +0,056 [−0,046; 0,167]; falso gatilho 8 de 60 (T2: 1 de 60), +0,133 contra o
+limite de 0,15, todos em três tarefas G de infraestrutura. Comparação não concorrente (corridas de
+07/11). Uma leitura mais estrita da trava 4 derruba o 11 só no falso gatilho (sensibilidade no
+RESULTS). Gasto real só Gemini, estimado em poucos dólares. A fase 2 (Codex CLI) fica liberada pelo
+pré-registro e espera o sim do Toto e um pré-registro próprio.
+
 Gates: os mesmos do eval do T2 (instrumentos, modelo devolvido, conexão), proveniência em toda nota,
 e voz só se o Toto pedir. O 10 começa pelo script de coleta diária dos transcripts e pelo
 pré-registro; nada liga em produção antes do sim.

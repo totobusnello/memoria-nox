@@ -1,0 +1,436 @@
+{
+ "drop attempt runs in all arms": {
+  "S": {
+   "gates": {
+    "SD": {
+     "runs": 127,
+     "model_ok": true,
+     "connection_fail_rate": 0.0,
+     "instrument_agree": true,
+     "builtin_calls": 0
+    }
+   },
+   "rates": {
+    "S0": {
+     "K pass": [
+      0.094,
+      32
+     ],
+     "K searched": [
+      0.0,
+      32
+     ],
+     "G false trigger": [
+      0.0,
+      30
+     ]
+    },
+    "T2": {
+     "K pass": [
+      0.523,
+      65
+     ],
+     "K searched": [
+      0.785,
+      65
+     ],
+     "G false trigger": [
+      0.0,
+      30
+     ]
+    },
+    "SD": {
+     "K pass": [
+      0.598,
+      82
+     ],
+     "K searched": [
+      0.867,
+      83
+     ],
+     "G false trigger": [
+      0.062,
+      32
+     ]
+    }
+   },
+   "contrasts": {
+    "SD - T2 (K pass)": {
+     "delta": 0.042,
+     "lo": -0.042,
+     "hi": 0.153,
+     "tasks": 24,
+     "up": 3,
+     "down": 2
+    },
+    "SD - S0 (K pass)": {
+     "delta": 0.389,
+     "lo": 0.167,
+     "hi": 0.639,
+     "tasks": 12,
+     "up": 6,
+     "down": 0
+    },
+    "SD - S0 (G false trigger)": {
+     "delta": 0,
+     "lo": 0,
+     "hi": 0,
+     "tasks": 10,
+     "up": 0,
+     "down": 0
+    }
+   },
+   "decision": "derived scope works as well as the hand-written one (margin 0.10)"
+  },
+  "W": {
+   "gates": {
+    "W0": {
+     "runs": 56,
+     "model_ok": true,
+     "connection_fail_rate": 0.0,
+     "instrument_agree": true,
+     "builtin_calls": 0
+    },
+    "WH": {
+     "runs": 56,
+     "model_ok": true,
+     "connection_fail_rate": 0.0,
+     "instrument_agree": true,
+     "builtin_calls": 0
+    },
+    "WN": {
+     "runs": 55,
+     "model_ok": true,
+     "connection_fail_rate": 0.0,
+     "instrument_agree": true,
+     "builtin_calls": 0
+    },
+    "WP": {
+     "runs": 54,
+     "model_ok": true,
+     "connection_fail_rate": 0.0,
+     "instrument_agree": true,
+     "builtin_calls": 0
+    }
+   },
+   "rates": {
+    "W0": {
+     "W+ content": [
+      0.038,
+      26
+     ],
+     "W+ wrote": [
+      0.038,
+      26
+     ],
+     "W- wrote": [
+      0.0,
+      30
+     ]
+    },
+    "WH": {
+     "W+ content": [
+      1.0,
+      27
+     ],
+     "W+ wrote": [
+      1.0,
+      27
+     ],
+     "W- wrote": [
+      0.0,
+      29
+     ]
+    },
+    "WN": {
+     "W+ content": [
+      0.074,
+      27
+     ],
+     "W+ wrote": [
+      0.074,
+      27
+     ],
+     "W- wrote": [
+      0.0,
+      28
+     ]
+    },
+    "WP": {
+     "W+ content": [
+      1.0,
+      24
+     ],
+     "W+ wrote": [
+      1.0,
+      24
+     ],
+     "W- wrote": [
+      0.0,
+      30
+     ]
+    }
+   },
+   "contrasts": {
+    "WH": {
+     "W+ content vs W0": {
+      "delta": 0.963,
+      "lo": 0.889,
+      "hi": 1,
+      "tasks": 9,
+      "up": 9,
+      "down": 0
+     },
+     "W- wrote vs W0": {
+      "delta": 0,
+      "lo": 0,
+      "hi": 0,
+      "tasks": 10,
+      "up": 0,
+      "down": 0
+     }
+    },
+    "WN": {
+     "W+ content vs W0": {
+      "delta": 0.037,
+      "lo": 0,
+      "hi": 0.111,
+      "tasks": 9,
+      "up": 1,
+      "down": 0
+     },
+     "W- wrote vs W0": {
+      "delta": 0,
+      "lo": 0,
+      "hi": 0,
+      "tasks": 10,
+      "up": 0,
+      "down": 0
+     }
+    }
+   },
+   "decision": {
+    "WH": "works",
+    "WN": "no detectable effect over W0"
+   },
+   "ceiling_ok": true
+  }
+ },
+ "drop attempt runs in the new runs only": {
+  "S": {
+   "gates": {
+    "SD": {
+     "runs": 127,
+     "model_ok": true,
+     "connection_fail_rate": 0.0,
+     "instrument_agree": true,
+     "builtin_calls": 0
+    }
+   },
+   "rates": {
+    "S0": {
+     "K pass": [
+      0.065,
+      108
+     ],
+     "K searched": [
+      0.046,
+      108
+     ],
+     "G false trigger": [
+      0.0,
+      60
+     ]
+    },
+    "T2": {
+     "K pass": [
+      0.528,
+      108
+     ],
+     "K searched": [
+      0.75,
+      108
+     ],
+     "G false trigger": [
+      0.017,
+      60
+     ]
+    },
+    "SD": {
+     "K pass": [
+      0.598,
+      82
+     ],
+     "K searched": [
+      0.867,
+      83
+     ],
+     "G false trigger": [
+      0.062,
+      32
+     ]
+    }
+   },
+   "contrasts": {
+    "SD - T2 (K pass)": {
+     "delta": 0.031,
+     "lo": -0.083,
+     "hi": 0.146,
+     "tasks": 32,
+     "up": 4,
+     "down": 3
+    },
+    "SD - S0 (K pass)": {
+     "delta": 0.521,
+     "lo": 0.365,
+     "hi": 0.677,
+     "tasks": 32,
+     "up": 20,
+     "down": 0
+    },
+    "SD - S0 (G false trigger)": {
+     "delta": 0.167,
+     "lo": 0,
+     "hi": 0.417,
+     "tasks": 12,
+     "up": 2,
+     "down": 0
+    }
+   },
+   "decision": "derived scope fails the T2 rule"
+  },
+  "W": {
+   "gates": {
+    "W0": {
+     "runs": 56,
+     "model_ok": true,
+     "connection_fail_rate": 0.0,
+     "instrument_agree": true,
+     "builtin_calls": 0
+    },
+    "WH": {
+     "runs": 56,
+     "model_ok": true,
+     "connection_fail_rate": 0.0,
+     "instrument_agree": true,
+     "builtin_calls": 0
+    },
+    "WN": {
+     "runs": 55,
+     "model_ok": true,
+     "connection_fail_rate": 0.0,
+     "instrument_agree": true,
+     "builtin_calls": 0
+    },
+    "WP": {
+     "runs": 54,
+     "model_ok": true,
+     "connection_fail_rate": 0.0,
+     "instrument_agree": true,
+     "builtin_calls": 0
+    }
+   },
+   "rates": {
+    "W0": {
+     "W+ content": [
+      0.038,
+      26
+     ],
+     "W+ wrote": [
+      0.038,
+      26
+     ],
+     "W- wrote": [
+      0.0,
+      30
+     ]
+    },
+    "WH": {
+     "W+ content": [
+      1.0,
+      27
+     ],
+     "W+ wrote": [
+      1.0,
+      27
+     ],
+     "W- wrote": [
+      0.0,
+      29
+     ]
+    },
+    "WN": {
+     "W+ content": [
+      0.074,
+      27
+     ],
+     "W+ wrote": [
+      0.074,
+      27
+     ],
+     "W- wrote": [
+      0.0,
+      28
+     ]
+    },
+    "WP": {
+     "W+ content": [
+      1.0,
+      24
+     ],
+     "W+ wrote": [
+      1.0,
+      24
+     ],
+     "W- wrote": [
+      0.0,
+      30
+     ]
+    }
+   },
+   "contrasts": {
+    "WH": {
+     "W+ content vs W0": {
+      "delta": 0.963,
+      "lo": 0.889,
+      "hi": 1,
+      "tasks": 9,
+      "up": 9,
+      "down": 0
+     },
+     "W- wrote vs W0": {
+      "delta": 0,
+      "lo": 0,
+      "hi": 0,
+      "tasks": 10,
+      "up": 0,
+      "down": 0
+     }
+    },
+    "WN": {
+     "W+ content vs W0": {
+      "delta": 0.037,
+      "lo": 0,
+      "hi": 0.111,
+      "tasks": 9,
+      "up": 1,
+      "down": 0
+     },
+     "W- wrote vs W0": {
+      "delta": 0,
+      "lo": 0,
+      "hi": 0,
+      "tasks": 10,
+      "up": 0,
+      "down": 0
+     }
+    }
+   },
+   "decision": {
+    "WH": "works",
+    "WN": "no detectable effect over W0"
+   },
+   "ceiling_ok": true
+  }
+ }
+}
