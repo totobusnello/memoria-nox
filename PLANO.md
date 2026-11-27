@@ -153,6 +153,11 @@ existe (`~/nox-skill-eval`, fora do repo, com corpus e juiz calibrado, kappa 0,8
 - Paper 1: IP&M pela rota sem taxa, alphaXiv fora por ora; plano em
   `paper/publication/ipm-submission-plan.md` (revisão duplamente anônima, resumo ≤ 250 palavras,
   corte de ~28 mil para ~11 mil palavras, título sem «Pain-Weighted», decidido pelo Toto em 26/11 21h19).
+  **27/11:** rascunho anônimo em `paper/publication/ipm/manuscript.md` (8.335 palavras, resumo de 249),
+  gate de proveniência (212 números, todos na v1.0.6, teste negativo feito), related work 2025–2026
+  conferido na API do arXiv. Falta, em ordem: leitura do Toto, decisão sobre o nome do sistema na
+  versão anônima, PDFs do related work, Figura 1, suplemento anônimo, LaTeX CAS, carta; ver
+  `paper/publication/ipm/SUBMISSION-CHECKLIST.md`.
 - GTM: pricing adiado; antes vem o B1 (onboarding observado).
 
 **Resultado de 12 e 11, 26/11 22h37 (`use-studies/RESULTS.md`):** todos os gates passaram, 0 falha
