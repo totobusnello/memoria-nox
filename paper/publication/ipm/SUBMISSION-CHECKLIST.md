@@ -21,22 +21,26 @@ Plan: `../ipm-submission-plan.md`. The owner submits; no script here submits any
 - [x] Anonymization of the manuscript text: no name, ORCID, e-mail, repository URL, Zenodo DOI or agent
       names; identity only in `title-page.md`.
 
-## Left, in order
+- [x] Owner read the draft (2026-11-27) and kept the system name in the anonymized version.
+- [x] Related work re-read in the papers' own text (`related-work-check-2026-11-27.md`): 31 papers,
+      26 supported, 5 overreaching; the 5 sentences were reworded as the check proposed, and three
+      reference entries fixed (Nemori cited as the arXiv v4 preprint, SimpleMem without the unconfirmed
+      venue, LightRAG without the unchecked page range).
+- [x] Figure 1 redrawn from Section 3 (`figures/make_figure1.py`): the old figure named the six agents
+      and carried stale counts. No agent names, no counts.
+- [x] Supplementary S1-S3 (`build_supplements.py` -> `supplement/`): report and both supplements
+      copied as they stand, with only author, ORCID, e-mail, DOIs, repository links, host paths and
+      agent names replaced; `--check` fails on any identifier left (negative test: a planted e-mail
+      address fails it).
+- [x] Elsevier CAS LaTeX (`latex/build_latex.py`): anonymized `manuscript.pdf`, `highlights.txt`,
+      `title-page.pdf`; the build checks that the PDF prints exactly the manuscript's numbers
+      (negative test: 0.6455 changed to 0.6465 in the Markdown fails it).
+- [x] Cover letter (`cover-letter.md`): preprint, pre-specification, no new number.
 
-1. **Owner reads `manuscript.md`.**
-2. **Decision: system name in the anonymized version.** Keeping "nox-mem" lets a reviewer find the Zenodo
-   report and its author by search. IP&M allows preprints, and naming the system is common; the
-   alternative is a placeholder name in the review copy only. Recommendation: keep the name.
-3. **Re-read in the PDF** the abstract and the cited result of each 2025–2026 paper in Section 2.3–2.4
-   (the sweep read them through a summarizer).
-4. **Figure 1:** check `../latex/figures/figure1-system-overview.pdf` against Section 3 (it predates
-   the additive salience) and for identifying text; redraw if needed.
-5. **Supplementary S1:** anonymized copy of the report (strip name, ORCID, e-mail, DOIs, repository
-   URLs, host details and agent names); S2 and S3 from `../supplement-*.md`, anonymized the same way.
-6. **Anonymous code link for reviewers** (an anonymizing mirror of the repository), if the owner wants
-   reviewers to have code during review; otherwise the data statement stands as written.
-7. **Elsevier CAS LaTeX** (`els-cas-templates`, `cas-sc`): convert `manuscript.md`, build the anonymized
-   PDF, the highlights file and the title page; rerun the provenance gate on the converted text.
-8. **Cover letter** (states the preprint, the pre-specification, and that no number is new).
-9. Voices only if the owner asks.
-10. **Owner submits** through Elsevier's system.
+## Left
+
+1. **Anonymous code link for reviewers** (optional). Without it, the data statement stands as written.
+2. Voices only if the owner asks.
+3. **Owner submits** through Elsevier's system: `latex/manuscript.pdf` (or `manuscript.tex` with
+   `figures/figure1.pdf`), `latex/highlights.txt`, `latex/title-page.pdf`, `cover-letter.md` as text,
+   `supplement/S1-S3`, and the declarations the form asks for.

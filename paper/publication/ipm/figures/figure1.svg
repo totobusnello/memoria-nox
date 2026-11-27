@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="560" viewBox="0 0 1024 560" font-family="Helvetica, Arial, sans-serif">
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3a4046"/></marker></defs>
+<rect width="1024" height="560" fill="#ffffff"/>
+<rect x="20" y="20" width="210" height="58" rx="6" fill="#f3f4f5" stroke="#3a4046" stroke-width="1.2"/>
+<text x="30" y="39" font-size="13" font-weight="700" fill="#1b1f23">Markdown and text files</text>
+<text x="30" y="57" font-size="11" fill="#555b61">notes, decisions, entity files</text>
+<rect x="20" y="112" width="210" height="74" rx="6" fill="#f3f4f5" stroke="#3a4046" stroke-width="1.2"/>
+<text x="30" y="131" font-size="13" font-weight="700" fill="#1b1f23">Watcher and ingestion</text>
+<text x="30" y="149" font-size="11" fill="#555b61">re-ingest 2 s after last write</text>
+<text x="30" y="164" font-size="11" fill="#555b61">split by heading; type sets</text>
+<text x="30" y="179" font-size="11" fill="#555b61">retention; entity sections</text>
+<rect x="20" y="222" width="210" height="58" rx="6" fill="#f3f4f5" stroke="#3a4046" stroke-width="1.2" stroke-dasharray="5 4"/>
+<text x="30" y="241" font-size="13" font-weight="700" fill="#1b1f23">Nightly LLM extraction</text>
+<text x="30" y="259" font-size="11" fill="#555b61">daily notes → topic files</text>
+<line x1="125" y1="78" x2="125" y2="110" stroke="#3a4046" stroke-width="1.4" marker-end="url(#a)"/>
+<polyline points="230,251 250,251 250,49 232,49" fill="none" stroke="#3a4046" stroke-width="1.4" marker-end="url(#a)" stroke-dasharray="5 4"/>
+<rect x="280" y="20" width="300" height="340" rx="6" fill="#e6eef0" stroke="#1f5f66" stroke-width="1.2"/>
+<text x="290" y="39" font-size="14" font-weight="700" fill="#1b1f23">One SQLite file (WAL mode)</text>
+<rect x="295" y="50" width="270" height="76" rx="6" fill="#ffffff" stroke="#3a4046" stroke-width="1.2"/>
+<text x="305" y="69" font-size="13" font-weight="700" fill="#1b1f23">Chunks</text>
+<text x="305" y="87" font-size="11" fill="#555b61">text, source file, type, dates,</text>
+<text x="305" y="102" font-size="11" fill="#555b61">pain, retention window, section,</text>
+<text x="305" y="117" font-size="11" fill="#555b61">importance, access count</text>
+<rect x="295" y="136" width="270" height="44" rx="6" fill="#ffffff" stroke="#3a4046" stroke-width="1.2"/>
+<text x="305" y="155" font-size="13" font-weight="700" fill="#1b1f23">Lexical index (FTS5)</text>
+<text x="305" y="173" font-size="11" fill="#555b61">BM25; accent folding, no stemming</text>
+<rect x="295" y="190" width="270" height="44" rx="6" fill="#ffffff" stroke="#3a4046" stroke-width="1.2"/>
+<text x="305" y="209" font-size="13" font-weight="700" fill="#1b1f23">Vector index (sqlite-vec)</text>
+<text x="305" y="227" font-size="11" fill="#555b61">3072-d embeddings; exact search</text>
+<rect x="295" y="244" width="270" height="60" rx="6" fill="#ffffff" stroke="#3a4046" stroke-width="1.2"/>
+<text x="305" y="263" font-size="13" font-weight="700" fill="#1b1f23">Knowledge graph</text>
+<text x="305" y="281" font-size="11" fill="#555b61">entities, typed relations with</text>
+<text x="305" y="296" font-size="11" fill="#555b61">decaying confidence, evidence chunk</text>
+<rect x="295" y="314" width="270" height="36" rx="6" fill="#ffffff" stroke="#3a4046" stroke-width="1.2"/>
+<text x="305" y="333" font-size="11.5" font-weight="700" fill="#1b1f23">Audit table + pre-operation snapshot</text>
+<line x1="230" y1="150" x2="278" y2="150" stroke="#3a4046" stroke-width="1.4" marker-end="url(#a)"/>
+<rect x="640" y="20" width="340" height="40" rx="6" fill="#f3f4f5" stroke="#3a4046" stroke-width="1.2"/>
+<text x="650" y="39" font-size="13" font-weight="700" fill="#1b1f23">Query</text>
+<rect x="640" y="84" width="160" height="76" rx="6" fill="#f3f4f5" stroke="#3a4046" stroke-width="1.2"/>
+<text x="650" y="103" font-size="13" font-weight="700" fill="#1b1f23">Lexical layer</text>
+<text x="650" y="121" font-size="11" fill="#555b61">BM25 over the FTS5 index</text>
+<text x="650" y="136" font-size="11" fill="#555b61">(text, path, type)</text>
+<text x="650" y="151" font-size="11" fill="#555b61">boosts summed (Σδ)</text>
+<rect x="820" y="84" width="160" height="76" rx="6" fill="#f3f4f5" stroke="#3a4046" stroke-width="1.2"/>
+<text x="830" y="103" font-size="13" font-weight="700" fill="#1b1f23">Dense layer</text>
+<text x="830" y="121" font-size="11" fill="#555b61">exact L2 search over</text>
+<text x="830" y="136" font-size="11" fill="#555b61">the sqlite-vec index</text>
+<text x="830" y="151" font-size="11" fill="#555b61">boosts summed (Σδ)</text>
+<rect x="640" y="186" width="340" height="44" rx="6" fill="#f3f4f5" stroke="#3a4046" stroke-width="1.2"/>
+<text x="650" y="205" font-size="13" font-weight="700" fill="#1b1f23">Reciprocal Rank Fusion (k = 60)</text>
+<text x="650" y="223" font-size="11" fill="#555b61">ranked chunks, each with chunk id and source file</text>
+<rect x="640" y="252" width="340" height="58" rx="6" fill="#ffffff" stroke="#1f5f66" stroke-width="1.2"/>
+<text x="650" y="271" font-size="13" font-weight="700" fill="#1b1f23">Salience delta, bounded to [−0.5, +0.5]</text>
+<text x="650" y="289" font-size="11" fill="#555b61">0.55 importance + 0.15 recency + 0.10 pain + 0.20 access</text>
+<text x="650" y="302" font-size="10.5" fill="#1f5f66">shadow: logged only · active: added to both layers’ boosts</text>
+<line x1="720" y1="60" x2="720" y2="82" stroke="#3a4046" stroke-width="1.4" marker-end="url(#a)"/>
+<line x1="900" y1="60" x2="900" y2="82" stroke="#3a4046" stroke-width="1.4" marker-end="url(#a)"/>
+<line x1="720" y1="160" x2="720" y2="184" stroke="#3a4046" stroke-width="1.4" marker-end="url(#a)"/>
+<line x1="900" y1="160" x2="900" y2="184" stroke="#3a4046" stroke-width="1.4" marker-end="url(#a)"/>
+<polyline points="980,281 992,281 992,122 982,122" fill="none" stroke="#1f5f66" stroke-width="1.4" marker-end="url(#a)" stroke-dasharray="5 4"/>
+<polyline points="640,281 628,281 628,142 638,142" fill="none" stroke="#1f5f66" stroke-width="1.4" marker-end="url(#a)" stroke-dasharray="5 4"/>
+<line x1="580" y1="104" x2="638" y2="104" stroke="#3a4046" stroke-width="1.4" marker-end="url(#a)"/>
+<text x="588" y="98" font-size="10.5" fill="#555b61" font-style="italic">reads</text>
+<rect x="280" y="400" width="300" height="58" rx="6" fill="#f3f4f5" stroke="#3a4046" stroke-width="1.2"/>
+<text x="290" y="419" font-size="13" font-weight="700" fill="#1b1f23">Knowledge-graph path</text>
+<text x="290" y="437" font-size="11" fill="#555b61">entity queries: SQL and regular</text>
+<text x="290" y="452" font-size="11" fill="#555b61">expressions over relations; no model call</text>
+<rect x="640" y="400" width="340" height="58" rx="6" fill="#f3f4f5" stroke="#3a4046" stroke-width="1.2"/>
+<text x="650" y="419" font-size="13" font-weight="700" fill="#1b1f23">Session brief (read-only)</text>
+<text x="650" y="437" font-size="11" fill="#555b61">top chunks by salience within a scope;</text>
+<text x="650" y="452" font-size="11" fill="#555b61">does not update access counts</text>
+<line x1="430" y1="360" x2="430" y2="398" stroke="#3a4046" stroke-width="1.4" marker-end="url(#a)"/>
+<polyline points="530,360 530,380 810,380 810,398" fill="none" stroke="#3a4046" stroke-width="1.4" marker-end="url(#a)"/>
+<rect x="20" y="500" width="960" height="52" rx="6" fill="#f3f4f5" stroke="#3a4046" stroke-width="1.2"/>
+<text x="30" y="519" font-size="13" font-weight="700" fill="#1b1f23">Interfaces: command line · HTTP API · Model Context Protocol server</text>
+<text x="30" y="537" font-size="11" fill="#555b61">search (hybrid) · answer (8 chunks, inline citations, one retry if a citation falls outside them) · temporal filter (--as-of, --changed-since) as an SQL pre-filter</text>
+<line x1="430" y1="458" x2="430" y2="498" stroke="#3a4046" stroke-width="1.4" marker-end="url(#a)"/>
+<polyline points="980,208 1010,208 1010,526 982,526" fill="none" stroke="#3a4046" stroke-width="1.4" marker-end="url(#a)"/>
+<text x="1004" y="470" font-size="10.5" fill="#555b61" font-style="italic" transform="rotate(-90 1004 470)">search results</text>
+<line x1="810" y1="458" x2="810" y2="498" stroke="#3a4046" stroke-width="1.4" marker-end="url(#a)"/>
+</svg>
