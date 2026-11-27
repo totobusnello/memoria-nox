@@ -155,9 +155,12 @@ existe (`~/nox-skill-eval`, fora do repo, com corpus e juiz calibrado, kappa 0,8
   corte de ~28 mil para ~11 mil palavras, título sem «Pain-Weighted», decidido pelo Toto em 26/11 21h19).
   **27/11:** rascunho anônimo em `paper/publication/ipm/manuscript.md` (8.335 palavras, resumo de 249),
   gate de proveniência (212 números, todos na v1.0.6, teste negativo feito), related work 2025–2026
-  conferido na API do arXiv. Falta, em ordem: leitura do Toto, decisão sobre o nome do sistema na
-  versão anônima, PDFs do related work, Figura 1, suplemento anônimo, LaTeX CAS, carta; ver
-  `paper/publication/ipm/SUBMISSION-CHECKLIST.md`.
+  conferido na API do arXiv. **27/11 tarde:** Toto leu e manteve o nome; related work relido no texto
+  dos papers (26 de 31 sustentados, 5 frases ajustadas); Figura 1 redesenhada sem nomes de agentes;
+  suplementos S1–S3 anônimos com gate; PDF no LaTeX CAS com gate de números; carta pronta. Falta só o
+  link anônimo de código (opcional) e a submissão pelo Toto; ver
+  `paper/publication/ipm/SUBMISSION-CHECKLIST.md`. README do `nox-mem` alinhado aos números do
+  relatório (nox-mem#71).
 - GTM: pricing adiado; antes vem o B1 (onboarding observado).
 
 **Resultado de 12 e 11, 26/11 22h37 (`use-studies/RESULTS.md`):** todos os gates passaram, 0 falha

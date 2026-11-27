@@ -1,0 +1,8 @@
+# build products and the CTAN class files (fetched, not versioned; see README.md)
+*.aux
+*.log
+*.out
+*.toc
+cas-sc.cls
+cas-common.sty
+*.abs
