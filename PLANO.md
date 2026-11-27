@@ -155,6 +155,9 @@ existe (`~/nox-skill-eval`, fora do repo, com corpus e juiz calibrado, kappa 0,8
   corte de ~28 mil para ~11 mil palavras, título sem «Pain-Weighted», decidido pelo Toto em 26/11 21h19).
   **27/11 noite:** vozes Codex + Grok (escolha do Toto) sobre o manuscrito contra o S1; todos os achados
   eram frases mais fortes que o relatório, reescritas sem número novo (`ipm/voices/`, checklist).
+  **27/11, 20h30:** a sessão encheu antes de montar o S4. O S4 é o código anonimizado em zip, que vai como
+  material suplementar. O escopo dele está no item 1 de Left do checklist; montar o S4 é o próximo passo,
+  e depois o Toto submete.
   **27/11:** rascunho anônimo em `paper/publication/ipm/manuscript.md` (8.335 palavras, resumo de 249),
   gate de proveniência (212 números, todos na v1.0.6, teste negativo feito), related work 2025–2026
   conferido na API do arXiv. **27/11 tarde:** Toto leu e manteve o nome; related work relido no texto

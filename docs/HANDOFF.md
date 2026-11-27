@@ -1,3 +1,18 @@
+## ▶ Sexta 27/11, 20h30 BRT — Paper 1 pronto para o IP&M; próximo passo é o S4 (código anônimo)
+
+**Feito:**
+- Manuscrito anônimo do Paper 1 para Information Processing & Management (Elsevier), condensado do relatório
+  v1.0.6. Saiu nos PRs #767 a #770. Todo número passa pelo gate de proveniência (`PROVENANCE.json`, 213
+  afirmações).
+- O Codex e o Grok fizeram challenge do manuscrito contra o S1, e os achados foram aplicados no #770 sem
+  número novo. Os pareceres estão em `paper/publication/ipm/voices/`.
+- Pacote de upload em `~/Desktop/IPM-submissao/`, fora do repo. O `00-LEIA-ME.txt` traz o roteiro do
+  formulário. O Toto submete em https://submit.elsevier.com/IPM; nunca submeter por ele.
+
+**Próximo:** o S4, código anonimizado para os revisores. O Toto pediu em 27/11, a sessão encheu antes de
+montar. O escopo já decidido, com caminhos e tamanhos medidos, está em
+`paper/publication/ipm/SUBMISSION-CHECKLIST.md` → Left, item 1. Depois do S4, o Toto submete.
+
 ## ▶ Quinta 26/11, 20h30 BRT — corpus sintético encerrado (v1.0 e v1.1); fila nova com as decisões do Toto
 
 **Feito de 21 a 26/11:**
