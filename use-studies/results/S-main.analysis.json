@@ -1,0 +1,82 @@
+{
+ "gates": {
+  "SD": {
+   "runs": 180,
+   "model_ok": true,
+   "connection_fail_rate": 0.0,
+   "instrument_agree": true,
+   "builtin_calls": 53
+  }
+ },
+ "rates": {
+  "S0": {
+   "K pass": [
+    0.065,
+    108
+   ],
+   "K searched": [
+    0.046,
+    108
+   ],
+   "G false trigger": [
+    0.0,
+    60
+   ]
+  },
+  "T2": {
+   "K pass": [
+    0.528,
+    108
+   ],
+   "K searched": [
+    0.75,
+    108
+   ],
+   "G false trigger": [
+    0.017,
+    60
+   ]
+  },
+  "SD": {
+   "K pass": [
+    0.579,
+    107
+   ],
+   "K searched": [
+    0.852,
+    108
+   ],
+   "G false trigger": [
+    0.133,
+    60
+   ]
+  }
+ },
+ "contrasts": {
+  "SD - T2 (K pass)": {
+   "delta": 0.056,
+   "lo": -0.046,
+   "hi": 0.167,
+   "tasks": 36,
+   "up": 8,
+   "down": 4
+  },
+  "SD - S0 (K pass)": {
+   "delta": 0.519,
+   "lo": 0.37,
+   "hi": 0.657,
+   "tasks": 36,
+   "up": 24,
+   "down": 0
+  },
+  "SD - S0 (G false trigger)": {
+   "delta": 0.133,
+   "lo": 0,
+   "hi": 0.283,
+   "tasks": 20,
+   "up": 3,
+   "down": 0
+  }
+ },
+ "decision": "derived scope works as well as the hand-written one (margin 0.10)"
+}

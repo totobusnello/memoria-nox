@@ -1,0 +1,133 @@
+{
+ "gates": {
+  "W0": {
+   "runs": 60,
+   "model_ok": true,
+   "connection_fail_rate": 0.0,
+   "instrument_agree": true,
+   "builtin_calls": 4
+  },
+  "WH": {
+   "runs": 60,
+   "model_ok": true,
+   "connection_fail_rate": 0.0,
+   "instrument_agree": true,
+   "builtin_calls": 4
+  },
+  "WN": {
+   "runs": 60,
+   "model_ok": true,
+   "connection_fail_rate": 0.0,
+   "instrument_agree": true,
+   "builtin_calls": 5
+  },
+  "WP": {
+   "runs": 60,
+   "model_ok": true,
+   "connection_fail_rate": 0.0,
+   "instrument_agree": true,
+   "builtin_calls": 6
+  }
+ },
+ "rates": {
+  "W0": {
+   "W+ content": [
+    0.033,
+    30
+   ],
+   "W+ wrote": [
+    0.033,
+    30
+   ],
+   "W- wrote": [
+    0.0,
+    30
+   ]
+  },
+  "WH": {
+   "W+ content": [
+    1.0,
+    30
+   ],
+   "W+ wrote": [
+    1.0,
+    30
+   ],
+   "W- wrote": [
+    0.0,
+    30
+   ]
+  },
+  "WN": {
+   "W+ content": [
+    0.067,
+    30
+   ],
+   "W+ wrote": [
+    0.067,
+    30
+   ],
+   "W- wrote": [
+    0.0,
+    30
+   ]
+  },
+  "WP": {
+   "W+ content": [
+    1.0,
+    30
+   ],
+   "W+ wrote": [
+    1.0,
+    30
+   ],
+   "W- wrote": [
+    0.0,
+    30
+   ]
+  }
+ },
+ "contrasts": {
+  "WH": {
+   "W+ content vs W0": {
+    "delta": 0.967,
+    "lo": 0.9,
+    "hi": 1,
+    "tasks": 10,
+    "up": 10,
+    "down": 0
+   },
+   "W- wrote vs W0": {
+    "delta": 0,
+    "lo": 0,
+    "hi": 0,
+    "tasks": 10,
+    "up": 0,
+    "down": 0
+   }
+  },
+  "WN": {
+   "W+ content vs W0": {
+    "delta": 0.033,
+    "lo": 0,
+    "hi": 0.1,
+    "tasks": 10,
+    "up": 1,
+    "down": 0
+   },
+   "W- wrote vs W0": {
+    "delta": 0,
+    "lo": 0,
+    "hi": 0,
+    "tasks": 10,
+    "up": 0,
+    "down": 0
+   }
+  }
+ },
+ "decision": {
+  "WH": "works",
+  "WN": "no detectable effect over W0"
+ },
+ "ceiling_ok": true
+}
