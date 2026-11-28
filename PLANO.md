@@ -160,6 +160,8 @@ existe (`~/nox-skill-eval`, fora do repo, com corpus e juiz calibrado, kappa 0,8
   e depois o Toto submete.
   **27/11, 21h:** S4 montado (`ipm/build_s4_code.py`, zip de 4,85 MB; testes do engine iguais ao original,
   verificador 135/135). Falta só o Toto submeter.
+  **28/11, 00h07:** SUBMETIDO pelo Toto (Full Length Article, S1–S4 como suplementares; title page com o
+  e-mail do correspondente, #773). Próximo: aguardar a revista.
   **27/11:** rascunho anônimo em `paper/publication/ipm/manuscript.md` (8.335 palavras, resumo de 249),
   gate de proveniência (212 números, todos na v1.0.6, teste negativo feito), related work 2025–2026
   conferido na API do arXiv. **27/11 tarde:** Toto leu e manteve o nome; related work relido no texto

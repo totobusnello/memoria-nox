@@ -65,10 +65,13 @@ Plan: `../ipm-submission-plan.md`. The owner submits; no script here submits any
       vendor names, and a comment in `kg-llm.ts` described the author's work. Both now go through
       file-scoped rules, the names are in the gate, and the engine's tests still pass (638/0).
 
+- [x] Title page carries the corresponding author's e-mail, which the submission form requires (#773).
+- [x] **Submitted by the owner, 2026-11-28 00:07 BRT**, through submit.editorialmanager.com/IPM: Full Length
+      Article; manuscript, title page, highlights and cover letter as required files; S1, S2, S3 and S4 as
+      supplementary material; no funders; research data "No", with the Other text pointing to S4 (the
+      Zenodo link would identify the author during double-anonymized review; the DOI goes in on acceptance).
+
 ## Left
 
 1. Not fixable by text, declared in the manuscript: a paired run that changes only the embedder, and
    intervals that account for the ten LoCoMo conversations.
-2. **Owner submits** through Elsevier's system: `latex/manuscript.pdf` (or `manuscript.tex` with
-   `figures/figure1.pdf`), `latex/highlights.txt`, `latex/title-page.pdf`, `cover-letter.md` as text,
-   `supplement/S1-S3` and `supplement/S4-code-and-evidence.zip`, and the declarations the form asks for.
