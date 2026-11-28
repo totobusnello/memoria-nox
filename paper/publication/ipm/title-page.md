@@ -4,7 +4,7 @@
 
 **Author.** Luiz Antonio Busnello, Independent Researcher. ORCID [0009-0007-5911-8141](https://orcid.org/0009-0007-5911-8141).
 
-**Corresponding author.** Luiz Antonio Busnello, the e-mail address printed on the deposited technical report (v1.0.6).
+**Corresponding author.** Luiz Antonio Busnello, lab@generantis.com.br.
 
 **Prior version.** This article condenses the technical report *nox-mem*, deposited on Zenodo under CC BY 4.0
 (all versions: doi:10.5281/zenodo.22649268; v1.0.6: doi:10.5281/zenodo.23147633). Per the journal's
