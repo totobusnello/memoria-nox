@@ -1,15 +1,45 @@
-## ▶ Sábado 28/11, 00h07 BRT — Paper 1 SUBMETIDO ao IP&M
+## ▶ Sábado 28/11, 00h25 BRT — Paper 1 SUBMETIDO ao IP&M (IPM-D-26-10125); nox-mem 3.11.2 no npm; fim da sessão
 
-- Manuscript number **IPM-D-26-10125** (e-mail da revista, 28/11 00h08). O Toto submeteu pelo portal novo do IP&M (submit.editorialmanager.com/IPM) às 00h07 de 28/11. Tipo:
-  Full Length Article. O preenchimento foi feito junto com ele, um ok por passo; as declarações finais e o
-  clique de envio foram dele.
-- Antes, no mesmo dia: o registro do Toto no periódico (afiliação Independent Researcher), e a title page
-  passou a trazer o e-mail do autor correspondente, como o formulário exige (#773).
-- Arquivos enviados: manuscrito anônimo, title page, highlights e cover letter; S1, S2, S3 e S4 como
-  supplementary material. Disponibilidade dos dados: "No" com texto Other apontando para o S4, porque o link
-  do Zenodo identificaria o autor; o DOI entra no aceite.
-- **Próximo:** o Toto entra na conta do periódico pelo e-mail de confirmação (criar a senha, se pedir) para
-  acompanhar. Nada a fazer até a resposta da revista.
+**Feito de 27/11 21h a 28/11 00h25:**
+- **Paper 1 submetido ao IP&M** pelo Toto às 00h07 de 28/11, manuscript number **IPM-D-26-10125** (dois e-mails
+  automáticos da revista às 00h08 na conta da Generantis: número e confirmação). Portal novo
+  (submit.editorialmanager.com/IPM), Full Length Article. Preenchido junto com ele, um ok por passo; as cinco
+  declarações finais e o clique de envio foram dele.
+  - Registro do Toto no periódico, feito antes (afiliação Independent Researcher, São Paulo; marketing recusado).
+  - Arquivos: manuscrito anônimo, title page, highlights, cover letter; S1, S2, S3 e S4 como supplementary
+    material. Metadados conferidos caractere a caractere contra o `manuscript.md` (título 111, resumo 1.610,
+    6 keywords). Autor único e correspondente, 8 papéis CRediT da title page. Sem financiadores.
+  - **Dados: "No" + texto Other** que aponta para o S4 (163 caracteres, sai publicado verbatim): o link do Zenodo
+    identificaria o autor na revisão duplo-cega. O DOI do dataset entra no aceite.
+  - Title page passou a trazer o e-mail do correspondente, que o formulário exige (#773). Registro: #774 e
+    commit `7ee870f` (número do manuscrito).
+- **S4** (código anonimizado para os revisores): `build_s4_code.py` → zip de 406 arquivos, 4,85 MB, determinístico
+  (#771); passe avoid-ai-writing no texto do S4 e varredura ampliada de identificadores, que achou strings de
+  negócio reais numa fixture e num comentário do engine (#772).
+- **nox-mem 3.11.2 = `latest` no npm** (27/11 23h05): nox-mem#72 tirou essas strings do repo público
+  (`brief.test.ts` com nomes neutros, comentário do `kg-llm.ts` genérico); release #73 (`e9ce40d`), tag
+  `v3.11.2`, tarball `553d571c` (114 arquivos, a mesma lista da 3.11.1). O 1º stage deu E401 (6ª queda do
+  token); depois do `npm login` do Toto, stage `c647aadb` aprovado por ele. Smoke do registro num HOME limpo:
+  `--version` 3.11.2, `doctor` exit 0, zero strings no pacote.
+
+**Decisões do Toto:**
+- Link de dados no formulário: «vai na A» (No + texto apontando para o S4).
+- **labf.bio e LinkedIn só depois da decisão da revista** (28/11 00h23). No aceite: DOI da Elsevier no card
+  `nox-mem` de `site-labf/src/data/papers.json`, link do Zenodo de volta, preview da Vercel antes do merge.
+
+**Lições (também na memória do Paper 1):** o portal da Elsevier exige registro no periódico antes da primeira
+submissão; a title page precisa do e-mail do correspondente; texto longo digitado pela automação do navegador
+perdeu caracteres («10.84%» virou «0.84%»), então campo longo vai pelo setter nativo e é conferido contra a fonte.
+
+**Pendente do Toto:** entrar no Editorial Manager pelo e-mail de confirmação (criar a senha, se pedir) para
+acompanhar o IPM-D-26-10125. `~/Desktop/IPM-submissao/` pode ser apagada: tudo nela se reconstrói do repo.
+
+**Fila (a de 26/11, com o item 2 fechado):**
+1. **Com data:** contagem do shadow do C2 no domingo 29/11; leitura só a partir de 01/12, com as duas metas;
+   H-A2 de 18 a 23/05/2027.
+2. ~~Paper 1 num venue~~ **submetido**; aguardar a revista. Nada a fazer até a resposta.
+3. **Estudos a evoluir** (ROADMAP B2, B3, B4 e pesquisa 3), escopo no PLANO.
+4. **GTM Phase 2** (PLANO pendência 5 = ROADMAP B8): pricing e lançamento, no `nox-supermem`.
 
 ## ▶ Sexta 27/11, 21h BRT — S4 montado; o Paper 1 está pronto para o Toto submeter ao IP&M
 
