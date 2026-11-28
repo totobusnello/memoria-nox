@@ -1,6 +1,6 @@
 ## ▶ Sábado 28/11, 00h07 BRT — Paper 1 SUBMETIDO ao IP&M
 
-- O Toto submeteu pelo portal novo do IP&M (submit.editorialmanager.com/IPM) às 00h07 de 28/11. Tipo:
+- Manuscript number **IPM-D-26-10125** (e-mail da revista, 28/11 00h08). O Toto submeteu pelo portal novo do IP&M (submit.editorialmanager.com/IPM) às 00h07 de 28/11. Tipo:
   Full Length Article. O preenchimento foi feito junto com ele, um ok por passo; as declarações finais e o
   clique de envio foram dele.
 - Antes, no mesmo dia: o registro do Toto no periódico (afiliação Independent Researcher), e a title page

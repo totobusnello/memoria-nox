@@ -66,7 +66,7 @@ Plan: `../ipm-submission-plan.md`. The owner submits; no script here submits any
       file-scoped rules, the names are in the gate, and the engine's tests still pass (638/0).
 
 - [x] Title page carries the corresponding author's e-mail, which the submission form requires (#773).
-- [x] **Submitted by the owner, 2026-11-28 00:07 BRT**, through submit.editorialmanager.com/IPM: Full Length
+- [x] **Submitted by the owner, 2026-11-28 00:07 BRT, manuscript number IPM-D-26-10125**, through submit.editorialmanager.com/IPM: Full Length
       Article; manuscript, title page, highlights and cover letter as required files; S1, S2, S3 and S4 as
       supplementary material; no funders; research data "No", with the Other text pointing to S4 (the
       Zenodo link would identify the author during double-anonymized review; the DOI goes in on acceptance).
