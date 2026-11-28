@@ -74,9 +74,25 @@ RULES = [
     (re.compile(r"\b(" + "|".join(AGENTS) + r")\b(?!-)"), lambda m: AGENTS[m.group(1)]),
 ]
 
+# Strings copied from the author's production memory into fixtures and comments: business names
+# (counterparties, a fund, vendors) and a line that describes the author's profile. Replaced by
+# neutral stand-ins in the one file each lives in, so the tests keep their shape.
+FILE_RULES = {
+    "nox-mem/src/__tests__/brief.test.ts": [
+        (re.compile(r"\bMalvas\b"), "Alfa"), (re.compile(r"\bTreviso\b"), "Beta"),
+        (re.compile(r"\bGLPG\b"), "Gama"), (re.compile(r"\bAspen\b"), "Delta"),
+        (re.compile(r"\bSylinc\b"), "Epsilon"),
+    ],
+    "nox-mem/src/kg-llm.ts": [
+        (re.compile(r"Patterns calibrados para o contexto do Operator \(M&A, FII, contratos PT-BR\)\."),
+         "Patterns calibrados para documentos de negócio em PT-BR."),
+    ],
+}
+
 FORBIDDEN = re.compile(
     r"Busnello|\bToto\b|Totó|\bLuiz\b|ORCID|0009-0007|generantis|nuvini|nuvivi|labf|totobusnello"
     r"|zenodo|10\.5281|memoria-nox|/Users/lab\b|srv\d{4,}"
+    r"|Malvas|\bGLPG\b|Sylinc|Treviso|Lombardia|Granix|Gal[aá]pagos|Viridi|ppr\.live|kvm8"
     r"|[\w.+-]+@[\w-]+\.(com|br|org|ai|io|net)\b", re.I)
 AGENT_NAMES = re.compile(r"\b(" + "|".join(AGENTS) + r")\b(?!-)")
 IPV4 = re.compile(r"(?<![\w.])(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})(?![\w.])")
@@ -123,7 +139,7 @@ def anonymize(name, data):
         for k in ("homepage", "repository", "bugs"):
             pkg.pop(k, None)
         text = json.dumps(pkg, indent=2, ensure_ascii=False) + "\n"
-    for pat, rep in RULES:
+    for pat, rep in RULES + FILE_RULES.get(name, []):
         text = pat.sub(rep, text)
     return text.encode("utf-8")
 
@@ -153,12 +169,14 @@ def regenerate_sums(files):
 
 README = """# Supplementary material S4: code and evidence (anonymized)
 
-Prepared for double-anonymized review. The author's name, handle and e-mail address, DOIs,
-repository and container-image links, the repository's name (now `research-repo`), the user name
-in a macOS path, the operator's nickname (now "Operator") and the agents' names (now "Agent A" to "Agent F", the same map as in S1 to S3) are
-replaced; no other line is changed. Paths under `/root/.openclaw/` are the agent platform's
-defaults, identify no one, and are kept because tests derive values from them. The public
-locations are on the title page.
+This copy is for double-anonymized review; the public locations are on the title page. The build
+replaced the author's name, handle and e-mail address, the DOIs, the repository and container-image
+links, the repository's name (now `research-repo`), the user name in a macOS path, the operator's
+nickname (now "Operator"), the agents' names (now "Agent A" to "Agent F", as in S1 to S3), the
+business names in one test fixture (now "Alfa" to "Epsilon") and one code comment that described
+the author's work. It also dropped the author, homepage, repository and bugs fields from
+`nox-mem/package.json`. Every other line is as in the source. Paths under `/root/.openclaw/` are the agent platform's defaults;
+they identify no one, and the tests derive values from them, so they stay.
 
 | directory | what it is | backs in the article |
 |---|---|---|

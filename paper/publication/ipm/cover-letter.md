@@ -32,7 +32,7 @@ Three points the editor should know before review:
 The manuscript has not been submitted elsewhere and is not under consideration by another journal. The
 author has no competing financial interest with the developers of the compared systems. Code, the
 per-query outputs and the verifier of the comparison are publicly available, as stated in the data
-availability section; the anonymized supplementary files S1 to S4 accompany the submission (S4 holds the code, the harness and the evidence with its verifier).
+availability section; the anonymized supplementary files S1 to S4 accompany the submission (S4 holds the code, the two evaluation harnesses and the evidence with its verifier).
 
 Sincerely,
 
