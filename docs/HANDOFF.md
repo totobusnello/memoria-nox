@@ -1,3 +1,16 @@
+## ▶ Sábado 28/11, 00h07 BRT — Paper 1 SUBMETIDO ao IP&M
+
+- O Toto submeteu pelo portal novo do IP&M (submit.editorialmanager.com/IPM) às 00h07 de 28/11. Tipo:
+  Full Length Article. O preenchimento foi feito junto com ele, um ok por passo; as declarações finais e o
+  clique de envio foram dele.
+- Antes, no mesmo dia: o registro do Toto no periódico (afiliação Independent Researcher), e a title page
+  passou a trazer o e-mail do autor correspondente, como o formulário exige (#773).
+- Arquivos enviados: manuscrito anônimo, title page, highlights e cover letter; S1, S2, S3 e S4 como
+  supplementary material. Disponibilidade dos dados: "No" com texto Other apontando para o S4, porque o link
+  do Zenodo identificaria o autor; o DOI entra no aceite.
+- **Próximo:** o Toto entra na conta do periódico pelo e-mail de confirmação (criar a senha, se pedir) para
+  acompanhar. Nada a fazer até a resposta da revista.
+
 ## ▶ Sexta 27/11, 21h BRT — S4 montado; o Paper 1 está pronto para o Toto submeter ao IP&M
 
 - O S4 é o código anonimizado em zip (`paper/publication/ipm/supplement/S4-code-and-evidence.zip`, construído por
