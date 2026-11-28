@@ -57,6 +57,13 @@ Plan: `../ipm-submission-plan.md`. The owner submits; no script here submits any
       anonymized evidence; no EverMemBench result file changes. Negative tests: a planted e-mail,
       handle and address fail the build and nothing is written; a different evidence zip is refused; a
       stale zip fails `--check`. Data availability and "Supplementary material" name S4; PDF rebuilt.
+- [x] S4 text through avoid-ai-writing (owner, 27/11 20h45). Three sentences did not match the zip and
+      were fixed: the README said "no other line is changed" while `package.json` loses four fields; the
+      S4 list item omitted the EverMemBench harness; the data statement and the cover letter said "the
+      harness" for two. Widened scan (project names, companies, fund names, e-mail domains, phones,
+      Portuguese personal names): a test fixture in `brief.test.ts` carried a real contract line and
+      vendor names, and a comment in `kg-llm.ts` described the author's work. Both now go through
+      file-scoped rules, the names are in the gate, and the engine's tests still pass (638/0).
 
 ## Left
 
